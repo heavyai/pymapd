@@ -1,2 +1,17 @@
+from pymapd.cursor import make_row_results_set
+
+
 class TestRowResults(object):
-    pass
+
+    def test_basic(self, rowwise, colwise):
+        result = list(make_row_results_set(rowwise))
+        expected = [
+            ('2006-01-05', 'BUY', 'RHAT', 100, 35.13999938964844,
+             1.100000023841858),
+            ('2006-01-05', 'BUY', 'GOOG', 100, 12.140000343322754,
+             1.2000000476837158)
+        ]
+        assert result == expected
+
+        result = list(make_row_results_set(colwise))
+        assert result == expected
