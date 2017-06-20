@@ -1,0 +1,2 @@
+class TestRowResults(object):
+    pass
