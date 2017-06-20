@@ -14,7 +14,7 @@ from .connection import (  # noqa
     connect, Connection
 )
 
-from .exceptions import (
+from .exceptions import (  # noqa
     Warning,
     Error,
     InterfaceError,
@@ -25,4 +25,20 @@ from .exceptions import (
     InternalError,
     ProgrammingError,
     NotSupportedError,
+)
+
+
+from .dtypes import (  # noqa
+    Binary,
+    Date,
+    Time,
+    Timestamp,
+    BINARY,
+    STRING,
+    NUMBER,
+    DATETIME,
+    ROWID,
+    DateFromTicks,
+    TimeFromTicks,
+    TimestampFromTicks,
 )
