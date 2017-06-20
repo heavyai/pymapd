@@ -9,6 +9,7 @@ except ImportError:
 class Warning(Exception):
     """Emitted for important warnings, e.g. data truncatiions"""
 
+
 class Error(Exception):
     """Base class for all pymapd errors."""
 
