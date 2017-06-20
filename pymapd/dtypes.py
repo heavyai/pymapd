@@ -1,13 +1,10 @@
 """
 https://www.python.org/dev/peps/pep-0249/#type-objects
 """
-# XXX: packaging
 import datetime
 import six
-import sys
 import time
-sys.path.insert(0, "../mapd-core/gen-py")
-from mapd import MapD  # noqa
+from mapd import MapD
 
 if six.PY2:
     memoryview = buffer  # noqa
