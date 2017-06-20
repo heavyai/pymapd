@@ -1,13 +1,8 @@
-import sys
-
 from thrift.transport import TSocket, THttpClient
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 
-# XXX: distribute with package, or place in site-packages at install
-sys.path.insert(0, "../mapd-core/gen-py")
-import mapd            # noqa
-from mapd import MapD  # noqa
+from mapd import MapD
 
 
 def connect(user=None, password=None, host=None, port=None,
@@ -146,7 +141,11 @@ class Cursor(object):
             nonce=None, first_n=-1)
         self._result_set = result
         if self.columnar:
-            self.rowcount = len(result.row_set.columns[0].nulls)
+            try:
+                self.rowcount = len(result.row_set.columns[0].nulls)
+            except IndexError:
+                # statements like create table that have no result
+                pass
         else:
             self.rowcount = len(result.row_set.rows)
         return self

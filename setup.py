@@ -35,7 +35,7 @@ setup(
 
     # keywords='sample setuptools development',
 
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    packages=['pymapd', 'mapd'],
     # install_requires=['peppercorn'],
     extras_require={
         'docs': ['sphinx'],

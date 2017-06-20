@@ -34,7 +34,7 @@ class DataType(object):
 Binary = memoryview
 Date = datetime.date
 Time = datetime.time
-Timestamp = datetime.datetimte
+Timestamp = datetime.datetime
 
 BINARY = DataType([])
 STRING = DataType([T.STR])
