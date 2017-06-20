@@ -97,16 +97,26 @@ class Connection(object):
 
 class Cursor(object):
 
-    def __init__(self, connection):
+    def __init__(self, connection, columnar=True):
         # TODO: single cursors per connection
         self.connection = connection
+        self.columnar = columnar
         self.rowcount = -1
         self._description = None
         self._arraysize = 1
+        self._result_set = None
+
+    def __iter__(self):
+        # TODO
+        return iter(self.fetchall())
 
     @property
     def description(self):
         return self._description
+
+    @property
+    def result_set(self):
+        return self._result_set
 
     @property
     def arraysize(self):
@@ -124,9 +134,14 @@ class Cursor(object):
 
     def execute(self, operation, parameters=None):
         # column_format = is_columnar
-        self.connection._client.sql_execute(
-            self.connection._session, operation, column_format=True,
+        if parameters is not None:
+            raise NotImplementedError
+        self.rowcount = -1
+        result = self.connection._client.sql_execute(
+            self.connection._session, operation, column_format=self.columnar,
             nonce=None, first_n=-1)
+        self._result_set = result
+        return self
 
     def executemany(self, operation, parameters=None):
         pass
