@@ -97,6 +97,10 @@ class Connection(object):
 
 class Cursor(object):
 
+    # self._result_set contains the output of execute. This a
+    # TQueryResult. This has
+    # thrift_spec :: Tuple[None, Sessionn
+
     def __init__(self, connection, columnar=True):
         # TODO: single cursors per connection
         self.connection = connection
@@ -141,6 +145,10 @@ class Cursor(object):
             self.connection._session, operation, column_format=self.columnar,
             nonce=None, first_n=-1)
         self._result_set = result
+        if self.columnar:
+            self.rowcount = len(result.row_set.columns[0].nulls)
+        else:
+            self.rowcount = len(result.row_set.rows)
         return self
 
     def executemany(self, operation, parameters=None):
@@ -160,3 +168,12 @@ class Cursor(object):
 
     def setoutputsizes(self, size, column=None):
         pass
+
+
+def _extract_description(row_desc):
+    """
+    Return a tuple of (name, type_code, display_size, internal_size,
+                       precision, scale, null_ok)
+
+    https://www.python.org/dev/peps/pep-0249/#description
+    """
