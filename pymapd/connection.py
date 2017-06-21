@@ -80,7 +80,7 @@ class Connection(object):
     def close(self):
         try:
             self._client.disconnect(self._session)
-        except MapD.TMapDException:
+        except (MapD.TMapDException, AttributeError):
             pass
 
     def commit(self):
