@@ -25,3 +25,14 @@ def colwise():
 @pytest.fixture
 def rowwise():
     return _load_thrift_object(os.path.join(HERE, "data", "rowwise.py"))
+
+
+@pytest.fixture
+def invalid_sql():
+    return _load_thrift_object(os.path.join(HERE, "data", "invalid_sql.py"))
+
+
+@pytest.fixture
+def nonexistant_table():
+    return _load_thrift_object(os.path.join(HERE, "data",
+                                            "nonexistant_table.py"))
