@@ -1,12 +1,19 @@
-from setuptools import setup, find_packages
-from codecs import open
+import sys
 from os import path
+from codecs import open
+
+from setuptools import setup
 
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
+
+install_requires = ['six', 'thrift']
+
+if sys.version_info[0] == 2:
+    install_requires.append("typing")
 
 setup(
     name='pymapd',
@@ -36,7 +43,7 @@ setup(
     # keywords='sample setuptools development',
 
     packages=['pymapd', 'mapd'],
-    install_requires=['six', 'thrift'],
+    install_requires=install_requires,
     extras_require={
         'docs': ['sphinx', 'numpydoc'],
         'test': ['coverage', 'pytest'],
