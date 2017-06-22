@@ -1,1 +1,0 @@
-TMapDException(error_msg="Exception: ERROR-- Exception occurred: Table 'NOT_A_TABLE' does not exist for DB 'mapd'")

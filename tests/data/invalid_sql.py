@@ -1,1 +1,0 @@
-TMapDException(error_msg="Exception: ERROR-- Validate failed: From line 1, column 8 to line 1, column 11: Column 'it' not found in any table")

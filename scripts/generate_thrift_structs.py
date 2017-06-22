@@ -12,6 +12,7 @@ thrift. The return values are serialized to python files, which are then
 read in and executed by the test suite.
 """
 import os
+import pickle
 from thrift.protocol import TBinaryProtocol
 from thrift.transport import TSocket
 from thrift.transport import TTransport
@@ -30,6 +31,11 @@ def get_client(host_or_uri, port):
     client = MapD.Client(protocol)
     transport.open()
     return client
+
+
+def write(obj, name):
+    with open(os.path.join(DEST, name), 'wb') as f:
+        pickle.dump(obj, f, protocol=2)
 
 
 def main():
@@ -57,34 +63,27 @@ def main():
     colwise = client.sql_execute(session, select, True, None, -1)
     rowwise = client.sql_execute(session, select, False, None, -1)
 
-    with open(os.path.join(DEST, "rowwise.py"), 'w') as f:
-        f.write(str(rowwise))
-
-    with open(os.path.join(DEST, "colwise.py"), 'w') as f:
-        f.write(str(colwise))
-
+    write(rowwise, "rowwise.pkl")
+    write(colwise, "colwise.pkl")
     # Invalid SQL
     try:
         client.sql_execute(session, "select it;", True, None, -1)
     except TMapDException as e:
-        with open(os.path.join(DEST, "invalid_sql.py"), 'w') as f:
-            f.write(str(e))
+        write(e, "invalid_sql.pkl")
 
     # Valid SQL, non-existant table
     try:
         client.sql_execute(session, "select fake from not_a_table;", True,
                            None, -1)
     except TMapDException as e:
-        with open(os.path.join(DEST, "nonexistant_table.py"), 'w') as f:
-            f.write(str(e))
+        write(e, "nonexistant_table.pkl")
 
     # valid table, non-existant column
     try:
         client.sql_execute(session, "select fake from stocks;", True,
                            None, -1)
     except TMapDException as e:
-        with open(os.path.join(DEST, "nonexistant_column.py"), 'w') as f:
-            f.write(str(e))
+        write(e, "nonexistant_column.pkl")
 
     client.disconnect(session)
 
