@@ -1,3 +1,11 @@
+"""
+Define exceptions as specified by the DB API 2.0 spec.
+
+Includes some helper methods for translating thrift
+exceptions to the ones defined here.
+"""
+from mapd.ttypes import TMapDException
+
 
 try:
     # python 2
@@ -48,3 +56,23 @@ class ProgrammingError(DatabaseError):
 
 class NotSupportedError(DatabaseError):
     """Raised when an API not supported by the database is used."""
+
+
+def _translate_exception(e):
+    """Translate a thrift-land exception to a DB-API 2.0
+    exception.
+    """
+    # TODO: see if there's a way to get error codes, rather than relying msgs
+    if not isinstance(e, TMapDException):
+        return e
+    if 'ERROR-- Validate failed' in e.error_msg:
+        err = ProgrammingError
+        _, msg = e.error_msg.split("-- ", 1)
+
+    elif 'ERROR-- Exception occurred' in e.error_msg:
+        err = DatabaseError
+        _, msg = e.error_msg.split("-- ", 1)
+    else:
+        err = Error
+        msg = e.error_msg
+    return err(msg)

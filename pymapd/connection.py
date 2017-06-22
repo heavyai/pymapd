@@ -1,16 +1,18 @@
 from typing import List, Tuple, Any, Union  # noqa
 
-from thrift.transport import TSocket, THttpClient
-from thrift.transport import TTransport
+import six
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
-
+from thrift.transport import TSocket, THttpClient, TTransport
+from thrift.transport.TSocket import TTransportException
 from mapd import MapD
+from mapd.ttypes import TMapDException
 
 from .cursor import Cursor
+from .exceptions import _translate_exception, OperationalError
 
 
-def connect(user=None, password=None, host=None, port=None,
-            dbname=None, protocol='http'):
+def connect(user=None, password=None, host=None, port=9091,
+            dbname=None, protocol='binary'):
     """
     Crate a new Connection.
 
@@ -21,7 +23,7 @@ def connect(user=None, password=None, host=None, port=None,
     host : str
     port : int
     dbname : str
-    protocol : {'http', 'binary'}
+    protocol : {'binary', 'http'}
 
     Returns
     -------
@@ -41,12 +43,14 @@ class Connection(object):
     """
 
     def __init__(self, user=None, password=None, host=None, port=9091,
-                 dbname=None, protocol="http"):
+                 dbname=None, protocol="binary"):
+        if host is None:
+            raise TypeError("`host` parameter is required.")
         if protocol == "http":
             if not host.startswith(protocol):
                 # the THttpClient expects http[s]://localhost
                 host = protocol + '://' + host
-            transport = THttpClient.THttpClient(host)
+            transport = THttpClient.THttpClient("{}:{}".format(host, port))
             proto = TJSONProtocol.TJSONProtocol(transport)
             socket = None
         elif protocol == "binary":
@@ -64,9 +68,19 @@ class Connection(object):
         self._transport = transport
         self._protocol = protocol
         self._socket = socket
-        self._transport.open()
+        try:
+            self._transport.open()
+        except TTransportException as e:
+            if e.NOT_OPEN:
+                err = OperationalError("Could not connect to database")
+                six.raise_from(err, e)
+            else:
+                raise
         self._client = MapD.Client(proto)
-        self._session = self._client.connect(user, password, dbname)
+        try:
+            self._session = self._client.connect(user, password, dbname)
+        except TMapDException as e:
+            six.raise_from(_translate_exception(e), e)
 
     def __repr__(self):
         tpl = ('Connection(mapd://{user}:***@{host}:{port}/{dbname}?protocol'

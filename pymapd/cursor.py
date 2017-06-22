@@ -1,5 +1,9 @@
 from collections import namedtuple
+
+import six
 import mapd.ttypes as T  # noqa
+
+from .exceptions import _translate_exception
 
 
 Description = namedtuple("Description", ["name", "type_code", "display_size",
@@ -45,13 +49,16 @@ class Cursor(object):
         pass
 
     def execute(self, operation, parameters=None):
-        # column_format = is_columnar
         if parameters is not None:
             raise NotImplementedError
         self.rowcount = -1
-        result = self.connection._client.sql_execute(
-            self.connection._session, operation, column_format=self.columnar,
-            nonce=None, first_n=-1)
+        try:
+            result = self.connection._client.sql_execute(
+                self.connection._session, operation,
+                column_format=self.columnar,
+                nonce=None, first_n=-1)
+        except T.TMapDException as e:
+            six.raise_from(_translate_exception(e), e)
         self._description = _extract_description(result.row_set.row_desc)
         if self.columnar:
             try:
