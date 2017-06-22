@@ -33,6 +33,11 @@ def get_client(host_or_uri, port):
     return client
 
 
+def write(obj, name):
+    with open(os.path.join(DEST, name), 'wb') as f:
+        pickle.dump(obj, f, protocol=2)
+
+
 def main():
 
     db_name = 'mapd'
@@ -58,34 +63,27 @@ def main():
     colwise = client.sql_execute(session, select, True, None, -1)
     rowwise = client.sql_execute(session, select, False, None, -1)
 
-    with open(os.path.join(DEST, "rowwise.pkl"), 'wb') as f:
-        pickle.dump(rowwise, f)
-
-    with open(os.path.join(DEST, "colwise.pkl"), 'wb') as f:
-        pickle.dump(colwise, f)
-
+    write(rowwise, "rowwise.pkl")
+    write(colwise, "colwise.pkl")
     # Invalid SQL
     try:
         client.sql_execute(session, "select it;", True, None, -1)
     except TMapDException as e:
-        with open(os.path.join(DEST, "invalid_sql.pkl"), 'wb') as f:
-            pickle.dump(e, f)
+        write(e, "invalid_sql.pkl")
 
     # Valid SQL, non-existant table
     try:
         client.sql_execute(session, "select fake from not_a_table;", True,
                            None, -1)
     except TMapDException as e:
-        with open(os.path.join(DEST, "nonexistant_table.pkl"), 'wb') as f:
-            pickle.dump(e, f)
+        write(e, "nonexistant_table.pkl")
 
     # valid table, non-existant column
     try:
         client.sql_execute(session, "select fake from stocks;", True,
                            None, -1)
     except TMapDException as e:
-        with open(os.path.join(DEST, "nonexistant_column.pkl"), 'wb') as f:
-            pickle.dump(e, f)
+        write(e, "nonexistant_column.pkl")
 
     client.disconnect(session)
 
