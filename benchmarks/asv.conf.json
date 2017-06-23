@@ -1,0 +1,19 @@
+{
+    "version": 1,
+    "project": "pymapd",
+    "project_url": "https://github.com/mapd/pymapd",
+    "repo": "..",
+    "branches": ["master"],
+    "dvcs": "git",
+    "environment_type": "conda",
+    "pythons": ["3.6"],
+    "matrix": {
+        "thrift": [],
+	"six": []
+    },
+    "benchmark_dir": "benchmarks",
+    "env_dir": ".asv/env",
+    "results_dir": ".asv/results",
+    "html_dir": ".asv/html",
+    "hash_length": 8
+}
