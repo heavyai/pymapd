@@ -45,7 +45,7 @@ setup(
     packages=['pymapd', 'mapd'],
     install_requires=install_requires,
     extras_require={
-        'docs': ['sphinx', 'numpydoc'],
+        'docs': ['sphinx', 'numpydoc', 'sphinx-rtd-theme'],
         'test': ['coverage', 'pytest'],
     },
 )

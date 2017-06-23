@@ -10,6 +10,8 @@ from .connection import (  # noqa
     connect, Connection
 )
 
+from .cursor import Cursor # noqa
+
 from .exceptions import (  # noqa
     Warning,
     Error,

@@ -1,3 +1,6 @@
+"""
+Connect to a MapD database.
+"""
 from typing import List, Tuple, Any, Union, Optional  # noqa
 
 import six
@@ -34,10 +37,6 @@ def connect(user=None,         # type: Optional[str]
     Returns
     -------
     conn : Connection
-
-    See Also
-    --------
-    Connect
     """
     # TODO: accept a dsn URI like sqlalchemy.Engine
     return Connection(user=user, password=password, host=host, port=port,
@@ -45,8 +44,7 @@ def connect(user=None,         # type: Optional[str]
 
 
 class Connection(object):
-    """Connect to your mapd database.
-    """
+    """Connect to your mapd database."""
 
     def __init__(self,
                  user=None,         # type: Optional[str]
@@ -108,6 +106,7 @@ class Connection(object):
 
     def close(self):
         # type: () -> None
+        """Disconnect from the database"""
         try:
             self._client.disconnect(self._session)
         except (MapD.TMapDException, AttributeError):
@@ -123,4 +122,5 @@ class Connection(object):
 
     def cursor(self):
         # type: () -> Cursor
+        """Create a new :class:`Cursor` object attached to this connection."""
         return Cursor(self)

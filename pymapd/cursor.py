@@ -13,13 +13,7 @@ Description = namedtuple("Description", ["name", "type_code", "display_size",
 
 
 class Cursor(object):
-    """
-    A database cursor.
-
-    See Also
-    --------
-    Connection
-    """
+    """A database cursor."""
 
     def __init__(self, connection, columnar=True):
         # type: (Any, bool) -> None
@@ -76,6 +70,7 @@ class Cursor(object):
     @arraysize.setter
     def arraysize(self, value):
         # type: (int) -> None
+        """Number of items to fetch with :func:`fetchmany`."""
         if not isinstance(value, int):
             raise TypeError("Value must be an integer, got {} instead".format(
                 type(value)))
@@ -83,10 +78,24 @@ class Cursor(object):
 
     def close(self):
         # type: () -> None
+        """Close this cursor."""
         pass
 
     def execute(self, operation, parameters=None):
         # type: (str, tuple) -> Cursor
+        """Execute a SQL statement.
+
+        Parameters
+        ----------
+        operation : str
+            A SQL query
+        parameters : tuple
+            Parameters to substitute into ``operation``.
+
+        Returns
+        -------
+        self : Cursor
+        """
         if parameters is not None:
             raise NotImplementedError
         self.rowcount = -1
@@ -115,6 +124,7 @@ class Cursor(object):
 
     def fetchone(self):
         # type: () -> Optional[Any]
+        """Fetch a single row from the results set"""
         try:
             return next(self.result_set)
         except StopIteration:
@@ -122,6 +132,7 @@ class Cursor(object):
 
     def fetchmany(self, size=None):
         # type: (Optional[int]) -> Iterable[Any]
+        """Fetch ``size`` rows from the results set."""
         if size is None:
             size = self.arraysize
         results = [self.fetchone() for _ in range(size)]
