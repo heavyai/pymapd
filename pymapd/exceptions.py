@@ -59,6 +59,7 @@ class NotSupportedError(DatabaseError):
 
 
 def _translate_exception(e):
+    # type: (Exception) -> Exception
     """Translate a thrift-land exception to a DB-API 2.0
     exception.
     """
