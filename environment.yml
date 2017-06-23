@@ -1,0 +1,8 @@
+name: mapd-dev-docs
+channels:
+- conda-forge
+- defaults
+dependencies:
+- python=3.6.1
+- six=1.10.0=py36_1
+- thrift=0.10.0=py36_0

@@ -1,4 +1,7 @@
-from typing import List, Tuple, Any, Union  # noqa
+"""
+Connect to a MapD database.
+"""
+from typing import List, Tuple, Any, Union, Optional  # noqa
 
 import six
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
@@ -11,8 +14,14 @@ from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
 
 
-def connect(user=None, password=None, host=None, port=9091,
-            dbname=None, protocol='binary'):
+def connect(user=None,         # type: Optional[str]
+            password=None,     # type: Optional[str]
+            host=None,         # type: Optional[str]
+            port=9091,         # type: Optional[int]
+            dbname=None,       # type: Optional[str]
+            protocol='binary'  # type: Optional[str]
+            ):
+    # type: (...) -> Connection
     """
     Crate a new Connection.
 
@@ -28,10 +37,6 @@ def connect(user=None, password=None, host=None, port=9091,
     Returns
     -------
     conn : Connection
-
-    See Also
-    --------
-    Connect
     """
     # TODO: accept a dsn URI like sqlalchemy.Engine
     return Connection(user=user, password=password, host=host, port=port,
@@ -39,11 +44,17 @@ def connect(user=None, password=None, host=None, port=9091,
 
 
 class Connection(object):
-    """Connect to your mapd database.
-    """
+    """Connect to your mapd database."""
 
-    def __init__(self, user=None, password=None, host=None, port=9091,
-                 dbname=None, protocol="binary"):
+    def __init__(self,
+                 user=None,         # type: Optional[str]
+                 password=None,     # type: Optional[str]
+                 host=None,         # type: Optional[str]
+                 port=9091,         # type: Optional[int]
+                 dbname=None,       # type: Optional[str]
+                 protocol='binary'  # type: Optional[str]
+                 ):
+        # type: (...) -> None
         if host is None:
             raise TypeError("`host` parameter is required.")
         if protocol == "http":
@@ -83,21 +94,26 @@ class Connection(object):
             six.raise_from(_translate_exception(e), e)
 
     def __repr__(self):
+        # type: () -> str
         tpl = ('Connection(mapd://{user}:***@{host}:{port}/{dbname}?protocol'
                '={protocol})')
         return tpl.format(user=self._user, host=self._host, port=self._port,
                           dbname=self._dbname, protocol=self._protocol)
 
     def __del__(self):
+        # type: () -> None
         self.close()
 
     def close(self):
+        # type: () -> None
+        """Disconnect from the database"""
         try:
             self._client.disconnect(self._session)
         except (MapD.TMapDException, AttributeError):
             pass
 
     def commit(self):
+        # type: () -> None
         """This is a noop, as mapd does not provide transactions.
 
         Implementing to comply with the specification.
@@ -105,4 +121,6 @@ class Connection(object):
         return None
 
     def cursor(self):
+        # type: () -> Cursor
+        """Create a new :class:`Cursor` object attached to this connection."""
         return Cursor(self)
