@@ -65,14 +65,10 @@ def _translate_exception(e):
     # TODO: see if there's a way to get error codes, rather than relying msgs
     if not isinstance(e, TMapDException):
         return e
-    if 'ERROR-- Validate failed' in e.error_msg:
+    if 'Validate failed' in e.error_msg:
         err = ProgrammingError
-        _, msg = e.error_msg.split("-- ", 1)
-
-    elif 'ERROR-- Exception occurred' in e.error_msg:
+    elif 'Exception occurred' in e.error_msg:
         err = DatabaseError
-        _, msg = e.error_msg.split("-- ", 1)
     else:
         err = Error
-        msg = e.error_msg
-    return err(msg)
+    return err(e.error_msg)
