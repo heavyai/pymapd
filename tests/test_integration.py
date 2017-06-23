@@ -2,20 +2,9 @@
 Tests that rely on a server running
 """
 import pytest
-from thrift.transport import TSocket, TTransport
-from thrift.transport.TSocket import TTransportException
 from mapd.ttypes import TMapDException
 
 from pymapd import connect, ProgrammingError, DatabaseError
-
-socket = TSocket.TSocket("localhost", 9091)
-transport = TTransport.TBufferedTransport(socket)
-
-try:
-    transport.open()
-except TTransportException:
-    pytestmark = pytest.mark.skip("mapd not running on localhost:9091. "
-                                  "Skipping integration tests")
 
 # XXX: Make it hashable to silence warnings; see if this can be done upstream
 # This isn't a huge deal, but our testing context mangers for asserting
@@ -23,23 +12,18 @@ except TTransportException:
 TMapDException.__hash__ = lambda x: id(x)
 
 
-@pytest.fixture(scope='module')
-def con():
-    return connect(user="mapd", password='HyperInteractive', host='localhost',
-                   port=9091, protocol='binary', dbname='mapd')
+@pytest.mark.usefixtures("mapd_server")
+class TestIntegration:
 
-
-@pytest.mark.parametrize('protocol', [
-    pytest.mark.skip(reason="Hangs waiting to hear back")('http'),
-    'binary'])
-def test_conenct(protocol):
-    con = connect(user="mapd", password='HyperInteractive', host='localhost',
-                  port=9091, protocol=protocol, dbname='mapd')
-    assert con is not None
-    assert protocol in repr(con)
-
-
-class TestExceptions:
+    @pytest.mark.parametrize('protocol', [
+        pytest.mark.skip(reason="Hangs waiting to hear back")('http'),
+        'binary'])
+    def test_conenct(self, protocol):
+        con = connect(user="mapd", password='HyperInteractive',
+                      host='localhost', port=9091, protocol=protocol,
+                      dbname='mapd')
+        assert con is not None
+        assert protocol in repr(con)
 
     def test_invalid_sql(self, con):
         with pytest.raises(ProgrammingError) as r:
