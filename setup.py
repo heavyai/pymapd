@@ -17,7 +17,6 @@ if sys.version_info[0] == 2:
 
 setup(
     name='pymapd',
-    version='0.1.0',
     description='A python DB API 2 compatible client for mapd.',
     long_description=long_description,
     # url='https://github.com//',
@@ -43,6 +42,7 @@ setup(
     # keywords='sample setuptools development',
 
     packages=['pymapd', 'mapd'],
+    setup_requires=['setuptools_scm'],
     install_requires=install_requires,
     extras_require={
         'docs': ['sphinx', 'numpydoc', 'sphinx-rtd-theme'],
