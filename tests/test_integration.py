@@ -2,10 +2,12 @@
 Tests that rely on a server running
 """
 import pytest
-from mapd.ttypes import TMapDException
+from mapd.ttypes import TMapDException, TGpuDataFrame
 
 from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
+
+from .utils import no_gpu
 
 # XXX: Make it hashable to silence warnings; see if this can be done upstream
 # This isn't a huge deal, but our testing context mangers for asserting
@@ -40,3 +42,13 @@ class TestIntegration:
         result = con.execute("drop table if exists FOO;")
         result = con.execute("create table FOO (a int);")
         assert isinstance(result, Cursor)
+
+    @pytest.mark.skipif(no_gpu, reason="No GPU available")
+    def test_select_ipc(self, con, stocks):
+        result = con.select_ipc("select qty, price from stocks")
+        assert isinstance(result, TGpuDataFrame)
+
+    @pytest.mark.skipif(no_gpu, reason="No GPU available")
+    def test_select_ipc_gpu(self, con, stocks):
+        result = con.select_ipc_gpu("select qty, price from stocks")
+        assert isinstance(result, TGpuDataFrame)

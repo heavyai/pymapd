@@ -140,3 +140,17 @@ class Connection(object):
         # type: () -> Cursor
         """Create a new :class:`Cursor` object attached to this connection."""
         return Cursor(self)
+
+    def select_ipc(self, operation):
+        """Execute a ``SELECT`` operation.
+        """
+        # TODO: figure out what `first_n` does, add to API
+        return self._client.sql_execute_df(
+            self._session, operation, first_n=-1)
+
+    def select_ipc_gpu(self, operation, device_id=0):
+        """Execute a ``SELECT`` operation.
+        """
+        # TODO: figure out what `first_n` does, add to API
+        return self._client.sql_execute_gpudf(
+            self._session, operation, device_id=device_id, first_n=-1)
