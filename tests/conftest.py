@@ -74,3 +74,18 @@ def invalid_sql():
 @pytest.fixture
 def nonexistant_table():
     return _load_pickle(os.path.join(HERE, "data", "nonexistant_table.pkl"))
+
+
+@pytest.fixture(scope="session")
+def stocks(con):
+    drop = 'drop table if exists stocks;'
+    c = con.cursor()
+    c.execute(drop)
+    create = ('create table stocks (date_ text, trans text, symbol text, '
+              'qty int, price float, vol float);')
+    c.execute(create)
+    i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+    i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+
+    c.execute(i1)
+    c.execute(i2)
