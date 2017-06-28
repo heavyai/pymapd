@@ -5,6 +5,7 @@ import pytest
 from mapd.ttypes import TMapDException
 
 from pymapd import connect, ProgrammingError, DatabaseError
+from pymapd.cursor import Cursor
 
 # XXX: Make it hashable to silence warnings; see if this can be done upstream
 # This isn't a huge deal, but our testing context mangers for asserting
@@ -34,3 +35,8 @@ class TestIntegration:
         with pytest.raises(DatabaseError) as r:
             con.cursor().execute("select it from fake_table;")
         r.match("Table 'FAKE_TABLE' does not exist")
+
+    def test_connection_execute(self, con):
+        result = con.execute("drop table if exists FOO;")
+        result = con.execute("create table FOO (a int);")
+        assert isinstance(result, Cursor)

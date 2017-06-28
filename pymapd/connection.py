@@ -120,6 +120,22 @@ class Connection(object):
         """
         return None
 
+    def execute(self, operation, parameters=None):
+        # type: (str, Optional[Tuple]) -> Cursor
+        """Execute a SQL statement
+
+        Parameters
+        ----------
+        operation : str
+            A SQL statement to exucute
+
+        Returns
+        -------
+        c : Cursor
+        """
+        c = Cursor(self)
+        return c.execute(operation, parameters=parameters)
+
     def cursor(self):
         # type: () -> Cursor
         """Create a new :class:`Cursor` object attached to this connection."""
