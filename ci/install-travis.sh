@@ -29,7 +29,8 @@ conda install -q \
       coverage \
       flake8 \
       pytest \
-      pytest-cov
+      pytest-cov \
+      pytest-mock
 
 pip install -e .
 conda list test-environment
