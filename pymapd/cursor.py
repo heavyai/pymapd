@@ -32,6 +32,12 @@ class Cursor(object):
             return iter([])
         return self.result_set
 
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
     @property
     def description(self):
         # type: () -> Optional[List[Description]]
@@ -79,6 +85,7 @@ class Cursor(object):
     def close(self):
         # type: () -> None
         """Close this cursor."""
+        # TODO
         pass
 
     def execute(self, operation, parameters=None):

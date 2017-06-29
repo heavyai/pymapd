@@ -33,6 +33,14 @@ A cursor can be created with :meth:`Connection.cursor`
    >>> c
    <pymapd.cursor.Cursor at 0x110fe6438>
 
+Or by using a context manager:
+
+.. code-block:: python
+
+   >>> with con as c:
+   ...     print(c)
+   <pymapd.cursor.Cursor object at 0x1041f9630>
+               
 Querying
 --------
 

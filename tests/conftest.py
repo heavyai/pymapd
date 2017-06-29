@@ -89,3 +89,28 @@ def stocks(con):
 
     c.execute(i1)
     c.execute(i2)
+
+
+@pytest.fixture
+def mock_transport(mocker):
+    """A magicmock for pymapd.connection.TTrapnsport.TBufferedTransport"""
+    return mocker.patch("pymapd.connection.TTransport.TBufferedTransport")
+
+
+@pytest.fixture
+def mock_client(mocker):
+    """A magicmock for pymapd.connection.Client"""
+    return mocker.patch("pymapd.connection.Client")
+
+
+@pytest.fixture
+def mock_connection(mock_transport, mock_client):
+    """Connection with mocked transport layer, and
+
+    - username='user'
+    - password='password'
+    - host='localhost'
+    - dbname='dbname'
+    """
+    return connect(user='user', password='password',
+                   host='localhost', dbname='dbname')

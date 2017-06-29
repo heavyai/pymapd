@@ -47,6 +47,6 @@ setup(
     install_requires=install_requires,
     extras_require={
         'docs': ['sphinx', 'numpydoc', 'sphinx-rtd-theme'],
-        'test': ['coverage', 'pytest'],
+        'test': ['coverage', 'pytest', 'pytest-mock'],
     },
 )
