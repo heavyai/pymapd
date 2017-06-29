@@ -7,7 +7,7 @@ import six
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
-from mapd import MapD
+from mapd.MapD import Client
 from mapd.ttypes import TMapDException
 
 from .cursor import Cursor
@@ -79,6 +79,7 @@ class Connection(object):
         self._transport = transport
         self._protocol = protocol
         self._socket = socket
+        self._closed = 0
         try:
             self._transport.open()
         except TTransportException as e:
@@ -87,7 +88,7 @@ class Connection(object):
                 six.raise_from(err, e)
             else:
                 raise
-        self._client = MapD.Client(proto)
+        self._client = Client(proto)
         try:
             self._session = self._client.connect(user, password, dbname)
         except TMapDException as e:
@@ -104,13 +105,25 @@ class Connection(object):
         # type: () -> None
         self.close()
 
+    def __enter__(self):
+        return self.cursor()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    @property
+    def closed(self):
+        return self._closed
+
     def close(self):
         # type: () -> None
         """Disconnect from the database"""
         try:
             self._client.disconnect(self._session)
-        except (MapD.TMapDException, AttributeError):
+        except (TMapDException, AttributeError):
             pass
+        finally:
+            self._closed = 1
 
     def commit(self):
         # type: () -> None

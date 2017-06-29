@@ -7,3 +7,8 @@ class TestCursor:
         c = Cursor(None)
         result = list(c)
         assert result == []
+
+    def test_context_manager(self, mock_connection):
+        c = mock_connection.cursor()
+        with c:
+            c.execute("select 1;")
