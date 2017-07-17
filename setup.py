@@ -19,18 +19,18 @@ setup(
     name='pymapd',
     description='A python DB API 2 compatible client for mapd.',
     long_description=long_description,
-    # url='https://github.com//',
+    url='https://github.com/mapd/mapd-core',
 
-    # author='The Python Packaging Authority',
-    # author_email='pypa-dev@googlegroups.com',
+    author='Tom Augspurger',
+    author_email='taugspurger@continuum.io',
 
-    # license='MIT',
+    license='Apache Software License',
 
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         # 'Topic :: Software Development :: Build Tools',
-        # 'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
