@@ -40,8 +40,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  void clear_cpu_memory(TSessionId session)')
     print('  void clear_gpu_memory(TSessionId session)')
     print('  TQueryResult sql_execute(TSessionId session, string query, bool column_format, string nonce, i32 first_n)')
-    print('  TGpuDataFrame sql_execute_df(TSessionId session, string query, i32 first_n)')
-    print('  TGpuDataFrame sql_execute_gpudf(TSessionId session, string query, i32 device_id, i32 first_n)')
+    print('  TDataFrame sql_execute_df(TSessionId session, string query, TDeviceType device_type, i32 device_id, i32 first_n)')
+    print('  TDataFrame sql_execute_gdf(TSessionId session, string query, i32 device_id, i32 first_n)')
     print('  void interrupt(TSessionId session)')
     print('  TTableDescriptor sql_validate(TSessionId session, string query)')
     print('  void set_execution_mode(TSessionId session, TExecuteMode mode)')
@@ -246,16 +246,16 @@ elif cmd == 'sql_execute':
     pp.pprint(client.sql_execute(eval(args[0]), args[1], eval(args[2]), args[3], eval(args[4]),))
 
 elif cmd == 'sql_execute_df':
-    if len(args) != 3:
-        print('sql_execute_df requires 3 args')
+    if len(args) != 5:
+        print('sql_execute_df requires 5 args')
         sys.exit(1)
-    pp.pprint(client.sql_execute_df(eval(args[0]), args[1], eval(args[2]),))
+    pp.pprint(client.sql_execute_df(eval(args[0]), args[1], eval(args[2]), eval(args[3]), eval(args[4]),))
 
-elif cmd == 'sql_execute_gpudf':
+elif cmd == 'sql_execute_gdf':
     if len(args) != 4:
-        print('sql_execute_gpudf requires 4 args')
+        print('sql_execute_gdf requires 4 args')
         sys.exit(1)
-    pp.pprint(client.sql_execute_gpudf(eval(args[0]), args[1], eval(args[2]), eval(args[3]),))
+    pp.pprint(client.sql_execute_gdf(eval(args[0]), args[1], eval(args[2]), eval(args[3]),))
 
 elif cmd == 'interrupt':
     if len(args) != 1:

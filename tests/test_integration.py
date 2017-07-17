@@ -2,10 +2,10 @@
 Tests that rely on a server running
 """
 import pytest
-from mapd.ttypes import TMapDException, TGpuDataFrame
 
 from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
+from pymapd.compat import TMapDException, TDataFrame
 
 from .utils import no_gpu
 
@@ -46,9 +46,9 @@ class TestIntegration:
     @pytest.mark.skipif(no_gpu, reason="No GPU available")
     def test_select_ipc(self, con, stocks):
         result = con.select_ipc("select qty, price from stocks")
-        assert isinstance(result, TGpuDataFrame)
+        assert isinstance(result, TDataFrame)
 
     @pytest.mark.skipif(no_gpu, reason="No GPU available")
     def test_select_ipc_gpu(self, con, stocks):
         result = con.select_ipc_gpu("select qty, price from stocks")
-        assert isinstance(result, TGpuDataFrame)
+        assert isinstance(result, TDataFrame)

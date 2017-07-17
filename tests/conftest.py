@@ -37,7 +37,7 @@ def mapd_server():
         # not yet running...
         subprocess.check_output(['docker', 'run', '-d',
                                  '-p', '9092:9092', '-p', '9091:9091',
-                                 '--name=mapd', 'mapd/mapd:v3.0.0'])
+                                 '--name=mapd', 'mapd/core-os-cpu:latest'])
         # yield and stop afterwards?
         assert _check_open()
         # Takes some time to start up. Unfortunately even trying to connect
