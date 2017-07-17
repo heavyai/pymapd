@@ -65,7 +65,18 @@ class TestIntegration:
         result = con.select_ipc("select qty, price from stocks")
         assert isinstance(result, TDataFrame)
 
-    @pytest.mark.skipif(no_gpu, reason="No GPU available")
+    @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_select_ipc_gpu(self, con, stocks):
+        import pandas as pd
+        import numpy as np
+        from pygdf.dataframe import DataFrame
+
         result = con.select_ipc_gpu("select qty, price from stocks")
-        assert isinstance(result, TDataFrame)
+        assert isinstance(result, DataFrame)
+
+        dtypes = dict(qty=np.int32, price=np.float32)
+        expected = pd.DataFrame([[100, 35.14], [100, 12.14]],
+                                columns=['qty', 'price']).astype(dtypes)
+
+        result = result.to_pandas()[['qty', 'price']]  # column order
+        pd.testing.assert_frame_equal(result, expected)

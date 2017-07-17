@@ -15,6 +15,26 @@ install_requires = ['six', 'thrift']
 if sys.version_info[0] == 2:
     install_requires.append("typing")
 
+# Optional Requirements
+
+
+doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme'],
+test_requires = ['coverage', 'pytest', 'pytest-mock'],
+dev_requires = doc_requires + test_requires
+gpu_requires = ['pygdf', 'libgdf']
+arrow_requires = ['pyarrow']
+complete_requires = dev_requires + gpu_requires + arrow_requires
+
+
+extra_requires = {
+    'docs': doc_requires,
+    'test': test_requires,
+    'dev': dev_requires,
+    'gpu': gpu_requires,
+    'arrow': arrow_requires,
+    'complete': complete_requires,
+}
+
 setup(
     name='pymapd',
     description='A python DB API 2 compatible client for mapd.',
@@ -45,8 +65,5 @@ setup(
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
-    extras_require={
-        'docs': ['sphinx', 'numpydoc', 'sphinx-rtd-theme'],
-        'test': ['coverage', 'pytest', 'pytest-mock'],
-    },
+    extras_require=extra_requires,
 )
