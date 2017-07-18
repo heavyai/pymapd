@@ -31,7 +31,8 @@ conda install -q \
       pytest \
       pytest-cov \
       pytest-mock \
-      sqlalchemy
+      sqlalchemy \
+      numpy
 
 pip install -e .
 conda list test-environment
