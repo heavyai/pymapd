@@ -1,6 +1,8 @@
 """
 Connect to a MapD database.
 """
+import ctypes
+import json
 from typing import List, Tuple, Any, Union, Optional  # noqa
 from collections import namedtuple
 
@@ -214,8 +216,10 @@ class Connection(object):
         """Execute a ``SELECT`` operation.
         """
         # TODO: figure out what `first_n` does, add to API
-        return self._client.sql_execute_df(
-            self._session, operation, first_n=-1)
+        tdf = self._client.sql_execute_df(
+            self._session, operation, device_type=0, device_id=0,
+            first_n=-1)
+        return _parse_tdf_cpu(tdf)
 
     def select_ipc_gpu(self, operation, device_id=0):
         """Execute a ``SELECT`` operation.
@@ -223,3 +227,122 @@ class Connection(object):
         # TODO: figure out what `first_n` does, add to API
         return self._client.sql_execute_gpudf(
             self._session, operation, device_id=device_id, first_n=-1)
+
+
+def _parse_tdf_cpu(tdf):
+    """
+    Construct a pandas DataFrame from a TDataFrame pointing to
+    CPU shared memory.
+    """
+    try:
+        import pyarrow as pa  # noqa
+    except ImportError:
+        raise ImportError("Parsing CPU shared memory requires pyarrow. ")
+
+    cptr = ctypes.c_void_p(_fish_sm_ptr(tdf.sm_handle, tdf.sm_size))
+    buffer_ = _read_schema(tdf, cptr)
+    schema = _load_schema(buffer_)
+    return schema
+
+
+def _pa_dtype(s):
+    """
+    Get the pyarrow ``DataType`` from a string.
+    'int32' -> pa.DataType(int32)
+    """
+    # TODO: surely a better way
+    import pyarrow as pa
+    return getattr(pa, s)()
+
+
+def _build_types(schema):
+    return [
+        _pa_dtype(field['type']['name'] + str(field['type']['bitWidth']))
+        for field in schema['schema']['fields']
+    ]
+
+
+def _build_fields(schema, types):
+    import pyarrow as pa
+    return [
+        pa.field(field['name'], t)
+        for field, t in zip(schema['schema']['fields'],
+                            types)
+    ]
+
+
+def _build_arrow_schema(schema):
+    """
+    Turn the JSON serialized schema into a pa.Schema
+    """
+    import pyarrow as pa
+
+    types = _build_types(schema)
+    fields = _build_fields(schema, types)
+
+    return pa.schema(fields)
+
+
+def _fish_sm_ptr(handle, size):
+    rt = ctypes.CDLL(None)
+    smkey = _get_sm_key(handle)
+
+    shmget = rt.shmget
+    shmget.argtypes = [ctypes.c_int, ctypes.c_size_t, ctypes.c_int]
+    shmget.restype = ctypes.c_int
+
+    shmat = rt.shmat
+    shmat.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_void_p),
+                      ctypes.c_int]
+    shmat.restype = ctypes.c_void_p
+
+    shmdt = rt.shmdt
+    shmdt.argtypes = [ctypes.c_void_p]
+
+    shmctl = rt.shmctl
+    shmctl.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
+    shid = shmget(smkey, size, 0)
+    ptr = shmat(shid, None, 0)
+    return ptr
+
+
+def _get_sm_key(sm_handle):
+    """Parse the shared memory key from a TDataFrame.sm_handle
+    """
+    import numpy as np
+    return np.ndarray(shape=1, dtype=np.uint32, buffer=sm_handle)[0]
+
+
+def _read_schema(tdf, cptr):
+    import numpy as np
+
+    start = ctypes.cast(cptr, ctypes.POINTER(ctypes.c_int8 * tdf.sm_size))[0]
+    return np.ndarray(shape=tdf.sm_size, dtype=np.ubyte, buffer=start)
+
+
+def _cast_schema(buffer_):
+    """Convert from a numpy array of bytes to a pointer for the schema
+
+    Parameters
+    ----------
+    buffer_ : np.array[uint8]
+
+    Returns
+    -------
+    schema_ptr : CData <cdata 'void *'>
+    """
+    from libgdf_cffi import ffi
+    return ffi.cast("void*", buffer_.ctypes.data)
+
+
+def _load_schema(buffer_):
+    from libgdf_cffi import ffi, libgdf
+    ptr = _cast_schema(buffer_)
+    ipch = libgdf.gdf_ipc_parser_open(ptr, buffer_.size)
+
+    if libgdf.gdf_ipc_parser_failed(ipch):
+        raise ValueError(libgdf.gdf_ipc_parser_get_error(ipch))
+
+    jsonraw = libgdf.gdf_ipc_parser_get_schema_json(ipch)
+    jsontext = ffi.string(jsonraw).decode()
+    return json.loads(jsontext)
