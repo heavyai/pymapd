@@ -24,6 +24,22 @@ Create a :class:`Connection` with
    >>> con
    Connection(mapd://mapd:***@localhost:9091/mapd?protocol=binary)
 
+or by passing in a connection string
+
+.. code-block:: python
+
+   >>> uri = "mapd://mapd:HyperInteractive@localhost:9091/mapd?protocol=binary"
+   >>> con = connect(uri=uri)
+   Connection(mapd://mapd:***@localhost:9091/mapd?protocol=binary)
+
+See the `SQLAlchemy`_ documentation on what makes up a connection string. The
+components are::
+
+   dialect+driver://username:password@host:port/database
+
+For ``pymapd``, the ``dialect+driver`` will always be ``mapd``, and we look for
+a ``protocol`` argument in the optional query parameters (everything following
+the ``?`` after ``database``).
 
 A cursor can be created with :meth:`Connection.cursor`
 
@@ -69,3 +85,6 @@ Cursors are iterable, returning a list of tuples of values
    >>> result = list(c)
    >>> result[:5]
    [(38, 28), (0, 8), (-4, 9), (1, -1), (1, 2)]
+
+
+.. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls

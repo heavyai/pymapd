@@ -28,6 +28,23 @@ class TestIntegration:
         assert con is not None
         assert protocol in repr(con)
 
+    def test_connect_uri(self):
+        uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?protocol='
+               'binary')
+        con = connect(uri=uri)
+        assert con._user == 'mapd'
+        assert con._password == 'HyperInteractive'
+        assert con._host == 'localhost'
+        assert con._port == 9091
+        assert con._dbname == 'mapd'
+        assert con._protocol == 'binary'
+
+    def test_connect_uri_and_others_raises(self):
+        uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?protocol='
+               'binary')
+        with pytest.raises(TypeError):
+            connect(username='mapd', uri=uri)
+
     def test_invalid_sql(self, con):
         with pytest.raises(ProgrammingError) as r:
             con.cursor().execute("select it;")
