@@ -2,6 +2,7 @@
 Connect to a MapD database.
 """
 from typing import List, Tuple, Any, Union, Optional  # noqa
+from collections import namedtuple
 
 import six
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
@@ -13,13 +14,17 @@ from mapd.ttypes import TMapDException
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
 
+ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
+                                               'port', 'dbname', 'protocol'])
 
-def connect(user=None,         # type: Optional[str]
-            password=None,     # type: Optional[str]
-            host=None,         # type: Optional[str]
-            port=9091,         # type: Optional[int]
-            dbname=None,       # type: Optional[str]
-            protocol='binary'  # type: Optional[str]
+
+def connect(user=None,          # type: Optional[str]
+            password=None,      # type: Optional[str]
+            host=None,          # type: Optional[str]
+            port=9091,          # type: Optional[int]
+            dbname=None,        # type: Optional[str]
+            protocol='binary',  # type: Optional[str]
+            uri=None            # type: Optional[str]
             ):
     # type: (...) -> Connection
     """
@@ -40,21 +45,72 @@ def connect(user=None,         # type: Optional[str]
     """
     # TODO: accept a dsn URI like sqlalchemy.Engine
     return Connection(user=user, password=password, host=host, port=port,
-                      dbname=dbname, protocol=protocol)
+                      dbname=dbname, protocol=protocol, uri=uri)
+
+
+def _parse_uri(uri):
+    # type: (str) -> ConnectionInfo
+    """
+    Parse connection string
+
+    Parameters
+    ----------
+    uri : str
+        a URI containing connection information
+
+    Returns
+    -------
+    info : ConnectionInfo
+
+    Notes
+    ------
+    The URI may include information on
+
+    - user
+    - password
+    - host
+    - port
+    - dbname
+    - protocol
+    """
+    try:
+        from sqlalchemy.engine.url import make_url
+    except ImportError:
+        # TODO: We could remove this requirement and do the parsing ourselves
+        raise ImportError("URI parsing requires SQLAlchemy")
+    url = make_url(uri)
+    user = url.username
+    password = url.password
+    host = url.host
+    port = url.port
+    dbname = url.database
+    protocol = url.query.get('protocol', 'binary')
+
+    return ConnectionInfo(user, password, host, port, dbname, protocol)
 
 
 class Connection(object):
     """Connect to your mapd database."""
 
     def __init__(self,
-                 user=None,         # type: Optional[str]
-                 password=None,     # type: Optional[str]
-                 host=None,         # type: Optional[str]
-                 port=9091,         # type: Optional[int]
-                 dbname=None,       # type: Optional[str]
-                 protocol='binary'  # type: Optional[str]
+                 user=None,          # type: Optional[str]
+                 password=None,      # type: Optional[str]
+                 host=None,          # type: Optional[str]
+                 port=9091,          # type: Optional[int]
+                 dbname=None,        # type: Optional[str]
+                 protocol='binary',  # type: Optional[str]
+                 uri=None            # type: Optional[str]
                  ):
         # type: (...) -> None
+        if uri is not None:
+            if not all([user is None,
+                        password is None,
+                        host is None,
+                        port == 9091,
+                        dbname is None,
+                        protocol == 'binary']):
+                raise TypeError("Cannot specify both URI and other arguments")
+            user, password, host, port, dbname, protocol = _parse_uri(uri)
         if host is None:
             raise TypeError("`host` parameter is required.")
         if protocol == "http":

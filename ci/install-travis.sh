@@ -30,7 +30,8 @@ conda install -q \
       flake8 \
       pytest \
       pytest-cov \
-      pytest-mock
+      pytest-mock \
+      sqlalchemy
 
 pip install -e .
 conda list test-environment

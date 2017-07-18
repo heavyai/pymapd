@@ -2,6 +2,7 @@ import pytest
 
 from pymapd import OperationalError, connect
 from pymapd.cursor import Cursor
+from pymapd.connection import _parse_uri, ConnectionInfo
 
 
 class TestConnect:
@@ -37,3 +38,15 @@ class TestConnect:
 
         assert isinstance(cur, Cursor)
         assert con.closed == 0
+
+
+class TestURI:
+
+    def test_parse_uri(self):
+        pytest.importorskip("sqlalchemy")
+        uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?'
+               'protocol=binary')
+        result = _parse_uri(uri)
+        expected = ConnectionInfo("mapd", "HyperInteractive", "localhost",
+                                  9091, "mapd", "binary")
+        assert result == expected
