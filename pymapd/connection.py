@@ -230,20 +230,62 @@ class Connection(object):
 
 
 def _parse_tdf_cpu(tdf):
+    """
+    Construct a pandas DataFrame from a TDataFrame pointing to
+    CPU shared memory.
+    """
     try:
         import pyarrow as pa  # noqa
     except ImportError:
         raise ImportError("Parsing CPU shared memory requires pyarrow. ")
 
-    cptr = ctypes.c_void_p(_fish_sm_ptr(tdf))
+    cptr = ctypes.c_void_p(_fish_sm_ptr(tdf.sm_handle, tdf.sm_size))
     buffer_ = _read_schema(tdf, cptr)
     schema = _load_schema(buffer_)
     return schema
 
 
-def _fish_sm_ptr(tdf):
+def _pa_dtype(s):
+    """
+    Get the pyarrow ``DataType`` from a string.
+    'int32' -> pa.DataType(int32)
+    """
+    # TODO: surely a better way
+    import pyarrow as pa
+    return getattr(pa, s)()
+
+
+def _build_types(schema):
+    return [
+        _pa_dtype(field['type']['name'] + str(field['type']['bitWidth']))
+        for field in schema['schema']['fields']
+    ]
+
+
+def _build_fields(schema, types):
+    import pyarrow as pa
+    return [
+        pa.field(field['name'], t)
+        for field, t in zip(schema['schema']['fields'],
+                            types)
+    ]
+
+
+def _build_arrow_schema(schema):
+    """
+    Turn the JSON serialized schema into a pa.Schema
+    """
+    import pyarrow as pa
+
+    types = _build_types(schema)
+    fields = _build_fields(schema, types)
+
+    return pa.schema(fields)
+
+
+def _fish_sm_ptr(handle, size):
     rt = ctypes.CDLL(None)
-    smkey = _get_sm_key(tdf.sm_handle)
+    smkey = _get_sm_key(handle)
 
     shmget = rt.shmget
     shmget.argtypes = [ctypes.c_int, ctypes.c_size_t, ctypes.c_int]
@@ -259,7 +301,7 @@ def _fish_sm_ptr(tdf):
 
     shmctl = rt.shmctl
     shmctl.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
-    shid = shmget(smkey, tdf.sm_size, 0)
+    shid = shmget(smkey, size, 0)
     ptr = shmat(shid, None, 0)
     return ptr
 
