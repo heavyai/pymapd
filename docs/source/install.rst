@@ -4,33 +4,27 @@ Install
 =======
 
 This describes how to install the python package. To setup a MapD server, see
-`here`_. Currently, the library can be installed from source. In the future, it
-will be available on PyPI and conda-forge.
+`here`_.
+
+``pymapd`` can be installed with conda using `conda-forge`_ or pip.
 
 .. code-block:: console
 
-   git clone https://github.com/mapd/pymapd
-   cd pymapd
+   # conda
+   conda install -c conda-forge pymapd
 
-Install the dependencies (activate your conda environment first).
-
-.. code-block:: console
-
-   conda install -c conda-forge six thrift
-
-If using python2, you'll also need the ``typing`` module
-
-.. code-block:: console
-
-   conda install typing
-
-Finally, install the package itself
-
-.. code-block:: console
-
-   pip install .
+   # pip
+   pip install pymapd
 
 This actually installs two packages, ``pymapd``, the pythonic interface to MapD,
 and ``mapd``, the Apache thrift bindings for MapD.
 
+There are several optional dependencies that may be useful. To return results sets
+into GPU memory as a GpuDataFrame, you'll need `pygdf`_. To return results into CPU
+shared memory, using the `Apache Arrow`_ memory layout, you'll need `pyarrow`_ and
+its dependencies.
+
 .. _here: https://github.com/mapd/mapd-core#mapd-core
+.. _conda-forge: http://conda-forge.github.io/
+.. _pygdf: https://github.com/gpuopenanalytics/pygdf
+.. _pyarrow: https://arrow.apache.org/docs/python/
