@@ -18,8 +18,8 @@ if sys.version_info[0] == 2:
 # Optional Requirements
 
 
-doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme'],
-test_requires = ['coverage', 'pytest', 'pytest-mock'],
+doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
+test_requires = ['coverage', 'pytest', 'pytest-mock']
 dev_requires = doc_requires + test_requires
 gpu_requires = ['pygdf', 'libgdf']
 arrow_requires = ['pyarrow']
