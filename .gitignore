@@ -100,3 +100,6 @@ ENV/
 
 # asv
 benchmarks/.asv
+*.c
+pymapd/*.cpp
+*.dat

@@ -1,7 +1,6 @@
 """
 Connect to a MapD database.
 """
-import ctypes
 from typing import List, Tuple, Any, Union, Optional  # noqa
 from collections import namedtuple
 
@@ -211,13 +210,6 @@ class Connection(object):
         """Create a new :class:`Cursor` object attached to this connection."""
         return Cursor(self)
 
-    def select_ipc(self, operation):
-        """Execute a ``SELECT`` operation.
-        """
-        # TODO: figure out what `first_n` does, add to API
-        return self._client.sql_execute_df(
-            self._session, operation, device_type=0, device_id=0, first_n=-1)
-
     def select_ipc_gpu(self, operation, device_id=0):
         """Execute a ``SELECT`` operation using GPU memory.
 
@@ -248,106 +240,57 @@ class Connection(object):
             self._session, operation, device_id=device_id, first_n=-1)
         return _parse_tdf_gpu(tdf)
 
+    def select_ipc(self, operation):
+        """Execute a ``SELECT`` operation.
+        """
+        # TODO: accept first_n
+        from .shm import load_buffer
+        tdf = self._client.sql_execute_df(
+            self._session, operation, device_type=0, device_id=0, first_n=-1)
 
-def _fish_sm_ptr(handle, size):
-    rt = ctypes.CDLL(None)
-    smkey = _get_shm_key(handle)
-
-    shmget = rt.shmget
-    shmget.argtypes = [ctypes.c_int, ctypes.c_size_t, ctypes.c_int]
-    shmget.restype = ctypes.c_int
-
-    shmat = rt.shmat
-    shmat.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_void_p),
-                      ctypes.c_int]
-    shmat.restype = ctypes.c_void_p
-
-    shmdt = rt.shmdt
-    shmdt.argtypes = [ctypes.c_void_p]
-
-    shmctl = rt.shmctl
-    shmctl.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
-    shid = shmget(smkey, size, 0)
-    ptr = shmat(shid, None, 0)
-    return ptr
+        sm_buf = load_buffer(tdf.sm_handle, tdf.sm_size)
+        df_buf = load_buffer(tdf.df_handle, tdf.df_size)
+        schema = _load_schema(sm_buf)
+        df = _load_data(df_buf, schema)
+        return df
 
 
-def _get_shm_key(sm_handle):
-    """Parse the shared memory key from a TDataFrame.sm_handle
+def _load_schema(buf):
     """
-    import numpy as np
-    return np.ndarray(shape=1, dtype=np.uint32, buffer=sm_handle)[0]
-
-
-def _read_buffer(cptr, size):
-    import numpy as np
-
-    start = ctypes.cast(cptr, ctypes.POINTER(ctypes.c_int8 * size))[0]
-    return np.ndarray(shape=size, dtype=np.ubyte, buffer=start)
-
-
-def _cast_schema(buffer_):
-    """Convert from a numpy array of bytes to a pointer for the schema
+    Load a `pyarrow.Schema` from a buffer written to shared memory
 
     Parameters
     ----------
-    buffer_ : np.array[uint8]
+    buf : pyarrow.Buffer
 
     Returns
     -------
-    schema_ptr : CData <cdata 'void *'>
+    schema : pyarrow.Schema
     """
-    from libgdf_cffi import ffi
-    return ffi.cast("void*", buffer_.ctypes.data)
+    import pyarrow as pa
+
+    reader = pa.RecordBatchStreamReader(buf)
+    return reader.schema
 
 
-# def _load_schema(buffer_):
-#     from libgdf_cffi import ffi, libgdf
-#     ptr = _cast_schema(buffer_)
-#     ipch = libgdf.gdf_ipc_parser_open(ptr, buffer_.size)
+def _load_data(buf, schema):
+    """
+    Load a `pandas.DataFrame` from a buffer written to shared memory
 
-#     if libgdf.gdf_ipc_parser_failed(ipch):
-#         raise ValueError(libgdf.gdf_ipc_parser_get_error(ipch))
+    Parameters
+    ----------
+    buf : pyarrow.Buffer
+    shcema : pyarrow.Schema
 
-#     jsonraw = libgdf.gdf_ipc_parser_get_schema_json(ipch)
-#     jsontext = ffi.string(jsonraw).decode()
-#     return json.loads(jsontext)
+    Returns
+    -------
+    df : pandas.DataFrame
+    """
+    import pyarrow as pa
 
-def _shmget(shmkey, size):
-    rt = ctypes.CDLL(None)
-    shmget = rt.shmget
-    shmget.argtypes = [ctypes.c_int, ctypes.c_size_t, ctypes.c_int]
-    shmget.restype = ctypes.c_int
-    return shmget(shmkey, size, 0)
-
-
-def _shmat(shmid):
-    rt = ctypes.CDLL(None)
-    shmat = rt.shmat
-    shmat.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_void_p),
-                      ctypes.c_int]
-    shmat.restype = ctypes.c_void_p
-    return shmat(shmid, None, 0)
-
-
-def _shmdt(ptr):
-    rt = ctypes.CDLL(None)
-    shmdt = rt.shmdt
-    shmdt.argtypes = [ctypes.c_void_p]
-    return shmdt(ptr)
-
-
-def _load_schema(handle, size):
-    import numpy as np
-    shmkey = np.ndarray(shape=1, dtype=np.uint32, buffer=handle)[0]
-    shmid = _shmget(shmkey, size)   # get ID
-    ptr = _shmat(shmid)                 # attach
-    cptr = ctypes.c_void_p(ptr)
-    buffer_ = np.ndarray(
-        shape=size,  dtype=np.ubyte,
-        buffer=ctypes.cast(cptr, ctypes.POINTER(ctypes.c_int8 * size))[0]
-    )
-    return buffer_
+    message = pa.read_message(buf)
+    rb = pa.read_record_batch(message, schema)
+    return rb.to_pandas()
 
 
 def _parse_tdf_gpu(tdf):
@@ -368,12 +311,14 @@ def _parse_tdf_gpu(tdf):
     from numba import cuda
     from numba.cuda.cudadrv import drvapi
 
+    from .shm import load_buffer
+
     ipc_handle = drvapi.cu_ipc_mem_handle(*tdf.df_handle)
     ipch = cuda.driver.IpcHandle(None, ipc_handle, size=tdf.df_size)
     ctx = cuda.current_context()
     dptr = ipch.open(ctx)
 
-    schema_buffer = _load_schema(tdf.sm_handle, tdf.sm_size)
+    schema_buffer = load_buffer(tdf.sm_handle, tdf.sm_size)
     dtype = np.dtype(np.byte)
     darr = cuda.devicearray.DeviceNDArray(shape=dptr.size,
                                           strides=dtype.itemsize,
