@@ -17,6 +17,10 @@ conda config --set always_yes true --set changeps1 false || exit 1
 conda update -q conda
 
 echo
+echo "[conda build]"
+conda install conda-build anaconda-client --yes
+
+echo
 echo "[add channels]"
 conda config --add channels conda-forge || exit 1
 

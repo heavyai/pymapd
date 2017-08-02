@@ -3,6 +3,11 @@ services:
   - docker
 language: python
 env:
+  # generated with
+  # anaconda login pymapd
+  # anaconda auth -n travis-upload-key -o pymapd --create
+  # travis encrypt <key>
+  secure: "PyMIlWNQjSO+VAD6PfS8pKARbJppp8Q3jzweooZHsFWic2nis7ihWUbRmj53gw3cRaFc8dsW1gbaEiNIq4VRtJVEfg6jwz3HrG42gURVIK7CR5JpDGSal2/En3e9Ie1ZWeUHb58LPknKRiAvde8Sos5H7BfOOKEn9OwgO7/HZRbttRxiCmZgN5Y0K1gTKlpPloFUMJ7o3qp4eBGxmUzkK44XB4smnuekcBfQ7wiN/RaQFwccL0tQTkOud04Wb6BblF/aI5jIxMJdPUJA2uqW7uSdQX6JZe8tYhvMa76lSJBoNZT+gzL8w6W4jWXsGCSxOV/szdSORuoE9q+x86RQVR9UEy6f+QcN787FS3KVtNcCpgxf09idQCjSWDrrongKDci45cVT4vNWy6ibKCfa6zC+CWRs9gM4mWojfx3I2BTvgcUaYWX+/4gnXUdHYVIlj9yqH7Qa25cc9ehiEWwX99wyLtC3bLpw7ovwB2FKVodgVTSxFTE42cfeXJAS3jqSRpga16UUTd9USpoVpHIURjfgkBL9JQQ8BU6by+Njfmg/jDStIlN11j71Et2+AkS6ErvZEc/GK+CanVbjtF0xKbjLXNXPViqaijf5az6/tr3WFSO38uSF3kzBNzN6WDtka3QMykgVYE526nVXhP8H7VB566eIGg/65QZoj1ILTA8="
   matrix:
     - PYTHON=3.6
     - PYTHON=3.5
@@ -19,3 +24,7 @@ script:
   - source activate test-environment
   - pytest tests
   - flake8
+  - source ./ci/build_pymapd.sh
+
+after_success:
+  - source ./ci/upload-anaconda.sh
