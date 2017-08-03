@@ -12,6 +12,18 @@ pymapd
 
 A python `DB API`_ compliant interface for `mapd`_. See the `documentation`_ for more.
 
+Quick Install
+-------------
+
+Packages are available on conda-forge and PyPI::
+
+   conda install -c conda-forge pympad
+
+Developer builds of each commit are available on the ``pymapd`` channel (Linux only)::
+
+   conda install -c pymapd/label/dev -c conda-forge -c gpuopenanalytics/label/dev pymapd
+
+
 .. _DB API: https://www.python.org/dev/peps/pep-0249/
 .. _mapd: https://www.mapd.com/
 .. _mapd-core: https://github.com/mapd-core/
