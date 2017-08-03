@@ -1,0 +1,47 @@
+# Usage:
+#   conda build -c defaults -c conda-forge .
+package:
+  name: pymapd
+  version: {{ environ.get('GIT_DESCRIBE_TAG', '0.0.0.dev').lstrip('v') }}
+
+source:
+  # git_url: ../..
+  path: ../..
+
+build:
+  number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
+
+requirements:
+  # use channel:
+  #   - defaults
+  #   - conda-forge
+  build:
+    - python
+    - setuptools
+    - setuptools_scm
+    - thrift
+    - six
+    - typing  # [py2k]
+  run:
+    - python
+    - setuptools
+    - thrift
+    - six
+    - typing  # [py2k]
+    - arrow-cpp >=0.5.0.pre
+    - pyarrow >=0.5.0.pre
+    - numpy
+    - pandas
+    - libgdf
+    - pygdf
+
+test:
+  imports:
+    - pymapd
+    - mapd
+
+about:
+  home: https://mapd.com/
+  license: Apache
+  # license_file: LICENSE
+  summary: Python client for the MapD GPU Database
