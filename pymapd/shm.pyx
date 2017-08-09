@@ -12,6 +12,9 @@ cdef extern from "sys/types.h":
     ctypedef int key_t
 
 
+cdef extern from "sys/ipc.h":
+    int IPC_RMID
+
 cdef extern from "sys/shm.h":
 
     ctypedef unsigned int shmatt_t
@@ -39,6 +42,9 @@ cpdef load_buffer(bytes handle, int size):
     pabuff = pa.frombuffer(npbuff.tobytes())
 
     # release
+    # How best to handle failures here?
+    rm_status = shmctl(shmid, IPC_RMID, NULL)
+
     status = shmdt(ptr)
     if status == -1:
         raise TypeError("Could not release shared memory")
