@@ -22,6 +22,7 @@ requirements:
     - thrift
     - six
     - typing  # [py2k]
+    - cython
   run:
     - python
     - setuptools
