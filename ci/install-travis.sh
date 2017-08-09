@@ -37,7 +37,7 @@ conda install -q \
       pytest-mock \
       sqlalchemy
 
-if [ $PYTHON = "2.7"];
+if [ $PYTHON = "2.7" ];
 then
     pip install typing;
 fi
