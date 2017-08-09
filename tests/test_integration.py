@@ -5,7 +5,7 @@ import pytest
 
 from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
-from pymapd.compat import TMapDException, TDataFrame
+from pymapd.compat import TMapDException
 
 from .utils import no_gpu
 
