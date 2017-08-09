@@ -3,7 +3,7 @@ import numpy as np
 import pyarrow as pa
 from numpy cimport ndarray
 from cython cimport view
-
+import pyarrow as pa
 
 # ------------------------
 # Shared Memory Wrappers #
@@ -20,10 +20,10 @@ cdef extern from "sys/shm.h":
         shmatt_t shm_nattch
 
     int shmget(key_t key, size_t size, int shmflg)
-    # TODO: deoes shmat return (void *) or (int *)
     void* shmat(int shmid, void *shmaddr, int shmflg)
-
     int shmctl(int shmid, int cmd, shmid_ds *buf) nogil
+    int shmdt(const void *shmaddr)
+
 
 cpdef load_buffer(bytes handle, int size):
 
@@ -33,5 +33,14 @@ cpdef load_buffer(bytes handle, int size):
         raise ValueError("Invalid shared memory key {}".format(shmkey))
     ptr = shmat(shmid, NULL, 0)    # shared memory segment's start address
     # TODO: remove this intermediate NumPy step. Should be easy
+    # well, maybe not so easy, since I think this is causing a copy,
+    # which is allowing be to detach the shared memory segment immediately
     npbuff = np.asarray(<np.uint8_t[:size]>ptr, dtype=np.uint8)
-    return npbuff
+    pabuff = pa.frombuffer(npbuff.tobytes())
+
+    # release
+    status = shmdt(ptr)
+    if status == -1:
+        raise TypeError("Could not release shared memory")
+
+    return pabuff

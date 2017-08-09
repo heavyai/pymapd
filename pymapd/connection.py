@@ -245,16 +245,13 @@ class Connection(object):
         """
         # TODO: accept first_n
         from .shm import load_buffer
-        import pyarrow as pa
+
         tdf = self._client.sql_execute_df(
             self._session, operation, device_type=0, device_id=0, first_n=-1)
 
-        sm_buf = pa.frombuffer(
-            load_buffer(tdf.sm_handle, tdf.sm_size).tobytes()
-        )
-        df_buf = pa.frombuffer(
-            load_buffer(tdf.df_handle, tdf.df_size).tobytes()
-        )
+        sm_buf = load_buffer(tdf.sm_handle, tdf.sm_size)
+        df_buf = load_buffer(tdf.df_handle, tdf.df_size)
+
         schema = _load_schema(sm_buf)
         df = _load_data(df_buf, schema)
         return df
