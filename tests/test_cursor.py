@@ -1,4 +1,4 @@
-from pymapd.cursor import Cursor
+from pymapd.cursor import Cursor, _bind_parameters
 
 
 class TestCursor:
@@ -12,3 +12,16 @@ class TestCursor:
         c = mock_connection.cursor()
         with c:
             c.execute("select 1;")
+
+    def test_escape_basic(self):
+        query = "select * from foo where bar > :baz"
+        result = str(_bind_parameters(query, {"baz": 10}))
+        expected = 'select * from foo where bar > 10'
+        assert result == expected
+
+    def test_escape_malicious(self):
+        query = "select * from foo where bar > :baz"
+        result = str(_bind_parameters(query, {"baz": '1; drop table foo'}))
+        # note the inner quotes
+        expected = "select * from foo where bar > '1; drop table foo'"
+        assert result == expected

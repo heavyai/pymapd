@@ -96,15 +96,28 @@ class Cursor(object):
         ----------
         operation : str
             A SQL query
-        parameters : tuple
+        parameters : dict
             Parameters to substitute into ``operation``.
 
         Returns
         -------
         self : Cursor
+
+        Examples
+        --------
+        >>> c = conn.cursor()
+        >>> c.execute("select symbol, qty from stocks")
+        >>> list(c)
+        [('RHAT', 100.0), ('IBM', 1000.0), ('MSFT', 1000.0), ('IBM', 500.0)]
+
+        Passing in ``parameters``:
+
+        >>> c.execute("select symbol qty from stocks where qty <= :max_qty",
+        ...           parameters={"max_qty": 500})
+        [('RHAT', 100.0), ('IBM', 500.0)]
         """
         if parameters is not None:
-            raise NotImplementedError
+            operation = str(_bind_parameters(operation, parameters))
         self.rowcount = -1
         try:
             result = self.connection._client.sql_execute(
@@ -125,9 +138,22 @@ class Cursor(object):
         self._result = result
         return self
 
-    def executemany(self, operation, parameters=None):
+    def executemany(self, operation, parameters):
+        """Execute a SQL statement for many sets of parameters.
+
+        Parameters
+        ----------
+        operation : str
+        parameters : list of dict
+
+        Returns
+        -------
+        results : list of lists
+        """
         # type: (str, Iterable) -> None
-        pass
+        results = [list(self.execute(operation, params)) for params
+                   in parameters]
+        return results
 
     def fetchone(self):
         # type: () -> Optional[Any]
@@ -158,6 +184,13 @@ class Cursor(object):
         pass
 
 
+def _bind_parameters(operation, parameters):
+    from sqlalchemy import text
+    return (text(operation)
+            .bindparams(**parameters)
+            .compile(compile_kwargs={"literal_binds": True}))
+
+
 # -----------------------------------------------------------------------------
 # Result Sets
 # -----------------------------------------------------------------------------
@@ -176,13 +209,14 @@ def make_row_results_set(data):
     results : Iterator[tuple]
     """
     if is_columnar(data):
-        nrows = len(data.row_set.columns[0].nulls)
-        ncols = len(data.row_set.row_desc)
-        columns = [_extract_col_vals(desc, col)
-                   for desc, col in zip(data.row_set.row_desc,
-                                        data.row_set.columns)]
-        for i in range(nrows):
-            yield tuple(columns[j][i] for j in range(ncols))
+        if data.row_set.columns:
+            nrows = len(data.row_set.columns[0].nulls)
+            ncols = len(data.row_set.row_desc)
+            columns = [_extract_col_vals(desc, col)
+                       for desc, col in zip(data.row_set.row_desc,
+                                            data.row_set.columns)]
+            for i in range(nrows):
+                yield tuple(columns[j][i] for j in range(ncols))
     else:
         for row in data.row_set.rows:
             yield tuple(_extract_row_val(desc, val)

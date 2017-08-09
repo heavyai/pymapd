@@ -60,6 +60,34 @@ class TestIntegration:
         result = con.execute("create table FOO (a int);")
         assert isinstance(result, Cursor)
 
+    def test_select_parametrized(self, con, stocks):
+        c = con.cursor()
+        c.execute('select symbol, qty from stocks where symbol = :symbol',
+                  {'symbol': 'GOOG'})
+        result = list(c)
+        expected = [('GOOG', 100),]
+        assert result == expected
+
+    def test_executemany_parametrized(self, con, stocks):
+        parameters = [{'symbol': 'GOOG'}, {'symbol': "RHAT"}]
+        expected = [[('GOOG', 100)], [('RHAT', 100)]]
+        query = 'select symbol, qty from stocks where symbol = :symbol'
+        c = con.cursor()
+        result = c.executemany(query, parameters)
+        assert result == expected
+
+    def test_executemany_parametrized_insert(self, con):
+        c = con.cursor()
+        c.execute("drop table if exists stocks2;")
+        # Create table
+        c.execute('CREATE TABLE stocks2 (symbol text, qty int);')
+        params = [{"symbol": "GOOG", "qty": 10},
+                  {"symbol": "AAPL", "qty": 20}]
+        query = "INSERT INTO stocks2 VALUES (:symbol, :qty);"
+        result = c.executemany(query, params)
+        assert result == [[], []]  # TODO: not sure if this is standard
+        c.execute("drop table stocks2;")
+
     def test_select_ipc(self, con, stocks):
         pd = pytest.importorskip("pandas")
         import numpy as np
