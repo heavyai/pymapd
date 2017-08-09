@@ -34,4 +34,4 @@ cpdef load_buffer(bytes handle, int size):
     ptr = shmat(shmid, NULL, 0)    # shared memory segment's start address
     # TODO: remove this intermediate NumPy step. Should be easy
     npbuff = np.asarray(<np.uint8_t[:size]>ptr, dtype=np.uint8)
-    return pa.frombuffer(npbuff.tobytes())
+    return npbuff
