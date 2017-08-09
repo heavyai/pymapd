@@ -23,6 +23,7 @@ requirements:
     - six
     - typing  # [py2k]
     - cython
+    - numpy
   run:
     - python
     - setuptools
