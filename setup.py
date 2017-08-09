@@ -1,13 +1,16 @@
 import sys
-from os import path
+import os
 from codecs import open
 
 from setuptools import setup
+from setuptools.extension import Extension
+from Cython.Build import cythonize
+import numpy as np
 
-here = path.abspath(path.dirname(__file__))
+here = os.path.abspath(os.path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 install_requires = ['six', 'thrift']
@@ -19,7 +22,7 @@ if sys.version_info[0] == 2:
 
 
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
-test_requires = ['coverage', 'pytest', 'pytest-mock']
+test_requires = ['coverage', 'pytest', 'pytest-mock', 'sqlalchemy']
 dev_requires = doc_requires + test_requires
 gpu_requires = ['pygdf', 'libgdf']
 arrow_requires = ['pyarrow']
@@ -34,6 +37,43 @@ extra_requires = {
     'arrow': arrow_requires,
     'complete': complete_requires,
 }
+
+# ------------
+# C Extensions
+# ------------
+try:
+    import pyarrow
+except ImportError:
+    extensions = []
+else:
+    home = os.path.dirname(pyarrow.__file__)
+    include = os.path.join(home, 'include')
+    link_args = []
+
+    if sys.platform == "darwin":
+        link_args.append('-Wl,-rpath,@loader_path/pyarrow')
+    else:
+        link_args.append("-Wl,-rpath,$ORIGIN/pyarrow")
+
+    extensions = [
+        Extension(
+            "pymapd.shm",
+            ["pymapd/shm.pyx"],
+            libraries=['arrow', 'arrow_python'],
+            include_dirs=[np.get_include(), include],
+            extra_compile_args=['-std=c++11'],
+            extra_link_args=['-std=c++11'],
+            language="c++",
+        ),
+        # Extension(
+        #     "pymapd.cpu",
+        #     ["pymapd/cpu.pyx", "cpp/src/cpu.cpp"],
+        #     include_dirs=[np.get_include()],
+        #     language="c++",
+        #     extra_compile_args=['-std=c++11'],
+        #     extra_link_args=['-std=c++11'],
+        # )
+    ]
 
 setup(
     name='pymapd',
@@ -63,7 +103,9 @@ setup(
 
     packages=['pymapd', 'mapd'],
     use_scm_version=True,
+
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
     extras_require=extra_requires,
+    ext_modules=cythonize(extensions),
 )
