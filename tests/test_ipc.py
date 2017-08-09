@@ -6,7 +6,7 @@ pd = pytest.importorskip("pandas")
 
 import numpy as np  # noqa
 import pandas.util.testing as tm  # noqa
-from pymapd.connection import _load_schema, _load_data  # noqa
+from pymapd._parsers import _load_schema, _load_data  # noqa
 
 
 HERE = os.path.dirname(__file__)
