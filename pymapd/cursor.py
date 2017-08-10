@@ -1,15 +1,11 @@
-from collections import namedtuple
 from typing import (Iterator, Iterable, List, Optional, Tuple, Any, Union)  # noqa
 
 import six
 import mapd.ttypes as T  # noqa
 
 from .exceptions import _translate_exception
-
-
-Description = namedtuple("Description", ["name", "type_code", "display_size",
-                                         "internal_size", "precision", "scale",
-                                         "null_ok"])
+from ._parsers import (_extract_col_vals, _extract_description,
+                       _extract_row_val, _is_columnar, _bind_parameters)
 
 
 class Cursor(object):
@@ -96,15 +92,28 @@ class Cursor(object):
         ----------
         operation : str
             A SQL query
-        parameters : tuple
+        parameters : dict
             Parameters to substitute into ``operation``.
 
         Returns
         -------
         self : Cursor
+
+        Examples
+        --------
+        >>> c = conn.cursor()
+        >>> c.execute("select symbol, qty from stocks")
+        >>> list(c)
+        [('RHAT', 100.0), ('IBM', 1000.0), ('MSFT', 1000.0), ('IBM', 500.0)]
+
+        Passing in ``parameters``:
+
+        >>> c.execute("select symbol qty from stocks where qty <= :max_qty",
+        ...           parameters={"max_qty": 500})
+        [('RHAT', 100.0), ('IBM', 500.0)]
         """
         if parameters is not None:
-            raise NotImplementedError
+            operation = str(_bind_parameters(operation, parameters))
         self.rowcount = -1
         try:
             result = self.connection._client.sql_execute(
@@ -125,9 +134,22 @@ class Cursor(object):
         self._result = result
         return self
 
-    def executemany(self, operation, parameters=None):
+    def executemany(self, operation, parameters):
+        """Execute a SQL statement for many sets of parameters.
+
+        Parameters
+        ----------
+        operation : str
+        parameters : list of dict
+
+        Returns
+        -------
+        results : list of lists
+        """
         # type: (str, Iterable) -> None
-        pass
+        results = [list(self.execute(operation, params)) for params
+                   in parameters]
+        return results
 
     def fetchone(self):
         # type: () -> Optional[Any]
@@ -175,61 +197,16 @@ def make_row_results_set(data):
     -------
     results : Iterator[tuple]
     """
-    if is_columnar(data):
-        nrows = len(data.row_set.columns[0].nulls)
-        ncols = len(data.row_set.row_desc)
-        columns = [_extract_col_vals(desc, col)
-                   for desc, col in zip(data.row_set.row_desc,
-                                        data.row_set.columns)]
-        for i in range(nrows):
-            yield tuple(columns[j][i] for j in range(ncols))
+    if _is_columnar(data):
+        if data.row_set.columns:
+            nrows = len(data.row_set.columns[0].nulls)
+            ncols = len(data.row_set.row_desc)
+            columns = [_extract_col_vals(desc, col)
+                       for desc, col in zip(data.row_set.row_desc,
+                                            data.row_set.columns)]
+            for i in range(nrows):
+                yield tuple(columns[j][i] for j in range(ncols))
     else:
         for row in data.row_set.rows:
             yield tuple(_extract_row_val(desc, val)
                         for desc, val in zip(data.row_set.row_desc, row.cols))
-
-
-def is_columnar(data):
-    # type: (T.TQueryResult) -> bool
-    return data.row_set.is_columnar
-
-
-_typeattr = {
-    'SMALLINT': 'int',
-    'INT': 'int',
-    'BIGINT': 'int',
-    'TIME': 'int',
-    'TIMESTAMP': 'int',
-    'DATE': 'int',
-    'BOOL': 'int',
-    'FLOAT': 'real',
-    'DECIMAL': 'real',
-    'DOUBLE': 'real',
-    'STR': 'str',
-}
-
-
-def _extract_row_val(desc, val):
-    # type: (T.TColumnType, T.TDatum) -> Any
-    typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]
-    return getattr(val.val, _typeattr[typename] + '_val')
-
-
-def _extract_col_vals(desc, val):
-    # type: (T.TColumnType, T.TColumn) -> Any
-    typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]
-    return getattr(val.data, _typeattr[typename] + '_col')
-
-
-def _extract_description(row_desc):
-    # type: (List[T.TColumnType]) -> List[Description]
-    """
-    Return a tuple of (name, type_code, display_size, internal_size,
-                       precision, scale, null_ok)
-
-    https://www.python.org/dev/peps/pep-0249/#description
-    """
-    return [Description(col.col_name, col.col_type.type,
-                        None, None, None, None,
-                        col.col_type.nullable)
-            for col in row_desc]
