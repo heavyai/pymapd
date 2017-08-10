@@ -35,11 +35,14 @@ except cuda.cudadrv.error.CudaDriverError:
     has_gpu = False
 
 ch = logging.StreamHandler()
+fh = logging.FileHandler('timing.csv')
 formatter = logging.Formatter(
-    '%(asctime)s,%(levelname)8s,%(name)s,%(message)s')
+    '%(message)s')
 ch.setFormatter(formatter)
+fh.setFormatter(formatter)
 logger = logging.getLogger(__name__)
 logger.addHandler(ch)
+logger.addHandler(fh)
 logger.setLevel(logging.INFO)
 
 # -----------------------------------------------------------------------------

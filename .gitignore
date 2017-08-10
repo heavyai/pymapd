@@ -103,3 +103,4 @@ benchmarks/.asv
 *.c
 pymapd/*.cpp
 *.dat
+*.csv
