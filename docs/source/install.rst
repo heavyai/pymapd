@@ -28,3 +28,4 @@ its dependencies.
 .. _conda-forge: http://conda-forge.github.io/
 .. _pygdf: https://github.com/gpuopenanalytics/pygdf
 .. _pyarrow: https://arrow.apache.org/docs/python/
+.. _Apache Arrow: http://arrow.apache.org/
