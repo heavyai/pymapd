@@ -88,12 +88,16 @@ class TestIntegration:
         assert result == [[], []]  # TODO: not sure if this is standard
         c.execute("drop table stocks2;")
 
-    def test_select_ipc(self, con, stocks):
+    @pytest.mark.parametrize('query, parameters', [
+        ('select qty, price from stocks', None),
+        ('select qty, price from stocks where qty=:qty', {'qty': 100}),
+    ])
+    def test_select_ipc_parametrized(self, con, stocks, query, parameters):
         pd = pytest.importorskip("pandas")
         import numpy as np
         import pandas.util.testing as tm
 
-        result = con.select_ipc("select qty, price from stocks")
+        result = con.select_ipc(query, parameters=parameters)
         expected = pd.DataFrame({
             "qty": np.array([100, 100], dtype=np.int32),
             "price": np.array([35.13999938964844, 12.140000343322754],
@@ -101,8 +105,12 @@ class TestIntegration:
         })[['qty', 'price']]
         tm.assert_frame_equal(result, expected)
 
+    @pytest.mark.parametrize('query, parameters', [
+        ('select qty, price from stocks', None),
+        ('select qty, price from stocks where qty=:qty', {'qty': 100}),
+    ])
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
-    def test_select_ipc_gpu(self, con, stocks):
+    def test_select_ipc_gpu(self, con, stocks, query, parameters):
         import pandas as pd
         import numpy as np
         from pygdf.dataframe import DataFrame

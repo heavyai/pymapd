@@ -14,7 +14,9 @@ from mapd.ttypes import TMapDException
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
 
-from ._parsers import _load_data, _load_schema, _parse_tdf_gpu
+from ._parsers import (
+    _load_data, _load_schema, _parse_tdf_gpu, _bind_parameters
+)
 
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
@@ -213,7 +215,7 @@ class Connection(object):
         """Create a new :class:`Cursor` object attached to this connection."""
         return Cursor(self)
 
-    def select_ipc_gpu(self, operation, device_id=0):
+    def select_ipc_gpu(self, operation, parameters=None, device_id=0):
         """Execute a ``SELECT`` operation using GPU memory.
 
         Parameters
@@ -239,15 +241,21 @@ class Connection(object):
         except ImportError:
             raise ImportError("Install pygdf")
 
+        if parameters is not None:
+            operation = str(_bind_parameters(operation, parameters))
+
         tdf = self._client.sql_execute_gdf(
             self._session, operation, device_id=device_id, first_n=-1)
         return _parse_tdf_gpu(tdf)
 
-    def select_ipc(self, operation):
+    def select_ipc(self, operation, parameters=None):
         """Execute a ``SELECT`` operation.
         """
         # TODO: accept first_n
         from .shm import load_buffer
+
+        if parameters is not None:
+            operation = str(_bind_parameters(operation, parameters))
 
         tdf = self._client.sql_execute_df(
             self._session, operation, device_type=0, device_id=0, first_n=-1)

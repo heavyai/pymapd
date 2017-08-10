@@ -133,3 +133,10 @@ def _parse_tdf_gpu(tdf):
         df[k] = v
 
     return df
+
+
+def _bind_parameters(operation, parameters):
+    from sqlalchemy import text
+    return (text(operation)
+            .bindparams(**parameters)
+            .compile(compile_kwargs={"literal_binds": True}))

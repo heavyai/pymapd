@@ -5,7 +5,7 @@ import mapd.ttypes as T  # noqa
 
 from .exceptions import _translate_exception
 from ._parsers import (_extract_col_vals, _extract_description,
-                       _extract_row_val, _is_columnar)
+                       _extract_row_val, _is_columnar, _bind_parameters)
 
 
 class Cursor(object):
@@ -178,13 +178,6 @@ class Cursor(object):
     def setoutputsizes(self, size, column=None):
         # type: (int, Optional[Any]) -> None
         pass
-
-
-def _bind_parameters(operation, parameters):
-    from sqlalchemy import text
-    return (text(operation)
-            .bindparams(**parameters)
-            .compile(compile_kwargs={"literal_binds": True}))
 
 
 # -----------------------------------------------------------------------------
