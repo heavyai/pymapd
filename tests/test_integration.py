@@ -65,7 +65,7 @@ class TestIntegration:
         c.execute('select symbol, qty from stocks where symbol = :symbol',
                   {'symbol': 'GOOG'})
         result = list(c)
-        expected = [('GOOG', 100),]
+        expected = [('GOOG', 100),]  # noqa
         assert result == expected
 
     def test_executemany_parametrized(self, con, stocks):
