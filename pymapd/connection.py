@@ -215,13 +215,16 @@ class Connection(object):
         """Create a new :class:`Cursor` object attached to this connection."""
         return Cursor(self)
 
-    def select_ipc_gpu(self, operation, parameters=None, device_id=0):
+    def select_ipc_gpu(self, operation, parameters=None, device_id=0,
+                       first_n=-1):
         """Execute a ``SELECT`` operation using GPU memory.
 
         Parameters
         ----------
         operation : str
             A SQL statement
+        parameters : dict, optional
+            Parameters to insert into a parametrized query
         device_id : int
             GPU to return results to
 
@@ -234,7 +237,6 @@ class Connection(object):
         This requires the option ``pygdf`` and ``libgdf`` libraries.
         An ``ImportError`` is raised if those aren't available.
         """
-        # TODO: figure out what `first_n` does, add to API
         try:
             from pygdf.gpuarrow import GpuArrowReader  # noqa
             from pygdf.dataframe import DataFrame      # noqa
@@ -245,20 +247,44 @@ class Connection(object):
             operation = str(_bind_parameters(operation, parameters))
 
         tdf = self._client.sql_execute_gdf(
-            self._session, operation, device_id=device_id, first_n=-1)
+            self._session, operation, device_id=device_id, first_n=first_n)
         return _parse_tdf_gpu(tdf)
 
-    def select_ipc(self, operation, parameters=None):
-        """Execute a ``SELECT`` operation.
+    def select_ipc(self, operation, parameters=None, first_n=-1):
+        """Execute a ``SELECT`` operation using CPU shared memory
+
+        Parameters
+        ----------
+        operation : str
+            A SQL select statement
+        parameters : dict, optional
+            Parameters to insert for a parametrized query
+
+        Returns
+        -------
+        df : pandas.DataFrame
+
+        Notes
+        -----
+        This method requires pandas and pyarrow to be installed
         """
-        # TODO: accept first_n
+        try:
+            import pandas  # noqa
+        except ImportError:
+            raise ImportError("pandas is required for `select_ipc`")
+        try:
+            import pyarrow  # noqa
+        except ImportError:
+            raise ImportError("pyarrow is required for `select_ipc`")
         from .shm import load_buffer
 
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
 
         tdf = self._client.sql_execute_df(
-            self._session, operation, device_type=0, device_id=0, first_n=-1)
+            self._session, operation, device_type=0, device_id=0,
+            first_n=first_n
+        )
 
         sm_buf = load_buffer(tdf.sm_handle, tdf.sm_size)
         df_buf = load_buffer(tdf.df_handle, tdf.df_size)

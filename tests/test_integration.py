@@ -105,6 +105,12 @@ class TestIntegration:
         })[['qty', 'price']]
         tm.assert_frame_equal(result, expected)
 
+    @pytest.mark.xfail
+    def test_select_ipc_first_n(self, con, stocks):
+        pytest.importorskip("pandas")
+        result = con.select_ipc("select * from stocks", first_n=1)
+        assert len(result) == 1
+
     @pytest.mark.parametrize('query, parameters', [
         ('select qty, price from stocks', None),
         ('select qty, price from stocks where qty=:qty', {'qty': 100}),
@@ -124,3 +130,9 @@ class TestIntegration:
 
         result = result.to_pandas()[['qty', 'price']]  # column order
         pd.testing.assert_frame_equal(result, expected)
+
+    @pytest.mark.xfail
+    @pytest.mark.skipif(no_gpu(), reason="No GPU available")
+    def test_select_gpu_first_n(self, con, stocks):
+        result = con.select_ipc("select * from stocks", first_n=1)
+        assert len(result) == 1
