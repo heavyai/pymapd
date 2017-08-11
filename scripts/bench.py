@@ -55,7 +55,7 @@ selects = {
     'thrift': lambda con, op: list(con.execute(op)),
 }
 if has_gpu:
-    selects['gpu'] = lambda con, op: con.select_ipc_gpu(op),
+    selects['gpu'] = lambda con, op: con.select_ipc_gpu(op)
 # -----------------------------------------------------------------------------
 
 

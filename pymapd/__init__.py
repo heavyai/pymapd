@@ -12,7 +12,7 @@ from mapd import MapD  # noqa
 
 
 apilevel = "2.0"
-threadsafety = 1  # TODO: check
+threadsafety = 2
 paramstyle = "named"
 
 from .connection import (  # noqa
