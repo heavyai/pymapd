@@ -5,6 +5,7 @@ import pytest
 
 from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
+from pymapd._parsers import Description
 from pymapd.compat import TMapDException
 
 from .utils import no_gpu
@@ -59,6 +60,19 @@ class TestIntegration:
         result = con.execute("drop table if exists FOO;")
         result = con.execute("create table FOO (a int);")
         assert isinstance(result, Cursor)
+
+    def test_select_sets_description(self, con, stocks):
+        c = con.cursor()
+        c.execute("select * from stocks")
+        expected = [
+            Description('date_', 6, None, None, None, None, True),
+            Description('trans', 6, None, None, None, None, True),
+            Description('symbol', 6, None, None, None, None, True),
+            Description('qty', 1, None, None, None, None, True),
+            Description('price', 3, None, None, None, None, True),
+            Description('vol', 3, None, None, None, None, True),
+        ]
+        assert c.description == expected
 
     def test_select_parametrized(self, con, stocks):
         c = con.cursor()
@@ -136,3 +150,29 @@ class TestIntegration:
     def test_select_gpu_first_n(self, con, stocks):
         result = con.select_ipc("select * from stocks", first_n=1)
         assert len(result) == 1
+
+    def test_select_rowwise(self, con, stocks):
+        c = con.cursor()
+        c.columnar = False
+        c.execute("select * from stocks;")
+        assert c.rowcount == 2
+        assert c.description is not None
+
+    def test_fetchone(self, con, stocks):
+        c = con.cursor()
+        c.execute("select symbol, qty from stocks")
+        result = c.fetchone()
+        expected = ('RHAT', 100)
+        assert result == expected
+
+    def test_fetchmany(self, con, stocks):
+        c = con.cursor()
+        c.execute("select symbol, qty from stocks")
+        result = c.fetchmany()
+        expected = [('RHAT', 100)]
+        assert result == expected
+
+        c.execute("select symbol, qty from stocks")
+        result = c.fetchmany(size=10)
+        expected = [('RHAT', 100), ('GOOG', 100)]
+        assert result == expected
