@@ -35,7 +35,9 @@ conda install -q \
       pytest \
       pytest-cov \
       pytest-mock \
-      sqlalchemy
+      sqlalchemy \
+      pandas \
+      pyarrow
 
 if [ $PYTHON = "2.7" ];
 then
