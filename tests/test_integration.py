@@ -8,7 +8,7 @@ from pymapd.cursor import Cursor
 from pymapd._parsers import Description
 from pymapd.compat import TMapDException
 
-from .utils import no_gpu
+from .utils import no_gpu, mock
 
 # XXX: Make it hashable to silence warnings; see if this can be done upstream
 # This isn't a huge deal, but our testing context mangers for asserting
@@ -176,3 +176,22 @@ class TestIntegration:
         result = c.fetchmany(size=10)
         expected = [('RHAT', 100), ('GOOG', 100)]
         assert result == expected
+
+
+class TestOptionalImports(object):
+
+    @pytest.mark.parametrize('pkg', [
+        'pyarrow', 'pandas'
+    ])
+    def test_select_ipc(self, con, pkg):
+        with mock.patch.dict('sys.modules', {pkg: None}):
+            with pytest.raises(ImportError) as m:
+                con.select_ipc("select * from foo;")
+
+        assert m.match("{} is required for `select_ipc`".format(pkg))
+
+    def test_select_gpu(self, con):
+        with mock.patch.dict("sys.modules", {"pygdf": None}):
+            with pytest.raises(ImportError) as m:
+                con.select_ipc_gpu("select * from foo;")
+        assert m.match("The 'pygdf' package is required")

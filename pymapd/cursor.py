@@ -1,7 +1,5 @@
-from typing import (Iterator, Iterable, List, Optional, Tuple, Any, Union)  # noqa
-
 import six
-import mapd.ttypes as T  # noqa
+import mapd.ttypes as T
 
 from .exceptions import _translate_exception
 from ._parsers import (_extract_col_vals, _extract_description,
