@@ -1,16 +1,15 @@
 """
 Connect to a MapD database.
 """
-from typing import List, Tuple, Any, Union, Optional  # noqa
 from collections import namedtuple
 
 import six
+from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
 from mapd.MapD import Client
 from mapd.ttypes import TMapDException
-from sqlalchemy.engine.url import make_url
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
@@ -249,7 +248,8 @@ class Connection(object):
             from pygdf.gpuarrow import GpuArrowReader  # noqa
             from pygdf.dataframe import DataFrame      # noqa
         except ImportError:
-            raise ImportError("Install pygdf")
+            raise ImportError("The 'pygdf' package is required for "
+                              "`select_ipc_gpu`")
 
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
@@ -277,13 +277,15 @@ class Connection(object):
         This method requires pandas and pyarrow to be installed
         """
         try:
-            import pandas  # noqa
-        except ImportError:
-            raise ImportError("pandas is required for `select_ipc`")
-        try:
             import pyarrow  # noqa
         except ImportError:
             raise ImportError("pyarrow is required for `select_ipc`")
+
+        try:
+            import pandas  # noqa
+        except ImportError:
+            raise ImportError("pandas is required for `select_ipc`")
+
         from .shm import load_buffer
 
         if parameters is not None:

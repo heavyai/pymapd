@@ -2,6 +2,7 @@
 Utility methods for parsing data returned from MapD
 """
 from collections import namedtuple
+from sqlalchemy import text
 import mapd.ttypes as T
 
 
@@ -136,7 +137,6 @@ def _parse_tdf_gpu(tdf):
 
 
 def _bind_parameters(operation, parameters):
-    from sqlalchemy import text
     return (text(operation)
             .bindparams(**parameters)
             .compile(compile_kwargs={"literal_binds": True}))

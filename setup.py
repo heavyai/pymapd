@@ -13,20 +13,20 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires = ['six', 'thrift']
-
-if sys.version_info[0] == 2:
-    install_requires.append("typing")
+install_requires = ['six', 'thrift', 'sqlalchemy']
 
 # Optional Requirements
 
 
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
-test_requires = ['coverage', 'pytest', 'pytest-mock', 'sqlalchemy']
+test_requires = ['coverage', 'pytest', 'pytest-mock']
 dev_requires = doc_requires + test_requires
 gpu_requires = ['pygdf', 'libgdf']
 arrow_requires = ['pyarrow']
 complete_requires = dev_requires + gpu_requires + arrow_requires
+
+if sys.version_info.major == 2:
+    test_requires.append("mock")
 
 
 extra_requires = {
@@ -65,14 +65,6 @@ else:
             extra_link_args=['-std=c++11'],
             language="c++",
         ),
-        # Extension(
-        #     "pymapd.cpu",
-        #     ["pymapd/cpu.pyx", "cpp/src/cpu.cpp"],
-        #     include_dirs=[np.get_include()],
-        #     language="c++",
-        #     extra_compile_args=['-std=c++11'],
-        #     extra_link_args=['-std=c++11'],
-        # )
     ]
 
 setup(
@@ -87,9 +79,10 @@ setup(
     license='Apache Software License',
 
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        # 'Topic :: Software Development :: Build Tools',
+        'Topic :: Database',
+        'Topic :: Scientific/Engineering',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
@@ -98,12 +91,8 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-
-    # keywords='sample setuptools development',
-
     packages=['pymapd', 'mapd'],
     use_scm_version=True,
-
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
     extras_require=extra_requires,

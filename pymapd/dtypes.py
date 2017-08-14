@@ -4,7 +4,6 @@ https://www.python.org/dev/peps/pep-0249/#type-objects
 import datetime
 import six
 import time
-from typing import List, Any  # noqa
 
 from mapd import MapD
 

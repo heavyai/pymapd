@@ -1,3 +1,9 @@
+try:
+    from unittest import mock
+except ImportError:
+    import mock  # noqa
+
+
 def no_gpu():
     """Detect if don't have numba and a GPU available"""
     try:
