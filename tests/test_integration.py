@@ -180,15 +180,20 @@ class TestIntegration:
 
 class TestOptionalImports(object):
 
-    @pytest.mark.parametrize('pkg', [
-        'pyarrow', 'pandas'
-    ])
-    def test_select_ipc(self, con, pkg):
-        with mock.patch.dict('sys.modules', {pkg: None}):
+    def test_select_ipc_pyarrow(self, con):
+        with mock.patch.dict('sys.modules', {'pyarrow': None}):
             with pytest.raises(ImportError) as m:
                 con.select_ipc("select * from foo;")
 
-        assert m.match("{} is required for `select_ipc`".format(pkg))
+        assert m.match("pyarrow is required for `select_ipc`")
+
+    def test_select_ipc_pandas(self, con):
+        pytest.importorskip("pyarrow")
+        with mock.patch.dict('sys.modules', {'pandas': None}):
+            with pytest.raises(ImportError) as m:
+                con.select_ipc("select * from foo;")
+
+        assert m.match("pandas is required for `select_ipc`")
 
     def test_select_gpu(self, con):
         with mock.patch.dict("sys.modules", {"pygdf": None}):
