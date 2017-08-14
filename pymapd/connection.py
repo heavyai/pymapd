@@ -10,6 +10,7 @@ from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
 from mapd.MapD import Client
 from mapd.ttypes import TMapDException
+from sqlalchemy.engine.url import make_url
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
@@ -23,13 +24,13 @@ ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
                                                'port', 'dbname', 'protocol'])
 
 
-def connect(user=None,          # type: Optional[str]
+def connect(uri=None,           # type: Optional[str]
+            user=None,          # type: Optional[str]
             password=None,      # type: Optional[str]
             host=None,          # type: Optional[str]
             port=9091,          # type: Optional[int]
             dbname=None,        # type: Optional[str]
             protocol='binary',  # type: Optional[str]
-            uri=None            # type: Optional[str]
             ):
     # type: (...) -> Connection
     """
@@ -37,6 +38,7 @@ def connect(user=None,          # type: Optional[str]
 
     Parameters
     ----------
+    uri : str
     user : str
     password : str
     host : str
@@ -47,10 +49,21 @@ def connect(user=None,          # type: Optional[str]
     Returns
     -------
     conn : Connection
+
+    Examples
+    --------
+    You can either pass a string ``uri`` or all the individual components
+
+    >>> connect('mapd://mapd:HyperInteractive@localhost:9091/mapd?'
+    ...         'protocol=binary')
+    Connection(mapd://mapd:***@localhost:9091/mapd?protocol=binary)
+
+    >>> connect(user='mapd', password='HyperInteractive', host='localhost',
+    ...         port=9091, dbname='mapd')
+
     """
-    # TODO: accept a dsn URI like sqlalchemy.Engine
-    return Connection(user=user, password=password, host=host, port=port,
-                      dbname=dbname, protocol=protocol, uri=uri)
+    return Connection(uri=uri, user=user, password=password, host=host,
+                      port=port, dbname=dbname, protocol=protocol)
 
 
 def _parse_uri(uri):
@@ -78,11 +91,6 @@ def _parse_uri(uri):
     - dbname
     - protocol
     """
-    try:
-        from sqlalchemy.engine.url import make_url
-    except ImportError:
-        # TODO: We could remove this requirement and do the parsing ourselves
-        raise ImportError("URI parsing requires SQLAlchemy")
     url = make_url(uri)
     user = url.username
     password = url.password
@@ -98,13 +106,13 @@ class Connection(object):
     """Connect to your mapd database."""
 
     def __init__(self,
+                 uri=None,           # type: Optional[str]
                  user=None,          # type: Optional[str]
                  password=None,      # type: Optional[str]
                  host=None,          # type: Optional[str]
                  port=9091,          # type: Optional[int]
                  dbname=None,        # type: Optional[str]
                  protocol='binary',  # type: Optional[str]
-                 uri=None            # type: Optional[str]
                  ):
         # type: (...) -> None
         if uri is not None:
@@ -130,8 +138,8 @@ class Connection(object):
             transport = TTransport.TBufferedTransport(socket)
             proto = TBinaryProtocol.TBinaryProtocol(transport)
         else:
-            raise TypeError("`protocol` should be one of ['http', 'binary'], ",
-                            "got {} instead".format(protocol))
+            raise ValueError("`protocol` should be one of ['http', 'binary'],",
+                             " got {} instead".format(protocol))
         self._user = user
         self._password = password
         self._host = host

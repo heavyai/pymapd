@@ -45,14 +45,25 @@ class TestConnect:
         result = con.commit()  # it worked
         assert result is None
 
+    def test_bad_protocol(self, mock_transport, mock_client):
+        with pytest.raises(ValueError) as m:
+            connect(user='user', host='localhost', dbname='dbname',
+                    protocol='fake-proto')
+        assert m.match('fake-proto')
+
 
 class TestURI:
 
     def test_parse_uri(self):
-        pytest.importorskip("sqlalchemy")
         uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?'
                'protocol=binary')
         result = _parse_uri(uri)
         expected = ConnectionInfo("mapd", "HyperInteractive", "localhost",
                                   9091, "mapd", "binary")
         assert result == expected
+
+    def test_both_raises(self):
+        uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?'
+               'protocol=binary')
+        with pytest.raises(TypeError):
+            connect(uri=uri, user='my user')

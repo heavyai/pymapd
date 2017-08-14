@@ -1,3 +1,5 @@
+import pytest
+
 from pymapd.cursor import Cursor, _bind_parameters
 
 
@@ -25,3 +27,12 @@ class TestCursor:
         # note the inner quotes
         expected = "select * from foo where bar > '1; drop table foo'"
         assert result == expected
+
+    def test_arraysize(self):
+        c = Cursor(None)
+        assert c.arraysize == 1
+        c.arraysize = 10
+        assert c.arraysize == 10
+
+        with pytest.raises(TypeError):
+            c.arraysize = 'a'
