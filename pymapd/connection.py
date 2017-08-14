@@ -10,7 +10,6 @@ from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
 from mapd.MapD import Client
 from mapd.ttypes import TMapDException
-from sqlalchemy.engine.url import make_url
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
