@@ -39,6 +39,12 @@ class TestConnect:
         assert isinstance(cur, Cursor)
         assert con.closed == 0
 
+    def test_commit_noop(self, mock_transport, mock_client):
+        con = connect(user='user', password='password',
+                      host='localhost', dbname='dbname')
+        result = con.commit()  # it worked
+        assert result is None
+
 
 class TestURI:
 
