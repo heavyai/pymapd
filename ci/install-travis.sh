@@ -37,13 +37,15 @@ conda install -q \
       pytest-mock \
       sqlalchemy \
       pandas \
-      pyarrow
+      pyarrow \
+      cython
 
 if [ $PYTHON = "2.7" ];
 then
     pip install typing;
 fi
 
+python setup.py build_ext -i
 pip install -e .
 conda list test-environment
 exit 0
