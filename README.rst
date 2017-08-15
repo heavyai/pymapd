@@ -17,7 +17,7 @@ Quick Install
 
 Packages are available on conda-forge and PyPI::
 
-   conda install -c conda-forge pympad
+   conda install -c conda-forge pymapd
 
 Developer builds of each commit are available on the ``pymapd`` channel (Linux only)::
 
