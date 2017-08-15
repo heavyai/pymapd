@@ -7,3 +7,6 @@ dependencies:
 - six=1.10.0
 - thrift=0.10.0
 - numpydoc
+- cython
+- pyarrow
+- arrow-cpp
