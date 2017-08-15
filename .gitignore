@@ -104,3 +104,11 @@ benchmarks/.asv
 pymapd/*.cpp
 *.dat
 *.csv
+benchmarks/*.html
+bencmarks/*.ipynb
+*.ipynb
+/benchmarks/cpu
+/benchmarks/cpu-small
+/benchmarks/gpu
+/benchmarks/gpu-small
+/benchmarks/thrift
