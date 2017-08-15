@@ -4,8 +4,13 @@ from codecs import open
 
 from setuptools import setup
 from setuptools.extension import Extension
-from Cython.Build import cythonize
-import numpy as np
+try:
+    from Cython.Build import cythonize
+    import numpy as np
+except ImportError:
+    build_extensions = False
+else:
+    build_extensions = True
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -41,31 +46,35 @@ extra_requires = {
 # ------------
 # C Extensions
 # ------------
-try:
-    import pyarrow
-except ImportError:
-    extensions = []
-else:
-    home = os.path.dirname(pyarrow.__file__)
-    include = os.path.join(home, 'include')
-    link_args = []
-
-    if sys.platform == "darwin":
-        link_args.append('-Wl,-rpath,@loader_path/pyarrow')
+if build_extensions:
+    try:
+        import pyarrow
+    except ImportError:
+        extensions = []
     else:
-        link_args.append("-Wl,-rpath,$ORIGIN/pyarrow")
+        home = os.path.dirname(pyarrow.__file__)
+        include = os.path.join(home, 'include')
+        link_args = []
 
-    extensions = [
-        Extension(
-            "pymapd.shm",
-            ["pymapd/shm.pyx"],
-            libraries=['arrow', 'arrow_python'],
-            include_dirs=[np.get_include(), include],
-            extra_compile_args=['-std=c++11'],
-            extra_link_args=['-std=c++11'],
-            language="c++",
-        ),
-    ]
+        if sys.platform == "darwin":
+            link_args.append('-Wl,-rpath,@loader_path/pyarrow')
+        else:
+            link_args.append("-Wl,-rpath,$ORIGIN/pyarrow")
+
+        extensions = [
+            Extension(
+                "pymapd.shm",
+                ["pymapd/shm.pyx"],
+                libraries=['arrow', 'arrow_python'],
+                include_dirs=[np.get_include(), include],
+                extra_compile_args=['-std=c++11'],
+                extra_link_args=['-std=c++11'],
+                language="c++",
+            ),
+        ]
+        extra_kwargs = dict(ext_modules=cythonize(extensions))
+else:
+    extra_kwargs = dict()
 
 setup(
     name='pymapd',
@@ -96,5 +105,5 @@ setup(
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
     extras_require=extra_requires,
-    ext_modules=cythonize(extensions),
+    **extra_kwargs
 )
