@@ -25,6 +25,8 @@ requirements:
     - typing  # [py2k]
     - cython
     - numpy
+    - arrow-cpp
+    - pyarrow
   run:
     - python
     - setuptools
@@ -43,6 +45,7 @@ test:
   imports:
     - pymapd
     - mapd
+    - pymapd.shm
 
 about:
   home: https://mapd.com/
