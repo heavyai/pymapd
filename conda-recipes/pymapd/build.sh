@@ -1,2 +1,2 @@
 # Install pymapd
-$PYTHON setup.py install --single-version-externally-managed
+$PYTHON setup.py install --single-version-externally-managed --record=record.txt
