@@ -20,13 +20,19 @@ Cases to cover:
 3. Short, narrow
 4. Short, wide
 """
+import argparse
+import datetime
+import logging
+import re
+import sys
 from timeit import default_timer as timer
 from functools import wraps
+from itertools import product
 
-import logging
+import coloredlogs
+from numba import cuda
 
 import pymapd
-from numba import cuda
 
 try:
     cuda.select_device(0)
@@ -34,21 +40,28 @@ try:
 except cuda.cudadrv.error.CudaDriverError:
     has_gpu = False
 
-ch = logging.StreamHandler()
-fh = logging.FileHandler('timing.csv')
-formatter = logging.Formatter(
-    '%(message)s')
-ch.setFormatter(formatter)
-fh.setFormatter(formatter)
 logger = logging.getLogger(__name__)
-logger.addHandler(ch)
-logger.addHandler(fh)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(message)s')
+coloredlogs.install(level='DEBUG')
+
+
+def parse_args(args=None):
+    parser = argparse.ArgumentParser(description='Run some benchmarks')
+    parser.add_argument("-c", '--count', type=int, default=3,
+                        help="Number of trials per benchmark")
+    parser.add_argument("-b", "--benchmarks", default=None,
+                        help='Regex to match benchmark names')
+    parser.add_argument("-o", '--output',
+                        default="timing-{:%Y-%m-%d-%H-%M-%S}.csv".format(
+                            datetime.datetime.now()),
+                        help="Output CSV")
+    return parser.parse_args(args)
+
 
 # -----------------------------------------------------------------------------
 # Benchmark Setup
 # -----------------------------------------------------------------------------
-
 _benchmarks = []
 selects = {
     'cpu': lambda con, op: con.select_ipc(op),
@@ -56,12 +69,16 @@ selects = {
 }
 if has_gpu:
     selects['gpu'] = lambda con, op: con.select_ipc_gpu(op)
-# -----------------------------------------------------------------------------
 
 
 def benchmark(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
+        warmup = kwargs.pop('warmup', False)
+
+        if warmup:
+            func(*args, **kwargs)
+
         kind = args[0]
         t0 = timer()
         try:
@@ -76,6 +93,7 @@ def benchmark(func):
 
     _benchmarks.append(wrapper)
     return wrapper
+# -----------------------------------------------------------------------------
 
 
 @benchmark
@@ -119,19 +137,88 @@ def select_wide_large(kind, con):
     selects[kind](con, q)
 
 
-def main():
-    n = 5
+@benchmark
+def select_reduction(kind, con):
+    q = '''select avg(flight_year), count(*) from flights_2008_10k;'''
+    return selects[kind](con, q)
+
+
+@benchmark
+def select_groupby(kind, con):
+    q = '''\
+    SELECT uniquecarrier, avg(depdelay) as delay
+    from flights_2008_10k
+    group by uniquecarrier
+    '''
+    return selects[kind](con, q)
+
+
+@benchmark
+def select_distinct_single(kind, con):
+    q = 'select distinct uniquecarrier from flights_2008_10k'
+    return selects[kind](con, q)
+
+
+@benchmark
+def select_distinct_multiple(kind, con):
+    q = 'select distinct uniquecarrier, flight_year, flight_month, flight_dayofmonth, flight_dayofweek from flights_2008_10k'
+    return selects[kind](con, q)
+
+
+@benchmark
+def select_filter(kind, con):
+    q = 'select uniquecarrier, depdelay, arrdelay from flights_2008_10k where depdelay > 10'
+    return selects[kind](con, q)
+
+
+@benchmark
+def select_complex(kind, con):
+    q = '''
+    SELECT origin, dest, carrier_name, count(*), avg(depdelay), avg(arrdelay)
+    FROM flights_2008_10k
+    WHERE arrdelay between -30 and 100
+    GROUP BY origin, dest, carrier_name
+    ORDER BY origin, dest, carrier_name'''
+    return selects[kind](con, q)
+
+
+skips = {
+    (),
+}
+
+
+def main(args=None):
+    args = parse_args(args)
+
+    fh = logging.FileHandler(args.output)
+    fh.setLevel(logging.INFO)
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
     con = pymapd.connect(
         user='mapd',
         password='HyperInteractive',
         dbname='mapd',
         host='localhost')
 
-    for kind in selects.keys():
-        for bench in _benchmarks:
-            for i in range(n):
-                bench(kind, con)
+    grid = product(selects.keys(), _benchmarks)
+    if args.benchmarks:
+        xpr = re.compile(args.benchmarks)
+    else:
+        xpr = None
+
+    for kind, bench in grid:
+        if xpr:
+            if not xpr.search(bench.__name__):
+                continue
+        logger.debug("Starting %s[%s]", bench.__name__, kind)
+        bench(kind, con, warmup=True)
+
+        for i in range(args.count):
+            logger.debug("%s[%s] %d/%d", bench.__name__, kind, i + 1,
+                         args.count)
+            bench(kind, con)
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main(None))
