@@ -110,7 +110,7 @@ text_cols = (
     'origin_state, origin_country, dest_name, dest_city, dest_state, '
     'dest_country'
 )
-mixed_cols = numeric_cols + text_cols
+mixed_cols = numeric_cols + ', ' + text_cols
 
 # -----------------------------------------------------------------------------
 
