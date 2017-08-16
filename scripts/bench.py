@@ -93,6 +93,25 @@ def benchmark(func):
 
     _benchmarks.append(wrapper)
     return wrapper
+
+
+numeric_cols = ('flight_year, flight_month, flight_dayofmonth, '
+                'flight_dayofweek, deptime, crsdeptime, arrtime, crsarrtime, '
+                'flightnum, actualelapsedtime, crselapsedtime, airtime, '
+                'arrdelay, depdelay, distance, taxiin, taxiout, cancelled, '
+                'diverted, carrierdelay, weatherdelay, nasdelay, '
+                'securitydelay, lateaircraftdelay, plane_year, origin_lat, '
+                'origin_lon, dest_lat, dest_lon, origin_merc_x, origin_merc_y, '
+                'dest_merc_x, dest_merc_y')
+text_cols = (
+    'uniquecarrier, tailnum, origin, dest, cancellationcode, carrier_name, '
+    'plane_type, plane_manufacturer, plane_model, plane_status, '
+    'plane_aircraft_type, plane_engine_type, origin_name, origin_city, '
+    'origin_state, origin_country, dest_name, dest_city, dest_state, '
+    'dest_country'
+)
+mixed_cols = numeric_cols + text_cols
+
 # -----------------------------------------------------------------------------
 
 
@@ -121,19 +140,20 @@ def select_numeric_large(kind, con):
 
 
 @benchmark
-def select_wide_small(kind, con):
-    q = '''
-    select flight_year, flight_month, flight_dayofmonth, flight_dayofweek, deptime, crsdeptime, arrtime, crsarrtime, uniquecarrier, flightnum, tailnum, actualelapsedtime, crselapsedtime, airtime, arrdelay, depdelay, origin, dest, distance, taxiin, taxiout, cancelled, cancellationcode, diverted, carrierdelay, weatherdelay, nasdelay, securitydelay, lateaircraftdelay, carrier_name, plane_type, plane_manufacturer, plane_model, plane_status, plane_aircraft_type, plane_engine_type, plane_year, origin_name, origin_city, origin_state, origin_country, origin_lat, origin_lon, dest_name, dest_city, dest_state, dest_country, dest_lat, dest_lon, origin_merc_x, origin_merc_y, dest_merc_x, dest_merc_y
-    from flights_2008_10k
-    limit 10;'''
+def select_wide_numeric(kind, con):
+    q = 'select {} from flights_2008_10k'.format(numeric_cols)
     selects[kind](con, q)
 
 
 @benchmark
-def select_wide_large(kind, con):
-    q = '''
-    select flight_year, flight_month, flight_dayofmonth, flight_dayofweek, deptime, crsdeptime, arrtime, crsarrtime, uniquecarrier, flightnum, tailnum, actualelapsedtime, crselapsedtime, airtime, arrdelay, depdelay, origin, dest, distance, taxiin, taxiout, cancelled, cancellationcode, diverted, carrierdelay, weatherdelay, nasdelay, securitydelay, lateaircraftdelay, carrier_name, plane_type, plane_manufacturer, plane_model, plane_status, plane_aircraft_type, plane_engine_type, plane_year, origin_name, origin_city, origin_state, origin_country, origin_lat, origin_lon, dest_name, dest_city, dest_state, dest_country, dest_lat, dest_lon, origin_merc_x, origin_merc_y, dest_merc_x, dest_merc_y
-    from flights_2008_10k;'''
+def select_wide_text(kind, con):
+    q = 'select {} from flights_2008_10k'.format(text_cols)
+    selects[kind](con, q)
+
+
+@benchmark
+def select_wide_mixed(kind, con):
+    q = 'select {} from flights_2008_10k'.format(mixed_cols)
     selects[kind](con, q)
 
 
@@ -161,13 +181,15 @@ def select_distinct_single(kind, con):
 
 @benchmark
 def select_distinct_multiple(kind, con):
-    q = 'select distinct uniquecarrier, flight_year, flight_month, flight_dayofmonth, flight_dayofweek from flights_2008_10k'
+    q = ('select distinct uniquecarrier, flight_year, flight_month, '
+         'flight_dayofmonth, flight_dayofweek from flights_2008_10k')
     return selects[kind](con, q)
 
 
 @benchmark
 def select_filter(kind, con):
-    q = 'select uniquecarrier, depdelay, arrdelay from flights_2008_10k where depdelay > 10'
+    q = ('select uniquecarrier, depdelay, arrdelay from flights_2008_10k '
+         'where depdelay > 10')
     return selects[kind](con, q)
 
 
