@@ -36,7 +36,12 @@ conda install -q \
       pytest-cov \
       pytest-mock \
       sqlalchemy \
-      mock
+      mock \
+      pyarrow \
+      arrow-cpp \
+      cython \
+      numpy \
+      pandas
 
 pip install -e .
 conda list test-environment
