@@ -15,7 +15,8 @@ from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
 
 from ._parsers import (
-    _load_data, _load_schema, _parse_tdf_gpu, _bind_parameters
+    _load_data, _load_schema, _parse_tdf_gpu, _bind_parameters,
+    _extract_column_details
 )
 
 
@@ -302,3 +303,40 @@ class Connection(object):
         schema = _load_schema(sm_buf)
         df = _load_data(df_buf, schema)
         return df
+
+    # --------------------------------------------------------------------------
+    # Convenience methods
+    # --------------------------------------------------------------------------
+    def get_tables(self):
+        """List all the tables in the database
+
+        Examples
+        --------
+        >>> con.get_tables()
+        ['flights_2008_10k', 'stocks']
+        """
+        return self._client.get_tables(self._session)
+
+    def get_table_details(self, table_name):
+        """Get the column names and data types associated with a table.
+
+        Parameters
+        ----------
+        table_name : str
+
+        Returns
+        -------
+        details : List[tuples]
+
+        Examples
+        --------
+        >>> con.get_table_details('stocks')
+        [ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
+                       scale=0, comp_param=32),
+         ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
+                       scale=0, comp_param=32),
+         ...
+        ]
+        """
+        details = self._client.get_table_details(self._session, table_name)
+        return _extract_column_details(details.row_desc)

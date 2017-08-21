@@ -8,6 +8,24 @@ pymapd
 
 A python `DB-API-2.0`_ compliant interface to `MapD`_.
 
+
+.. code-block:: python
+
+   >>> from pymapd import connect
+   >>> con = connect(user="mapd", password="HyperInteractive", host="localhost",
+   ...               dbname="mapd")
+   >>> query = "SELECT depdelay, arrdelay FROM flights_2008_10k limit 100"
+   >>> df = con.select_ipc_gpu("SELECT depdelay, arrdelay "
+   ...                         "FROM   flights_2008_10k "
+   ...                         "LIMIT  100")
+   >>> df.head()
+     depdelay arrdelay
+   0       -2      -13
+   1       -1      -13
+   2       -3        1
+   3        4       -3
+   4       12        7
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
