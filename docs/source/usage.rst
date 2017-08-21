@@ -1,5 +1,7 @@
 .. _usage:
 
+.. currentmodule:: pymapd
+
 Usage
 =====
 
@@ -41,6 +43,60 @@ For ``pymapd``, the ``dialect+driver`` will always be ``mapd``, and we look for
 a ``protocol`` argument in the optional query parameters (everything following
 the ``?`` after ``database``).
 
+Querying
+--------
+
+A few options are available for getting the results of a query into your Python
+process.
+
+1. Into GPU Memory via `pygdf`_ (:meth:`Connection.select_ipc_gpu`)
+2. Into CPU shared memory via Apache Arrow and pandas
+   (:meth:`Connection.select_ipc`)
+3. Into python objects via Apache Thrift (:meth:`Connection.execute`)
+
+The best option depends on the hardware you have available, and what you plan to
+do with the returned data. In general, the third method, using Thrift to
+serialize and deserialize the data, will slower than the GPU or CPU shared
+memory methods.
+
+GPU Select
+^^^^^^^^^^
+
+Use :meth:`Connection.select_ipc_gpu` to select data into a ``GpuDataFrame``,
+provided by `pygdf`_
+
+.. code-block:: python
+
+   >>> query = "SELECT depdelay, arrdelay FROM flights_2008_10k limit 100"
+   >>> df = con.select_ipc_gpu(query)
+   >>> df.head()
+     depdelay arrdelay
+   0       -2      -13
+   1       -1      -13
+   2       -3        1
+   3        4       -3
+   4       12        7
+
+CPU Shared Memory Select
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Use :meth:`Connection.select_ipc` to select data into a pandas ``DataFrame``
+using CPU shared memory to avoid unnecessary intermediate copies.
+
+.. code-block:: python
+
+   >>> df = con.select_ipc(query)
+   >>> df.head()
+     depdelay arrdelay
+   0       -2      -13
+   1       -1      -13
+   2       -3        1
+   3        4       -3
+   4       12        7
+
+Cursors
+-------
+           
 A cursor can be created with :meth:`Connection.cursor`
 
 .. code-block:: python
@@ -57,9 +113,6 @@ Or by using a context manager:
    ...     print(c)
    <pymapd.cursor.Cursor object at 0x1041f9630>
                
-Querying
---------
-
 Arbitrary SQL can be executed using :meth:`Cursor.execute`.
 
 .. code-block:: python
@@ -86,5 +139,26 @@ Cursors are iterable, returning a list of tuples of values
    >>> result[:5]
    [(38, 28), (0, 8), (-4, 9), (1, -1), (1, 2)]
 
+Database Metadata
+-----------------
 
+Some helpful metadata are available on the ``Connection`` object.
+
+1. Get a list of tables with :meth:`Connection.get_tables`
+
+.. code-block:: python
+
+   >>> con.get_tables()
+   ['flights_2008_10k', 'stocks']
+
+2. Get column information for a table with :meth:`Connection.get_table_details`
+
+   >>> con.get_table_details('stocks')
+   [ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
+                  scale=0, comp_param=32),
+    ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
+                  scale=0, comp_param=32),
+    ...
+ 
 .. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
+.. _pygdf: http://pygdf.readthedocs.io/en/latest/
