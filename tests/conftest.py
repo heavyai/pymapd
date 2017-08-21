@@ -78,6 +78,16 @@ def nonexistant_table():
 
 @pytest.fixture(scope="session")
 def stocks(con):
+    """A sample table `stocks` populated with two rows. The
+    table is dropped at the start of the session.
+
+    - date_ : text
+    - trans : text
+    - symbol : text
+    - qty : int
+    - price : float
+    - vol : float
+    """
     drop = 'drop table if exists stocks;'
     c = con.cursor()
     c.execute(drop)
@@ -89,6 +99,21 @@ def stocks(con):
 
     c.execute(i1)
     c.execute(i2)
+
+
+@pytest.fixture
+def empty_table(con):
+    """
+    An empty table named `baz`. The spec is
+
+        - a : int
+        - b : float
+        - c : text
+    """
+    name = 'baz'
+    con.execute("drop table if exists {};".format(name))
+    con.execute("create table {} (a int, b float, c text);".format(name))
+    return name
 
 
 @pytest.fixture
