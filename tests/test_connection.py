@@ -1,11 +1,13 @@
 import pytest
+from mapd.ttypes import TColumnType, TTypeInfo
 
 from pymapd import OperationalError, connect
 from pymapd.cursor import Cursor
 from pymapd.connection import _parse_uri, ConnectionInfo
+from pymapd._parsers import ColumnDetails, _extract_column_details
 
 
-class TestConnect:
+class TestConnect(object):
 
     def test_host_specified(self):
         with pytest.raises(TypeError):
@@ -52,7 +54,7 @@ class TestConnect:
         assert m.match('fake-proto')
 
 
-class TestURI:
+class TestURI(object):
 
     def test_parse_uri(self):
         uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?'
@@ -67,3 +69,55 @@ class TestURI:
                'protocol=binary')
         with pytest.raises(TypeError):
             connect(uri=uri, user='my user')
+
+
+class TestExtras(object):
+    def test_extract_row_details(self):
+        data = [
+            TColumnType(col_name='date_',
+                        col_type=TTypeInfo(type=6, encoding=4, nullable=True,
+                                           is_array=False, precision=0,
+                                           scale=0, comp_param=32),
+                        is_reserved_keyword=False, src_name=''),
+            TColumnType(col_name='trans',
+                        col_type=TTypeInfo(type=6, encoding=4, nullable=True,
+                                           is_array=False, precision=0,
+                                           scale=0, comp_param=32),
+                        is_reserved_keyword=False, src_name=''),
+            TColumnType(col_name='symbol',
+                        col_type=TTypeInfo(type=6, encoding=4, nullable=True,
+                                           is_array=False, precision=0,
+                                           scale=0, comp_param=32),
+                        is_reserved_keyword=False, src_name=''),
+            TColumnType(col_name='qty',
+                        col_type=TTypeInfo(type=1, encoding=0, nullable=True,
+                                           is_array=False, precision=0,
+                                           scale=0, comp_param=0),
+                        is_reserved_keyword=False, src_name=''),
+            TColumnType(col_name='price',
+                        col_type=TTypeInfo(type=3, encoding=0, nullable=True,
+                                           is_array=False, precision=0,
+                                           scale=0, comp_param=0),
+                        is_reserved_keyword=False, src_name=''),
+            TColumnType(col_name='vol',
+                        col_type=TTypeInfo(type=3, encoding=0, nullable=True,
+                                           is_array=False, precision=0,
+                                           scale=0, comp_param=0),
+                        is_reserved_keyword=False, src_name='')]
+        result = _extract_column_details(data)
+
+        expected = [
+            ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
+                          scale=0, comp_param=32),
+            ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
+                          scale=0, comp_param=32),
+            ColumnDetails(name='symbol', type='STR', nullable=True,
+                          precision=0, scale=0, comp_param=32),
+            ColumnDetails(name='qty', type='INT', nullable=True, precision=0,
+                          scale=0, comp_param=0),
+            ColumnDetails(name='price', type='FLOAT', nullable=True,
+                          precision=0, scale=0, comp_param=0),
+            ColumnDetails(name='vol', type='FLOAT', nullable=True, precision=0,
+                          scale=0, comp_param=0)
+        ]
+        assert result == expected

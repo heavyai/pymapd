@@ -9,6 +9,9 @@ import mapd.ttypes as T
 Description = namedtuple("Description", ["name", "type_code", "display_size",
                                          "internal_size", "precision", "scale",
                                          "null_ok"])
+ColumnDetails = namedtuple("ColumnDetails", ["name", "type", "nullable",
+                                             "precision", "scale",
+                                             "comp_param"])
 
 _typeattr = {
     'SMALLINT': 'int',
@@ -23,6 +26,8 @@ _typeattr = {
     'DOUBLE': 'real',
     'STR': 'str',
 }
+_thrift_types_to_values = T.TDatumType._NAMES_TO_VALUES
+_thrift_values_to_types = T.TDatumType._VALUES_TO_NAMES
 
 
 def _extract_row_val(desc, val):
@@ -49,6 +54,16 @@ def _extract_description(row_desc):
                         None, None, None, None,
                         col.col_type.nullable)
             for col in row_desc]
+
+
+def _extract_column_details(row_desc):
+    # For Connection.get_table_details
+    return [
+        ColumnDetails(x.col_name, _thrift_values_to_types[x.col_type.type],
+                      x.col_type.nullable, x.col_type.precision,
+                      x.col_type.scale, x.col_type.comp_param)
+        for x in row_desc
+    ]
 
 
 def _is_columnar(data):

@@ -5,7 +5,7 @@ import pytest
 
 from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
-from pymapd._parsers import Description
+from pymapd._parsers import Description, ColumnDetails
 from pymapd.compat import TMapDException
 
 from .utils import no_gpu, mock
@@ -200,3 +200,29 @@ class TestOptionalImports(object):
             with pytest.raises(ImportError) as m:
                 con.select_ipc_gpu("select * from foo;")
         assert m.match("The 'pygdf' package is required")
+
+
+class TestExtras(object):
+
+    def test_get_tables(self, con, stocks):
+        result = con.get_tables()
+        assert isinstance(result, list)
+        assert 'stocks' in result
+
+    def test_get_table_details(self, con, stocks):
+        result = con.get_table_details('stocks')
+        expected = [
+            ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
+                          scale=0, comp_param=32),
+            ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
+                          scale=0, comp_param=32),
+            ColumnDetails(name='symbol', type='STR', nullable=True,
+                          precision=0, scale=0, comp_param=32),
+            ColumnDetails(name='qty', type='INT', nullable=True, precision=0,
+                          scale=0, comp_param=0),
+            ColumnDetails(name='price', type='FLOAT', nullable=True,
+                          precision=0, scale=0, comp_param=0),
+            ColumnDetails(name='vol', type='FLOAT', nullable=True, precision=0,
+                          scale=0, comp_param=0)
+        ]
+        assert result == expected
