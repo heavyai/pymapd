@@ -226,3 +226,14 @@ class TestExtras(object):
                           scale=0, comp_param=0)
         ]
         assert result == expected
+
+    def test_load_table(self, con, empty_table):
+        data = [(1, 1.1, 'a'),
+                (2, 2.2, '2'),
+                (3, 3.3, '3')]
+        con.load_table(empty_table, data)
+        result = sorted(con.execute("select * from {}".format(empty_table)))
+        assert len(result) == 3
+        assert data[0][0] == result[0][0]
+        assert data[0][2] == result[0][2]
+        assert abs(data[0][1] - result[0][1]) < 1e-7  # floating point
