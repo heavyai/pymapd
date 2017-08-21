@@ -137,7 +137,7 @@ class Connection(object):
         elif protocol == "binary":
             socket = TSocket.TSocket(host, port)
             transport = TTransport.TBufferedTransport(socket)
-            proto = TBinaryProtocol.TBinaryProtocol(transport)
+            proto = TBinaryProtocol.TBinaryProtocolAccelerated(transport)
         else:
             raise ValueError("`protocol` should be one of ['http', 'binary'],",
                              " got {} instead".format(protocol))
