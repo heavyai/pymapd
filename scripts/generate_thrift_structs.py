@@ -52,11 +52,11 @@ def main():
     drop = 'drop table if exists stocks;'
     client.sql_execute(session, drop, True, None, -1)
     create = ('create table stocks (date_ text, trans text, symbol text, '
-              'qty int, price float, vol float);')
+              'qty int, price float, vol float, real_date TIMESTAMP);')
     client.sql_execute(session, create, True, None, -1)
 
-    i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
-    i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+    i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1,'2010-01-01 12:01:01');"  # noqa
+    i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2,'2010-01-01 12:02:02');"  # noqa
     client.sql_execute(session, i1, True, None, -1)
     client.sql_execute(session, i2, True, None, -1)
     select = "select * from stocks;"
