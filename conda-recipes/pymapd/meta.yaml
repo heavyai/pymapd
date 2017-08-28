@@ -22,7 +22,6 @@ requirements:
     - thrift
     - six
     - sqlalchemy
-    - typing  # [py2k]
     - cython
     - numpy
     - arrow-cpp
@@ -33,7 +32,6 @@ requirements:
     - thrift
     - six
     - sqlalchemy
-    - typing  # [py2k]
     - arrow-cpp >=0.5.0.pre
     - pyarrow >=0.5.0.pre
     - numpy
