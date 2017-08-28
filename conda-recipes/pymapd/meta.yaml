@@ -19,25 +19,26 @@ requirements:
     - python
     - setuptools
     - setuptools_scm
-    - thrift
-    - six
-    - sqlalchemy
     - cython
-    - numpy
-    - arrow-cpp
-    - pyarrow
+    - numpy 1.7.*  # [py27]
+    - numpy 1.9.*  # [py35]
+    - numpy 1.11.*  # [py36]
+    - arrow-cpp >=0.5.0
+    - pyarrow >=0.5.0
   run:
     - python
     - setuptools
-    - thrift
-    - six
-    - sqlalchemy
-    - arrow-cpp >=0.5.0.pre
-    - pyarrow >=0.5.0.pre
-    - numpy
-    - pandas
+    - numpy >=1.7.*  # [py27]
+    - numpy >=1.9.*  # [py35]
+    - numpy >=1.11.*  # [py36]
     - libgdf
     - pygdf
+    - arrow-cpp >=0.5.0
+    - pyarrow >=0.5.0
+    - pandas
+    - six
+    - sqlalchemy
+    - thrift
 
 test:
   imports:
