@@ -46,7 +46,7 @@ extra_requires = {
 # ------------
 # C Extensions
 # ------------
-if build_extensions:
+if build_extensions and not sys.platform.startswith('win'):
     try:
         import pyarrow
     except ImportError:
