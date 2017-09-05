@@ -298,6 +298,8 @@ class Connection(object):
             first_n=first_n
         )
 
+        print(tdf.sm_handle, type(tdf.sm_handle))
+        print(tdf.sm_size, type(tdf.sm_size))
         sm_buf = load_buffer(tdf.sm_handle, tdf.sm_size)
         df_buf = load_buffer(tdf.df_handle, tdf.df_size)
 
