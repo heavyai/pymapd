@@ -6,8 +6,9 @@
 pymapd
 ======
 
-A python `DB-API-2.0`_ compliant interface to `MapD`_.
-
+The pymapd client interface provides a python DB API 2.0-compliant `MapD`_
+interface. In addition, it provides methods to get results in the Apache
+Arrow-based GDF format for efficient data interchange.
 
 .. code-block:: python
 
