@@ -116,6 +116,30 @@ def empty_table(con):
     return name
 
 
+@pytest.fixture(scope="session")
+def date_table(con):
+    """A sample with date and time columns
+
+    - date_ : DATE
+    - datetime_ : TIMESTAMP
+    - time_ : TIME
+    """
+    name = 'dates'
+    drop = 'drop table if exists {};'.format(name)
+    c = con.cursor()
+    c.execute(drop)
+    create = ('create table {} (date_ DATE, datetime_ TIMESTAMP, '
+              'time_ TIME);'.format(name))
+    c.execute(create)
+    i1 = ("INSERT INTO {} VALUES ('2006-01-05','2006-01-01T12:00:00',"
+          "'12:00');".format(name))
+    i2 = ("INSERT INTO {} VALUES ('1901-12-14','1901-12-13T20:45:53',"
+          "'23:59:00');".format(name))
+    c.execute(i1)
+    c.execute(i2)
+    yield name
+
+
 @pytest.fixture
 def mock_transport(mocker):
     """A magicmock for pymapd.connection.TTrapnsport.TBufferedTransport"""

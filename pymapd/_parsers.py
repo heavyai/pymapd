@@ -31,12 +31,23 @@ _thrift_types_to_values = T.TDatumType._NAMES_TO_VALUES
 _thrift_values_to_types = T.TDatumType._VALUES_TO_NAMES
 
 
+def _seconds_to_time(seconds):
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return datetime.time(h, m, s)
+
+
 def _extract_row_val(desc, val):
     # type: (T.TColumnType, T.TDatum) -> Any
     typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]
     val = getattr(val.val, _typeattr[typename] + '_val')
+    base = datetime.datetime(1970, 1, 1)
     if typename == 'TIMESTAMP':
-        val = datetime.datetime.utcfromtimestamp(val)
+        val = (base + datetime.timedelta(seconds=val))
+    elif typename == 'DATE':
+        val = (base + datetime.timedelta(seconds=val)).date()
+    elif typename == 'TIME':
+        val = _seconds_to_time(val)
     return val
 
 
@@ -44,8 +55,14 @@ def _extract_col_vals(desc, val):
     # type: (T.TColumnType, T.TColumn) -> Any
     typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]
     vals = getattr(val.data, _typeattr[typename] + '_col')
+    base = datetime.datetime(1970, 1, 1)
     if typename == 'TIMESTAMP':
-        vals = [datetime.datetime.utcfromtimestamp(v) for v in vals]
+        vals = [base + datetime.timedelta(seconds=v) for v in vals]
+    elif typename == 'DATE':
+        vals = [(base + datetime.timedelta(seconds=v)).date() for v in vals]
+    elif typename == 'TIME':
+        vals = [_seconds_to_time(v) for v in vals]
+
     return vals
 
 

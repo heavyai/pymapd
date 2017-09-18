@@ -1,6 +1,8 @@
 """
 Tests that rely on a server running
 """
+import datetime
+
 import pytest
 
 from pymapd import connect, ProgrammingError, DatabaseError
@@ -175,6 +177,21 @@ class TestIntegration:
         c.execute("select symbol, qty from stocks")
         result = c.fetchmany(size=10)
         expected = [('RHAT', 100), ('GOOG', 100)]
+        assert result == expected
+
+    @pytest.mark.parametrize('columnar', [True, False])
+    def test_select_dates(self, columnar, con, date_table):
+        c = con.cursor()
+        c.columnar = columnar
+        result = list(c.execute("select * from {}".format(date_table)))
+        expected = [
+            (datetime.date(2006, 1, 5),
+             datetime.datetime(2006, 1, 1, 12),
+             datetime.time(12)),
+            (datetime.date(1901, 12, 14),
+             datetime.datetime(1901, 12, 13, 20, 45, 53),
+             datetime.time(23, 59)),
+        ]
         assert result == expected
 
 
