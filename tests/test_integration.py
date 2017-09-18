@@ -48,13 +48,13 @@ class TestIntegration:
 
     def test_invalid_sql(self, con):
         with pytest.raises(ProgrammingError) as r:
-            con.cursor().execute("select it;")
-        r.match("Column 'it' not found in any table")
+            con.cursor().execute("this is invalid;")
+        r.match("Exception: Parse failed:")
 
     def test_nonexistant_table(self, con):
         with pytest.raises(DatabaseError) as r:
             con.cursor().execute("select it from fake_table;")
-        r.match("Table 'FAKE_TABLE' does not exist")
+        r.match("Table 'FAKE_TABLE' does not exist|Object 'fake_table' not")
 
     def test_connection_execute(self, con):
         result = con.execute("drop table if exists FOO;")
