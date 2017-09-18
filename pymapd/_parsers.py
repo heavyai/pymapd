@@ -41,10 +41,11 @@ def _extract_row_val(desc, val):
     # type: (T.TColumnType, T.TDatum) -> Any
     typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]
     val = getattr(val.val, _typeattr[typename] + '_val')
+    base = datetime.datetime(1970, 1, 1)
     if typename == 'TIMESTAMP':
-        val = datetime.datetime.utcfromtimestamp(val)
+        val = (base + datetime.timedelta(seconds=val))
     elif typename == 'DATE':
-        val = datetime.datetime.utcfromtimestamp(val).date()
+        val = (base + datetime.timedelta(seconds=val)).date()
     elif typename == 'TIME':
         val = _seconds_to_time(val)
     return val
@@ -54,10 +55,11 @@ def _extract_col_vals(desc, val):
     # type: (T.TColumnType, T.TColumn) -> Any
     typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]
     vals = getattr(val.data, _typeattr[typename] + '_col')
+    base = datetime.datetime(1970, 1, 1)
     if typename == 'TIMESTAMP':
-        vals = [datetime.datetime.utcfromtimestamp(v) for v in vals]
+        vals = [base + datetime.timedelta(seconds=v) for v in vals]
     elif typename == 'DATE':
-        vals = [datetime.datetime.utcfromtimestamp(v).date() for v in vals]
+        vals = [(base + datetime.timedelta(seconds=v)).date() for v in vals]
     elif typename == 'TIME':
         vals = [_seconds_to_time(v) for v in vals]
 
