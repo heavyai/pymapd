@@ -1,6 +1,6 @@
 import pytest
 
-from pymapd._loaders import _build_input_rows, _build_table_columnar
+from pymapd._loaders import _build_input_rows
 from mapd.MapD import TStringRow, TStringValue, TColumn, TColumnData
 
 
@@ -18,6 +18,9 @@ class TestLoaders(object):
 
     def test_build_table_columnar(self):
         pd = pytest.importorskip("pandas")
+        pytest.importorskip("pyarrow")
+        from pymapd._arrow_loaders import _build_table_columnar
+
         data = pd.DataFrame({"a": [1, 2, 3], "b": [1.1, 2.2, 3.3]})
         nulls = [False] * 3
         result = _build_table_columnar(data, preserve_index=False)

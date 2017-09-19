@@ -18,7 +18,7 @@ from ._parsers import (
     _load_data, _load_schema, _parse_tdf_gpu, _bind_parameters,
     _extract_column_details
 )
-from ._loaders import _build_input_rows, _build_table_columnar
+from ._loaders import _build_input_rows
 
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
@@ -373,6 +373,8 @@ class Connection(object):
         preserve_index : bool, default True
             Whether to include the index of a pandas DataFrame when writing.
         """
+        from ._arrow_loaders import _build_table_columnar
+
         data = _build_table_columnar(data, preserve_index=preserve_index)
         self._client.load_table_binary_columnar(self._session, table_name,
                                                 data)
