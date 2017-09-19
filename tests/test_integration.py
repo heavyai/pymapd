@@ -257,12 +257,50 @@ class TestExtras(object):
 
     def test_load_table_binary(self, con, empty_table):
         pd = pytest.importorskip("pandas")
-        from mapd.ttypes import TColumn, TColumnData
 
-        nulls = [False] * 3
-        data = [
-            TColumn(TColumnData(int_col=[1, 2, 3]), nulls=nulls),
-            TColumn(TColumnData(real_col=[1.1, 2.2, 3.3]), nulls=nulls),
-            TColumn(TColumnData(str_col=['a', '2', '3']), nulls=nulls)
+        df = pd.DataFrame({"a": [1, 2, 3],
+                           "b": [1.1, 2.2, 3.3],
+                           "c": ['a', '2', '3']}, columns=['a', 'b', 'c'])
+        con.load_table_columnar(empty_table, df, preserve_index=False)
+
+    def test_load_table_binary_all(self, con, all_types_table):
+        pa = pytest.importorskip("pyarrow")
+
+        columns = [
+            pa.Column.from_array('boolean_',
+                                 pa.array([True, False],
+                                          type=pa.bool_())),
+            pa.Column.from_array("smallint_",
+                                 pa.array([1, 0]).cast(pa.int8())),
+            pa.Column.from_array("int_",
+                                 pa.array([1, 0]).cast(pa.int32())),
+            pa.Column.from_array("bigint_",
+                                 pa.array([1, 0])),
+            pa.Column.from_array("decimal_",
+                                 pa.array([1.0, 1.1],
+                                          type=pa.decimal(10))),
+            pa.Column.from_array("float_",
+                                 pa.array([1.0, 1.1])
+                                 .cast(pa.float32())),
+            # pa.Column.from_array("double_",
+            #                      pa.array([1.0, 1.1])),
+            # # no fixed-width string
+            # pa.Column.from_array("varchar_",
+            #                      pa.array(['a', 'b'])),
+            # pa.Column.from_array("text_",
+            #                      pa.array(['a', 'b'])),
+            # pa.Column.from_array("time_",
+            #                      pa.array([10**9, 20**9])
+            #                      .cast(pa.time64('ns'))),
+            # pa.Column.from_array("timestamp_",
+            #                      pa.array([
+            #                          datetime.datetime(2016, 1, 1, 12, 12, 12),
+            #                          datetime.datetime(2017, 1, 1),
+            #                      ])),
+            # pa.Column.from_array("date_",
+            #                      pa.array([datetime.date(2016, 1, 1),
+            #                                datetime.date(2017, 1, 1),
+            #                                ]))
         ]
-        con.load_table_columnar(empty_table, data)
+        table = pa.Table.from_arrays(columns)
+        con.load_table_columnar(all_types_table, table)

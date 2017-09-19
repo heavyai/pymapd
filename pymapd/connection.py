@@ -358,7 +358,8 @@ class Connection(object):
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
 
-    def load_table_columnar(self, table_name, data):
+    def load_table_columnar(self, table_name, data, if_exists='fail',
+                            preserve_index=True):
         """
         Load a DataFrame
 
@@ -366,9 +367,12 @@ class Connection(object):
         ----------
         table_name : str
         data : DataFrame
+        if_exists : {'fail', 'append', 'replace'}
+            Behavior when a ``table_name`` already exists. ``'replace'``
+            will truncate the table before writing.
+        preserve_index : bool, default True
+            Whether to include the index of a pandas DataFrame when writing.
         """
-        import pandas as pd
-        if isinstance(data, pd.DataFrame):
-            data = _build_table_columnar(data)
+        data = _build_table_columnar(data, preserve_index=preserve_index)
         self._client.load_table_binary_columnar(self._session, table_name,
                                                 data)

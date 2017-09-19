@@ -37,6 +37,16 @@ def _seconds_to_time(seconds):
     return datetime.time(h, m, s)
 
 
+def _time_to_seconds(time):
+    if time is None:
+        return None
+    return 3600 * time.hour + 60 * time.minute + time.second
+
+
+def _date_to_time(time):
+    pass
+
+
 def _extract_row_val(desc, val):
     # type: (T.TColumnType, T.TDatum) -> Any
     typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]

@@ -20,7 +20,7 @@ class TestLoaders(object):
         pd = pytest.importorskip("pandas")
         data = pd.DataFrame({"a": [1, 2, 3], "b": [1.1, 2.2, 3.3]})
         nulls = [False] * 3
-        result = _build_table_columnar(data)
+        result = _build_table_columnar(data, preserve_index=False)
         expected = [
             TColumn(TColumnData(int_col=[1, 2, 3]), nulls=nulls),
             TColumn(TColumnData(real_col=[1.1, 2.2, 3.3]), nulls=nulls)
