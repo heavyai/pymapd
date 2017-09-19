@@ -170,8 +170,15 @@ def all_types_table(con):
         smallint_ SMALLINT,
         int_ INT,
         bigint_ BIGINT,
-        decimal_ DECIMAL(10),
-        float_ FLOAT    );'''.format(name=name))
+        float_ FLOAT,
+        double_ DOUBLE,
+        varchar_ VARCHAR(40),
+        text_ TEXT,
+        time_ TIME,
+        timestamp_ TIMESTAMP,
+        date_ DATE
+    );'''.format(name=name))
+    # skipping decimal for now
     c.execute(create)
     yield name
     con.execute(drop)

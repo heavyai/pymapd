@@ -268,39 +268,41 @@ class TestExtras(object):
 
         columns = [
             pa.Column.from_array('boolean_',
-                                 pa.array([True, False],
+                                 pa.array([True, False, None],
                                           type=pa.bool_())),
             pa.Column.from_array("smallint_",
-                                 pa.array([1, 0]).cast(pa.int8())),
+                                 pa.array([1, 0, None]).cast(pa.int8())),
             pa.Column.from_array("int_",
-                                 pa.array([1, 0]).cast(pa.int32())),
+                                 pa.array([1, 0, None]).cast(pa.int32())),
             pa.Column.from_array("bigint_",
-                                 pa.array([1, 0])),
-            pa.Column.from_array("decimal_",
-                                 pa.array([1.0, 1.1],
-                                          type=pa.decimal(10))),
+                                 pa.array([1, 0, None])),
+            # pa.Column.from_array("decimal_",
+            #                      pa.array([1.0, 1.1],
+            #                               type=pa.decimal(10))),
             pa.Column.from_array("float_",
-                                 pa.array([1.0, 1.1])
+                                 pa.array([1.0, 1.1, None])
                                  .cast(pa.float32())),
-            # pa.Column.from_array("double_",
-            #                      pa.array([1.0, 1.1])),
-            # # no fixed-width string
-            # pa.Column.from_array("varchar_",
-            #                      pa.array(['a', 'b'])),
-            # pa.Column.from_array("text_",
-            #                      pa.array(['a', 'b'])),
-            # pa.Column.from_array("time_",
-            #                      pa.array([10**9, 20**9])
-            #                      .cast(pa.time64('ns'))),
-            # pa.Column.from_array("timestamp_",
-            #                      pa.array([
-            #                          datetime.datetime(2016, 1, 1, 12, 12, 12),
-            #                          datetime.datetime(2017, 1, 1),
-            #                      ])),
-            # pa.Column.from_array("date_",
-            #                      pa.array([datetime.date(2016, 1, 1),
-            #                                datetime.date(2017, 1, 1),
-            #                                ]))
+            pa.Column.from_array("double_",
+                                 pa.array([1.0, 1.1, None])),
+            # no fixed-width string
+            pa.Column.from_array("varchar_",
+                                 pa.array(['a', 'b', None])),
+            pa.Column.from_array("text_",
+                                 pa.array(['a', 'b', None])),
+            pa.Column.from_array("time_",
+                                 pa.array([10**9, 20**9, None])
+                                 .cast(pa.time64('ns'))),
+            pa.Column.from_array("timestamp_",
+                                 pa.array([
+                                     datetime.datetime(2016, 1, 1, 12, 12, 12),
+                                     datetime.datetime(2017, 1, 1),
+                                     None,
+                                 ])),
+            pa.Column.from_array("date_",
+                                 pa.array([datetime.date(2016, 1, 1),
+                                           datetime.date(2017, 1, 1),
+                                           None,
+                                           ]))
         ]
         table = pa.Table.from_arrays(columns)
         con.load_table_columnar(all_types_table, table)

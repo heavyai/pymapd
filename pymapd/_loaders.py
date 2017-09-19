@@ -81,27 +81,37 @@ def _build_table_columnar(df, preserve_index=True):
             if col.null_count:
                 data = col.to_pandas().fillna(-1).astype(t.to_pandas_dtype())
             col = TColumn(data=TColumnData(int_col=data), nulls=nulls)
+
         elif au.is_float_type(t):
             if col.null_count:
                 data = col.to_pandas().fillna(-1)
             col = TColumn(data=TColumnData(real_col=data), nulls=nulls)
+
         elif au.is_string_type(t):
             if col.null_count:
                 data = col.to_pandas().fillna('')
             col = TColumn(data=TColumnData(str_col=data), nulls=nulls)
+
         elif au.is_datetime_type(t):
             # TODO: unused to_pylist above for dates
             data = col.to_pandas().view('i8') // 10**9  # ns -> s since epoch
             col = TColumn(data=TColumnData(int_col=data), nulls=nulls)
+
         elif au.is_bool_type(t):
             if col.null_count:
                 data = col.to_pandas().fillna(-1).astype(t.to_pandas_dtype())
             col = TColumn(data=TColumnData(int_col=data), nulls=nulls)
+
         elif au.is_decimal_type(t):
+            if col.null_count:
+                data = col.to_pandas().fillna(-1).astype(t.to_pandas_dtype())
             col = TColumn(data=TColumnData(real_col=data), nulls=nulls)
+
         elif au.is_time_type(t):
-            data = [_time_to_seconds(time) for time in data]
+            data = [_time_to_seconds(time) if time is not None else -1
+                    for time in data]
             col = TColumn(data=TColumnData(int_col=data), nulls=nulls)
+
         elif au.is_date_type(t):
             # TODO: verify this conversion
             data = ((col.to_pandas() -
