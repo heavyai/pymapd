@@ -18,7 +18,7 @@ from ._parsers import (
     _load_data, _load_schema, _parse_tdf_gpu, _bind_parameters,
     _extract_column_details
 )
-from ._loaders import _build_input_rows
+from ._loaders import _build_input_rows, _build_table_columnar
 
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
@@ -357,3 +357,18 @@ class Connection(object):
         """
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
+
+    def load_table_columnar(self, table_name, data):
+        """
+        Load a DataFrame
+
+        Parameters
+        ----------
+        table_name : str
+        data : DataFrame
+        """
+        import pandas as pd
+        if isinstance(data, pd.DataFrame):
+            data = _build_table_columnar(data)
+        self._client.load_table_binary_columnar(self._session, table_name,
+                                                data)

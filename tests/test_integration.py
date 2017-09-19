@@ -254,3 +254,15 @@ class TestExtras(object):
         assert data[0][0] == result[0][0]
         assert data[0][2] == result[0][2]
         assert abs(data[0][1] - result[0][1]) < 1e-7  # floating point
+
+    def test_load_table_binary(self, con, empty_table):
+        pd = pytest.importorskip("pandas")
+        from mapd.ttypes import TColumn, TColumnData
+
+        nulls = [False] * 3
+        data = [
+            TColumn(TColumnData(int_col=[1, 2, 3]), nulls=nulls),
+            TColumn(TColumnData(real_col=[1.1, 2.2, 3.3]), nulls=nulls),
+            TColumn(TColumnData(str_col=['a', '2', '3']), nulls=nulls)
+        ]
+        con.load_table_columnar(empty_table, data)
