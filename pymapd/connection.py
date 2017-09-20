@@ -18,7 +18,7 @@ from ._parsers import (
     _load_data, _load_schema, _parse_tdf_gpu, _bind_parameters,
     _extract_column_details
 )
-from ._loaders import _build_input_rows
+from ._loaders import _build_input_rows, _build_input_rows_binary
 
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
@@ -342,7 +342,7 @@ class Connection(object):
         details = self._client.get_table_details(self._session, table_name)
         return _extract_column_details(details.row_desc)
 
-    def load_table(self, table_name, data):
+    def load_table(self, table_name, data, binary=True):
         """Load rows into a table
 
         Parameters
@@ -355,5 +355,11 @@ class Connection(object):
         >>> data = [(1, 'a'), (2, 'b'), (3, 'c')]
         >>> con.load_table('bar', data)
         """
-        input_data = _build_input_rows(data)
-        self._client.load_table(self._session, table_name, input_data)
+        if binary:
+            types = [x.type for x in self.get_table_details('baz')]
+            input_data = _build_input_rows_binary(data, types)
+            self._client.load_table_binary(self._session, table_name,
+                                           input_data)
+        else:
+            input_data = _build_input_rows(data)
+            self._client.load_table(self._session, table_name, input_data)

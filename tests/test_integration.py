@@ -244,11 +244,12 @@ class TestExtras(object):
         ]
         assert result == expected
 
-    def test_load_table(self, con, empty_table):
+    @pytest.mark.parametrize('binary', [True, False])
+    def test_load_table(self, binary, con, empty_table):
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
                 (3, 3.3, '3')]
-        con.load_table(empty_table, data)
+        con.load_table(empty_table, data, binary=binary)
         result = sorted(con.execute("select * from {}".format(empty_table)))
         assert len(result) == 3
         assert data[0][0] == result[0][0]
