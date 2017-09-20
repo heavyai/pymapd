@@ -358,32 +358,26 @@ class Connection(object):
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
 
-    def load_table_columnar(self, table_name, data, if_exists='fail',
-                            preserve_index=True):
-        """
-        Load a DataFrame
+    def load_table_columnar(self, table_name, data, preserve_index=True):
+        """Load a pandas DataFrame to the database
 
         Parameters
         ----------
         table_name : str
         data : DataFrame
-        if_exists : {'fail', 'append', 'replace'}
-            Behavior when a ``table_name`` already exists. ``'replace'``
-            will truncate the table before writing.
         preserve_index : bool, default True
             Whether to include the index of a pandas DataFrame when writing.
+
+        Examples
+        --------
+        >>> df = pd.DataFrame({"a": [1, 2, 3], "b": ['d', 'e', 'f']})
+        >>> con.load_table_columnar('foo', df, preserve_index=False)
         """
-        from . import _arrow_loaders
         from . import _pandas_loaders
         import pandas as pd
-        import pyarrow as pa
 
         if isinstance(data, pd.DataFrame):
             input_cols = _pandas_loaders.build_input_columnar(
-                data, preserve_index=preserve_index
-            )
-        elif isinstance(data, pa.Table):
-            input_cols = _arrow_loaders.build_input_columnar(
                 data, preserve_index=preserve_index
             )
         else:

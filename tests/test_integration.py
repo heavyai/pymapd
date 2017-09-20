@@ -284,7 +284,9 @@ class TestExtras(object):
                     'date_'])
         con.load_table_columnar(all_types_table, data, preserve_index=False)
 
-    def test_load_table_binary_all(self, con, all_types_table):
+    @pytest.mark.skip(reason="Waiting for RecordBatches")
+    def test_load_table_columnar_arrow_all(self, con, all_types_table):
+        # leaving the test for when mapd can accept arrow RecordBatches
         pa = pytest.importorskip("pyarrow")
 
         columns = [

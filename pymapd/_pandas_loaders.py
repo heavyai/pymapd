@@ -66,11 +66,12 @@ def get_mapd_type_from_object(data):
 
 def thrift_cast(data, mapd_type):
     """Cast data type to the expected thrift types"""
+    import pandas as pd
+
     if mapd_type == 'TIMESTAMP':
         return datetime_to_seconds(data)
     elif mapd_type == 'TIME':
-        return type(data)((time_to_seconds(x) for x in data),
-                          index=data.index)
+        return pd.Series(time_to_seconds(x) for x in data)
     elif mapd_type == 'DATE':
         return date_to_seconds(data)
 
@@ -95,6 +96,7 @@ def build_input_columnar(df, preserve_index=True):
             data = data.fillna(mapd_to_na[mapd_type]).astype('int64')
         elif all_nulls is None:
             nulls = all_nulls = [False] * len(df)
+        # use .values so that indexes don't have to be serialized too
         kwargs = {mapd_to_slot[mapd_type]: data.values}
 
         input_cols.append(

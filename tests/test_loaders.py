@@ -5,6 +5,8 @@ from pymapd._loaders import _build_input_rows
 from pymapd import _pandas_loaders
 from mapd.MapD import TStringRow, TStringValue, TColumn, TColumnData
 
+from .utils import assert_columnar_equal
+
 
 class TestLoaders(object):
 
@@ -21,7 +23,7 @@ class TestLoaders(object):
     def test_build_table_columnar(self):
         pd = pytest.importorskip("pandas")
         pytest.importorskip("pyarrow")
-        from pymapd._arrow_loaders import build_input_columnar
+        from pymapd._pandas_loaders import build_input_columnar
 
         data = pd.DataFrame({"a": [1, 2, 3], "b": [1.1, 2.2, 3.3]})
         nulls = [False] * 3
@@ -30,7 +32,7 @@ class TestLoaders(object):
             TColumn(TColumnData(int_col=[1, 2, 3]), nulls=nulls),
             TColumn(TColumnData(real_col=[1.1, 2.2, 3.3]), nulls=nulls)
         ]
-        assert result == expected
+        assert_columnar_equal(result, expected)
 
     def test_build_table_columnar_pandas(self):
         import pandas as pd
@@ -68,8 +70,4 @@ class TestLoaders(object):
             TColumn(TColumnData(int_col=[1451606400, 1483228800]), nulls=nulls),  # noqa
             TColumn(TColumnData(int_col=[1451606400, 1483228800]), nulls=nulls)
         ]
-        for i, (a, b) in enumerate(zip(result, expected)):
-            np.testing.assert_array_equal(a.nulls, b.nulls)
-            np.testing.assert_array_equal(a.data.int_col, b.data.int_col)
-            np.testing.assert_array_equal(a.data.real_col, b.data.real_col)
-            np.testing.assert_array_equal(a.data.str_col, b.data.str_col)
+        assert_columnar_equal(result, expected)
