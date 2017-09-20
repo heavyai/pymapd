@@ -1,5 +1,4 @@
 import datetime
-import numpy as np
 import pandas as pd
 import pyarrow as pa
 
@@ -7,39 +6,6 @@ from mapd.ttypes import TColumnData, TColumn
 
 from ._parsers import _time_to_seconds
 from . import _arrow_utils as au
-
-
-_pa_typemap = {
-    pa.int64().id: 'BIGINT',
-    pa.bool_().id: 'BOOL',
-    pa.date64().id: 'DATE',
-    pa.decimal(0).id: 'FLOAT',
-    pa.float64().id: 'DOUBLE',
-    pa.float32().id: 'FLOAT',
-    pa.int32().id: 'INT',
-    # 'INTERVAL_DAY_TIME': 11,
-    # 'INTERVAL_YEAR_MONTH': 12,
-    pa.int16().id: 'SMALLINT',
-    pa.string().id: 'STR',
-    # 'TIME': 7,
-    # 'TIMESTAMP': 8}
-}
-
-_np_typemap = {
-    np.dtype("int64"): 'BIGINT',
-    np.dtype("bool"): 'BOOL',
-    # pa.date64: 'DATE',
-    # 'DECIMAL': pa.decimal,
-    np.dtype("float64"): 'DOUBLE',
-    np.dtype('float32'): 'FLOAT',
-    np.dtype("int32"): 'INT',
-    # 'INTERVAL_DAY_TIME': 11,
-    # 'INTERVAL_YEAR_MONTH': 12,
-    np.dtype("int16"): 'SMALLINT',
-    np.dtype('str'): 'STR',
-    # 'TIME': 7,
-    # 'TIMESTAMP': 8}
-}
 
 
 def _build_table_columnar(df, preserve_index=True):
