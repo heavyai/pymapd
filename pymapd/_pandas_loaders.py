@@ -87,15 +87,20 @@ def build_input_columnar(df, preserve_index=True):
         data = df[col]
         mapd_type = get_mapd_dtype(data)
 
+        if data.hasnans:
+            nulls = data.isnull().values
+        elif all_nulls is None:
+            nulls = all_nulls = [False] * len(df)
+
         if mapd_type in {'TIME', 'TIMESTAMP', 'DATE'}:
             # requires a cast to integer
             data = thrift_cast(data, mapd_type)
 
-        if data.hasnans:
-            nulls = data.isnull().values
-            data = data.fillna(mapd_to_na[mapd_type]).astype('int64')
-        elif all_nulls is None:
-            nulls = all_nulls = [False] * len(df)
+        if nulls.any():
+            data = data.fillna(mapd_to_na[mapd_type])
+
+            if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'TEXT'}:
+                data = data.astype('int64')
         # use .values so that indexes don't have to be serialized too
         kwargs = {mapd_to_slot[mapd_type]: data.values}
 

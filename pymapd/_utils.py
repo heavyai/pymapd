@@ -28,7 +28,7 @@ def datetime_to_seconds(arr):
 def date_to_seconds(arr):
     data = (
         (arr.astype('datetime64[ns]') - datetime.datetime(1970, 1, 1))
-        .dt.total_seconds().astype(int)
+        .dt.total_seconds()
     )
     return data
 
