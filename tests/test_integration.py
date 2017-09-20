@@ -263,6 +263,27 @@ class TestExtras(object):
                            "c": ['a', '2', '3']}, columns=['a', 'b', 'c'])
         con.load_table_columnar(empty_table, df, preserve_index=False)
 
+    def test_load_columnar_pandas_all(self, con, all_types_table):
+        pd = pytest.importorskip("pandas")
+        import numpy as np
+
+        data = pd.DataFrame({
+            "boolean_": [True, False],
+            "smallint_": np.array([0, 1], dtype=np.int8),
+            "int_": np.array([0, 1], dtype=np.int32),
+            "bigint_": np.array([0, 1], dtype=np.int64),
+            "float_": np.array([0, 1], dtype=np.float32),
+            "double_": np.array([0, 1], dtype=np.float64),
+            "varchar_": ["a", "b"],
+            "text_": ['a', 'b'],
+            "time_": [datetime.time(0, 11, 59), datetime.time(13)],
+            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
+            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
+        }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
+                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
+                    'date_'])
+        con.load_table_columnar(all_types_table, data, preserve_index=False)
+
     def test_load_table_binary_all(self, con, all_types_table):
         pa = pytest.importorskip("pyarrow")
 

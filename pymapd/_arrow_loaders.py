@@ -4,11 +4,15 @@ import pyarrow as pa
 
 from mapd.ttypes import TColumnData, TColumn
 
-from ._parsers import _time_to_seconds
+from ._utils import time_to_seconds
 from . import _arrow_utils as au
 
 
-def _build_table_columnar(df, preserve_index=True):
+def build_input_columnar(df, preserve_index=True):
+    # We have a few things to worry about here. We need to consider
+    # 1. The target argument for this type {int,real,str}
+    # 2. The null marker for this data type
+
     input_cols = []
 
     if isinstance(df, pd.DataFrame):
@@ -62,7 +66,7 @@ def _build_table_columnar(df, preserve_index=True):
             col = TColumn(data=TColumnData(real_col=data), nulls=nulls)
 
         elif au.is_time_type(t):
-            data = [_time_to_seconds(time) if time is not None else -1
+            data = [time_to_seconds(time) if time is not None else -1
                     for time in data]
             col = TColumn(data=TColumnData(int_col=data), nulls=nulls)
 

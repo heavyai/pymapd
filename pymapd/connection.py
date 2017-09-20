@@ -373,8 +373,20 @@ class Connection(object):
         preserve_index : bool, default True
             Whether to include the index of a pandas DataFrame when writing.
         """
-        from ._arrow_loaders import _build_table_columnar
+        from . import _arrow_loaders
+        from . import _pandas_loaders
+        import pandas as pd
+        import pyarrow as pa
 
-        data = _build_table_columnar(data, preserve_index=preserve_index)
+        if isinstance(data, pd.DataFrame):
+            input_cols = _pandas_loaders.build_input_columnar(
+                data, preserve_index=preserve_index
+            )
+        elif isinstance(data, pa.Table):
+            input_cols = _arrow_loaders.build_input_columnar(
+                data, preserve_index=preserve_index
+            )
+        else:
+            raise TypeError("Unknown type {}".format(type(data)))
         self._client.load_table_binary_columnar(self._session, table_name,
-                                                data)
+                                                input_cols)
