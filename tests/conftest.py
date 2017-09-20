@@ -37,7 +37,10 @@ def mapd_server():
     else:
         # not yet running...
         subprocess.check_output(['docker', 'run', '-d',
-                                 '-p', '9092:9092', '-p', '9091:9091',
+                                 '--ipc=host',
+                                 '-v', '/dev:/dev',
+                                 '-p', '9091:9091',
+                                 '-p', '9092:9092',
                                  '--name=mapd', 'mapd/core-os-cpu:latest'])
         # yield and stop afterwards?
         assert _check_open()
