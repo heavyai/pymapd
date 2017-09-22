@@ -84,7 +84,8 @@ class TestLoaders(object):
             "text_": ['a', 'b', None],
             "time_": [datetime.time(0, 11, 59), datetime.time(13), None],
             "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017"), None],
-            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1), None],
+            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1),
+                      None],
         }, columns=['boolean_', 'bigint_',
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
                     'date_'])

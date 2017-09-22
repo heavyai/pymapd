@@ -284,6 +284,21 @@ class TestExtras(object):
                     'date_'])
         con.load_table_columnar(all_types_table, data, preserve_index=False)
 
+    def test_load_infer(self, con, empty_table):
+        pd = pytest.importorskip("pandas")
+        data = pd.DataFrame({'a': [1.1, 2.2], 'b': ['a', 'b']})[['a', 'b']]
+        con.load_table(empty_table, data)
+
+    def test_load_infer_bad(self, con, empty_table):
+        with pytest.raises(ValueError) as m:
+            con.load_table(empty_table, [], method='thing')
+        assert m.match('thing')
+
+    def test_infer_non_pandas(self, con, empty_table):
+        with pytest.raises(ValueError) as m:
+            con.load_table(empty_table, [], method='columnar')
+        assert m.match("DataFrame")
+
     @pytest.mark.skip(reason="Waiting for RecordBatches")
     def test_load_table_columnar_arrow_all(self, con, all_types_table):
         # leaving the test for when mapd can accept arrow RecordBatches
