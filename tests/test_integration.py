@@ -254,3 +254,93 @@ class TestExtras(object):
         assert data[0][0] == result[0][0]
         assert data[0][2] == result[0][2]
         assert abs(data[0][1] - result[0][1]) < 1e-7  # floating point
+
+    def test_load_table_binary(self, con, empty_table):
+        pd = pytest.importorskip("pandas")
+
+        df = pd.DataFrame({"a": [1, 2, 3],
+                           "b": [1.1, 2.2, 3.3],
+                           "c": ['a', '2', '3']}, columns=['a', 'b', 'c'])
+        con.load_table_columnar(empty_table, df, preserve_index=False)
+
+    def test_load_columnar_pandas_all(self, con, all_types_table):
+        pd = pytest.importorskip("pandas")
+        import numpy as np
+
+        data = pd.DataFrame({
+            "boolean_": [True, False],
+            "smallint_": np.array([0, 1], dtype=np.int8),
+            "int_": np.array([0, 1], dtype=np.int32),
+            "bigint_": np.array([0, 1], dtype=np.int64),
+            "float_": np.array([0, 1], dtype=np.float32),
+            "double_": np.array([0, 1], dtype=np.float64),
+            "varchar_": ["a", "b"],
+            "text_": ['a', 'b'],
+            "time_": [datetime.time(0, 11, 59), datetime.time(13)],
+            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
+            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
+        }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
+                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
+                    'date_'])
+        con.load_table_columnar(all_types_table, data, preserve_index=False)
+
+    def test_load_infer(self, con, empty_table):
+        pd = pytest.importorskip("pandas")
+        data = pd.DataFrame({'a': [1.1, 2.2], 'b': ['a', 'b']})[['a', 'b']]
+        con.load_table(empty_table, data)
+
+    def test_load_infer_bad(self, con, empty_table):
+        with pytest.raises(ValueError) as m:
+            con.load_table(empty_table, [], method='thing')
+        assert m.match('thing')
+
+    def test_infer_non_pandas(self, con, empty_table):
+        with pytest.raises(ValueError) as m:
+            con.load_table(empty_table, [], method='columnar')
+        assert m.match("DataFrame")
+
+    @pytest.mark.skip(reason="Waiting for RecordBatches")
+    def test_load_table_columnar_arrow_all(self, con, all_types_table):
+        # leaving the test for when mapd can accept arrow RecordBatches
+        pa = pytest.importorskip("pyarrow")
+
+        columns = [
+            pa.Column.from_array('boolean_',
+                                 pa.array([True, False, None],
+                                          type=pa.bool_())),
+            pa.Column.from_array("smallint_",
+                                 pa.array([1, 0, None]).cast(pa.int8())),
+            pa.Column.from_array("int_",
+                                 pa.array([1, 0, None]).cast(pa.int32())),
+            pa.Column.from_array("bigint_",
+                                 pa.array([1, 0, None])),
+            # pa.Column.from_array("decimal_",
+            #                      pa.array([1.0, 1.1],
+            #                               type=pa.decimal(10))),
+            pa.Column.from_array("float_",
+                                 pa.array([1.0, 1.1, None])
+                                 .cast(pa.float32())),
+            pa.Column.from_array("double_",
+                                 pa.array([1.0, 1.1, None])),
+            # no fixed-width string
+            pa.Column.from_array("varchar_",
+                                 pa.array(['a', 'b', None])),
+            pa.Column.from_array("text_",
+                                 pa.array(['a', 'b', None])),
+            pa.Column.from_array("time_",
+                                 pa.array([10**9, 20**9, None])
+                                 .cast(pa.time64('ns'))),
+            pa.Column.from_array("timestamp_",
+                                 pa.array([
+                                     datetime.datetime(2016, 1, 1, 12, 12, 12),
+                                     datetime.datetime(2017, 1, 1),
+                                     None,
+                                 ])),
+            pa.Column.from_array("date_",
+                                 pa.array([datetime.date(2016, 1, 1),
+                                           datetime.date(2017, 1, 1),
+                                           None,
+                                           ]))
+        ]
+        table = pa.Table.from_arrays(columns)
+        con.load_table_columnar(all_types_table, table)

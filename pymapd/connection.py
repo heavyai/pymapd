@@ -342,18 +342,83 @@ class Connection(object):
         details = self._client.get_table_details(self._session, table_name)
         return _extract_column_details(details.row_desc)
 
-    def load_table(self, table_name, data):
-        """Load rows into a table
+    def load_table(self, table_name, data, method='infer'):
+        """Load rows of data into a table
 
         Parameters
         ----------
         table_name : str
         data : iterable of tuples
+        method : {'infer', 'columnar', 'rows'}
+            Method to use for loading the data. Pandas DataFrames
+            can be loaded more quickly with :meth:`Connect.load_table_columnar`
+            If ``data`` is a ``DataFrame``, that method will be used.
+
+        Notes
+        -----
+        Using a ``pandas.DataFrame`` should result in considerable faster
+        performance than a list of tuples.
 
         Examples
         --------
         >>> data = [(1, 'a'), (2, 'b'), (3, 'c')]
         >>> con.load_table('bar', data)
+
+        See Also
+        --------
+        load_table_columnar
         """
+        if method == 'infer':
+            if _is_pandas(data):
+                return self.load_table_columnar(table_name, data)
+        elif method == 'columnar' and not _is_pandas(data):
+            raise ValueError("'data' must be a DataFrame with "
+                             "`method='columnar'`. Got {} instead".format(
+                                 type(data)
+                             ))
+        elif method != 'rows':
+            raise ValueError("Method must be one of {{'infer', 'columnar', "
+                             "'rows'}}. Got {} instead".format(method))
+
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
+
+    def load_table_columnar(self, table_name, data, preserve_index=True):
+        """Load a pandas DataFrame to the database
+
+        Parameters
+        ----------
+        table_name : str
+        data : DataFrame
+        preserve_index : bool, default True
+            Whether to include the index of a pandas DataFrame when writing.
+
+        Examples
+        --------
+        >>> df = pd.DataFrame({"a": [1, 2, 3], "b": ['d', 'e', 'f']})
+        >>> con.load_table_columnar('foo', df, preserve_index=False)
+
+        See Also
+        --------
+        load_table
+        """
+        from . import _pandas_loaders
+        import pandas as pd
+
+        if isinstance(data, pd.DataFrame):
+            input_cols = _pandas_loaders.build_input_columnar(
+                data, preserve_index=preserve_index
+            )
+        else:
+            raise TypeError("Unknown type {}".format(type(data)))
+        self._client.load_table_binary_columnar(self._session, table_name,
+                                                input_cols)
+
+
+def _is_pandas(data):
+    try:
+        import pandas as pd
+    except ImportError:
+        return False
+    else:
+        return isinstance(data, pd.DataFrame)

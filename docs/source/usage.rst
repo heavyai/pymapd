@@ -139,6 +139,26 @@ Cursors are iterable, returning a list of tuples of values
    >>> result[:5]
    [(38, 28), (0, 8), (-4, 9), (1, -1), (1, 2)]
 
+Loading Data
+------------
+
+You can quickly load a ``pandas.DataFrame`` using :meth:`Connection.load_table`
+or :meth:`Connection.load_table_columnar` methods.
+
+.. code-block:: python
+
+   >>> df = pd.DataFrame({"A": [1, 2], "B": ["c", "d"]})
+   >>> con.load_table_columnar("table_name", df, preserve_index=False)
+
+If you aren't using pandas you can pass list of tuples to
+:meth:`Connection.load_table`.
+
+.. code-block:: python
+
+   >>> data = [(1, "c"), (2, "d")]
+   >>> con.load_table("table_name", data)
+
+
 Database Metadata
 -----------------
 

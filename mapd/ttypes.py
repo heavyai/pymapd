@@ -540,6 +540,7 @@ class TColumnType(object):
      - col_type
      - is_reserved_keyword
      - src_name
+     - is_system
     """
 
     thrift_spec = (
@@ -548,13 +549,15 @@ class TColumnType(object):
         (2, TType.STRUCT, 'col_type', (TTypeInfo, TTypeInfo.thrift_spec), None, ),  # 2
         (3, TType.BOOL, 'is_reserved_keyword', None, None, ),  # 3
         (4, TType.STRING, 'src_name', 'UTF8', None, ),  # 4
+        (5, TType.BOOL, 'is_system', None, None, ),  # 5
     )
 
-    def __init__(self, col_name=None, col_type=None, is_reserved_keyword=None, src_name=None,):
+    def __init__(self, col_name=None, col_type=None, is_reserved_keyword=None, src_name=None, is_system=None,):
         self.col_name = col_name
         self.col_type = col_type
         self.is_reserved_keyword = is_reserved_keyword
         self.src_name = src_name
+        self.is_system = is_system
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -586,6 +589,11 @@ class TColumnType(object):
                     self.src_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.BOOL:
+                    self.is_system = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -611,6 +619,10 @@ class TColumnType(object):
         if self.src_name is not None:
             oprot.writeFieldBegin('src_name', TType.STRING, 4)
             oprot.writeString(self.src_name.encode('utf-8') if sys.version_info[0] == 2 else self.src_name)
+            oprot.writeFieldEnd()
+        if self.is_system is not None:
+            oprot.writeFieldBegin('is_system', TType.BOOL, 5)
+            oprot.writeBool(self.is_system)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2088,6 +2100,7 @@ class TServerStatus(object):
      - rendering_enabled
      - start_time
      - edition
+     - host_name
     """
 
     thrift_spec = (
@@ -2097,14 +2110,16 @@ class TServerStatus(object):
         (3, TType.BOOL, 'rendering_enabled', None, None, ),  # 3
         (4, TType.I64, 'start_time', None, None, ),  # 4
         (5, TType.STRING, 'edition', 'UTF8', None, ),  # 5
+        (6, TType.STRING, 'host_name', 'UTF8', None, ),  # 6
     )
 
-    def __init__(self, read_only=None, version=None, rendering_enabled=None, start_time=None, edition=None,):
+    def __init__(self, read_only=None, version=None, rendering_enabled=None, start_time=None, edition=None, host_name=None,):
         self.read_only = read_only
         self.version = version
         self.rendering_enabled = rendering_enabled
         self.start_time = start_time
         self.edition = edition
+        self.host_name = host_name
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -2140,6 +2155,11 @@ class TServerStatus(object):
                     self.edition = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.STRING:
+                    self.host_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -2169,6 +2189,10 @@ class TServerStatus(object):
         if self.edition is not None:
             oprot.writeFieldBegin('edition', TType.STRING, 5)
             oprot.writeString(self.edition.encode('utf-8') if sys.version_info[0] == 2 else self.edition)
+            oprot.writeFieldEnd()
+        if self.host_name is not None:
+            oprot.writeFieldBegin('host_name', TType.STRING, 6)
+            oprot.writeString(self.host_name.encode('utf-8') if sys.version_info[0] == 2 else self.host_name)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2743,28 +2767,37 @@ class TRenderResult(object):
         return not (self == other)
 
 
-class TGpuMemorySummary(object):
+class TMemoryData(object):
     """
     Attributes:
-     - max
-     - in_use
-     - allocated
-     - is_allocation_capped
+     - slab
+     - start_page
+     - num_pages
+     - touch
+     - chunk_key
+     - buffer_epoch
+     - is_free
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.I64, 'max', None, None, ),  # 1
-        (2, TType.I64, 'in_use', None, None, ),  # 2
-        (3, TType.I64, 'allocated', None, None, ),  # 3
-        (4, TType.BOOL, 'is_allocation_capped', None, None, ),  # 4
+        (1, TType.I64, 'slab', None, None, ),  # 1
+        (2, TType.I32, 'start_page', None, None, ),  # 2
+        (3, TType.I64, 'num_pages', None, None, ),  # 3
+        (4, TType.I32, 'touch', None, None, ),  # 4
+        (5, TType.LIST, 'chunk_key', (TType.I64, None, False), None, ),  # 5
+        (6, TType.I32, 'buffer_epoch', None, None, ),  # 6
+        (7, TType.BOOL, 'is_free', None, None, ),  # 7
     )
 
-    def __init__(self, max=None, in_use=None, allocated=None, is_allocation_capped=None,):
-        self.max = max
-        self.in_use = in_use
-        self.allocated = allocated
-        self.is_allocation_capped = is_allocation_capped
+    def __init__(self, slab=None, start_page=None, num_pages=None, touch=None, chunk_key=None, buffer_epoch=None, is_free=None,):
+        self.slab = slab
+        self.start_page = start_page
+        self.num_pages = num_pages
+        self.touch = touch
+        self.chunk_key = chunk_key
+        self.buffer_epoch = buffer_epoch
+        self.is_free = is_free
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -2777,22 +2810,42 @@ class TGpuMemorySummary(object):
                 break
             if fid == 1:
                 if ftype == TType.I64:
-                    self.max = iprot.readI64()
+                    self.slab = iprot.readI64()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
-                if ftype == TType.I64:
-                    self.in_use = iprot.readI64()
+                if ftype == TType.I32:
+                    self.start_page = iprot.readI32()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.I64:
-                    self.allocated = iprot.readI64()
+                    self.num_pages = iprot.readI64()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
+                if ftype == TType.I32:
+                    self.touch = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.LIST:
+                    self.chunk_key = []
+                    (_etype80, _size77) = iprot.readListBegin()
+                    for _i81 in range(_size77):
+                        _elem82 = iprot.readI64()
+                        self.chunk_key.append(_elem82)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.I32:
+                    self.buffer_epoch = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 7:
                 if ftype == TType.BOOL:
-                    self.is_allocation_capped = iprot.readBool()
+                    self.is_free = iprot.readBool()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2804,22 +2857,37 @@ class TGpuMemorySummary(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('TGpuMemorySummary')
-        if self.max is not None:
-            oprot.writeFieldBegin('max', TType.I64, 1)
-            oprot.writeI64(self.max)
+        oprot.writeStructBegin('TMemoryData')
+        if self.slab is not None:
+            oprot.writeFieldBegin('slab', TType.I64, 1)
+            oprot.writeI64(self.slab)
             oprot.writeFieldEnd()
-        if self.in_use is not None:
-            oprot.writeFieldBegin('in_use', TType.I64, 2)
-            oprot.writeI64(self.in_use)
+        if self.start_page is not None:
+            oprot.writeFieldBegin('start_page', TType.I32, 2)
+            oprot.writeI32(self.start_page)
             oprot.writeFieldEnd()
-        if self.allocated is not None:
-            oprot.writeFieldBegin('allocated', TType.I64, 3)
-            oprot.writeI64(self.allocated)
+        if self.num_pages is not None:
+            oprot.writeFieldBegin('num_pages', TType.I64, 3)
+            oprot.writeI64(self.num_pages)
             oprot.writeFieldEnd()
-        if self.is_allocation_capped is not None:
-            oprot.writeFieldBegin('is_allocation_capped', TType.BOOL, 4)
-            oprot.writeBool(self.is_allocation_capped)
+        if self.touch is not None:
+            oprot.writeFieldBegin('touch', TType.I32, 4)
+            oprot.writeI32(self.touch)
+            oprot.writeFieldEnd()
+        if self.chunk_key is not None:
+            oprot.writeFieldBegin('chunk_key', TType.LIST, 5)
+            oprot.writeListBegin(TType.I64, len(self.chunk_key))
+            for iter83 in self.chunk_key:
+                oprot.writeI64(iter83)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.buffer_epoch is not None:
+            oprot.writeFieldBegin('buffer_epoch', TType.I32, 6)
+            oprot.writeI32(self.buffer_epoch)
+            oprot.writeFieldEnd()
+        if self.is_free is not None:
+            oprot.writeFieldBegin('is_free', TType.BOOL, 7)
+            oprot.writeBool(self.is_free)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2839,22 +2907,34 @@ class TGpuMemorySummary(object):
         return not (self == other)
 
 
-class TMemorySummary(object):
+class TNodeMemoryInfo(object):
     """
     Attributes:
-     - cpu_memory_in_use
-     - gpu_summary
+     - host_name
+     - page_size
+     - max_num_pages
+     - num_pages_allocated
+     - is_allocation_capped
+     - node_memory_data
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.I64, 'cpu_memory_in_use', None, None, ),  # 1
-        (2, TType.LIST, 'gpu_summary', (TType.STRUCT, (TGpuMemorySummary, TGpuMemorySummary.thrift_spec), False), None, ),  # 2
+        (1, TType.STRING, 'host_name', 'UTF8', None, ),  # 1
+        (2, TType.I64, 'page_size', None, None, ),  # 2
+        (3, TType.I64, 'max_num_pages', None, None, ),  # 3
+        (4, TType.I64, 'num_pages_allocated', None, None, ),  # 4
+        (5, TType.BOOL, 'is_allocation_capped', None, None, ),  # 5
+        (6, TType.LIST, 'node_memory_data', (TType.STRUCT, (TMemoryData, TMemoryData.thrift_spec), False), None, ),  # 6
     )
 
-    def __init__(self, cpu_memory_in_use=None, gpu_summary=None,):
-        self.cpu_memory_in_use = cpu_memory_in_use
-        self.gpu_summary = gpu_summary
+    def __init__(self, host_name=None, page_size=None, max_num_pages=None, num_pages_allocated=None, is_allocation_capped=None, node_memory_data=None,):
+        self.host_name = host_name
+        self.page_size = page_size
+        self.max_num_pages = max_num_pages
+        self.num_pages_allocated = num_pages_allocated
+        self.is_allocation_capped = is_allocation_capped
+        self.node_memory_data = node_memory_data
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -2866,18 +2946,38 @@ class TMemorySummary(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.I64:
-                    self.cpu_memory_in_use = iprot.readI64()
+                if ftype == TType.STRING:
+                    self.host_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
+                if ftype == TType.I64:
+                    self.page_size = iprot.readI64()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.I64:
+                    self.max_num_pages = iprot.readI64()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.I64:
+                    self.num_pages_allocated = iprot.readI64()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.BOOL:
+                    self.is_allocation_capped = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 6:
                 if ftype == TType.LIST:
-                    self.gpu_summary = []
-                    (_etype80, _size77) = iprot.readListBegin()
-                    for _i81 in range(_size77):
-                        _elem82 = TGpuMemorySummary()
-                        _elem82.read(iprot)
-                        self.gpu_summary.append(_elem82)
+                    self.node_memory_data = []
+                    (_etype87, _size84) = iprot.readListBegin()
+                    for _i88 in range(_size84):
+                        _elem89 = TMemoryData()
+                        _elem89.read(iprot)
+                        self.node_memory_data.append(_elem89)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -2890,16 +2990,32 @@ class TMemorySummary(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('TMemorySummary')
-        if self.cpu_memory_in_use is not None:
-            oprot.writeFieldBegin('cpu_memory_in_use', TType.I64, 1)
-            oprot.writeI64(self.cpu_memory_in_use)
+        oprot.writeStructBegin('TNodeMemoryInfo')
+        if self.host_name is not None:
+            oprot.writeFieldBegin('host_name', TType.STRING, 1)
+            oprot.writeString(self.host_name.encode('utf-8') if sys.version_info[0] == 2 else self.host_name)
             oprot.writeFieldEnd()
-        if self.gpu_summary is not None:
-            oprot.writeFieldBegin('gpu_summary', TType.LIST, 2)
-            oprot.writeListBegin(TType.STRUCT, len(self.gpu_summary))
-            for iter83 in self.gpu_summary:
-                iter83.write(oprot)
+        if self.page_size is not None:
+            oprot.writeFieldBegin('page_size', TType.I64, 2)
+            oprot.writeI64(self.page_size)
+            oprot.writeFieldEnd()
+        if self.max_num_pages is not None:
+            oprot.writeFieldBegin('max_num_pages', TType.I64, 3)
+            oprot.writeI64(self.max_num_pages)
+            oprot.writeFieldEnd()
+        if self.num_pages_allocated is not None:
+            oprot.writeFieldBegin('num_pages_allocated', TType.I64, 4)
+            oprot.writeI64(self.num_pages_allocated)
+            oprot.writeFieldEnd()
+        if self.is_allocation_capped is not None:
+            oprot.writeFieldBegin('is_allocation_capped', TType.BOOL, 5)
+            oprot.writeBool(self.is_allocation_capped)
+            oprot.writeFieldEnd()
+        if self.node_memory_data is not None:
+            oprot.writeFieldBegin('node_memory_data', TType.LIST, 6)
+            oprot.writeListBegin(TType.STRUCT, len(self.node_memory_data))
+            for iter90 in self.node_memory_data:
+                iter90.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2928,6 +3044,9 @@ class TTableDetails(object):
      - page_size
      - max_rows
      - view_sql
+     - shard_count
+     - key_metainfo
+     - is_temporary
     """
 
     thrift_spec = (
@@ -2937,14 +3056,20 @@ class TTableDetails(object):
         (3, TType.I64, 'page_size', None, None, ),  # 3
         (4, TType.I64, 'max_rows', None, None, ),  # 4
         (5, TType.STRING, 'view_sql', 'UTF8', None, ),  # 5
+        (6, TType.I64, 'shard_count', None, None, ),  # 6
+        (7, TType.STRING, 'key_metainfo', 'UTF8', None, ),  # 7
+        (8, TType.BOOL, 'is_temporary', None, None, ),  # 8
     )
 
-    def __init__(self, row_desc=None, fragment_size=None, page_size=None, max_rows=None, view_sql=None,):
+    def __init__(self, row_desc=None, fragment_size=None, page_size=None, max_rows=None, view_sql=None, shard_count=None, key_metainfo=None, is_temporary=None,):
         self.row_desc = row_desc
         self.fragment_size = fragment_size
         self.page_size = page_size
         self.max_rows = max_rows
         self.view_sql = view_sql
+        self.shard_count = shard_count
+        self.key_metainfo = key_metainfo
+        self.is_temporary = is_temporary
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -2958,11 +3083,11 @@ class TTableDetails(object):
             if fid == 1:
                 if ftype == TType.LIST:
                     self.row_desc = []
-                    (_etype87, _size84) = iprot.readListBegin()
-                    for _i88 in range(_size84):
-                        _elem89 = TColumnType()
-                        _elem89.read(iprot)
-                        self.row_desc.append(_elem89)
+                    (_etype94, _size91) = iprot.readListBegin()
+                    for _i95 in range(_size91):
+                        _elem96 = TColumnType()
+                        _elem96.read(iprot)
+                        self.row_desc.append(_elem96)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -2986,6 +3111,21 @@ class TTableDetails(object):
                     self.view_sql = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.I64:
+                    self.shard_count = iprot.readI64()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 7:
+                if ftype == TType.STRING:
+                    self.key_metainfo = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.BOOL:
+                    self.is_temporary = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -2999,8 +3139,8 @@ class TTableDetails(object):
         if self.row_desc is not None:
             oprot.writeFieldBegin('row_desc', TType.LIST, 1)
             oprot.writeListBegin(TType.STRUCT, len(self.row_desc))
-            for iter90 in self.row_desc:
-                iter90.write(oprot)
+            for iter97 in self.row_desc:
+                iter97.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.fragment_size is not None:
@@ -3018,6 +3158,18 @@ class TTableDetails(object):
         if self.view_sql is not None:
             oprot.writeFieldBegin('view_sql', TType.STRING, 5)
             oprot.writeString(self.view_sql.encode('utf-8') if sys.version_info[0] == 2 else self.view_sql)
+            oprot.writeFieldEnd()
+        if self.shard_count is not None:
+            oprot.writeFieldBegin('shard_count', TType.I64, 6)
+            oprot.writeI64(self.shard_count)
+            oprot.writeFieldEnd()
+        if self.key_metainfo is not None:
+            oprot.writeFieldBegin('key_metainfo', TType.STRING, 7)
+            oprot.writeString(self.key_metainfo.encode('utf-8') if sys.version_info[0] == 2 else self.key_metainfo)
+            oprot.writeFieldEnd()
+        if self.is_temporary is not None:
+            oprot.writeFieldBegin('is_temporary', TType.BOOL, 8)
+            oprot.writeBool(self.is_temporary)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -3386,22 +3538,22 @@ class TPendingQuery(object):
             elif fid == 2:
                 if ftype == TType.LIST:
                     self.column_ranges = []
-                    (_etype94, _size91) = iprot.readListBegin()
-                    for _i95 in range(_size91):
-                        _elem96 = TColumnRange()
-                        _elem96.read(iprot)
-                        self.column_ranges.append(_elem96)
+                    (_etype101, _size98) = iprot.readListBegin()
+                    for _i102 in range(_size98):
+                        _elem103 = TColumnRange()
+                        _elem103.read(iprot)
+                        self.column_ranges.append(_elem103)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.LIST:
                     self.dictionary_generations = []
-                    (_etype100, _size97) = iprot.readListBegin()
-                    for _i101 in range(_size97):
-                        _elem102 = TDictionaryGeneration()
-                        _elem102.read(iprot)
-                        self.dictionary_generations.append(_elem102)
+                    (_etype107, _size104) = iprot.readListBegin()
+                    for _i108 in range(_size104):
+                        _elem109 = TDictionaryGeneration()
+                        _elem109.read(iprot)
+                        self.dictionary_generations.append(_elem109)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -3422,15 +3574,15 @@ class TPendingQuery(object):
         if self.column_ranges is not None:
             oprot.writeFieldBegin('column_ranges', TType.LIST, 2)
             oprot.writeListBegin(TType.STRUCT, len(self.column_ranges))
-            for iter103 in self.column_ranges:
-                iter103.write(oprot)
+            for iter110 in self.column_ranges:
+                iter110.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.dictionary_generations is not None:
             oprot.writeFieldBegin('dictionary_generations', TType.LIST, 3)
             oprot.writeListBegin(TType.STRUCT, len(self.dictionary_generations))
-            for iter104 in self.dictionary_generations:
-                iter104.write(oprot)
+            for iter111 in self.dictionary_generations:
+                iter111.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3557,11 +3709,11 @@ class TDataBlockPtr(object):
             elif fid == 2:
                 if ftype == TType.LIST:
                     self.var_len_data = []
-                    (_etype108, _size105) = iprot.readListBegin()
-                    for _i109 in range(_size105):
-                        _elem110 = TVarLen()
-                        _elem110.read(iprot)
-                        self.var_len_data.append(_elem110)
+                    (_etype115, _size112) = iprot.readListBegin()
+                    for _i116 in range(_size112):
+                        _elem117 = TVarLen()
+                        _elem117.read(iprot)
+                        self.var_len_data.append(_elem117)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -3582,8 +3734,8 @@ class TDataBlockPtr(object):
         if self.var_len_data is not None:
             oprot.writeFieldBegin('var_len_data', TType.LIST, 2)
             oprot.writeListBegin(TType.STRUCT, len(self.var_len_data))
-            for iter111 in self.var_len_data:
-                iter111.write(oprot)
+            for iter118 in self.var_len_data:
+                iter118.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3650,10 +3802,10 @@ class TInsertData(object):
             elif fid == 3:
                 if ftype == TType.LIST:
                     self.column_ids = []
-                    (_etype115, _size112) = iprot.readListBegin()
-                    for _i116 in range(_size112):
-                        _elem117 = iprot.readI32()
-                        self.column_ids.append(_elem117)
+                    (_etype122, _size119) = iprot.readListBegin()
+                    for _i123 in range(_size119):
+                        _elem124 = iprot.readI32()
+                        self.column_ids.append(_elem124)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -3683,8 +3835,8 @@ class TInsertData(object):
         if self.column_ids is not None:
             oprot.writeFieldBegin('column_ids', TType.LIST, 3)
             oprot.writeListBegin(TType.I32, len(self.column_ids))
-            for iter118 in self.column_ids:
-                oprot.writeI32(iter118)
+            for iter125 in self.column_ids:
+                oprot.writeI32(iter125)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.num_rows is not None:
@@ -3872,12 +4024,12 @@ class TRawPixelDataResult(object):
             elif fid == 3:
                 if ftype == TType.MAP:
                     self.render_pass_map = {}
-                    (_ktype120, _vtype121, _size119) = iprot.readMapBegin()
-                    for _i123 in range(_size119):
-                        _key124 = iprot.readI32()
-                        _val125 = TRawRenderPassDataResult()
-                        _val125.read(iprot)
-                        self.render_pass_map[_key124] = _val125
+                    (_ktype127, _vtype128, _size126) = iprot.readMapBegin()
+                    for _i130 in range(_size126):
+                        _key131 = iprot.readI32()
+                        _val132 = TRawRenderPassDataResult()
+                        _val132.read(iprot)
+                        self.render_pass_map[_key131] = _val132
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -3917,9 +4069,9 @@ class TRawPixelDataResult(object):
         if self.render_pass_map is not None:
             oprot.writeFieldBegin('render_pass_map', TType.MAP, 3)
             oprot.writeMapBegin(TType.I32, TType.STRUCT, len(self.render_pass_map))
-            for kiter126, viter127 in self.render_pass_map.items():
-                oprot.writeI32(kiter126)
-                viter127.write(oprot)
+            for kiter133, viter134 in self.render_pass_map.items():
+                oprot.writeI32(kiter133)
+                viter134.write(oprot)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.execution_time_ms is not None:

@@ -27,18 +27,20 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  TSessionId connect(string user, string passwd, string dbname)')
     print('  void disconnect(TSessionId session)')
     print('  TServerStatus get_server_status(TSessionId session)')
+    print('   get_status(TSessionId session)')
     print('   get_tables(TSessionId session)')
     print('  TTableDetails get_table_details(TSessionId session, string table_name)')
+    print('  TTableDetails get_internal_table_details(TSessionId session, string table_name)')
     print('   get_users(TSessionId session)')
     print('   get_databases(TSessionId session)')
     print('  string get_version()')
     print('  void start_heap_profile(TSessionId session)')
     print('  void stop_heap_profile(TSessionId session)')
     print('  string get_heap_profile(TSessionId session)')
-    print('  string get_memory_gpu(TSessionId session)')
-    print('  TMemorySummary get_memory_summary(TSessionId session)')
+    print('   get_memory(TSessionId session, string memory_level)')
     print('  void clear_cpu_memory(TSessionId session)')
     print('  void clear_gpu_memory(TSessionId session)')
+    print('  void rollback_table_epoch(TSessionId session, i32 db_id, i32 table_id, i32 new_epoch)')
     print('  TQueryResult sql_execute(TSessionId session, string query, bool column_format, string nonce, i32 first_n)')
     print('  TDataFrame sql_execute_df(TSessionId session, string query, TDeviceType device_type, i32 device_id, i32 first_n)')
     print('  TDataFrame sql_execute_gdf(TSessionId session, string query, i32 device_id, i32 first_n)')
@@ -54,6 +56,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  TFrontendView get_link_view(TSessionId session, string link)')
     print('  string create_link(TSessionId session, string view_state, string view_metadata)')
     print('  void load_table_binary(TSessionId session, string table_name,  rows)')
+    print('  void load_table_binary_columnar(TSessionId session, string table_name,  cols)')
     print('  void load_table(TSessionId session, string table_name,  rows)')
     print('  TDetectResult detect_column_types(TSessionId session, string file_name, TCopyParams copy_params)')
     print('  void create_table(TSessionId session, string table_name, TRowDescriptor row_desc, TTableType table_type)')
@@ -167,6 +170,12 @@ elif cmd == 'get_server_status':
         sys.exit(1)
     pp.pprint(client.get_server_status(eval(args[0]),))
 
+elif cmd == 'get_status':
+    if len(args) != 1:
+        print('get_status requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_status(eval(args[0]),))
+
 elif cmd == 'get_tables':
     if len(args) != 1:
         print('get_tables requires 1 args')
@@ -178,6 +187,12 @@ elif cmd == 'get_table_details':
         print('get_table_details requires 2 args')
         sys.exit(1)
     pp.pprint(client.get_table_details(eval(args[0]), args[1],))
+
+elif cmd == 'get_internal_table_details':
+    if len(args) != 2:
+        print('get_internal_table_details requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.get_internal_table_details(eval(args[0]), args[1],))
 
 elif cmd == 'get_users':
     if len(args) != 1:
@@ -215,17 +230,11 @@ elif cmd == 'get_heap_profile':
         sys.exit(1)
     pp.pprint(client.get_heap_profile(eval(args[0]),))
 
-elif cmd == 'get_memory_gpu':
-    if len(args) != 1:
-        print('get_memory_gpu requires 1 args')
+elif cmd == 'get_memory':
+    if len(args) != 2:
+        print('get_memory requires 2 args')
         sys.exit(1)
-    pp.pprint(client.get_memory_gpu(eval(args[0]),))
-
-elif cmd == 'get_memory_summary':
-    if len(args) != 1:
-        print('get_memory_summary requires 1 args')
-        sys.exit(1)
-    pp.pprint(client.get_memory_summary(eval(args[0]),))
+    pp.pprint(client.get_memory(eval(args[0]), args[1],))
 
 elif cmd == 'clear_cpu_memory':
     if len(args) != 1:
@@ -238,6 +247,12 @@ elif cmd == 'clear_gpu_memory':
         print('clear_gpu_memory requires 1 args')
         sys.exit(1)
     pp.pprint(client.clear_gpu_memory(eval(args[0]),))
+
+elif cmd == 'rollback_table_epoch':
+    if len(args) != 4:
+        print('rollback_table_epoch requires 4 args')
+        sys.exit(1)
+    pp.pprint(client.rollback_table_epoch(eval(args[0]), eval(args[1]), eval(args[2]), eval(args[3]),))
 
 elif cmd == 'sql_execute':
     if len(args) != 5:
@@ -328,6 +343,12 @@ elif cmd == 'load_table_binary':
         print('load_table_binary requires 3 args')
         sys.exit(1)
     pp.pprint(client.load_table_binary(eval(args[0]), args[1], eval(args[2]),))
+
+elif cmd == 'load_table_binary_columnar':
+    if len(args) != 3:
+        print('load_table_binary_columnar requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.load_table_binary_columnar(eval(args[0]), args[1], eval(args[2]),))
 
 elif cmd == 'load_table':
     if len(args) != 3:
