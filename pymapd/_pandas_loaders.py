@@ -86,8 +86,9 @@ def build_input_columnar(df, preserve_index=True):
     for col in df.columns:
         data = df[col]
         mapd_type = get_mapd_dtype(data)
+        has_nulls = data.hasnans
 
-        if data.hasnans:
+        if has_nulls:
             nulls = data.isnull().values
         elif all_nulls is None:
             nulls = all_nulls = [False] * len(df)
@@ -96,7 +97,7 @@ def build_input_columnar(df, preserve_index=True):
             # requires a cast to integer
             data = thrift_cast(data, mapd_type)
 
-        if nulls.any():
+        if has_nulls:
             data = data.fillna(mapd_to_na[mapd_type])
 
             if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'TEXT'}:
