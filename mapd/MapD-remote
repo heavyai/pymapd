@@ -57,6 +57,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  string create_link(TSessionId session, string view_state, string view_metadata)')
     print('  void load_table_binary(TSessionId session, string table_name,  rows)')
     print('  void load_table_binary_columnar(TSessionId session, string table_name,  cols)')
+    print('  void load_table_binary_arrow(TSessionId session, string table_name, string arrow_stream)')
     print('  void load_table(TSessionId session, string table_name,  rows)')
     print('  TDetectResult detect_column_types(TSessionId session, string file_name, TCopyParams copy_params)')
     print('  void create_table(TSessionId session, string table_name, TRowDescriptor row_desc, TTableType table_type)')
@@ -349,6 +350,12 @@ elif cmd == 'load_table_binary_columnar':
         print('load_table_binary_columnar requires 3 args')
         sys.exit(1)
     pp.pprint(client.load_table_binary_columnar(eval(args[0]), args[1], eval(args[2]),))
+
+elif cmd == 'load_table_binary_arrow':
+    if len(args) != 3:
+        print('load_table_binary_arrow requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.load_table_binary_arrow(eval(args[0]), args[1], args[2],))
 
 elif cmd == 'load_table':
     if len(args) != 3:
