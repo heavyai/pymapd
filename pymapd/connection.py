@@ -366,6 +366,7 @@ class Connection(object):
 
         See Also
         --------
+        load_table_arrow
         load_table_columnar
         """
         if method == 'infer':
@@ -384,7 +385,8 @@ class Connection(object):
         self._client.load_table(self._session, table_name, input_data)
 
     def load_table_columnar(self, table_name, data, preserve_index=True):
-        """Load a pandas DataFrame to the database
+        """Load a pandas DataFrame to the database using MapD's Thrift-based
+        columnar format
 
         Parameters
         ----------
@@ -401,6 +403,7 @@ class Connection(object):
         See Also
         --------
         load_table
+        load_table_arrow
         """
         from . import _pandas_loaders
         import pandas as pd
@@ -413,6 +416,49 @@ class Connection(object):
             raise TypeError("Unknown type {}".format(type(data)))
         self._client.load_table_binary_columnar(self._session, table_name,
                                                 input_cols)
+
+    def load_table_arrow(self, table_name, data, preserve_index=True):
+        """Load a pandas.DataFrame or a pyarrow Table or RecordBatch to the
+        database using Arrow columnar format for interchange
+
+        Parameters
+        ----------
+        table_name : str
+        data : pandas.DataFrame, pyarrow.RecordBatch, pyarrow.Table
+        preserve_index : bool, default True
+            Whether to include the index of a pandas DataFrame when writing.
+
+        Examples
+        --------
+        >>> df = pd.DataFrame({"a": [1, 2, 3], "b": ['d', 'e', 'f']})
+        >>> con.load_table_arrow('foo', df, preserve_index=False)
+
+        See Also
+        --------
+        load_table
+        load_table_columnar
+        """
+        payload = _serialize_arrow_payload(data, preserve_index=preserve_index)
+        self._client.load_table_binary_arrow(self._session, table_name,
+                                             payload.to_pybytes())
+
+
+def _serialize_arrow_payload(data, preserve_index=True):
+    import pyarrow as pa
+
+    if _is_pandas(data):
+        data = pa.RecordBatch.from_pandas(data, preserve_index=preserve_index)
+
+    stream = pa.BufferOutputStream()
+    writer = pa.RecordBatchStreamWriter(stream, data.schema)
+
+    if isinstance(data, pa.RecordBatch):
+        writer.write_batch(data)
+    elif isinstance(data, pa.Table):
+        writer.write_table(data)
+
+    writer.close()
+    return stream.get_result()
 
 
 def _is_pandas(data):

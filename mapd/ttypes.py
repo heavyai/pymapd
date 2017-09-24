@@ -181,13 +181,7 @@ class TDatumVal(object):
      - arr_val
     """
 
-    thrift_spec = (
-        None,  # 0
-        (1, TType.I64, 'int_val', None, None, ),  # 1
-        (2, TType.DOUBLE, 'real_val', None, None, ),  # 2
-        (3, TType.STRING, 'str_val', 'UTF8', None, ),  # 3
-        (4, TType.LIST, 'arr_val', (TType.STRUCT, (TDatum, TDatum.thrift_spec), False), None, ),  # 4
-    )
+    thrift_spec = None
 
     def __init__(self, int_val=None, real_val=None, str_val=None, arr_val=None,):
         self.int_val = int_val
@@ -741,13 +735,7 @@ class TColumnData(object):
      - arr_col
     """
 
-    thrift_spec = (
-        None,  # 0
-        (1, TType.LIST, 'int_col', (TType.I64, None, False), None, ),  # 1
-        (2, TType.LIST, 'real_col', (TType.DOUBLE, None, False), None, ),  # 2
-        (3, TType.LIST, 'str_col', (TType.STRING, 'UTF8', False), None, ),  # 3
-        (4, TType.LIST, 'arr_col', (TType.STRUCT, (TColumn, TColumn.thrift_spec), False), None, ),  # 4
-    )
+    thrift_spec = None
 
     def __init__(self, int_col=None, real_col=None, str_col=None, arr_col=None,):
         self.int_col = int_col
@@ -4185,3 +4173,17 @@ class TRawPixelDataResult(object):
 
     def __ne__(self, other):
         return not (self == other)
+TDatumVal.thrift_spec = (
+        None,  # 0
+        (1, TType.I64, 'int_val', None, None, ),  # 1
+        (2, TType.DOUBLE, 'real_val', None, None, ),  # 2
+        (3, TType.STRING, 'str_val', 'UTF8', None, ),  # 3
+        (4, TType.LIST, 'arr_val', (TType.STRUCT, (TDatum, TDatum.thrift_spec), False), None, ),  # 4
+    )
+TColumnData.thrift_spec = (
+        None,  # 0
+        (1, TType.LIST, 'int_col', (TType.I64, None, False), None, ),  # 1
+        (2, TType.LIST, 'real_col', (TType.DOUBLE, None, False), None, ),  # 2
+        (3, TType.LIST, 'str_col', (TType.STRING, 'UTF8', False), None, ),  # 3
+        (4, TType.LIST, 'arr_col', (TType.STRUCT, (TColumn, TColumn.thrift_spec), False), None, ),  # 4
+    )
