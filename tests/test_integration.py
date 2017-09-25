@@ -2,6 +2,7 @@
 Tests that rely on a server running
 """
 import datetime
+from distutils.version import LooseVersion
 
 import pytest
 
@@ -301,6 +302,9 @@ class TestExtras(object):
 
     def test_load_table_columnar_arrow_all(self, con, all_types_table):
         pa = pytest.importorskip("pyarrow")
+        mapd_version = LooseVersion(con._client.get_version())
+        if mapd_version <= '3.3.1':
+            pytest.skip("Arrow loader requires mapd > 3.3.1")
 
         names = ['boolean_', 'smallint_', 'int_', 'bigint_',
                  'float_', 'double_', 'varchar_', 'text_',
