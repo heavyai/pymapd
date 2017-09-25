@@ -34,6 +34,7 @@ Arrow-based GDF format for efficient data interchange.
    install
    usage
    api
+   contributing
 
 
 Indices and tables
