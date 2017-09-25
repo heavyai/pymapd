@@ -19,6 +19,12 @@ from .utils import no_gpu, mock
 TMapDException.__hash__ = lambda x: id(x)
 
 
+def skip_if_no_arrow_loader(con):
+    mapd_version = LooseVersion(con._client.get_version())
+    if mapd_version <= '3.3.1':
+        pytest.skip("Arrow loader requires mapd > 3.3.1")
+
+
 @pytest.mark.usefixtures("mapd_server")
 class TestIntegration:
 
@@ -264,7 +270,7 @@ class TestLoaders(object):
         self.check_empty_insert(result, data)
 
     def test_load_empty_table_pandas(self, con, empty_table):
-        # TODO: just requires arrow and pandas for tests
+        # TODO: just require arrow and pandas for tests
         pd = pytest.importorskip("pandas")
 
         data = [(1, 1.1, 'a'),
@@ -278,6 +284,7 @@ class TestLoaders(object):
     def test_load_empty_table_arrow(self, con, empty_table):
         pd = pytest.importorskip("pandas")
         pa = pytest.importorskip("pyarrow")
+        skip_if_no_arrow_loader()
 
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
@@ -294,7 +301,8 @@ class TestLoaders(object):
         self.check_empty_insert(result, data)
 
     def test_load_table_columnar(self, con, empty_table):
-        pd = pytest.importorskip("pandas")
+        pd = pytest.importorskip("pyarrow")
+        skip_if_no_arrow_loader()
 
         df = pd.DataFrame({"a": [1, 2, 3],
                            "b": [1.1, 2.2, 3.3],
@@ -303,6 +311,7 @@ class TestLoaders(object):
 
     def test_load_infer(self, con, empty_table):
         pd = pytest.importorskip("pandas")
+        skip_if_no_arrow_loader()
         import numpy as np
 
         data = pd.DataFrame(
@@ -343,9 +352,7 @@ class TestLoaders(object):
 
     def test_load_table_columnar_arrow_all(self, con, all_types_table):
         pa = pytest.importorskip("pyarrow")
-        mapd_version = LooseVersion(con._client.get_version())
-        if mapd_version <= '3.3.1':
-            pytest.skip("Arrow loader requires mapd > 3.3.1")
+        skip_if_no_arrow_loader()
 
         names = ['boolean_', 'smallint_', 'int_', 'bigint_',
                  'float_', 'double_', 'varchar_', 'text_',
