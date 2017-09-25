@@ -284,7 +284,7 @@ class TestLoaders(object):
     def test_load_empty_table_arrow(self, con, empty_table):
         pd = pytest.importorskip("pandas")
         pa = pytest.importorskip("pyarrow")
-        skip_if_no_arrow_loader()
+        skip_if_no_arrow_loader(con)
 
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
@@ -302,7 +302,7 @@ class TestLoaders(object):
 
     def test_load_table_columnar(self, con, empty_table):
         pd = pytest.importorskip("pyarrow")
-        skip_if_no_arrow_loader()
+        skip_if_no_arrow_loader(con)
 
         df = pd.DataFrame({"a": [1, 2, 3],
                            "b": [1.1, 2.2, 3.3],
@@ -311,7 +311,7 @@ class TestLoaders(object):
 
     def test_load_infer(self, con, empty_table):
         pd = pytest.importorskip("pandas")
-        skip_if_no_arrow_loader()
+        skip_if_no_arrow_loader(con)
         import numpy as np
 
         data = pd.DataFrame(
@@ -352,7 +352,7 @@ class TestLoaders(object):
 
     def test_load_table_columnar_arrow_all(self, con, all_types_table):
         pa = pytest.importorskip("pyarrow")
-        skip_if_no_arrow_loader()
+        skip_if_no_arrow_loader(con)
 
         names = ['boolean_', 'smallint_', 'int_', 'bigint_',
                  'float_', 'double_', 'varchar_', 'text_',

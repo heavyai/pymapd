@@ -367,7 +367,7 @@ class Connection(object):
             columnar loader, followed by the row-wise loader. If a DataFrame
             or ``pyarrow.Table`` is passed and ``pyarrow`` is installed, the
             Arrow-based loader will be used. If arrow isn't available, the
-            columnar loader is used. Finally, ``data`` is an iterable of tuples,
+            columnar loader is used. Finally, ``data`` is an iterable of tuples
             the row-wise loader is used.
         preserve_index : bool, default False
             Whether to keep the index when loading a pandas DataFrame
