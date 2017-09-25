@@ -417,7 +417,7 @@ class Connection(object):
         self._client.load_table_binary_columnar(self._session, table_name,
                                                 input_cols)
 
-    def load_table_arrow(self, table_name, data, preserve_index=True):
+    def load_table_arrow(self, table_name, data, preserve_index=False):
         """Load a pandas.DataFrame or a pyarrow Table or RecordBatch to the
         database using Arrow columnar format for interchange
 
@@ -425,7 +425,7 @@ class Connection(object):
         ----------
         table_name : str
         data : pandas.DataFrame, pyarrow.RecordBatch, pyarrow.Table
-        preserve_index : bool, default True
+        preserve_index : bool, default False
             Whether to include the index of a pandas DataFrame when writing.
 
         Examples
@@ -438,27 +438,12 @@ class Connection(object):
         load_table
         load_table_columnar
         """
-        payload = _serialize_arrow_payload(data, preserve_index=preserve_index)
+        metadata = self.get_table_details(table_name)
+        from ._pandas_loaders import _serialize_arrow_payload
+        payload = _serialize_arrow_payload(data, metadata,
+                                           preserve_index=preserve_index)
         self._client.load_table_binary_arrow(self._session, table_name,
                                              payload.to_pybytes())
-
-
-def _serialize_arrow_payload(data, preserve_index=True):
-    import pyarrow as pa
-
-    if _is_pandas(data):
-        data = pa.RecordBatch.from_pandas(data, preserve_index=preserve_index)
-
-    stream = pa.BufferOutputStream()
-    writer = pa.RecordBatchStreamWriter(stream, data.schema)
-
-    if isinstance(data, pa.RecordBatch):
-        writer.write_batch(data)
-    elif isinstance(data, pa.Table):
-        writer.write_table(data)
-
-    writer.close()
-    return stream.get_result()
 
 
 def _is_pandas(data):

@@ -110,3 +110,22 @@ def build_input_columnar(df, preserve_index=True):
         )
 
     return input_cols
+
+
+def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
+    import pyarrow as pa
+    import pandas as pd
+
+    if isinstance(data, pd.DataFrame):
+        data = pa.RecordBatch.from_pandas(data, preserve_index=preserve_index)
+
+    stream = pa.BufferOutputStream()
+    writer = pa.RecordBatchStreamWriter(stream, data.schema)
+
+    if isinstance(data, pa.RecordBatch):
+        writer.write_batch(data)
+    elif isinstance(data, pa.Table):
+        writer.write_table(data)
+
+    writer.close()
+    return stream.get_result()
