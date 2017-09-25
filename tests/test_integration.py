@@ -271,7 +271,7 @@ class TestLoaders(object):
                 (2, 2.2, '2'),
                 (3, 3.3, '3')]
         df = pd.DataFrame(data, columns=list('abc'))
-        con.load_table(empty_table, df)
+        con.load_table(empty_table, df, method='columnar')
         result = sorted(con.execute("select * from {}".format(empty_table)))
         self.check_empty_insert(result, data)
 
@@ -282,9 +282,14 @@ class TestLoaders(object):
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
                 (3, 3.3, '3')]
-        df = pd.DataFrame(data, columns=list('abc'))
+
+        df = pd.DataFrame(data, columns=list('abc')).astype({
+            'a': 'int32',
+            'b': 'float32'
+        })
+
         table = pa.Table.from_pandas(df, preserve_index=False)
-        con.load_table(empty_table, table)
+        con.load_table(empty_table, table, method='arrow')
         result = sorted(con.execute("select * from {}".format(empty_table)))
         self.check_empty_insert(result, data)
 
@@ -298,18 +303,22 @@ class TestLoaders(object):
 
     def test_load_infer(self, con, empty_table):
         pd = pytest.importorskip("pandas")
-        data = pd.DataFrame({'a': [1.1, 2.2], 'b': ['a', 'b']})[['a', 'b']]
+        import numpy as np
+
+        data = pd.DataFrame(
+            {'a': np.array([0, 1], dtype=np.int32),
+             'b': np.array([1.1, 2.2], dtype=np.float32),
+             'c': ['a', 'b']}
+        )
         con.load_table(empty_table, data)
 
     def test_load_infer_bad(self, con, empty_table):
-        with pytest.raises(ValueError) as m:
+        with pytest.raises(TypeError):
             con.load_table(empty_table, [], method='thing')
-        assert m.match('thing')
 
     def test_infer_non_pandas(self, con, empty_table):
-        with pytest.raises(ValueError) as m:
+        with pytest.raises(TypeError):
             con.load_table(empty_table, [], method='columnar')
-        assert m.match("DataFrame")
 
     def test_load_columnar_pandas_all(self, con, all_types_table):
         pd = pytest.importorskip("pandas")

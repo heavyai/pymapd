@@ -384,14 +384,16 @@ class Connection(object):
             elif _is_pandas(data):
                 return self.load_table_columnar(table_name, data)
 
-        elif method == 'columnar' and not _is_pandas(data):
-            raise ValueError("'data' must be a DataFrame with "
-                             "`method='columnar'`. Got {} instead".format(
-                                 type(data)
-                             ))
+        elif method == 'arrow':
+            return self.load_table_arrow(table_name, data)
+
+        elif method == 'columnar':
+            return self.load_table_columnar(table_name, data)
+
         elif method != 'rows':
-            raise ValueError("Method must be one of {{'infer', 'columnar', "
-                             "'rows'}}. Got {} instead".format(method))
+            raise TypeError("Method must be one of {{'infer', 'arrow', "
+                            "'columnar', 'rows'}}. Got {} instead"
+                            .format(method))
 
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
