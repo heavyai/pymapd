@@ -245,24 +245,71 @@ class TestExtras(object):
         ]
         assert result == expected
 
-    def test_load_table(self, con, empty_table):
+
+class TestLoaders(object):
+
+    @staticmethod
+    def check_empty_insert(result, expected):
+        assert len(result) == 3
+        assert expected[0][0] == result[0][0]
+        assert expected[0][2] == result[0][2]
+        assert abs(expected[0][1] - result[0][1]) < 1e-7  # floating point
+
+    def test_load_empty_table(self, con, empty_table):
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
                 (3, 3.3, '3')]
         con.load_table(empty_table, data)
         result = sorted(con.execute("select * from {}".format(empty_table)))
-        assert len(result) == 3
-        assert data[0][0] == result[0][0]
-        assert data[0][2] == result[0][2]
-        assert abs(data[0][1] - result[0][1]) < 1e-7  # floating point
+        self.check_empty_insert(result, data)
 
-    def test_load_table_binary(self, con, empty_table):
+    def test_load_empty_table_pandas(self, con, empty_table):
+        # TODO: just requires arrow and pandas for tests
+        pd = pytest.importorskip("pandas")
+
+        data = [(1, 1.1, 'a'),
+                (2, 2.2, '2'),
+                (3, 3.3, '3')]
+        df = pd.DataFrame(data, columns=list('abc'))
+        con.load_table(empty_table, df)
+        result = sorted(con.execute("select * from {}".format(empty_table)))
+        self.check_empty_insert(result, data)
+
+    def test_load_empty_table_arrow(self, con, empty_table):
+        pd = pytest.importorskip("pandas")
+        pa = pytest.importorskip("pyarrow")
+
+        data = [(1, 1.1, 'a'),
+                (2, 2.2, '2'),
+                (3, 3.3, '3')]
+        df = pd.DataFrame(data, columns=list('abc'))
+        table = pa.Table.from_pandas(df, preserve_index=False)
+        con.load_table(empty_table, table)
+        result = sorted(con.execute("select * from {}".format(empty_table)))
+        self.check_empty_insert(result, data)
+
+    def test_load_table_columnar(self, con, empty_table):
         pd = pytest.importorskip("pandas")
 
         df = pd.DataFrame({"a": [1, 2, 3],
                            "b": [1.1, 2.2, 3.3],
                            "c": ['a', '2', '3']}, columns=['a', 'b', 'c'])
-        con.load_table_columnar(empty_table, df, preserve_index=False)
+        con.load_table_columnar(empty_table, df)
+
+    def test_load_infer(self, con, empty_table):
+        pd = pytest.importorskip("pandas")
+        data = pd.DataFrame({'a': [1.1, 2.2], 'b': ['a', 'b']})[['a', 'b']]
+        con.load_table(empty_table, data)
+
+    def test_load_infer_bad(self, con, empty_table):
+        with pytest.raises(ValueError) as m:
+            con.load_table(empty_table, [], method='thing')
+        assert m.match('thing')
+
+    def test_infer_non_pandas(self, con, empty_table):
+        with pytest.raises(ValueError) as m:
+            con.load_table(empty_table, [], method='columnar')
+        assert m.match("DataFrame")
 
     def test_load_columnar_pandas_all(self, con, all_types_table):
         pd = pytest.importorskip("pandas")
@@ -284,21 +331,6 @@ class TestExtras(object):
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
                     'date_'])
         con.load_table_columnar(all_types_table, data, preserve_index=False)
-
-    def test_load_infer(self, con, empty_table):
-        pd = pytest.importorskip("pandas")
-        data = pd.DataFrame({'a': [1.1, 2.2], 'b': ['a', 'b']})[['a', 'b']]
-        con.load_table(empty_table, data)
-
-    def test_load_infer_bad(self, con, empty_table):
-        with pytest.raises(ValueError) as m:
-            con.load_table(empty_table, [], method='thing')
-        assert m.match('thing')
-
-    def test_infer_non_pandas(self, con, empty_table):
-        with pytest.raises(ValueError) as m:
-            con.load_table(empty_table, [], method='columnar')
-        assert m.match("DataFrame")
 
     def test_load_table_columnar_arrow_all(self, con, all_types_table):
         pa = pytest.importorskip("pyarrow")

@@ -21,4 +21,5 @@ The requires that Thrift is installed and on your PATH. Running it will update
 two files, ``mapd/MapD.py`` and ``mapd/ttypes.py``, which can be committed to
 the repository.
 
+
 .. _mapd-core: https://github.com/mapd/mapd-core
