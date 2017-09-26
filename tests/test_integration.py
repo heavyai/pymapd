@@ -301,7 +301,7 @@ class TestLoaders(object):
         self.check_empty_insert(result, data)
 
     def test_load_table_columnar(self, con, empty_table):
-        pd = pytest.importorskip("pyarrow")
+        pd = pytest.importorskip("pandas")
         skip_if_no_arrow_loader(con)
 
         df = pd.DataFrame({"a": [1, 2, 3],
