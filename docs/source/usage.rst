@@ -142,6 +142,18 @@ Cursors are iterable, returning a list of tuples of values
 Loading Data
 ------------
 
+The fastest way to load data is :meth:`Connection.load_table_arrow`. Internally,
+this will use ``pyarrow`` and the `Apache Arrow`_ format to exchange data with
+the MapD database.
+
+.. code-block:: python
+
+   >>> import pyarrow as pa
+   >>> import pandas as pd
+   >>> df = pd.DataFrame({"A": [1, 2], "B": ['c', 'd']})
+   >>> table = pa.Table.from_pandas(df)
+   >>> con.load_table_arrow("table_name", table)
+   
 You can quickly load a ``pandas.DataFrame`` using :meth:`Connection.load_table`
 or :meth:`Connection.load_table_columnar` methods.
 
@@ -158,6 +170,10 @@ If you aren't using pandas you can pass list of tuples to
    >>> data = [(1, "c"), (2, "d")]
    >>> con.load_table("table_name", data)
 
+
+The high-level :meth:`Connection.load_table` method will choose the fastest
+method available based on the type of ``data`` and whether or not ``pyarrow`` is
+installed.
 
 Database Metadata
 -----------------
@@ -182,3 +198,4 @@ Some helpful metadata are available on the ``Connection`` object.
  
 .. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
 .. _pygdf: http://pygdf.readthedocs.io/en/latest/
+.. _Apache Arrow: http://arrow.apache.org/

@@ -287,6 +287,15 @@ class Iface(object):
         """
         pass
 
+    def load_table_binary_arrow(self, session, table_name, arrow_stream):
+        """
+        Parameters:
+         - session
+         - table_name
+         - arrow_stream
+        """
+        pass
+
     def load_table(self, session, table_name, rows):
         """
         Parameters:
@@ -1596,6 +1605,41 @@ class Client(Iface):
             raise result.e
         return
 
+    def load_table_binary_arrow(self, session, table_name, arrow_stream):
+        """
+        Parameters:
+         - session
+         - table_name
+         - arrow_stream
+        """
+        self.send_load_table_binary_arrow(session, table_name, arrow_stream)
+        self.recv_load_table_binary_arrow()
+
+    def send_load_table_binary_arrow(self, session, table_name, arrow_stream):
+        self._oprot.writeMessageBegin('load_table_binary_arrow', TMessageType.CALL, self._seqid)
+        args = load_table_binary_arrow_args()
+        args.session = session
+        args.table_name = table_name
+        args.arrow_stream = arrow_stream
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_load_table_binary_arrow(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = load_table_binary_arrow_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.e is not None:
+            raise result.e
+        return
+
     def load_table(self, session, table_name, rows):
         """
         Parameters:
@@ -2232,6 +2276,7 @@ class Processor(Iface, TProcessor):
         self._processMap["create_link"] = Processor.process_create_link
         self._processMap["load_table_binary"] = Processor.process_load_table_binary
         self._processMap["load_table_binary_columnar"] = Processor.process_load_table_binary_columnar
+        self._processMap["load_table_binary_arrow"] = Processor.process_load_table_binary_arrow
         self._processMap["load_table"] = Processor.process_load_table
         self._processMap["detect_column_types"] = Processor.process_detect_column_types
         self._processMap["create_table"] = Processor.process_create_table
@@ -2986,6 +3031,28 @@ class Processor(Iface, TProcessor):
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("load_table_binary_columnar", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_load_table_binary_arrow(self, seqid, iprot, oprot):
+        args = load_table_binary_arrow_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = load_table_binary_arrow_result()
+        try:
+            self._handler.load_table_binary_arrow(args.session, args.table_name, args.arrow_stream)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except TMapDException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("load_table_binary_arrow", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -8167,6 +8234,151 @@ class load_table_binary_columnar_result(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('load_table_binary_columnar_result')
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class load_table_binary_arrow_args(object):
+    """
+    Attributes:
+     - session
+     - table_name
+     - arrow_stream
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'session', 'UTF8', None, ),  # 1
+        (2, TType.STRING, 'table_name', 'UTF8', None, ),  # 2
+        (3, TType.STRING, 'arrow_stream', 'BINARY', None, ),  # 3
+    )
+
+    def __init__(self, session=None, table_name=None, arrow_stream=None,):
+        self.session = session
+        self.table_name = table_name
+        self.arrow_stream = arrow_stream
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.arrow_stream = iprot.readBinary()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('load_table_binary_arrow_args')
+        if self.session is not None:
+            oprot.writeFieldBegin('session', TType.STRING, 1)
+            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeFieldEnd()
+        if self.table_name is not None:
+            oprot.writeFieldBegin('table_name', TType.STRING, 2)
+            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeFieldEnd()
+        if self.arrow_stream is not None:
+            oprot.writeFieldBegin('arrow_stream', TType.STRING, 3)
+            oprot.writeBinary(self.arrow_stream)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class load_table_binary_arrow_result(object):
+    """
+    Attributes:
+     - e
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRUCT, 'e', (TMapDException, TMapDException.thrift_spec), None, ),  # 1
+    )
+
+    def __init__(self, e=None,):
+        self.e = e
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = TMapDException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('load_table_binary_arrow_result')
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
             self.e.write(oprot)

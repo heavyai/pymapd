@@ -20,6 +20,12 @@ from ._parsers import (
 )
 from ._loaders import _build_input_rows
 
+try:
+    import pyarrow as pa
+    _HAS_ARROW = True
+except ImportError:
+    _HAS_ARROW = False
+
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
                                                'port', 'dbname', 'protocol'])
@@ -342,55 +348,88 @@ class Connection(object):
         details = self._client.get_table_details(self._session, table_name)
         return _extract_column_details(details.row_desc)
 
-    def load_table(self, table_name, data, method='infer'):
-        """Load rows of data into a table
+    def load_table(self, table_name, data, method='infer',
+                   preserve_index=False):
+        """Load data into a table
 
         Parameters
         ----------
         table_name : str
-        data : iterable of tuples
+        data : pyarrow.Table, pandas.DataFrame, or iterable of tuples
         method : {'infer', 'columnar', 'rows'}
-            Method to use for loading the data. Pandas DataFrames
-            can be loaded more quickly with :meth:`Connect.load_table_columnar`
-            If ``data`` is a ``DataFrame``, that method will be used.
+            Method to use for loading the data. Three options are available
 
-        Notes
-        -----
-        Using a ``pandas.DataFrame`` should result in considerable faster
-        performance than a list of tuples.
+            1. ``pyarrow`` and Apache Arrow loader
+            2. columnar loader
+            3. row-wise loader
+
+            The Arrow loader is typically the fastest, followed by the
+            columnar loader, followed by the row-wise loader. If a DataFrame
+            or ``pyarrow.Table`` is passed and ``pyarrow`` is installed, the
+            Arrow-based loader will be used. If arrow isn't available, the
+            columnar loader is used. Finally, ``data`` is an iterable of tuples
+            the row-wise loader is used.
+        preserve_index : bool, default False
+            Whether to keep the index when loading a pandas DataFrame
+
+        See Also
+        --------
+        load_table_arrow
+        load_table_columnar
+        """
+        if method == 'infer':
+            if (_is_pandas(data) or _is_arrow(data)) and _HAS_ARROW:
+                return self.load_table_arrow(table_name, data)
+
+            elif _is_pandas(data):
+                return self.load_table_columnar(table_name, data)
+
+        elif method == 'arrow':
+            return self.load_table_arrow(table_name, data)
+
+        elif method == 'columnar':
+            return self.load_table_columnar(table_name, data)
+
+        elif method != 'rows':
+            raise TypeError("Method must be one of {{'infer', 'arrow', "
+                            "'columnar', 'rows'}}. Got {} instead"
+                            .format(method))
+
+        input_data = _build_input_rows(data)
+        self._client.load_table(self._session, table_name, input_data)
+
+    def load_table_rowwise(self, table_name, data):
+        """Load data into a table row-wise
+
+        Parameters
+        ----------
+        table_name : str
+        data : Iterable of tuples
+            Each element of `data` should be a row to be inserted
+
+        See Also
+        --------
+        load_table
+        load_table_arrow
+        load_table_columnar
 
         Examples
         --------
         >>> data = [(1, 'a'), (2, 'b'), (3, 'c')]
         >>> con.load_table('bar', data)
-
-        See Also
-        --------
-        load_table_columnar
         """
-        if method == 'infer':
-            if _is_pandas(data):
-                return self.load_table_columnar(table_name, data)
-        elif method == 'columnar' and not _is_pandas(data):
-            raise ValueError("'data' must be a DataFrame with "
-                             "`method='columnar'`. Got {} instead".format(
-                                 type(data)
-                             ))
-        elif method != 'rows':
-            raise ValueError("Method must be one of {{'infer', 'columnar', "
-                             "'rows'}}. Got {} instead".format(method))
-
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
 
-    def load_table_columnar(self, table_name, data, preserve_index=True):
-        """Load a pandas DataFrame to the database
+    def load_table_columnar(self, table_name, data, preserve_index=False):
+        """Load a pandas DataFrame to the database using MapD's Thrift-based
+        columnar format
 
         Parameters
         ----------
         table_name : str
         data : DataFrame
-        preserve_index : bool, default True
+        preserve_index : bool, default False
             Whether to include the index of a pandas DataFrame when writing.
 
         Examples
@@ -401,11 +440,12 @@ class Connection(object):
         See Also
         --------
         load_table
+        load_table_arrow
+        load_table_rowwise
         """
         from . import _pandas_loaders
-        import pandas as pd
 
-        if isinstance(data, pd.DataFrame):
+        if _is_pandas(data):
             input_cols = _pandas_loaders.build_input_columnar(
                 data, preserve_index=preserve_index
             )
@@ -413,6 +453,35 @@ class Connection(object):
             raise TypeError("Unknown type {}".format(type(data)))
         self._client.load_table_binary_columnar(self._session, table_name,
                                                 input_cols)
+
+    def load_table_arrow(self, table_name, data, preserve_index=False):
+        """Load a pandas.DataFrame or a pyarrow Table or RecordBatch to the
+        database using Arrow columnar format for interchange
+
+        Parameters
+        ----------
+        table_name : str
+        data : pandas.DataFrame, pyarrow.RecordBatch, pyarrow.Table
+        preserve_index : bool, default False
+            Whether to include the index of a pandas DataFrame when writing.
+
+        Examples
+        --------
+        >>> df = pd.DataFrame({"a": [1, 2, 3], "b": ['d', 'e', 'f']})
+        >>> con.load_table_arrow('foo', df, preserve_index=False)
+
+        See Also
+        --------
+        load_table
+        load_table_columnar
+        load_table_rowwise
+        """
+        metadata = self.get_table_details(table_name)
+        from ._pandas_loaders import _serialize_arrow_payload
+        payload = _serialize_arrow_payload(data, metadata,
+                                           preserve_index=preserve_index)
+        self._client.load_table_binary_arrow(self._session, table_name,
+                                             payload.to_pybytes())
 
 
 def _is_pandas(data):
@@ -422,3 +491,10 @@ def _is_pandas(data):
         return False
     else:
         return isinstance(data, pd.DataFrame)
+
+
+def _is_arrow(data):
+    """Whether `data` is an arrow `Table` or `RecordBatch`"""
+    if _HAS_ARROW:
+        return isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)
+    return False

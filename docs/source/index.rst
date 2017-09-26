@@ -7,8 +7,8 @@ pymapd
 ======
 
 The pymapd client interface provides a python DB API 2.0-compliant `MapD`_
-interface. In addition, it provides methods to get results in the Apache
-Arrow-based GDF format for efficient data interchange.
+interface. In addition, it provides methods to get results in the `Apache
+Arrow`_ -based GDF format for efficient data interchange.
 
 .. code-block:: python
 
@@ -34,6 +34,7 @@ Arrow-based GDF format for efficient data interchange.
    install
    usage
    api
+   contributing
 
 
 Indices and tables
@@ -46,3 +47,4 @@ Indices and tables
 
 .. _DB-API-2.0: https://www.python.org/dev/peps/pep-0249/
 .. _MapD: https://www.mapd.com/
+.. _Apache Arrow: http://arrow.apache.org/

@@ -2,6 +2,7 @@
 Tests that rely on a server running
 """
 import datetime
+from distutils.version import LooseVersion
 
 import pytest
 
@@ -16,6 +17,12 @@ from .utils import no_gpu, mock
 # This isn't a huge deal, but our testing context mangers for asserting
 # exceptions need hashability
 TMapDException.__hash__ = lambda x: id(x)
+
+
+def skip_if_no_arrow_loader(con):
+    mapd_version = LooseVersion(con._client.get_version())
+    if mapd_version <= '3.3.1':
+        pytest.skip("Arrow loader requires mapd > 3.3.1")
 
 
 @pytest.mark.usefixtures("mapd_server")
@@ -244,24 +251,83 @@ class TestExtras(object):
         ]
         assert result == expected
 
-    def test_load_table(self, con, empty_table):
+
+class TestLoaders(object):
+
+    @staticmethod
+    def check_empty_insert(result, expected):
+        assert len(result) == 3
+        assert expected[0][0] == result[0][0]
+        assert expected[0][2] == result[0][2]
+        assert abs(expected[0][1] - result[0][1]) < 1e-7  # floating point
+
+    def test_load_empty_table(self, con, empty_table):
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
                 (3, 3.3, '3')]
         con.load_table(empty_table, data)
         result = sorted(con.execute("select * from {}".format(empty_table)))
-        assert len(result) == 3
-        assert data[0][0] == result[0][0]
-        assert data[0][2] == result[0][2]
-        assert abs(data[0][1] - result[0][1]) < 1e-7  # floating point
+        self.check_empty_insert(result, data)
 
-    def test_load_table_binary(self, con, empty_table):
+    def test_load_empty_table_pandas(self, con, empty_table):
+        # TODO: just require arrow and pandas for tests
         pd = pytest.importorskip("pandas")
+
+        data = [(1, 1.1, 'a'),
+                (2, 2.2, '2'),
+                (3, 3.3, '3')]
+        df = pd.DataFrame(data, columns=list('abc'))
+        con.load_table(empty_table, df, method='columnar')
+        result = sorted(con.execute("select * from {}".format(empty_table)))
+        self.check_empty_insert(result, data)
+
+    def test_load_empty_table_arrow(self, con, empty_table):
+        pd = pytest.importorskip("pandas")
+        pa = pytest.importorskip("pyarrow")
+        skip_if_no_arrow_loader(con)
+
+        data = [(1, 1.1, 'a'),
+                (2, 2.2, '2'),
+                (3, 3.3, '3')]
+
+        df = pd.DataFrame(data, columns=list('abc')).astype({
+            'a': 'int32',
+            'b': 'float32'
+        })
+
+        table = pa.Table.from_pandas(df, preserve_index=False)
+        con.load_table(empty_table, table, method='arrow')
+        result = sorted(con.execute("select * from {}".format(empty_table)))
+        self.check_empty_insert(result, data)
+
+    def test_load_table_columnar(self, con, empty_table):
+        pd = pytest.importorskip("pandas")
+        skip_if_no_arrow_loader(con)
 
         df = pd.DataFrame({"a": [1, 2, 3],
                            "b": [1.1, 2.2, 3.3],
                            "c": ['a', '2', '3']}, columns=['a', 'b', 'c'])
-        con.load_table_columnar(empty_table, df, preserve_index=False)
+        con.load_table_columnar(empty_table, df)
+
+    def test_load_infer(self, con, empty_table):
+        pd = pytest.importorskip("pandas")
+        skip_if_no_arrow_loader(con)
+        import numpy as np
+
+        data = pd.DataFrame(
+            {'a': np.array([0, 1], dtype=np.int32),
+             'b': np.array([1.1, 2.2], dtype=np.float32),
+             'c': ['a', 'b']}
+        )
+        con.load_table(empty_table, data)
+
+    def test_load_infer_bad(self, con, empty_table):
+        with pytest.raises(TypeError):
+            con.load_table(empty_table, [], method='thing')
+
+    def test_infer_non_pandas(self, con, empty_table):
+        with pytest.raises(TypeError):
+            con.load_table(empty_table, [], method='columnar')
 
     def test_load_columnar_pandas_all(self, con, all_types_table):
         pd = pytest.importorskip("pandas")
@@ -284,63 +350,28 @@ class TestExtras(object):
                     'date_'])
         con.load_table_columnar(all_types_table, data, preserve_index=False)
 
-    def test_load_infer(self, con, empty_table):
-        pd = pytest.importorskip("pandas")
-        data = pd.DataFrame({'a': [1.1, 2.2], 'b': ['a', 'b']})[['a', 'b']]
-        con.load_table(empty_table, data)
-
-    def test_load_infer_bad(self, con, empty_table):
-        with pytest.raises(ValueError) as m:
-            con.load_table(empty_table, [], method='thing')
-        assert m.match('thing')
-
-    def test_infer_non_pandas(self, con, empty_table):
-        with pytest.raises(ValueError) as m:
-            con.load_table(empty_table, [], method='columnar')
-        assert m.match("DataFrame")
-
-    @pytest.mark.skip(reason="Waiting for RecordBatches")
     def test_load_table_columnar_arrow_all(self, con, all_types_table):
-        # leaving the test for when mapd can accept arrow RecordBatches
         pa = pytest.importorskip("pyarrow")
+        skip_if_no_arrow_loader(con)
 
-        columns = [
-            pa.Column.from_array('boolean_',
-                                 pa.array([True, False, None],
-                                          type=pa.bool_())),
-            pa.Column.from_array("smallint_",
-                                 pa.array([1, 0, None]).cast(pa.int8())),
-            pa.Column.from_array("int_",
-                                 pa.array([1, 0, None]).cast(pa.int32())),
-            pa.Column.from_array("bigint_",
-                                 pa.array([1, 0, None])),
-            # pa.Column.from_array("decimal_",
-            #                      pa.array([1.0, 1.1],
-            #                               type=pa.decimal(10))),
-            pa.Column.from_array("float_",
-                                 pa.array([1.0, 1.1, None])
-                                 .cast(pa.float32())),
-            pa.Column.from_array("double_",
-                                 pa.array([1.0, 1.1, None])),
-            # no fixed-width string
-            pa.Column.from_array("varchar_",
-                                 pa.array(['a', 'b', None])),
-            pa.Column.from_array("text_",
-                                 pa.array(['a', 'b', None])),
-            pa.Column.from_array("time_",
-                                 pa.array([10**9, 20**9, None])
-                                 .cast(pa.time64('ns'))),
-            pa.Column.from_array("timestamp_",
-                                 pa.array([
-                                     datetime.datetime(2016, 1, 1, 12, 12, 12),
-                                     datetime.datetime(2017, 1, 1),
-                                     None,
-                                 ])),
-            pa.Column.from_array("date_",
-                                 pa.array([datetime.date(2016, 1, 1),
-                                           datetime.date(2017, 1, 1),
-                                           None,
-                                           ]))
-        ]
-        table = pa.Table.from_arrays(columns)
-        con.load_table_columnar(all_types_table, table)
+        names = ['boolean_', 'smallint_', 'int_', 'bigint_',
+                 'float_', 'double_', 'varchar_', 'text_',
+                 'time_', 'timestamp_', 'date_']
+
+        columns = [pa.array([True, False, None], type=pa.bool_()),
+                   pa.array([1, 0, None]).cast(pa.int16()),
+                   pa.array([1, 0, None]).cast(pa.int32()),
+                   pa.array([1, 0, None]),
+                   pa.array([1.0, 1.1, None]).cast(pa.float32()),
+                   pa.array([1.0, 1.1, None]),
+                   # no fixed-width string
+                   pa.array(['a', 'b', None]),
+                   pa.array(['a', 'b', None]),
+                   (pa.array([1, 2, None]).cast(pa.int32())
+                    .cast(pa.time32('s'))),
+                   pa.array([datetime.datetime(2016, 1, 1, 12, 12, 12),
+                             datetime.datetime(2017, 1, 1), None]),
+                   pa.array([datetime.date(2016, 1, 1),
+                             datetime.date(2017, 1, 1), None])]
+        table = pa.Table.from_arrays(columns, names=names)
+        con.load_table_arrow(all_types_table, table)
