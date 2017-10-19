@@ -348,8 +348,20 @@ class Connection(object):
         details = self._client.get_table_details(self._session, table_name)
         return _extract_column_details(details.row_desc)
 
+    def create_table(self, table_name, data, if_exists='fail'):
+        """Create a table from a DataFrame or pyarrow Table
+        """
+        from mapd.ttypes import TTableType
+        from ._pandas_loaders import build_row_desc
+
+        row_desc = build_row_desc(data)
+        self._client.create_table(self._session, table_name, row_desc,
+                                  TTableType.DELIMITED)
+
     def load_table(self, table_name, data, method='infer',
-                   preserve_index=False):
+                   preserve_index=False,
+                   if_exists='append',
+                   create='infer'):
         """Load data into a table
 
         Parameters
@@ -369,14 +381,39 @@ class Connection(object):
             Arrow-based loader will be used. If arrow isn't available, the
             columnar loader is used. Finally, ``data`` is an iterable of tuples
             the row-wise loader is used.
+
         preserve_index : bool, default False
             Whether to keep the index when loading a pandas DataFrame
+
+        if_exists : {'append', 'replace', 'fail'}
+            Behavior when the table already exists.
+
+            * 'append' will add new rows to the existing table
+            * 'replace' will truncate the existing rows before inserting
+            * 'fail' will raise a ``ValueError``
+
+            When ``table_name`` does not already exist, it will be created
+            based on the column names and data types of the pandas DataFrame
+            or pyarrow Table.
+        create : {"infer", True, False}
 
         See Also
         --------
         load_table_arrow
         load_table_columnar
         """
+        if create == 'infer':
+            # ask the database
+            exists = table_name in set(self._client.get_tables(self._session))
+            if not exists:
+                self.create_table(table_name, data)
+        elif create is True:
+            self.create_table(table_name, data)
+        elif create is not False:
+            msg = ("Unexpected value for 'create': {}. Expected "
+                   "one of {}".format(create, {'infer', True, False}))
+            raise ValueError(msg)
+
         if method == 'infer':
             if (_is_pandas(data) or _is_arrow(data)) and _HAS_ARROW:
                 return self.load_table_arrow(table_name, data)

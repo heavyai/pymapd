@@ -210,3 +210,11 @@ def mock_connection(mock_transport, mock_client):
     """
     return connect(user='user', password='password',
                    host='localhost', dbname='dbname')
+
+
+@pytest.fixture
+def not_a_table(con):
+    name = "not_a_table"
+    con.execute("drop table if exists {};".format(name))
+    yield name
+    con.execute("drop table if exists {};".format(name))

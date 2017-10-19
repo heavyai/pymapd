@@ -396,3 +396,29 @@ class TestLoaders(object):
 
         # cleanup
         con.execute("drop table if exists pymapd_test_table;")
+
+    def test_create_table(self, con, not_a_table):
+        pd = pytest.importorskip("pandas")
+        df = pd.DataFrame({"A": [1, 2], "B": [1., 2.]})
+        con.create_table(not_a_table, df)
+
+    def test_load_table_creates(self, con, not_a_table):
+        pd = pytest.importorskip("pandas")
+        import numpy as np
+
+        data = pd.DataFrame({
+            "boolean_": [True, False],
+            "smallint_": np.array([0, 1], dtype=np.int8),
+            "int_": np.array([0, 1], dtype=np.int32),
+            "bigint_": np.array([0, 1], dtype=np.int64),
+            "float_": np.array([0, 1], dtype=np.float32),
+            "double_": np.array([0, 1], dtype=np.float64),
+            "varchar_": ["a", "b"],
+            "text_": ['a', 'b'],
+            "time_": [datetime.time(0, 11, 59), datetime.time(13)],
+            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
+            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
+        }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
+                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
+                    'date_'])
+        con.load_table(not_a_table, data, create=True)

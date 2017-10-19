@@ -9,7 +9,9 @@ from pandas.api.types import (
     is_datetime64_any_dtype,
 )
 
-from mapd.ttypes import TColumn, TColumnData
+from mapd.ttypes import (
+    TColumn, TColumnData, TColumnType, TTypeInfo, TDatumType
+)
 from ._utils import (
     date_to_seconds, time_to_seconds, datetime_to_seconds,
     mapd_to_na, mapd_to_slot
@@ -27,12 +29,12 @@ def get_mapd_dtype(data):
 def get_mapd_type_from_known(dtype):
     """For cases where pandas type system matches"""
     if is_bool_dtype(dtype):
-        return 'BOOLEAN'
+        return 'BOOL'
     elif is_integer_dtype(dtype):
         if dtype.itemsize <= 2:
             return 'SMALLINT'
         elif dtype.itemsize == 4:
-            return 'INTEGER'
+            return 'INT'
         else:
             return 'BIGINT'
     elif is_float_dtype(dtype):
@@ -53,13 +55,13 @@ def get_mapd_type_from_object(data):
     except IndexError:
         raise IndexError("Not any valid values to infer the type")
     if isinstance(val, six.string_types):
-        return 'TEXT'
+        return 'STR'
     elif isinstance(val, datetime.date):
         return 'DATE'
     elif isinstance(val, datetime.time):
         return 'TIME'
     elif isinstance(val, int):
-        return 'INTEGER'
+        return 'INT'
     else:
         raise TypeError("Unhandled type {}".format(data.dtype))
 
@@ -100,7 +102,7 @@ def build_input_columnar(df, preserve_index=True):
         if has_nulls:
             data = data.fillna(mapd_to_na[mapd_type])
 
-            if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'TEXT'}:
+            if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'STR'}:
                 data = data.astype('int64')
         # use .values so that indexes don't have to be serialized too
         kwargs = {mapd_to_slot[mapd_type]: data.values}
@@ -129,3 +131,13 @@ def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
 
     writer.close()
     return stream.get_result()
+
+
+def build_row_desc(data):
+    dtypes = [(col, get_mapd_dtype(data[col])) for col in data.columns]
+    # row_desc :: List<TColumnType>
+    row_desc = [
+        TColumnType(name, TTypeInfo(getattr(TDatumType, mapd_type)))
+        for name, mapd_type in dtypes
+    ]
+    return row_desc
