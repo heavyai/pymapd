@@ -375,3 +375,24 @@ class TestLoaders(object):
                              datetime.date(2017, 1, 1), None])]
         table = pa.Table.from_arrays(columns, names=names)
         con.load_table_arrow(all_types_table, table)
+
+    def test_select_null(self, con):
+        con.execute("drop table if exists pymapd_test_table;")
+        con.execute("create table pymapd_test_table (a int);")
+        con.execute("insert into pymapd_test_table VALUES (1);")
+        con.execute("insert into pymapd_test_table VALUES (null);")
+        # the test
+
+        c = con.cursor()
+        result = c.execute("select * from pymapd_test_table")
+        expected = [(1,), (None,)]
+        assert result.fetchall() == expected
+
+        c = con.cursor()
+        c.columnar = False
+        result = c.execute("select * from pymapd_test_table")
+        expected = [(1,), (None,)]
+        assert result.fetchall() == expected
+
+        # cleanup
+        con.execute("drop table if exists pymapd_test_table;")
