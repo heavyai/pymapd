@@ -55,8 +55,8 @@ def _extract_col_vals(desc, val):
     nulls = val.nulls
 
     vals = getattr(val.data, _typeattr[typename] + '_col')
-    vals = [None if null else val
-            for null, val in zip(nulls, vals)]
+    vals = [None if null else v
+            for null, v in zip(nulls, vals)]
 
     base = datetime.datetime(1970, 1, 1)
     if typename == 'TIMESTAMP':
