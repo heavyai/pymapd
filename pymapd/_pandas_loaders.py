@@ -145,6 +145,18 @@ def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
 
 
 def build_row_desc(data, preserve_index=False):
+    try:
+        import pandas as pd
+    except ImportError:
+        raise ImportError("create_table requires pandas.")
+
+    if not isinstance(data, pd.DataFrame):
+        # Once https://issues.apache.org/jira/browse/ARROW-1576 is complete
+        # we can support pa.Table here too
+        raise TypeError("Create table is not supported for type {}. "
+                        "Use a pandas DataFrame, or perform the create "
+                        "separately".format(type(data)))
+
     if preserve_index:
         data = data.reset_index()
     dtypes = [(col, get_mapd_dtype(data[col])) for col in data.columns]

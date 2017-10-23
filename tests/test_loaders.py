@@ -112,8 +112,7 @@ class TestLoaders(object):
     def test_build_row_desc(self):
         pd = pytest.importorskip("pandas")
         import numpy as np
-        from pymapd._pandas_loaders import build_row_desc
-        from mapd.ttypes import TTypeInfo, TColumnType, TDatumType
+        from mapd.ttypes import TTypeInfo, TColumnType
 
         data = pd.DataFrame({
             "boolean_": [True, False],
@@ -130,7 +129,7 @@ class TestLoaders(object):
         }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
                     'date_'])
-        result = build_row_desc(data)
+        result = _pandas_loaders.build_row_desc(data)
         expected = [
             TColumnType(col_name='boolean_',
                         col_type=TTypeInfo(type=10),
@@ -162,8 +161,27 @@ class TestLoaders(object):
         assert result == expected
 
         data.index.name = 'idx'
-        result = build_row_desc(data, preserve_index=True)
+        result = _pandas_loaders.build_row_desc(data, preserve_index=True)
         expected.insert(0, TColumnType(col_name='idx',
                                        col_type=TTypeInfo(type=2)))
 
         assert result == expected
+
+    def test_create_non_pandas_raises(self):
+        with pytest.raises(TypeError) as m:
+            _pandas_loaders.build_row_desc([(1, 'a'), (2, 'b')])
+
+        assert m.match('is not supported for type ')
+
+    @pytest.mark.parametrize('create', ['infer', True, False])
+    def test_check_create(self, create):
+        from pymapd.connection import _check_create
+
+        result = _check_create(create)
+        assert result == create
+
+    def test_check_create_raises(self):
+        from pymapd.connection import _check_create
+
+        with pytest.raises(ValueError):
+            _check_create('foo')

@@ -360,14 +360,6 @@ class Connection(object):
         """
         from mapd.ttypes import TTableType
         from ._pandas_loaders import build_row_desc
-        import pandas as pd
-
-        if not isinstance(data, pd.DataFrame):
-            # Once https://issues.apache.org/jira/browse/ARROW-1576 is complete
-            # we can support pa.Table here too
-            raise TypeError("Create table is not supported for type {}."
-                            "Use a pandas DataFrame, or perform the create "
-                            "separately".format(type(data)))
 
         row_desc = build_row_desc(data, preserve_index=preserve_index)
         self._client.create_table(self._session, table_name, row_desc,
@@ -412,14 +404,12 @@ class Connection(object):
         load_table_arrow
         load_table_columnar
         """
-        valid = {'infer', True, False}
-        if create not in valid:
-            raise TypeError("Unexpected value for create: '{}'. "
-                            "Expected one of {}".format(create, valid))
+        create = _check_create(create)
 
         if create == 'infer':
             # ask the database if we already exist, creating if not
-            create = table_name in set(self._client.get_tables(self._session))
+            create = table_name not in set(
+                self._client.get_tables(self._session))
 
         if create:
             self.create_table(table_name, data)
@@ -545,3 +535,11 @@ def _is_arrow(data):
     if _HAS_ARROW:
         return isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)
     return False
+
+
+def _check_create(create):
+    valid = {'infer', True, False}
+    if create not in valid:
+        raise ValueError("Unexpected value for create: '{}'. "
+                         "Expected one of {}".format(create, valid))
+    return create
