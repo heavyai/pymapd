@@ -114,11 +114,22 @@ def build_input_columnar(df, preserve_index=True):
     return input_cols
 
 
+def _cast_int8(data):
+    import pandas as pd
+    if isinstance(data, pd.DataFrame):
+        cols = data.select_dtypes(include=['i1']).columns
+        data[cols] = data[cols].astype('i2')
+    # TODO: Casts for pyarrow (waiting on python bindings for casting)
+    # ARROW-229 did it for C++
+    return data
+
+
 def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
     import pyarrow as pa
     import pandas as pd
 
     if isinstance(data, pd.DataFrame):
+        data = _cast_int8(data)
         data = pa.RecordBatch.from_pandas(data, preserve_index=preserve_index)
 
     stream = pa.BufferOutputStream()
@@ -133,7 +144,9 @@ def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
     return stream.get_result()
 
 
-def build_row_desc(data):
+def build_row_desc(data, preserve_index=False):
+    if preserve_index:
+        data = data.reset_index()
     dtypes = [(col, get_mapd_dtype(data[col])) for col in data.columns]
     # row_desc :: List<TColumnType>
     row_desc = [

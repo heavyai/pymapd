@@ -408,7 +408,8 @@ class TestLoaders(object):
 
         data = pd.DataFrame({
             "boolean_": [True, False],
-            "smallint_": np.array([0, 1], dtype=np.int8),
+            "smallint_cast": np.array([0, 1], dtype=np.int8),
+            "smallint_": np.array([0, 1], dtype=np.int16),
             "int_": np.array([0, 1], dtype=np.int32),
             "bigint_": np.array([0, 1], dtype=np.int64),
             "float_": np.array([0, 1], dtype=np.float32),

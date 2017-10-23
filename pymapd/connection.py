@@ -348,19 +348,33 @@ class Connection(object):
         details = self._client.get_table_details(self._session, table_name)
         return _extract_column_details(details.row_desc)
 
-    def create_table(self, table_name, data, if_exists='fail'):
-        """Create a table from a DataFrame or pyarrow Table
+    def create_table(self, table_name, data, preserve_index=False):
+        """Create a table from a pandas.DataFrame
+
+        Parameters
+        ----------
+        table_name : str
+        data : DataFrame
+        preserve_index : bool, default False
+            Whether to create a column in the table for the DataFrame index
         """
         from mapd.ttypes import TTableType
         from ._pandas_loaders import build_row_desc
+        import pandas as pd
 
-        row_desc = build_row_desc(data)
+        if not isinstance(data, pd.DataFrame):
+            # Once https://issues.apache.org/jira/browse/ARROW-1576 is complete
+            # we can support pa.Table here too
+            raise TypeError("Create table is not supported for type {}."
+                            "Use a pandas DataFrame, or perform the create "
+                            "separately".format(type(data)))
+
+        row_desc = build_row_desc(data, preserve_index=preserve_index)
         self._client.create_table(self._session, table_name, row_desc,
                                   TTableType.DELIMITED)
 
     def load_table(self, table_name, data, method='infer',
                    preserve_index=False,
-                   if_exists='append',
                    create='infer'):
         """Load data into a table
 
@@ -385,34 +399,30 @@ class Connection(object):
         preserve_index : bool, default False
             Whether to keep the index when loading a pandas DataFrame
 
-        if_exists : {'append', 'replace', 'fail'}
-            Behavior when the table already exists.
-
-            * 'append' will add new rows to the existing table
-            * 'replace' will truncate the existing rows before inserting
-            * 'fail' will raise a ``ValueError``
-
-            When ``table_name`` does not already exist, it will be created
-            based on the column names and data types of the pandas DataFrame
-            or pyarrow Table.
         create : {"infer", True, False}
+            Whether to issue a CREATE TABLE before inserting the data.
+
+            * infer : check to see if the table already exists, and create
+              a table if it does not
+            * True : attempt to create the table, without checking if it exists
+            * False : do not attempt to create the table
 
         See Also
         --------
         load_table_arrow
         load_table_columnar
         """
+        valid = {'infer', True, False}
+        if create not in valid:
+            raise TypeError("Unexpected value for create: '{}'. "
+                            "Expected one of {}".format(create, valid))
+
         if create == 'infer':
-            # ask the database
-            exists = table_name in set(self._client.get_tables(self._session))
-            if not exists:
-                self.create_table(table_name, data)
-        elif create is True:
+            # ask the database if we already exist, creating if not
+            create = table_name in set(self._client.get_tables(self._session))
+
+        if create:
             self.create_table(table_name, data)
-        elif create is not False:
-            msg = ("Unexpected value for 'create': {}. Expected "
-                   "one of {}".format(create, {'infer', True, False}))
-            raise ValueError(msg)
 
         if method == 'infer':
             if (_is_pandas(data) or _is_arrow(data)) and _HAS_ARROW:
