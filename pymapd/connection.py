@@ -348,8 +348,26 @@ class Connection(object):
         details = self._client.get_table_details(self._session, table_name)
         return _extract_column_details(details.row_desc)
 
+    def create_table(self, table_name, data, preserve_index=False):
+        """Create a table from a pandas.DataFrame
+
+        Parameters
+        ----------
+        table_name : str
+        data : DataFrame
+        preserve_index : bool, default False
+            Whether to create a column in the table for the DataFrame index
+        """
+        from mapd.ttypes import TTableType
+        from ._pandas_loaders import build_row_desc
+
+        row_desc = build_row_desc(data, preserve_index=preserve_index)
+        self._client.create_table(self._session, table_name, row_desc,
+                                  TTableType.DELIMITED)
+
     def load_table(self, table_name, data, method='infer',
-                   preserve_index=False):
+                   preserve_index=False,
+                   create='infer'):
         """Load data into a table
 
         Parameters
@@ -369,14 +387,33 @@ class Connection(object):
             Arrow-based loader will be used. If arrow isn't available, the
             columnar loader is used. Finally, ``data`` is an iterable of tuples
             the row-wise loader is used.
+
         preserve_index : bool, default False
             Whether to keep the index when loading a pandas DataFrame
+
+        create : {"infer", True, False}
+            Whether to issue a CREATE TABLE before inserting the data.
+
+            * infer : check to see if the table already exists, and create
+              a table if it does not
+            * True : attempt to create the table, without checking if it exists
+            * False : do not attempt to create the table
 
         See Also
         --------
         load_table_arrow
         load_table_columnar
         """
+        create = _check_create(create)
+
+        if create == 'infer':
+            # ask the database if we already exist, creating if not
+            create = table_name not in set(
+                self._client.get_tables(self._session))
+
+        if create:
+            self.create_table(table_name, data)
+
         if method == 'infer':
             if (_is_pandas(data) or _is_arrow(data)) and _HAS_ARROW:
                 return self.load_table_arrow(table_name, data)
@@ -498,3 +535,11 @@ def _is_arrow(data):
     if _HAS_ARROW:
         return isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)
     return False
+
+
+def _check_create(create):
+    valid = {'infer', True, False}
+    if create not in valid:
+        raise ValueError("Unexpected value for create: '{}'. "
+                         "Expected one of {}".format(create, valid))
+    return create

@@ -34,8 +34,10 @@ def date_to_seconds(arr):
 
 
 mapd_to_slot = {
+    'BOOL': 'int_col',
     'BOOLEAN': 'int_col',
     'SMALLINT': 'int_col',
+    'INT': 'int_col',
     'INTEGER': 'int_col',
     'BIGINT': 'int_col',
     'FLOAT': 'real_col',
@@ -43,13 +45,15 @@ mapd_to_slot = {
     'TIMESTAMP': 'int_col',
     'DATE': 'int_col',
     'TIME': 'int_col',
-    'TEXT': 'str_col',
+    'STR': 'str_col',
 }
 
 
 mapd_to_na = {
+    'BOOL': 0,
     'BOOLEAN': 0,
     'SMALLINT': -128,
+    'INT': -2147483648,
     'INTEGER': -2147483648,
     'BIGINT': -9223372036854775808,
     'FLOAT': float('nan'),
@@ -57,5 +61,5 @@ mapd_to_na = {
     'TIMESTAMP': -9223372036854775808,
     'DATE': -9223372036854775808,
     'TIME': -9223372036854775808,
-    'TEXT': '',
+    'STR': '',
 }

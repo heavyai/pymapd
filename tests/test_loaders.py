@@ -108,3 +108,80 @@ class TestLoaders(object):
             TColumn(TColumnData(int_col=[1451606400, 1483228800, bigint_na]), nulls=nulls)  # noqa
         ]
         assert_columnar_equal(result, expected)
+
+    def test_build_row_desc(self):
+        pd = pytest.importorskip("pandas")
+        import numpy as np
+        from mapd.ttypes import TTypeInfo, TColumnType
+
+        data = pd.DataFrame({
+            "boolean_": [True, False],
+            "smallint_": np.array([0, 1], dtype=np.int8),
+            "int_": np.array([0, 1], dtype=np.int32),
+            "bigint_": np.array([0, 1], dtype=np.int64),
+            "float_": np.array([0, 1], dtype=np.float32),
+            "double_": np.array([0, 1], dtype=np.float64),
+            "varchar_": ["a", "b"],
+            "text_": ['a', 'b'],
+            "time_": [datetime.time(0, 11, 59), datetime.time(13)],
+            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
+            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
+        }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
+                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
+                    'date_'])
+        result = _pandas_loaders.build_row_desc(data)
+        expected = [
+            TColumnType(col_name='boolean_',
+                        col_type=TTypeInfo(type=10),
+                        is_reserved_keyword=None),
+            TColumnType(col_name='smallint_',
+                        col_type=TTypeInfo(type=0),
+                        is_reserved_keyword=None),
+            TColumnType(col_name='int_',
+                        col_type=TTypeInfo(type=1),
+                        is_reserved_keyword=None),
+            TColumnType(col_name='bigint_',
+                        col_type=TTypeInfo(type=2)),
+            TColumnType(col_name='float_',
+                        col_type=TTypeInfo(type=3)),
+            TColumnType(col_name='double_',
+                        col_type=TTypeInfo(type=5)),
+            TColumnType(col_name='varchar_',
+                        col_type=TTypeInfo(type=6)),
+            TColumnType(col_name='text_',
+                        col_type=TTypeInfo(type=6)),
+            TColumnType(col_name='time_',
+                        col_type=TTypeInfo(type=7)),
+            TColumnType(col_name='timestamp_',
+                        col_type=TTypeInfo(type=8)),
+            TColumnType(col_name='date_',
+                        col_type=TTypeInfo(type=9))
+        ]
+
+        assert result == expected
+
+        data.index.name = 'idx'
+        result = _pandas_loaders.build_row_desc(data, preserve_index=True)
+        expected.insert(0, TColumnType(col_name='idx',
+                                       col_type=TTypeInfo(type=2)))
+
+        assert result == expected
+
+    def test_create_non_pandas_raises(self):
+        with pytest.raises(TypeError) as m:
+            _pandas_loaders.build_row_desc([(1, 'a'), (2, 'b')])
+
+        assert m.match('is not supported for type ')
+
+    @pytest.mark.parametrize('create', ['infer', True, False])
+    def test_check_create(self, create):
+        from pymapd.connection import _check_create
+
+        result = _check_create(create)
+        assert result == create
+
+    def test_check_create_raises(self):
+        from pymapd.connection import _check_create
+
+        with pytest.raises(ValueError):
+            _check_create('foo')

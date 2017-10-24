@@ -54,10 +54,11 @@ process.
    (:meth:`Connection.select_ipc`)
 3. Into python objects via Apache Thrift (:meth:`Connection.execute`)
 
-The best option depends on the hardware you have available, and what you plan to
-do with the returned data. In general, the third method, using Thrift to
-serialize and deserialize the data, will slower than the GPU or CPU shared
-memory methods.
+The best option depends on the hardware you have available, your connection to
+the database, and what you plan to do with the returned data. In general, the
+third method, using Thrift to serialize and deserialize the data, will slower
+than the GPU or CPU shared memory methods. The shared memory methods require
+that your MapD database is running on the same machine.
 
 GPU Select
 ^^^^^^^^^^
@@ -153,8 +154,11 @@ the MapD database.
    >>> df = pd.DataFrame({"A": [1, 2], "B": ['c', 'd']})
    >>> table = pa.Table.from_pandas(df)
    >>> con.load_table_arrow("table_name", table)
-   
-You can quickly load a ``pandas.DataFrame`` using :meth:`Connection.load_table`
+
+This accepts either a ``pyarrow.Table``, or a ``pandas.DataFrame``, which will
+be converted to a ``pyarrow.Table`` before loading.
+
+You can also load a ``pandas.DataFrame`` using :meth:`Connection.load_table`
 or :meth:`Connection.load_table_columnar` methods.
 
 .. code-block:: python
@@ -162,8 +166,8 @@ or :meth:`Connection.load_table_columnar` methods.
    >>> df = pd.DataFrame({"A": [1, 2], "B": ["c", "d"]})
    >>> con.load_table_columnar("table_name", df, preserve_index=False)
 
-If you aren't using pandas you can pass list of tuples to
-:meth:`Connection.load_table`.
+If you aren't using arrow or pandas you can pass list of tuples to
+:meth:`Connection.load_table_rowwise`.
 
 .. code-block:: python
 
@@ -174,6 +178,12 @@ If you aren't using pandas you can pass list of tuples to
 The high-level :meth:`Connection.load_table` method will choose the fastest
 method available based on the type of ``data`` and whether or not ``pyarrow`` is
 installed.
+
+* lists of tuples are always loaded with :meth:`Connection.load_table_rowwise`
+* If ``pyarrow`` is installed, a ``pandas.DataFrame`` or ``pyarrow.Table`` will
+  be loaded using :meth:`Connection.load_table_arrow`
+* If ``pyarrow`` is not installed, a ``pandas.DataFrame`` will be loaded using
+  :meth:`Connection.load_table_columnar`
 
 Database Metadata
 -----------------

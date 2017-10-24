@@ -103,6 +103,8 @@ def stocks(con):
 
     c.execute(i1)
     c.execute(i2)
+    yield "stocks"
+    c.execute(drop)
 
 
 @pytest.fixture
@@ -117,7 +119,8 @@ def empty_table(con):
     name = 'baz'
     con.execute("drop table if exists {};".format(name))
     con.execute("create table {} (a int, b float, c text);".format(name))
-    return name
+    yield name
+    con.execute("drop table if exists {};".format(name))
 
 
 @pytest.fixture(scope="session")
@@ -142,6 +145,7 @@ def date_table(con):
     c.execute(i1)
     c.execute(i2)
     yield name
+    c.execute(drop)
 
 
 @pytest.fixture
@@ -210,3 +214,11 @@ def mock_connection(mock_transport, mock_client):
     """
     return connect(user='user', password='password',
                    host='localhost', dbname='dbname')
+
+
+@pytest.fixture
+def not_a_table(con):
+    name = "not_a_table"
+    con.execute("drop table if exists {};".format(name))
+    yield name
+    con.execute("drop table if exists {};".format(name))
