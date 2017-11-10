@@ -145,7 +145,8 @@ class Connection(object):
             transport = TTransport.TBufferedTransport(socket)
             proto = TBinaryProtocol.TBinaryProtocolAccelerated(transport)
         else:
-            raise ValueError("`protocol` should be one of ['http', 'https', 'binary'],",
+            raise ValueError("`protocol` should be one of",
+                             " ['http', 'https', 'binary'],",
                              " got {} instead".format(protocol))
         self._user = user
         self._password = password
