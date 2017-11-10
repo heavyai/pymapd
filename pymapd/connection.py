@@ -51,7 +51,7 @@ def connect(uri=None,           # type: Optional[str]
     host : str
     port : int
     dbname : str
-    protocol : {'binary', 'http'}
+    protocol : {'binary', 'http', 'https'}
 
     Returns
     -------
@@ -133,7 +133,7 @@ class Connection(object):
             user, password, host, port, dbname, protocol = _parse_uri(uri)
         if host is None:
             raise TypeError("`host` parameter is required.")
-        if protocol == "http":
+        if protocol in ("http", "https"):
             if not host.startswith(protocol):
                 # the THttpClient expects http[s]://localhost
                 host = protocol + '://' + host
@@ -145,7 +145,7 @@ class Connection(object):
             transport = TTransport.TBufferedTransport(socket)
             proto = TBinaryProtocol.TBinaryProtocolAccelerated(transport)
         else:
-            raise ValueError("`protocol` should be one of ['http', 'binary'],",
+            raise ValueError("`protocol` should be one of ['http', 'https', 'binary'],",
                              " got {} instead".format(protocol))
         self._user = user
         self._password = password
