@@ -51,6 +51,7 @@ if build_extensions and not sys.platform.startswith('win'):
         import pyarrow
     except ImportError:
         extensions = []
+        extra_kwargs = dict()
     else:
         home = os.path.dirname(pyarrow.__file__)
         include = os.path.join(home, 'include')
