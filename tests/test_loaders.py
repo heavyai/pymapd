@@ -28,7 +28,7 @@ class TestLoaders(object):
                     TStringRow(cols=[TStringValue(str_val='2', is_null=None),
                                      TStringValue(str_val='b', is_null=None)]),
                     TStringRow(cols=[TStringValue(str_val='3', is_null=None),
-                                     TStringValue(str_val='{1,2,3}', is_null=None)]
+                                     TStringValue(str_val='{c,d,e}', is_null=None)]
                                )]
 
         assert result == expected
