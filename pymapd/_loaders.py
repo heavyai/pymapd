@@ -9,7 +9,7 @@ def _build_input_rows(data):
     for row in data:
         input_row = TStringRow()
         input_row.cols = [
-            TStringValue("{"i + ",".join(str(y) for y in x) + "}")
+            TStringValue("{" + ",".join(str(y) for y in x) + "}")
             if type(x) in (list, tuple)
             else TStringValue(str(x)) for x in row
         ]
