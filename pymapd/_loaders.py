@@ -15,4 +15,3 @@ def _build_input_rows(data):
         ]
         input_data.append(input_row)
     return input_data
-
