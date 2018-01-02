@@ -3,6 +3,7 @@ Internal helpers for loading data
 """
 from mapd.ttypes import TStringRow, TStringValue
 import collections
+import six
 
 
 def _build_input_rows(data):
@@ -11,7 +12,8 @@ def _build_input_rows(data):
         input_row = TStringRow()
         input_row.cols = [
             TStringValue("{" + ",".join(str(y) for y in x) + "}")
-            if isinstance(x, collections.Sequence)
+            if isinstance(x, collections.Sequence) and
+            not isinstance(x, six.str_types)
             else TStringValue(str(x)) for x in row
         ]
         input_data.append(input_row)
