@@ -29,7 +29,7 @@ source activate test-environment
 
 conda install -q \
       six \
-      thrift \
+      thrift=0.10.0 \
       coverage \
       flake8 \
       pytest \
@@ -37,8 +37,8 @@ conda install -q \
       pytest-mock \
       sqlalchemy \
       mock \
-      pyarrow \
-      arrow-cpp \
+      pyarrow=0.7.1 \
+      arrow-cpp=0.7.1 \
       cython \
       numpy \
       pandas

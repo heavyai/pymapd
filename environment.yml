@@ -8,5 +8,5 @@ dependencies:
 - thrift=0.10.0
 - numpydoc
 - cython
-- pyarrow
-- arrow-cpp
+- pyarrow=0.7.1
+- arrow-cpp=0.7.1
