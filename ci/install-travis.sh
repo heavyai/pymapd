@@ -32,7 +32,7 @@ conda install -q \
       thrift=0.10.0 \
       coverage \
       flake8 \
-      pytest \
+      pytest=3.3.1 \
       pytest-cov \
       pytest-mock \
       sqlalchemy \
