@@ -18,7 +18,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires = ['six', 'thrift', 'sqlalchemy']
+install_requires = ['six', 'thrift == 0.10.0', 'sqlalchemy']
 
 # Optional Requirements
 
@@ -27,7 +27,7 @@ doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
 test_requires = ['coverage', 'pytest', 'pytest-mock']
 dev_requires = doc_requires + test_requires
 gpu_requires = ['pygdf', 'libgdf']
-arrow_requires = ['pyarrow']
+arrow_requires = ['pyarrow == 0.7.1']
 complete_requires = dev_requires + gpu_requires + arrow_requires
 
 if sys.version_info.major == 2:
