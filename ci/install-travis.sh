@@ -29,7 +29,7 @@ source activate test-environment
 
 conda install -q \
       six \
-      thrift=0.10.0 \
+      thrift=0.11.0 \
       coverage \
       flake8 \
       pytest=3.3.1 \
