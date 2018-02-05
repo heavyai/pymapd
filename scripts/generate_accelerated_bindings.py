@@ -1,8 +1,5 @@
 """
 Generate Accelerated Thrift bindings
-
-These bindings do not support recursive structures, but has ~3x better
-performance.
 """
 import os
 import argparse
@@ -11,7 +8,6 @@ import shutil
 import subprocess
 import sys
 
-xpr_array = re.compile(".*4: list<.*> arr.*")
 xpr_hints = re.compile(".*completion_hints.*")
 
 
@@ -31,8 +27,7 @@ def thrift_gen(spec):
 def main(args=None):
     args = parse_args(args)
     thrift = args.infile.readlines()
-    new = [x for x in thrift if not xpr_array.match(x)]
-    new = [x for x in new if not xpr_hints.match(x)]
+    new = [x for x in thrift if not xpr_hints.match(x)]
     with open(args.outfile, 'wt') as f:
         f.write(''.join(new))
 
