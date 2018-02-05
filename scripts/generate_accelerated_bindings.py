@@ -11,7 +11,8 @@ import shutil
 import subprocess
 import sys
 
-xpr = re.compile(".*4: list<.*>")
+xpr_array = re.compile(".*4: list<.*> arr.*")
+xpr_hints = re.compile(".*completion_hints.*")
 
 
 def parse_args(args=None):
@@ -24,13 +25,14 @@ def parse_args(args=None):
 
 
 def thrift_gen(spec):
-    subprocess.check_output(['thrift', '-gen', 'py', spec])
+    subprocess.check_output(['thrift', '-gen', 'py', '-r', spec])
 
 
 def main(args=None):
     args = parse_args(args)
     thrift = args.infile.readlines()
-    new = [x for x in thrift if not xpr.match(x)]
+    new = [x for x in thrift if not xpr_array.match(x)]
+    new = [x for x in new if not xpr_hints.match(x)]
     with open(args.outfile, 'wt') as f:
         f.write(''.join(new))
 
