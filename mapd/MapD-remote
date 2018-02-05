@@ -28,7 +28,10 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  void disconnect(TSessionId session)')
     print('  TServerStatus get_server_status(TSessionId session)')
     print('   get_status(TSessionId session)')
+    print('  TClusterHardwareInfo get_hardware_info(TSessionId session)')
     print('   get_tables(TSessionId session)')
+    print('   get_physical_tables(TSessionId session)')
+    print('   get_views(TSessionId session)')
     print('  TTableDetails get_table_details(TSessionId session, string table_name)')
     print('  TTableDetails get_internal_table_details(TSessionId session, string table_name)')
     print('   get_users(TSessionId session)')
@@ -40,10 +43,14 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_memory(TSessionId session, string memory_level)')
     print('  void clear_cpu_memory(TSessionId session)')
     print('  void clear_gpu_memory(TSessionId session)')
-    print('  void rollback_table_epoch(TSessionId session, i32 db_id, i32 table_id, i32 new_epoch)')
-    print('  TQueryResult sql_execute(TSessionId session, string query, bool column_format, string nonce, i32 first_n)')
+    print('  void set_table_epoch(TSessionId session, i32 db_id, i32 table_id, i32 new_epoch)')
+    print('  void set_table_epoch_by_name(TSessionId session, string table_name, i32 new_epoch)')
+    print('  i32 get_table_epoch(TSessionId session, i32 db_id, i32 table_id)')
+    print('  i32 get_table_epoch_by_name(TSessionId session, string table_name)')
+    print('  TQueryResult sql_execute(TSessionId session, string query, bool column_format, string nonce, i32 first_n, i32 at_most_n)')
     print('  TDataFrame sql_execute_df(TSessionId session, string query, TDeviceType device_type, i32 device_id, i32 first_n)')
     print('  TDataFrame sql_execute_gdf(TSessionId session, string query, i32 device_id, i32 first_n)')
+    print('  void deallocate_df(TSessionId session, TDataFrame df, TDeviceType device_type, i32 device_id)')
     print('  void interrupt(TSessionId session)')
     print('  TTableDescriptor sql_validate(TSessionId session, string query)')
     print('  void set_execution_mode(TSessionId session, TExecuteMode mode)')
@@ -67,13 +74,21 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  TPendingQuery start_query(TSessionId session, string query_ra, bool just_explain)')
     print('  TStepResult execute_first_step(TPendingQuery pending_query)')
     print('  void broadcast_serialized_rows(string serialized_rows, TRowDescriptor row_desc, TQueryId query_id)')
-    print('  TRawPixelDataResult render_vega_raw_pixels(TSessionId session, i64 widget_id, i16 node_idx, string vega_json)')
+    print('  TRawPixelDataResult render_vega_raw_pixels(TSessionId session, i64 widget_id, i16 node_idx, string vega_json, string nonce)')
     print('  void insert_data(TSessionId session, TInsertData insert_data)')
+    print('  void checkpoint(TSessionId session, i32 db_id, i32 table_id)')
     print('  TTableDescriptor get_table_descriptor(TSessionId session, string table_name)')
     print('  TRowDescriptor get_row_descriptor(TSessionId session, string table_name)')
-    print('  TRenderResult render(TSessionId session, string query, string render_type, string nonce)')
-    print('  TPixelResult get_rows_for_pixels(TSessionId session, i64 widget_id,  pixels, string table_name,  col_names, bool column_format, string nonce)')
-    print('  TPixelRowResult get_row_for_pixel(TSessionId session, i64 widget_id, TPixel pixel, string table_name,  col_names, bool column_format, i32 pixelRadius, string nonce)')
+    print('   get_role(TSessionId session, string roleName, bool userPrivateRole)')
+    print('   get_all_roles(TSessionId session, bool userPrivateRole)')
+    print('   get_db_object_privileges_for_role(TSessionId session, string roleName, i16 objectType, string objectName)')
+    print('   get_db_objects_for_role(TSessionId session, string roleName)')
+    print('   get_db_object_privs(TSessionId session, string objectName)')
+    print('   get_all_roles_for_user(TSessionId session, string userName)')
+    print('   get_db_object_privileges_for_user(TSessionId session, string userName, i16 objectType, string objectName)')
+    print('   get_db_objects_for_user(TSessionId session, string userName)')
+    print('  TLicenseInfo set_license_key(TSessionId session, string key, string nonce)')
+    print('  TLicenseInfo get_license_claims(TSessionId session, string nonce)')
     print('')
     sys.exit(0)
 
@@ -177,11 +192,29 @@ elif cmd == 'get_status':
         sys.exit(1)
     pp.pprint(client.get_status(eval(args[0]),))
 
+elif cmd == 'get_hardware_info':
+    if len(args) != 1:
+        print('get_hardware_info requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_hardware_info(eval(args[0]),))
+
 elif cmd == 'get_tables':
     if len(args) != 1:
         print('get_tables requires 1 args')
         sys.exit(1)
     pp.pprint(client.get_tables(eval(args[0]),))
+
+elif cmd == 'get_physical_tables':
+    if len(args) != 1:
+        print('get_physical_tables requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_physical_tables(eval(args[0]),))
+
+elif cmd == 'get_views':
+    if len(args) != 1:
+        print('get_views requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_views(eval(args[0]),))
 
 elif cmd == 'get_table_details':
     if len(args) != 2:
@@ -249,17 +282,35 @@ elif cmd == 'clear_gpu_memory':
         sys.exit(1)
     pp.pprint(client.clear_gpu_memory(eval(args[0]),))
 
-elif cmd == 'rollback_table_epoch':
+elif cmd == 'set_table_epoch':
     if len(args) != 4:
-        print('rollback_table_epoch requires 4 args')
+        print('set_table_epoch requires 4 args')
         sys.exit(1)
-    pp.pprint(client.rollback_table_epoch(eval(args[0]), eval(args[1]), eval(args[2]), eval(args[3]),))
+    pp.pprint(client.set_table_epoch(eval(args[0]), eval(args[1]), eval(args[2]), eval(args[3]),))
+
+elif cmd == 'set_table_epoch_by_name':
+    if len(args) != 3:
+        print('set_table_epoch_by_name requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.set_table_epoch_by_name(eval(args[0]), args[1], eval(args[2]),))
+
+elif cmd == 'get_table_epoch':
+    if len(args) != 3:
+        print('get_table_epoch requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.get_table_epoch(eval(args[0]), eval(args[1]), eval(args[2]),))
+
+elif cmd == 'get_table_epoch_by_name':
+    if len(args) != 2:
+        print('get_table_epoch_by_name requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.get_table_epoch_by_name(eval(args[0]), args[1],))
 
 elif cmd == 'sql_execute':
-    if len(args) != 5:
-        print('sql_execute requires 5 args')
+    if len(args) != 6:
+        print('sql_execute requires 6 args')
         sys.exit(1)
-    pp.pprint(client.sql_execute(eval(args[0]), args[1], eval(args[2]), args[3], eval(args[4]),))
+    pp.pprint(client.sql_execute(eval(args[0]), args[1], eval(args[2]), args[3], eval(args[4]), eval(args[5]),))
 
 elif cmd == 'sql_execute_df':
     if len(args) != 5:
@@ -272,6 +323,12 @@ elif cmd == 'sql_execute_gdf':
         print('sql_execute_gdf requires 4 args')
         sys.exit(1)
     pp.pprint(client.sql_execute_gdf(eval(args[0]), args[1], eval(args[2]), eval(args[3]),))
+
+elif cmd == 'deallocate_df':
+    if len(args) != 4:
+        print('deallocate_df requires 4 args')
+        sys.exit(1)
+    pp.pprint(client.deallocate_df(eval(args[0]), eval(args[1]), eval(args[2]), eval(args[3]),))
 
 elif cmd == 'interrupt':
     if len(args) != 1:
@@ -412,16 +469,22 @@ elif cmd == 'broadcast_serialized_rows':
     pp.pprint(client.broadcast_serialized_rows(args[0], eval(args[1]), eval(args[2]),))
 
 elif cmd == 'render_vega_raw_pixels':
-    if len(args) != 4:
-        print('render_vega_raw_pixels requires 4 args')
+    if len(args) != 5:
+        print('render_vega_raw_pixels requires 5 args')
         sys.exit(1)
-    pp.pprint(client.render_vega_raw_pixels(eval(args[0]), eval(args[1]), eval(args[2]), args[3],))
+    pp.pprint(client.render_vega_raw_pixels(eval(args[0]), eval(args[1]), eval(args[2]), args[3], args[4],))
 
 elif cmd == 'insert_data':
     if len(args) != 2:
         print('insert_data requires 2 args')
         sys.exit(1)
     pp.pprint(client.insert_data(eval(args[0]), eval(args[1]),))
+
+elif cmd == 'checkpoint':
+    if len(args) != 3:
+        print('checkpoint requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.checkpoint(eval(args[0]), eval(args[1]), eval(args[2]),))
 
 elif cmd == 'get_table_descriptor':
     if len(args) != 2:
@@ -435,23 +498,65 @@ elif cmd == 'get_row_descriptor':
         sys.exit(1)
     pp.pprint(client.get_row_descriptor(eval(args[0]), args[1],))
 
-elif cmd == 'render':
+elif cmd == 'get_role':
+    if len(args) != 3:
+        print('get_role requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.get_role(eval(args[0]), args[1], eval(args[2]),))
+
+elif cmd == 'get_all_roles':
+    if len(args) != 2:
+        print('get_all_roles requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.get_all_roles(eval(args[0]), eval(args[1]),))
+
+elif cmd == 'get_db_object_privileges_for_role':
     if len(args) != 4:
-        print('render requires 4 args')
+        print('get_db_object_privileges_for_role requires 4 args')
         sys.exit(1)
-    pp.pprint(client.render(eval(args[0]), args[1], args[2], args[3],))
+    pp.pprint(client.get_db_object_privileges_for_role(eval(args[0]), args[1], eval(args[2]), args[3],))
 
-elif cmd == 'get_rows_for_pixels':
-    if len(args) != 7:
-        print('get_rows_for_pixels requires 7 args')
+elif cmd == 'get_db_objects_for_role':
+    if len(args) != 2:
+        print('get_db_objects_for_role requires 2 args')
         sys.exit(1)
-    pp.pprint(client.get_rows_for_pixels(eval(args[0]), eval(args[1]), eval(args[2]), args[3], eval(args[4]), eval(args[5]), args[6],))
+    pp.pprint(client.get_db_objects_for_role(eval(args[0]), args[1],))
 
-elif cmd == 'get_row_for_pixel':
-    if len(args) != 8:
-        print('get_row_for_pixel requires 8 args')
+elif cmd == 'get_db_object_privs':
+    if len(args) != 2:
+        print('get_db_object_privs requires 2 args')
         sys.exit(1)
-    pp.pprint(client.get_row_for_pixel(eval(args[0]), eval(args[1]), eval(args[2]), args[3], eval(args[4]), eval(args[5]), eval(args[6]), args[7],))
+    pp.pprint(client.get_db_object_privs(eval(args[0]), args[1],))
+
+elif cmd == 'get_all_roles_for_user':
+    if len(args) != 2:
+        print('get_all_roles_for_user requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.get_all_roles_for_user(eval(args[0]), args[1],))
+
+elif cmd == 'get_db_object_privileges_for_user':
+    if len(args) != 4:
+        print('get_db_object_privileges_for_user requires 4 args')
+        sys.exit(1)
+    pp.pprint(client.get_db_object_privileges_for_user(eval(args[0]), args[1], eval(args[2]), args[3],))
+
+elif cmd == 'get_db_objects_for_user':
+    if len(args) != 2:
+        print('get_db_objects_for_user requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.get_db_objects_for_user(eval(args[0]), args[1],))
+
+elif cmd == 'set_license_key':
+    if len(args) != 3:
+        print('set_license_key requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.set_license_key(eval(args[0]), args[1], args[2],))
+
+elif cmd == 'get_license_claims':
+    if len(args) != 2:
+        print('get_license_claims requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.get_license_claims(eval(args[0]), args[1],))
 
 else:
     print('Unrecognized method %s' % cmd)
