@@ -327,7 +327,8 @@ class Connection(object):
 
         try:
             self._client.deallocate_df(
-                self._session, df=self._tdf, device_type=1, device_id=device_id)
+                self._session, df=self._tdf, device_type=1,
+                device_id=device_id)
         except TMapDException as e:
             six.raise_from(_translate_exception(e), e)
 
@@ -343,7 +344,8 @@ class Connection(object):
 
         try:
             self._client.deallocate_df(
-                self._session, df=self._tdf, device_type=0, device_id=device_id)
+                self._session, df=self._tdf, device_type=0,
+                device_id=device_id)
         except TMapDException as e:
             six.raise_from(_translate_exception(e), e)
 
@@ -353,9 +355,11 @@ class Connection(object):
         Example
         -------
         >>> con.get_tdf()
-        TDataFrame(
-        sm_handle=b'\xa30q%', sm_size=632,
-        df_handle=b'\x90a>\x06\x00\x00\x00\x00\xe0\xe6\x00\x00\x00\x00\x00\x00\xe0|E\x00\\', df_size=4553952)
+        TDataFrame(sm_handle=b'\xa30q%', sm_size=632, df_handle=b'\x90a>
+        \x06\x00\x00\x00\x00\xe0\xe6\x00\x00\x00\x00\x00\x00\xe0|E\x00\x00
+        \x00\x00\x00\x00\x00`\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+        \x00\x00\x00\x02\x00\x00\x00\x00\x00\x00C\x01\x00\x00\x00\x00\x00
+        \x00\xca\x01\xd0\xc1"\x03\x00\\', df_size=4553952)
         """
         return self._tdf
 
