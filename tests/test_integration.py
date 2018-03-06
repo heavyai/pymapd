@@ -31,7 +31,7 @@ class TestIntegration:
     @pytest.mark.parametrize('protocol', [
         pytest.mark.skip(reason="Hangs waiting to hear back")('http'),
         'binary'])
-    def test_conenct(self, protocol):
+    def test_connect(self, protocol):
         con = connect(user="mapd", password='HyperInteractive',
                       host='localhost', port=9091, protocol=protocol,
                       dbname='mapd')
