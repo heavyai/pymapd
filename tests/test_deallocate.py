@@ -1,15 +1,16 @@
 import os
-import pickle
-import pytest
-from pymapd import connect
-from numba import cuda
-from mapd.ttypes import TMapDException, TApplicationException
-import pyximport
+import subprocess
 
-pyximport.install()
+import pytest
+
+from pymapd import connect
+from mapd.ttypes import TMapDException, TApplicationException
+from .utils import no_gpu
+
 pd = pytest.importorskip("pandas")
 
 HERE = os.path.dirname(__file__)
+
 
 @pytest.mark.usefixtures("mapd_server")
 class TestDeallocate:
@@ -20,54 +21,82 @@ class TestDeallocate:
 
     def _connect(self):
 
-        return connect(user="mapd", password='HyperInteractive', host='localhost',
+        return connect(user="mapd",
+                       password='HyperInteractive',
+                       host='localhost',
                        port=9091, protocol='binary', dbname='mapd')
 
     def _transact(self, con):
         drop = 'drop table if exists iris;'
         con.execute(drop)
-        create = ('create table iris (id int, sepal_l float, sepal_w float, '
-              'petal_l int, petal_w float, species text);')
+        create = '''create table iris (
+        id int, sepal_l float, sepal_w float,
+        petal_l int, petal_w float, species text);'''
         con.execute(create)
-        con.load_table('iris',self._data())
+        con.load_table('iris', self._data())
+
+    @pytest.mark.skipif(no_gpu(), reason="No GPU available")
+    def test_deallocate_ipc_gpu(self):
+        con = self._connect()
+        self._transact(con)
+        bmem = int(subprocess.check_output('''nvidia-smi -i 0 \
+                                          -q -d MEMORY | \
+                                          awk ' FNR == 11 { print $3 }' \
+                                          ''', shell=True))
+        con.select_ipc_gpu('''select sepal_l, sepal_W,
+                                petal_l, petal_w, species from iris''')
+        con.deallocate_ipc_gpu()
+        amem = int(subprocess.check_output('''nvidia-smi -i 0 \
+                                          -q -d MEMORY | \
+                                          awk ' FNR == 11 { print $3 }' \
+                                          ''', shell=True))
+        con.close()
+
+        assert amem == bmem
 
     def test_deallocate_ipc(self):
         con = self._connect()
         self._transact(con)
-        mem = cuda.current_context().get_memory_info()[0]
-
-        df = con.select_ipc_gpu('select sepal_l, sepal_W, petal_l, petal_w, species from iris')
-        con.deallocate_ipc_gpu()
+        bmem = int(subprocess.check_output('''ipcs -m | wc -l''', shell=True))
+        con.select_ipc('''select sepal_l, sepal_W,
+                                petal_l, petal_w, species from iris''')
+        con.deallocate_ipc()
+        amem = int(subprocess.check_output('''ipcs -m | wc -l''', shell=True))
         con.close()
 
-        assert cuda.current_context().get_memory_info()[0] == mem
+        assert amem == bmem
 
-    def test_deallocate_raises_right_exception(self):
+    @pytest.mark.skipif(no_gpu(), reason="No GPU available")
+    def test_gpu_raises_right_Exception(self):
         con = self._connect()
         self._transact(con)
 
-        df = con.select_ipc_gpu('select species from iris')
+        con.select_ipc_gpu('select species from iris')
         con.deallocate_ipc_gpu()
 
         with pytest.raises(TMapDException) as te:
             con.deallocate_ipc_gpu()
-        assert str(te.value.error_msg) == 'Exception: current data frame handle is not bookkept or been inserted twice'
+        assert 'Exception: current data frame' in str(te.value.error_msg)
 
-        pdf = con.select_ipc('select sepal_l, sepal_W from iris')
+    def test_ipc_raises_right_exception(self):
+        con = self._connect()
+        self._transact(con)
+
+        con.select_ipc('select sepal_l, sepal_W from iris')
         con.deallocate_ipc()
 
         with pytest.raises(TApplicationException) as ae:
             con.deallocate_ipc()
-        assert str(ae.value.message) == 'failed to get an valid shm ID w/ given shm key of the schema'
+        assert 'valid shm ID w/ given shm key' in str(ae.value.message)
 
+    @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_deallocate_session(self):
         con = self._connect()
         con1 = self._connect()
         self._transact(con)
 
-        df = con.select_ipc_gpu('select id from iris')
+        con.select_ipc_gpu('select id from iris')
+        con.close()
         with pytest.raises(TMapDException) as te:
             con1.deallocate_ipc_gpu()
-        assert str(te.value.error_msg) == 'Exception: current data frame handle is not bookkept or been inserted twice'
-
-
+        assert 'Exception: current data frame' in str(te.value.error_msg)
