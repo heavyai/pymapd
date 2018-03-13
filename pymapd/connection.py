@@ -327,7 +327,8 @@ class Connection(object):
         """
 
         result = self._client.deallocate_df(
-                session=self._session, df=self._tdf, device_type=TDeviceType.GPU,
+                session=self._session, df=self._tdf,
+                device_type=TDeviceType.GPU,
                 device_id=device_id)
         return result
 
@@ -342,7 +343,8 @@ class Connection(object):
         """
 
         result = self._client.deallocate_df(
-                session=self._session, df=self._tdf, device_type=TDeviceType.CPU,
+                session=self._session, df=self._tdf,
+                device_type=TDeviceType.CPU,
                 device_id=device_id)
         return result
 
