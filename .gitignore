@@ -112,3 +112,6 @@ bencmarks/*.ipynb
 /benchmarks/gpu
 /benchmarks/gpu-small
 /benchmarks/thrift
+
+# Folder metadata
+**/.DS_Store

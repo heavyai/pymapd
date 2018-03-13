@@ -10,6 +10,7 @@ from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
 from mapd.MapD import Client
 from mapd.ttypes import TMapDException
+from mapd.MapD import TDeviceType
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
@@ -157,6 +158,7 @@ class Connection(object):
         self._protocol = protocol
         self._socket = socket
         self._closed = 0
+        self._tdf = None
         try:
             self._transport.open()
         except TTransportException as e:
@@ -265,6 +267,7 @@ class Connection(object):
 
         tdf = self._client.sql_execute_gdf(
             self._session, operation, device_id=device_id, first_n=first_n)
+        self._tdf = tdf
         return _parse_tdf_gpu(tdf)
 
     def select_ipc(self, operation, parameters=None, first_n=-1):
@@ -304,6 +307,7 @@ class Connection(object):
             self._session, operation, device_type=0, device_id=0,
             first_n=first_n
         )
+        self._tdf = tdf
 
         sm_buf = load_buffer(tdf.sm_handle, tdf.sm_size)
         df_buf = load_buffer(tdf.df_handle, tdf.df_size)
@@ -311,6 +315,51 @@ class Connection(object):
         schema = _load_schema(sm_buf)
         df = _load_data(df_buf, schema)
         return df
+
+    def deallocate_ipc_gpu(self, device_id=0):
+        # type: () -> None
+        """Deallocate a DataFrame using GPU memory.
+
+        Parameters
+        ----------
+        device_id : int
+            GPU which contains TDataFrame
+        """
+
+        result = self._client.deallocate_df(
+                session=self._session, df=self._tdf,
+                device_type=TDeviceType.GPU,
+                device_id=device_id)
+        return result
+
+    def deallocate_ipc(self, device_id=0):
+        # type: () -> None
+        """Deallocate a DataFrame using CPU shared memory.
+
+        Parameters
+        ----------
+        device_id : int
+            GPU which contains TDataFrame
+        """
+
+        result = self._client.deallocate_df(
+                session=self._session, df=self._tdf,
+                device_type=TDeviceType.CPU,
+                device_id=device_id)
+        return result
+
+    @property
+    def get_tdf(self):
+        """Returns latest TDataFrame.
+
+        Example
+        -------
+        >>> con.get_tdf()
+        TDataFrame(sm_handle=b'\xa30q%', sm_size=632, df_handle=b'\x90a>
+        \x06\x00\x00\x00\x00\xe0\xe6\x00\x00\x00\x00\x00\x00\xe0|E\x00\x00
+        \x00\xca\x01\xd0\xc1"\x03\x00\\', df_size=4553952)
+        """
+        return self._tdf
 
     # --------------------------------------------------------------------------
     # Convenience methods
