@@ -10,6 +10,7 @@ from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
 from mapd.MapD import Client
 from mapd.ttypes import TMapDException
+from mapd.MapD import TDeviceType
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
@@ -326,7 +327,7 @@ class Connection(object):
         """
 
         result = self._client.deallocate_df(
-                session=self._session, df=self._tdf, device_type=1,
+                session=self._session, df=self._tdf, device_type=TDeviceType.GPU,
                 device_id=device_id)
         return result
 
@@ -341,7 +342,7 @@ class Connection(object):
         """
 
         result = self._client.deallocate_df(
-                session=self._session, df=self._tdf, device_type=0,
+                session=self._session, df=self._tdf, device_type=TDeviceType.CPU,
                 device_id=device_id)
         return result
 
