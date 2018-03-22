@@ -5,6 +5,8 @@ import datetime
 from collections import namedtuple
 from sqlalchemy import text
 import mapd.ttypes as T
+from types import MethodType
+from ._mutators import set_tdf, get_tdf
 
 from ._utils import seconds_to_time
 
@@ -119,7 +121,7 @@ def _load_schema(buf):
     return reader.schema
 
 
-def _load_data(buf, schema):
+def _load_data(buf, schema, tdf=None):
     """
     Load a `pandas.DataFrame` from a buffer written to shared memory
 
@@ -127,6 +129,7 @@ def _load_data(buf, schema):
     ----------
     buf : pyarrow.Buffer
     shcema : pyarrow.Schema
+    tdf(optional) : TDataFrame
 
     Returns
     -------
@@ -136,7 +139,11 @@ def _load_data(buf, schema):
 
     message = pa.read_message(buf)
     rb = pa.read_record_batch(message, schema)
-    return rb.to_pandas()
+    df = rb.to_pandas()
+    df.set_tdf = MethodType(set_tdf, df)
+    df.get_tdf = MethodType(get_tdf, df)
+    df.set_tdf(tdf)
+    return df
 
 
 def _parse_tdf_gpu(tdf):
@@ -175,9 +182,13 @@ def _parse_tdf_gpu(tdf):
                                           gpu_data=dptr)
     reader = GpuArrowReader(schema_buffer, darr)
     df = DataFrame()
+    df.set_tdf = MethodType(set_tdf, df)
+    df.get_tdf = MethodType(get_tdf, df)
+
     for k, v in reader.to_dict().items():
         df[k] = v
 
+    df.set_tdf(tdf)
     return df
 
 

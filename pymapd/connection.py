@@ -313,10 +313,10 @@ class Connection(object):
         df_buf = load_buffer(tdf.df_handle, tdf.df_size)
 
         schema = _load_schema(sm_buf)
-        df = _load_data(df_buf, schema)
+        df = _load_data(df_buf, schema, tdf)
         return df
 
-    def deallocate_ipc_gpu(self, device_id=0):
+    def deallocate_ipc_gpu(self, df, device_id=0):
         # type: () -> None
         """Deallocate a DataFrame using GPU memory.
 
@@ -326,13 +326,15 @@ class Connection(object):
             GPU which contains TDataFrame
         """
 
+        tdf = df.get_tdf()
         result = self._client.deallocate_df(
-                session=self._session, df=self._tdf,
+                session=self._session,
+                df=tdf,
                 device_type=TDeviceType.GPU,
                 device_id=device_id)
         return result
 
-    def deallocate_ipc(self, device_id=0):
+    def deallocate_ipc(self, df, device_id=0):
         # type: () -> None
         """Deallocate a DataFrame using CPU shared memory.
 
@@ -341,25 +343,13 @@ class Connection(object):
         device_id : int
             GPU which contains TDataFrame
         """
-
+        tdf = df.get_tdf()
         result = self._client.deallocate_df(
-                session=self._session, df=self._tdf,
+                session=self._session,
+                df=tdf,
                 device_type=TDeviceType.CPU,
                 device_id=device_id)
         return result
-
-    @property
-    def get_tdf(self):
-        """Returns latest TDataFrame.
-
-        Example
-        -------
-        >>> con.get_tdf()
-        TDataFrame(sm_handle=b'\xa30q%', sm_size=632, df_handle=b'\x90a>
-        \x06\x00\x00\x00\x00\xe0\xe6\x00\x00\x00\x00\x00\x00\xe0|E\x00\x00
-        \x00\xca\x01\xd0\xc1"\x03\x00\\', df_size=4553952)
-        """
-        return self._tdf
 
     # --------------------------------------------------------------------------
     # Convenience methods
