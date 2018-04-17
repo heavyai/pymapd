@@ -2,6 +2,7 @@
 Connect to a MapD database.
 """
 from collections import namedtuple
+import base64
 
 import six
 from sqlalchemy.engine.url import make_url
@@ -559,6 +560,43 @@ class Connection(object):
                                            preserve_index=preserve_index)
         self._client.load_table_binary_arrow(self._session, table_name,
                                              payload.to_pybytes())
+
+    def render_vega(self, vega, compression_level=1):
+        """Render vega data on the database backend,
+        returning the image as a PNG.
+
+        Parameters
+        ----------
+
+        vega : dict
+            The vega specification to render.
+        compression_level: int
+            The level of compression for the rendered PNG. Ranges from
+            0 (low compression, faster) to 9 (high compression, slower).
+        """
+        result = self._client.render_vega(
+                self._session,
+                widget_id=None,
+                vega_json=vega,
+                compression_level=compression_level,
+                nonce=None
+                )
+        rendered_vega = RenderedVega(result)
+        return rendered_vega
+
+
+class RenderedVega(object):
+    def __init__(self, render_result):
+        self._render_result = render_result
+        self.image_data = base64.b64encode(render_result.image).decode()
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        return {
+            'image/png': self.image_data,
+            'text/html':
+                '<img src="data:image/png;base64,{}" alt="MapD Vega">'
+                .format(self.image_data)
+            }
 
 
 def _is_pandas(data):
