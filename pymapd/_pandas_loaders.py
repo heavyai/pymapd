@@ -51,7 +51,7 @@ def get_mapd_type_from_known(dtype):
 def get_mapd_type_from_object(data):
     """For cases where the type system mismatches"""
     try:
-        val = data.dropna()[0]
+        val = data.dropna().iloc[0]
     except IndexError:
         raise IndexError("Not any valid values to infer the type")
     if isinstance(val, six.string_types):
