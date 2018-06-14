@@ -35,6 +35,7 @@ class TestDeallocate:
         con.execute(create)
         con.load_table('iris', self._data())
 
+    @pytest.mark.skip(reason="deallocate non-functional in recent distros")
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_deallocate_ipc_gpu(self):
         con = self._connect()
@@ -54,6 +55,7 @@ class TestDeallocate:
 
         assert amem == bmem
 
+    @pytest.mark.skip(reason="deallocate non-functional in recent distros")
     def test_deallocate_ipc(self):
         con = self._connect()
         self._transact(con)
@@ -66,6 +68,7 @@ class TestDeallocate:
 
         assert amem == bmem
 
+    @pytest.mark.skip(reason="deallocate non-functional in recent distros")
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_gpu_raises_right_Exception(self):
         con = self._connect()
@@ -78,6 +81,7 @@ class TestDeallocate:
             con.deallocate_ipc_gpu(df)
         assert 'Exception: current data frame' in str(te.value.error_msg)
 
+    @pytest.mark.skip(reason="deallocate non-functional in recent distros")
     def test_ipc_raises_right_exception(self):
         con = self._connect()
         self._transact(con)
@@ -89,6 +93,7 @@ class TestDeallocate:
             con.deallocate_ipc(df)
         assert 'valid shm ID w/ given shm key' in str(ae.value.message)
 
+    @pytest.mark.skip(reason="deallocate non-functional in recent distros")
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_deallocate_session(self):
         con = self._connect()
@@ -101,6 +106,7 @@ class TestDeallocate:
             con1.deallocate_ipc_gpu(df)
         assert 'Exception: current data frame' in str(te.value.error_msg)
 
+    @pytest.mark.skip(reason="deallocate non-functional in recent distros")
     def test_ipc_multiple_df(self):
         con = self._connect()
         self._transact(con)
