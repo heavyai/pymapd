@@ -52,7 +52,7 @@ mapd_to_slot = {
 mapd_to_na = {
     'BOOL': 0,
     'BOOLEAN': 0,
-    'SMALLINT': -128,
+    'SMALLINT': -32768,
     'INT': -2147483648,
     'INTEGER': -2147483648,
     'BIGINT': -9223372036854775808,

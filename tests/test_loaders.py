@@ -40,7 +40,7 @@ class TestLoaders(object):
 
         data = pd.DataFrame({
             "boolean_": [True, False],
-            "smallint_": np.array([0, 1], dtype=np.int8),
+            "smallint_": np.array([0, 1], dtype=np.int16),
             "int_": np.array([0, 1], dtype=np.int32),
             "bigint_": np.array([0, 1], dtype=np.int64),
             "float_": np.array([0, 1], dtype=np.float32),
@@ -59,7 +59,7 @@ class TestLoaders(object):
         nulls = [False, False]
         expected = [
             TColumn(TColumnData(int_col=[True, False]), nulls=nulls),
-            TColumn(TColumnData(int_col=np.array([0, 1], dtype=np.int8)), nulls=nulls),  # noqa
+            TColumn(TColumnData(int_col=np.array([0, 1], dtype=np.int16)), nulls=nulls),  # noqa
             TColumn(TColumnData(int_col=np.array([0, 1], dtype=np.int32)), nulls=nulls),  # noqa
             TColumn(TColumnData(int_col=np.array([0, 1], dtype=np.int64)), nulls=nulls),  # noqa
             TColumn(TColumnData(real_col=np.array([0, 1], dtype=np.float32)), nulls=nulls),  # noqa
@@ -116,7 +116,7 @@ class TestLoaders(object):
 
         data = pd.DataFrame({
             "boolean_": [True, False],
-            "smallint_": np.array([0, 1], dtype=np.int8),
+            "smallint_": np.array([0, 1], dtype=np.int16),
             "int_": np.array([0, 1], dtype=np.int32),
             "bigint_": np.array([0, 1], dtype=np.int64),
             "float_": np.array([0, 1], dtype=np.float32),
