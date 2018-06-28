@@ -46,6 +46,13 @@ mapd_to_slot = {
     'DATE': 'int_col',
     'TIME': 'int_col',
     'STR': 'str_col',
+    'POINT': 'str_col',
+    'LINESTRING': 'str_col',
+    'POLYGON': 'str_col',
+    'MULTIPOLYGON': 'str_col',
+    'TINYINT': 'int_col',
+    'GEOMETRY': 'str_col',
+    'GEOGRAPHY': 'str_col',
 }
 
 
@@ -62,4 +69,11 @@ mapd_to_na = {
     'DATE': -9223372036854775808,
     'TIME': -9223372036854775808,
     'STR': '',
+    'POINT': '',
+    'LINESTRING': '',
+    'POLYGON': '',
+    'MULTIPOLYGON': '',
+    'TINYINT': -128,
+    'GEOMETRY': '',
+    'GEOGRAPHY': '',
 }

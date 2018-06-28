@@ -31,7 +31,9 @@ def get_mapd_type_from_known(dtype):
     if is_bool_dtype(dtype):
         return 'BOOL'
     elif is_integer_dtype(dtype):
-        if dtype.itemsize <= 2:
+        if dtype.itemsize <= 1:
+            return 'TINYINT'
+        elif dtype.itemsize == 2:
             return 'SMALLINT'
         elif dtype.itemsize == 4:
             return 'INT'
