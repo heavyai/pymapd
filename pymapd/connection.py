@@ -200,7 +200,7 @@ class Connection(object):
         """Disconnect from the database"""
         try:
             self._client.disconnect(self._session)
-        except (TMapDException, AttributeError):
+        except (TMapDException, AttributeError, TypeError):
             pass
         finally:
             self._closed = 1
