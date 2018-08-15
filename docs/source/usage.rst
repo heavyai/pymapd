@@ -172,7 +172,7 @@ If you aren't using arrow or pandas you can pass list of tuples to
 .. code-block:: python
 
    >>> data = [(1, "c"), (2, "d")]
-   >>> con.load_table("table_name", data)
+   >>> con.load_table_rowwise("table_name", data)
 
 
 The high-level :meth:`Connection.load_table` method will choose the fastest
