@@ -8,17 +8,25 @@ import numpy as np  # noqa
 import pandas.util.testing as tm  # noqa
 from pymapd._parsers import _load_schema, _load_data  # noqa
 
-
 HERE = os.path.dirname(__file__)
 
+def make_data_batch():
+    arrow_version = pa.__version__
+    np.random.seed(1234)
+    depdelay = np.random.randint(-5,30,size=10,dtype=np.int16)
+    arrdelay = np.random.randint(-15,30,size=10,dtype=np.int16)
+    depdelay_ = pa.array(depdelay)
+    arrdelay_ = pa.array(arrdelay)
+    if arrow_version == '0.7.1':
+        depdelay_ = depdelay_.cast(pa.int16())
+        arrdelay_ = arrdelay_.cast(pa.int16())
+    batch = pa.RecordBatch.from_arrays([depdelay_, arrdelay_],
+                                       ['depdelay', 'arrdelay'])
+    return (depdelay, arrdelay), batch
 
-with open(os.path.join(HERE, "data", "schema_buffer.dat"), "rb") as f:
-    schema_data = f.read()
-
-
-with open(os.path.join(HERE, "data", "data_buffer.dat"), "rb") as f:
-    data_data = f.read()
-
+(depdelay, arrdelay), batch = make_data_batch()
+schema_data = batch.schema.serialize().to_pybytes()
+data_data = batch.serialize().to_pybytes()
 
 class TestIPC:
     def test_parse_schema(self):
@@ -38,9 +46,7 @@ class TestIPC:
         ])
         result = _load_data(buf, schema)
         expected = pd.DataFrame({
-            "depdelay": np.array([1, 12, 17, -4, 30, 10, 30, 12, 3, -3],
-                                 dtype=np.int16),
-            "arrdelay": np.array([-2, 4, 29, -12, 11, -2, 10, -3, -11, -13],
-                                 dtype=np.int16)
+            "depdelay": depdelay,
+            "arrdelay": arrdelay,
         })[['depdelay', 'arrdelay']]
         tm.assert_frame_equal(result, expected)
