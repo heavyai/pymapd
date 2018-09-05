@@ -37,8 +37,8 @@ conda install -q \
       pytest-mock \
       sqlalchemy \
       mock \
-      pyarrow=0.10.0 \
-      arrow-cpp=0.10.0 \
+      pyarrow=0.7.1 \
+      arrow-cpp=0.7.1 \
       cython \
       numpy \
       pandas
