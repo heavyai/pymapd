@@ -27,7 +27,7 @@ doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
 test_requires = ['coverage', 'pytest == 3.3.1', 'pytest-mock']
 dev_requires = doc_requires + test_requires
 gpu_requires = ['pygdf', 'libgdf']
-arrow_requires = ['pyarrow == 0.7.1']
+arrow_requires = ['pyarrow == 0.10.0']
 complete_requires = dev_requires + gpu_requires + arrow_requires
 
 if sys.version_info.major == 2:
@@ -49,7 +49,8 @@ extra_requires = {
 if build_extensions and not sys.platform.startswith('win'):
     try:
         import pyarrow
-    except ImportError:
+    except ImportError as msg:
+        print('Failed to import pyarrow: %s' %(msg))
         extensions = []
         extra_kwargs = dict()
     else:
