@@ -10,11 +10,12 @@ from pymapd._parsers import _load_schema, _load_data  # noqa
 
 HERE = os.path.dirname(__file__)
 
+
 def make_data_batch():
     arrow_version = pa.__version__
     np.random.seed(1234)
-    depdelay = np.random.randint(-5,30,size=10,dtype=np.int16)
-    arrdelay = np.random.randint(-15,30,size=10,dtype=np.int16)
+    depdelay = np.random.randint(-5, 30, size=10, dtype=np.int16)
+    arrdelay = np.random.randint(-15, 30, size=10, dtype=np.int16)
     depdelay_ = pa.array(depdelay)
     arrdelay_ = pa.array(arrdelay)
     if arrow_version == '0.7.1':
@@ -24,9 +25,11 @@ def make_data_batch():
                                        ['depdelay', 'arrdelay'])
     return (depdelay, arrdelay), batch
 
+
 (depdelay, arrdelay), batch = make_data_batch()
 schema_data = batch.schema.serialize().to_pybytes()
 data_data = batch.serialize().to_pybytes()
+
 
 class TestIPC:
     def test_parse_schema(self):
