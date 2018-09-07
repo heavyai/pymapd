@@ -49,7 +49,8 @@ extra_requires = {
 if build_extensions and not sys.platform.startswith('win'):
     try:
         import pyarrow
-    except ImportError:
+    except ImportError as msg:
+        print('Failed to import pyarrow: %s' % (msg))
         extensions = []
         extra_kwargs = dict()
     else:
