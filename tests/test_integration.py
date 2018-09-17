@@ -218,7 +218,7 @@ class TestOptionalImports(object):
         assert m.match("pandas is required for `select_ipc`")
 
     def test_select_gpu(self, con):
-        with mock.patch.dict("sys.modules", {"pygdf": None}):
+        with mock.patch.dict("sys.modules", {"pygdf": None, "pygdf.dataframe": None}):
             with pytest.raises(ImportError) as m:
                 con.select_ipc_gpu("select * from foo;")
         assert m.match("The 'pygdf' package is required")
