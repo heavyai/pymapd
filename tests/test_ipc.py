@@ -33,7 +33,7 @@ data_data = batch.serialize().to_pybytes()
 
 class TestIPC:
     def test_parse_schema(self):
-        buf = pa.frombuffer(schema_data)
+        buf = pa.py_buffer(schema_data)
         result = _load_schema(buf)
         expected = pa.schema([
             pa.field("depdelay", pa.int16()),
@@ -42,7 +42,7 @@ class TestIPC:
         assert result.equals(expected)
 
     def test_parse_data(self):
-        buf = pa.frombuffer(data_data)
+        buf = pa.py_buffer(data_data)
         schema = pa.schema([
             pa.field("depdelay", pa.int16()),
             pa.field("arrdelay", pa.int16())
