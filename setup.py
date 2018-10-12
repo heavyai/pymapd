@@ -80,9 +80,9 @@ else:
 
 setup(
     name='pymapd',
-    description='A python DB API 2 compatible client for mapd.',
+    description='A DB API 2 compatible client for OmniSci (formerly MapD).',
     long_description=long_description,
-    url='https://github.com/mapd/mapd-core',
+    url='https://github.com/omnisci/mapd-core',
 
     author='Tom Augspurger',
     author_email='taugspurger@continuum.io',
