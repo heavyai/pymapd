@@ -10,3 +10,4 @@ dependencies:
 - cython
 - pyarrow=0.7.1
 - arrow-cpp=0.7.1
+- sqlalchemy
