@@ -143,7 +143,7 @@ def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
         writer.write_table(data)
 
     writer.close()
-    return stream.get_result()
+    return stream.getvalue()
 
 
 def build_row_desc(data, preserve_index=False):
