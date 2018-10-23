@@ -88,7 +88,7 @@ class TestIntegration:
         c.execute('select symbol, qty from stocks where symbol = :symbol',
                   {'symbol': 'GOOG'})
         result = list(c)
-        expected = [('GOOG', 100),]  # noqa
+        expected = [('GOOG', 100), ]  # noqa
         assert result == expected
 
     def test_executemany_parametrized(self, con, stocks):
@@ -218,7 +218,8 @@ class TestOptionalImports(object):
         assert m.match("pandas is required for `select_ipc`")
 
     def test_select_gpu(self, con):
-        with mock.patch.dict("sys.modules", {"pygdf": None, "pygdf.dataframe": None}):
+        with mock.patch.dict("sys.modules",
+                             {"pygdf": None, "pygdf.dataframe": None}):
             with pytest.raises(ImportError) as m:
                 con.select_ipc_gpu("select * from foo;")
         assert m.match("The 'pygdf' package is required")
