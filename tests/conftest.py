@@ -109,14 +109,8 @@ def stocks(con):
 
 
 @pytest.fixture(scope="session")
-def test_unicode_text_insert_bugfix(con):
-    """
-    Tests fix from
-    https://github.com/jeremyvillalobostaste/pymapd/commit/7b757b94f180a35634be5b4cdd296bd47a625146
-
-    This test should fail beffore the commit and passes after the bugfix.
-
-    """
+def insert_unicode(con):
+    """INSERT Unicode using bind_params"""
     drop = 'drop table if exists text_holder;'
     c = con.cursor()
     c.execute(drop)
