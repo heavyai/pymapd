@@ -105,25 +105,25 @@ def stocks(con):
     c.execute(i2)
     yield "stocks"
     c.execute(drop)
-    
-    
+
+
 @pytest.fixture(scope="session")
 def test_unicode_text_insert_bugfix(con):
     """
-    Tests fix from 
+    Tests fix from
     https://github.com/jeremyvillalobostaste/pymapd/commit/7b757b94f180a35634be5b4cdd296bd47a625146
-    
+
     This test should fail beffore the commit and passes after the bugfix.
-    
+
     """
     drop = 'drop table if exists text_holder;'
     c = con.cursor()
     c.execute(drop)
     create = ('create table text_holder (the_text text);')
     c.execute(create)
-    first={"value" : u"我和我的姐姐吃米饭鸡肉" } 
-    second={"value" : u"El camina a case en bicicleta es relajante" }
-    
+    first = {"value": u"我和我的姐姐吃米饭鸡肉"}
+    second = {"value": u"El camina a case en bicicleta es relajante"}
+
     i1 = "INSERT INTO text_holder VALUES ( :value );"
 
     c.execute(i1, parameters=first)
