@@ -111,7 +111,7 @@ class Cursor(object):
         [('RHAT', 100.0), ('IBM', 500.0)]
         """
         if parameters is not None:
-            operation = unicode(_bind_parameters(operation, parameters))
+            operation = six.text_type(_bind_parameters(operation, parameters))
         self.rowcount = -1
         try:
             result = self.connection._client.sql_execute(
