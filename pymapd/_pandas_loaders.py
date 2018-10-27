@@ -79,7 +79,7 @@ def thrift_cast(data, mapd_type):
     elif mapd_type == 'DATE':
         return date_to_seconds(data)
     elif mapd_type == 'BOOL':
-        return 1 if data else 0
+        return data.astype(int)
 
 
 def build_input_columnar(df, preserve_index=True):
