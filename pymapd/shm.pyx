@@ -39,7 +39,7 @@ cpdef load_buffer(bytes handle, int size):
     # well, maybe not so easy, since I think this is causing a copy,
     # which is allowing be to detach the shared memory segment immediately
     npbuff = np.asarray(<np.uint8_t[:size]>ptr, dtype=np.uint8)
-    pabuff = pa.frombuffer(npbuff.tobytes())
+    pabuff = pa.py_buffer(npbuff.tobytes())
 
     # release
     # How best to handle failures here?
