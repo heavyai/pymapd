@@ -78,6 +78,8 @@ def thrift_cast(data, mapd_type):
         return pd.Series(time_to_seconds(x) for x in data)
     elif mapd_type == 'DATE':
         return date_to_seconds(data)
+    elif mapd_type == 'BOOL':
+        return data.astype(int)
 
 
 def build_input_columnar(df, preserve_index=True):
@@ -97,7 +99,7 @@ def build_input_columnar(df, preserve_index=True):
         elif all_nulls is None:
             nulls = all_nulls = [False] * len(df)
 
-        if mapd_type in {'TIME', 'TIMESTAMP', 'DATE'}:
+        if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
             # requires a cast to integer
             data = thrift_cast(data, mapd_type)
 
