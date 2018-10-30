@@ -82,14 +82,14 @@ def thrift_cast(data, mapd_type):
         return data.astype(int)
 
 
-def build_input_columnar(df, preserve_index=True):
+def build_input_columnar(df, preserve_index=True, tbl_cols=[]):
     if preserve_index:
         df = df.reset_index()
 
     input_cols = []
     all_nulls = None
 
-    for col in df.columns:
+    for col in tbl_cols:
         data = df[col]
         mapd_type = get_mapd_dtype(data)
         has_nulls = data.hasnans

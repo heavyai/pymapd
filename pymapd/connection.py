@@ -523,9 +523,12 @@ class Connection(object):
         """
         from . import _pandas_loaders
 
+        table_details = self.get_table_details(table_name)
+        tbl_cols = [i[0] for i in table_details]
+
         if _is_pandas(data):
             input_cols = _pandas_loaders.build_input_columnar(
-                data, preserve_index=preserve_index
+                data, preserve_index=preserve_index, tbl_cols=tbl_cols
             )
         else:
             raise TypeError("Unknown type {}".format(type(data)))
