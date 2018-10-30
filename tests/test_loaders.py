@@ -26,9 +26,11 @@ class TestLoaders(object):
         from pymapd._pandas_loaders import build_input_columnar
 
         data = pd.DataFrame({"a": [1, 2, 3], "b": [1.1, 2.2, 3.3]})
-        columns = ['a','b']
+        columns = ['a', 'b']
         nulls = [False] * 3
-        result = build_input_columnar(data, tbl_cols=columns, preserve_index=False)
+        result = build_input_columnar(data,
+                                      tbl_cols=columns,
+                                      preserve_index=False)
         expected = [
             TColumn(TColumnData(int_col=[1, 2, 3]), nulls=nulls),
             TColumn(TColumnData(real_col=[1.1, 2.2, 3.3]), nulls=nulls)
@@ -39,9 +41,19 @@ class TestLoaders(object):
         import pandas as pd
         import numpy as np
 
-        columns = ['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
-                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
-                    'date_']
+        columns = [
+            'boolean_',
+            'smallint_',
+            'int_',
+            'bigint_',
+            'float_',
+            'double_',
+            'varchar_',
+            'text_',
+            'time_',
+            'timestamp_',
+            'date_'
+            ]
         data = pd.DataFrame({
             "boolean_": [True, False],
             "smallint_": np.array([0, 1], dtype=np.int16),
@@ -55,7 +67,7 @@ class TestLoaders(object):
             "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
             "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
         }, columns=columns)
-        result = _pandas_loaders.build_input_columnar(data, 
+        result = _pandas_loaders.build_input_columnar(data,
                                                       tbl_cols=columns,
                                                       preserve_index=False)
 
@@ -78,9 +90,16 @@ class TestLoaders(object):
     def test_build_table_columnar_nulls(self):
         import pandas as pd
         import numpy as np
-        columns=['boolean_', 'bigint_',
-                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
-                    'date_']
+        columns = [
+            'boolean_',
+            'bigint_',
+            'double_',
+            'varchar_',
+            'text_',
+            'time_',
+            'timestamp_',
+            'date_'
+            ]
         data = pd.DataFrame({
             "boolean_": [True, False, None],
             "bigint_": np.array([0, 1, None], dtype=np.object),
