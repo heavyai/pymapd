@@ -528,7 +528,7 @@ class Connection(object):
 
         if _is_pandas(data):
             input_cols = _pandas_loaders.build_input_columnar(
-                data, preserve_index=preserve_index, tbl_cols=tbl_cols
+                data, tbl_cols=tbl_cols, preserve_index=preserve_index
             )
         else:
             raise TypeError("Unknown type {}".format(type(data)))

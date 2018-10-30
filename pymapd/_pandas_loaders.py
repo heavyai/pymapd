@@ -82,7 +82,7 @@ def thrift_cast(data, mapd_type):
         return data.astype(int)
 
 
-def build_input_columnar(df, preserve_index=True, tbl_cols=[]):
+def build_input_columnar(df, tbl_cols, preserve_index=True):
     if preserve_index:
         df = df.reset_index()
 
