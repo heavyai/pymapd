@@ -91,7 +91,6 @@ def build_input_columnar(df, tbl_cols, preserve_index=True):
     input_cols = []
     for col, mapd_type in tbl_cols.items():
         data = df[col]
-        print(mapd_type)
         has_nulls = data.hasnans
         if has_nulls:
             nulls = data.isnull().values
