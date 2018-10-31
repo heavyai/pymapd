@@ -26,7 +26,7 @@ class TestLoaders(object):
         from pymapd._pandas_loaders import build_input_columnar
 
         data = pd.DataFrame({"a": [1, 2, 3], "b": [1.1, 2.2, 3.3]})
-        columns = ['a', 'b']
+        columns = {'a': 'INT', 'b': 'DOUBLE'}
         nulls = [False] * 3
         result = build_input_columnar(data,
                                       tbl_cols=columns,
@@ -41,19 +41,19 @@ class TestLoaders(object):
         import pandas as pd
         import numpy as np
 
-        columns = [
-            'boolean_',
-            'smallint_',
-            'int_',
-            'bigint_',
-            'float_',
-            'double_',
-            'varchar_',
-            'text_',
-            'time_',
-            'timestamp_',
-            'date_'
-            ]
+        columns = {
+            'boolean_': 'BOOL',
+            'smallint_': 'TINYINT',
+            'int_': 'INT',
+            'bigint_': 'BIGINT',
+            'float_': 'FLOAT',
+            'double_': 'DOUBLE',
+            'varchar_': 'STR',
+            'text_': 'STR',
+            'time_': 'TIME',
+            'timestamp_': 'TIMESTAMP',
+            'date_': 'DATE'
+        }
         data = pd.DataFrame({
             "boolean_": [True, False],
             "smallint_": np.array([0, 1], dtype=np.int16),
@@ -66,7 +66,7 @@ class TestLoaders(object):
             "time_": [datetime.time(0, 11, 59), datetime.time(13)],
             "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
             "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
-        }, columns=columns)
+        }, columns=columns.keys())
         result = _pandas_loaders.build_input_columnar(data,
                                                       tbl_cols=columns,
                                                       preserve_index=False)
@@ -90,16 +90,16 @@ class TestLoaders(object):
     def test_build_table_columnar_nulls(self):
         import pandas as pd
         import numpy as np
-        columns = [
-            'boolean_',
-            'bigint_',
-            'double_',
-            'varchar_',
-            'text_',
-            'time_',
-            'timestamp_',
-            'date_'
-            ]
+        columns = {
+            'boolean_': 'BOOL',
+            'bigint_': 'BIGINT',
+            'double_': 'DOUBLE',
+            'varchar_': 'STR',
+            'text_': 'STR',
+            'time_': 'TIME',
+            'timestamp_': 'TIMESTAMP',
+            'date_': 'DATE'
+        }
         data = pd.DataFrame({
             "boolean_": [True, False, None],
             "bigint_": np.array([0, 1, None], dtype=np.object),
@@ -110,19 +110,19 @@ class TestLoaders(object):
             "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017"), None],
             "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1),
                       None],
-        }, columns=columns)
+        }, columns=columns.keys())
         result = _pandas_loaders.build_input_columnar(data,
                                                       preserve_index=False,
                                                       tbl_cols=columns)
 
         nulls = [False, False, True]
-        int_na = -2147483648
+        bool_na = -128
         bigint_na = -9223372036854775808
         ns_na = -9223372037
 
         expected = [
-            TColumn(TColumnData(int_col=[1, 0, int_na]), nulls=nulls),
-            TColumn(TColumnData(int_col=np.array([0, 1, int_na], dtype=np.int64)), nulls=nulls),  # noqa
+            TColumn(TColumnData(int_col=[1, 0, bool_na]), nulls=nulls),
+            TColumn(TColumnData(int_col=np.array([0, 1, bigint_na], dtype=np.int64)), nulls=nulls),  # noqa
             TColumn(TColumnData(real_col=np.array([0, 1, np.nan], dtype=np.float64)), nulls=nulls),  # noqa
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),

@@ -1,5 +1,6 @@
 import six
 import datetime
+import pandas as pd
 
 from pandas.api.types import (
     is_bool_dtype,
@@ -79,6 +80,7 @@ def thrift_cast(data, mapd_type):
     elif mapd_type == 'DATE':
         return date_to_seconds(data)
     elif mapd_type == 'BOOL':
+        data = data.fillna(mapd_to_na[mapd_type])
         return data.astype(int)
 
 
@@ -87,27 +89,27 @@ def build_input_columnar(df, tbl_cols, preserve_index=True):
         df = df.reset_index()
 
     input_cols = []
-    all_nulls = None
-
-    for col in tbl_cols:
+    for col, mapd_type in tbl_cols.items():
         data = df[col]
-        mapd_type = get_mapd_dtype(data)
+        print(mapd_type)
         has_nulls = data.hasnans
-
         if has_nulls:
             nulls = data.isnull().values
-        elif all_nulls is None:
-            nulls = all_nulls = [False] * len(df)
+        else:
+            nulls = [False] * len(df)
 
-        if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
+        if mapd_type == 'TIMESTAMP' and data.dtype == 'object':
+            data = pd.to_datetime(data)
+
+        if mapd_type in ['TIME', 'TIMESTAMP', 'DATE', 'BOOL']:
             # requires a cast to integer
             data = thrift_cast(data, mapd_type)
 
         if has_nulls:
             data = data.fillna(mapd_to_na[mapd_type])
-
-            if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'STR'}:
+            if mapd_type not in ['FLOAT', 'DOUBLE', 'VARCHAR', 'STR']:
                 data = data.astype('int64')
+
         # use .values so that indexes don't have to be serialized too
         kwargs = {mapd_to_slot[mapd_type]: data.values}
 
