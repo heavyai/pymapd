@@ -21,16 +21,16 @@ requirements:
     - setuptools_scm
     - cython
     - numpy 1.11.*
-    - arrow-cpp =0.7.1
-    - pyarrow =0.7.1
+    - arrow-cpp =0.10.0
+    - pyarrow =0.10.0
   run:
     - python
     - setuptools
     - numpy >=1.11.*
     - libgdf
     - pygdf
-    - arrow-cpp =0.7.1
-    - pyarrow =0.7.1
+    - arrow-cpp =0.10.0
+    - pyarrow =0.10.0
     - pandas
     - six
     - sqlalchemy
@@ -43,7 +43,7 @@ test:
     - pymapd.shm
 
 about:
-  home: https://mapd.com/
+  home: https://www.omnisci.com/
   license: Apache
   # license_file: LICENSE
   summary: Python client for the MapD GPU Database

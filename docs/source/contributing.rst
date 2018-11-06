@@ -22,4 +22,4 @@ two files, ``mapd/MapD.py`` and ``mapd/ttypes.py``, which can be committed to
 the repository.
 
 
-.. _mapd-core: https://github.com/mapd/mapd-core
+.. _mapd-core: https://github.com/omnisci/mapd-core

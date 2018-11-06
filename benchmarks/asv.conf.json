@@ -1,7 +1,7 @@
 {
     "version": 1,
     "project": "pymapd",
-    "project_url": "https://github.com/mapd/pymapd",
+    "project_url": "https://github.com/omnisci/pymapd",
     "repo": "..",
     "branches": ["master"],
     "dvcs": "git",
