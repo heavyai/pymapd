@@ -22,7 +22,7 @@ install:
   - ci/install-travis.sh
 script:
   - echo "script start"
-  - source activate test-environment
+  - source activate omnisci-dev
   - pytest tests
   - flake8
   - source ./ci/build_pymapd.sh

@@ -24,25 +24,18 @@ echo
 echo "[add channels]"
 conda config --add channels conda-forge || exit 1
 
-conda create -q -n test-environment python=${PYTHON}
-source activate test-environment
+conda create -q -f environment.yml python=${PYTHON}
+source activate omnisci-dev
 
+#list of dev packages not needed for general conda environment.yml file
 conda install -q \
-      six \
-      thrift=0.11.0 \
       coverage \
       flake8 \
       pytest=3.3.1 \
       pytest-cov \
       pytest-mock \
-      sqlalchemy \
-      mock \
-      pyarrow=0.10.0 \
-      arrow-cpp=0.10.0 \
-      cython \
-      numpy \
-      pandas
+      mock
 
 pip install -e .
-conda list test-environment
+conda list omnisci-dev
 exit 0
