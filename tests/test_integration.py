@@ -88,7 +88,7 @@ class TestIntegration:
         c.execute('select symbol, qty from stocks where symbol = :symbol',
                   {'symbol': 'GOOG'})
         result = list(c)
-        expected = [('GOOG', 100),]  # noqa
+        expected = [('GOOG', 100), ]  # noqa
         assert result == expected
 
     def test_executemany_parametrized(self, con, stocks):
@@ -128,7 +128,6 @@ class TestIntegration:
         })[['qty', 'price']]
         tm.assert_frame_equal(result, expected)
 
-    @pytest.mark.xfail
     def test_select_ipc_first_n(self, con, stocks):
         pytest.importorskip("pandas")
         result = con.select_ipc("select * from stocks", first_n=1)
@@ -154,10 +153,9 @@ class TestIntegration:
         result = result.to_pandas()[['qty', 'price']]  # column order
         pd.testing.assert_frame_equal(result, expected)
 
-    @pytest.mark.xfail
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_select_gpu_first_n(self, con, stocks):
-        result = con.select_ipc("select * from stocks", first_n=1)
+        result = con.select_ipc_gpu("select * from stocks", first_n=1)
         assert len(result) == 1
 
     def test_select_rowwise(self, con, stocks):
@@ -220,7 +218,8 @@ class TestOptionalImports(object):
         assert m.match("pandas is required for `select_ipc`")
 
     def test_select_gpu(self, con):
-        with mock.patch.dict("sys.modules", {"pygdf": None}):
+        with mock.patch.dict("sys.modules",
+                             {"pygdf": None, "pygdf.dataframe": None}):
             with pytest.raises(ImportError) as m:
                 con.select_ipc_gpu("select * from foo;")
         assert m.match("The 'pygdf' package is required")
