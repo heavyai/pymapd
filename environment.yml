@@ -1,13 +1,15 @@
-name: mapd-dev-docs
+name: omnisci-dev
 channels:
 - conda-forge
 - defaults
 dependencies:
 - python=3.5
-- six=1.10.0
+- six>=1.10.0
 - thrift=0.11.0
 - numpydoc
-- cython
 - pyarrow=0.10.0
 - arrow-cpp=0.10.0
 - sqlalchemy
+- cython
+- numpy
+- pandas
