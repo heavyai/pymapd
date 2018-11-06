@@ -24,7 +24,7 @@ echo
 echo "[add channels]"
 conda config --add channels conda-forge || exit 1
 
-conda create -q -f environment.yml python=${PYTHON}
+conda env create -q -f environment.yml python=${PYTHON}
 source activate omnisci-dev
 
 #list of dev packages not needed for general conda environment.yml file
