@@ -34,7 +34,8 @@ conda install -q \
       pytest=3.3.1 \
       pytest-cov \
       pytest-mock \
-      mock
+      mock \
+      conda-verify
 
 pip install -e .
 conda list omnisci-dev
