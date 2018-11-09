@@ -2,7 +2,6 @@ cimport numpy as np
 import numpy as np
 import pyarrow as pa
 from numpy cimport ndarray
-from cython cimport view
 import pyarrow as pa
 from libc.stdint cimport uintptr_t
 
