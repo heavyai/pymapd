@@ -1,9 +1,6 @@
-cimport numpy as np
-import numpy as np
-import pyarrow as pa
-from numpy cimport ndarray
 import pyarrow as pa
 from libc.stdint cimport uintptr_t
+import struct
 
 # ------------------------
 # Shared Memory Wrappers #
@@ -30,7 +27,7 @@ cdef extern from "sys/shm.h":
 
 cpdef load_buffer(bytes handle, int size):
 
-    shmkey = <unsigned int>ndarray(shape=1, dtype=np.uint32, buffer=handle)[0]
+    shmkey = struct.unpack('<L', handle)[0]
     shmid = shmget(shmkey, size, 0)
     if shmid == -1:
         raise ValueError("Invalid shared memory key {}".format(shmkey))
@@ -43,7 +40,7 @@ cpdef load_buffer(bytes handle, int size):
 #pa.cuda.foreign_buffer in pyarrow 0.11.0
 #cpdef load_buffer_gpu(bytes handle, int size):
 #
-#    shmkey = <unsigned int>ndarray(shape=1, dtype=np.uint32, buffer=handle)[0]
+#    shmkey = struct.unpack('<L', handle)[0]
 #    shmid = shmget(shmkey, size, 0)
 #    if shmid == -1:
 #        raise ValueError("Invalid shared memory key {}".format(shmkey))
