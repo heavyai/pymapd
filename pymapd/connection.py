@@ -293,7 +293,7 @@ class Connection(object):
             import pyarrow as pa
         except ImportError:
             raise ImportError("pyarrow is required for `select_ipc`")
-            
+
         try:
             import pandas  # noqa
         except ImportError:
@@ -315,10 +315,10 @@ class Connection(object):
 
         schema = _load_schema(sm_buf)
         df = _load_data(df_buf, schema, tdf)
-        
-        #Deallocate TDataFrame at OmniSci instance
+
+        # Deallocate TDataFrame at OmniSci instance
         self.deallocate_ipc(df)
-        
+
         return df
 
     def deallocate_ipc_gpu(self, df, device_id=0):
