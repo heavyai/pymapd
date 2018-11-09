@@ -78,15 +78,21 @@ def thrift_cast(data, mapd_type):
     elif mapd_type == 'TIME':
         return pd.Series(time_to_seconds(x) for x in data)
     elif mapd_type == 'DATE':
-        return date_to_seconds(data)
+        data = date_to_seconds(data)
+        data = data.fillna(mapd_to_na[mapd_type])
+        data = data if not data.any() else (data).astype(int)
+        return data
     elif mapd_type == 'BOOL':
         data = data.fillna(mapd_to_na[mapd_type])
         return data.astype(int)
 
 
-def build_input_columnar(df, tbl_cols, preserve_index=True):
+def build_input_columnar(df, tbl_cols={}, preserve_index=True):
     if preserve_index:
         df = df.reset_index()
+
+    if not tbl_cols:
+        tbl_cols = {col:get_mapd_dtype(df[col]) for col in df.columns}
 
     input_cols = []
     for col, mapd_type in tbl_cols.items():
@@ -97,7 +103,7 @@ def build_input_columnar(df, tbl_cols, preserve_index=True):
         else:
             nulls = [False] * len(df)
 
-        if mapd_type == 'TIMESTAMP' and data.dtype == 'object':
+        if mapd_type in ['TIMESTAMP', 'DATE'] and data.dtype == 'object':
             data = pd.to_datetime(data)
 
         if mapd_type in ['TIME', 'TIMESTAMP', 'DATE', 'BOOL']:
