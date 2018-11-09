@@ -289,7 +289,9 @@ class Connection(object):
         -----
         This method requires pandas and pyarrow to be installed
         """
-        if not _HAS_ARROW:
+        try:
+            import pyarrow as pa
+        except ImportError:
             raise ImportError("pyarrow is required for `select_ipc`")
             
         try:
