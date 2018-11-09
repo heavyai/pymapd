@@ -4,6 +4,7 @@ import pyarrow as pa
 from numpy cimport ndarray
 from cython cimport view
 import pyarrow as pa
+from libc.stdint cimport uintptr_t
 
 # ------------------------
 # Shared Memory Wrappers #
@@ -35,11 +36,8 @@ cpdef load_buffer(bytes handle, int size):
     if shmid == -1:
         raise ValueError("Invalid shared memory key {}".format(shmkey))
     ptr = shmat(shmid, NULL, 0)    # shared memory segment's start address
-    # TODO: remove this intermediate NumPy step. Should be easy
-    # well, maybe not so easy, since I think this is causing a copy,
-    # which is allowing be to detach the shared memory segment immediately
-    npbuff = np.asarray(<np.uint8_t[:size]>ptr, dtype=np.uint8)
-    pabuff = pa.py_buffer(npbuff.tobytes())
+ 
+    pabuff = pa.foreign_buffer(<uintptr_t>ptr, size, None)
 
     # release
     # How best to handle failures here?
