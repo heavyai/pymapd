@@ -20,7 +20,7 @@ def datetime_to_seconds(arr):
     import numpy as np
 
     if arr.dtype != np.dtype('datetime64[ns]'):
-        raise TypeError("Invalid type {}, expected datetime64[ns]".foramt(
+        raise TypeError("Invalid type {}, expected datetime64[ns]".format(
             arr.dtype))
     return arr.view('i8') // 10**9  # ns -> s since epoch
 
@@ -57,8 +57,8 @@ mapd_to_slot = {
 
 
 mapd_to_na = {
-    'BOOL': 0,
-    'BOOLEAN': 0,
+    'BOOL': -128,
+    'BOOLEAN': -128,
     'SMALLINT': -32768,
     'INT': -2147483648,
     'INTEGER': -2147483648,

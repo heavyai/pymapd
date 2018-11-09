@@ -79,6 +79,7 @@ def thrift_cast(data, mapd_type):
     elif mapd_type == 'DATE':
         return date_to_seconds(data)
     elif mapd_type == 'BOOL':
+        data = data.fillna(mapd_to_na[mapd_type])
         return data.astype(int)
 
 
