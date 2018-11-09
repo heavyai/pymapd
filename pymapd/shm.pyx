@@ -41,5 +41,15 @@ cpdef load_buffer(bytes handle, int size):
 
     return pabuff
 
-
-    return pabuff
+#pa.cuda.foreign_buffer in pyarrow 0.11.0
+#cpdef load_buffer_gpu(bytes handle, int size):
+#
+#    shmkey = <unsigned int>ndarray(shape=1, dtype=np.uint32, buffer=handle)[0]
+#    shmid = shmget(shmkey, size, 0)
+#    if shmid == -1:
+#        raise ValueError("Invalid shared memory key {}".format(shmkey))
+#    ptr = shmat(shmid, NULL, 0)    # shared memory segment's start address
+#
+#    pabuff = pa.cuda.foreign_buffer(<uintptr_t>ptr, size, None)
+#
+#    return pabuff
