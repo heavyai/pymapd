@@ -36,15 +36,10 @@ cpdef load_buffer(bytes handle, int size):
     if shmid == -1:
         raise ValueError("Invalid shared memory key {}".format(shmkey))
     ptr = shmat(shmid, NULL, 0)    # shared memory segment's start address
- 
+
     pabuff = pa.foreign_buffer(<uintptr_t>ptr, size, None)
 
-    # release
-    # How best to handle failures here?
-    rm_status = shmctl(shmid, IPC_RMID, NULL)
+    return pabuff
 
-    status = shmdt(ptr)
-    if status == -1:
-        raise TypeError("Could not release shared memory")
 
     return pabuff
