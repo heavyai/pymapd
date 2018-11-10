@@ -63,7 +63,11 @@ def get_mapd_type_from_object(data):
         return 'DATE'
     elif isinstance(val, datetime.time):
         return 'TIME'
+    elif isinstance(val, bool):
+        return 'BOOL'
     elif isinstance(val, int):
+        if data.max() >= 2147483648 or data.min() <= -2147483648:
+            return 'BIGINT'
         return 'INT'
     else:
         raise TypeError("Unhandled type {}".format(data.dtype))
@@ -83,6 +87,8 @@ def thrift_cast(data, mapd_type):
         data = data if not data.any() else (data).astype(int)
         return data
     elif mapd_type == 'BOOL':
+        # fillna before converting to int, since int cols
+        # in Pandas do not support None or NaN
         data = data.fillna(mapd_to_na[mapd_type])
         return data.astype(int)
 
