@@ -105,7 +105,14 @@ class TestLoaders(object):
         }
         data = pd.DataFrame({
             "boolean_": [True, False, None],
-            "bigint_": np.array([0, 1, None], dtype=np.object),
+            # Currently Pandas does not support storing None or NaN
+            # in integer columns, so int cols with null
+            # need to be objects. This means our type detection will be
+            # unreliable since if there is no number outside the int32
+            # bounds in a column with nulls then we will be assuming int
+            "int_": np.array([0, 1, None], dtype=np.object),
+            "bigint_": np.array([0, 9223372036854775807, None],
+                                dtype=np.object),
             "double_": np.array([0, 1, None], dtype=np.float64),
             "varchar_": ["a", "b", None],
             "text_": ['a', 'b', None],
@@ -113,19 +120,23 @@ class TestLoaders(object):
             "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017"), None],
             "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1),
                       None],
-        }, columns=columns.keys())
+        }, columns=['boolean_', 'int_', 'bigint_',
+                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
+                    'date_'])
         result = _pandas_loaders.build_input_columnar(data,
                                                       preserve_index=False,
                                                       tbl_cols=columns)
 
         nulls = [False, False, True]
         bool_na = -128
+        int_na = -2147483648
         bigint_na = -9223372036854775808
         ns_na = -9223372037
 
         expected = [
             TColumn(TColumnData(int_col=[1, 0, bool_na]), nulls=nulls),
-            TColumn(TColumnData(int_col=np.array([0, 1, bigint_na], dtype=np.int64)), nulls=nulls),  # noqa
+            TColumn(TColumnData(int_col=np.array([0, 1, int_na], dtype=np.int32)), nulls=nulls),  # noqa
+            TColumn(TColumnData(int_col=np.array([0, 9223372036854775807, bigint_na], dtype=np.int64)), nulls=nulls),  # noqa
             TColumn(TColumnData(real_col=np.array([0, 1, np.nan], dtype=np.float64)), nulls=nulls),  # noqa
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),

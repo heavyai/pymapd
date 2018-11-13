@@ -65,7 +65,11 @@ def get_mapd_type_from_object(data):
         return 'DATE'
     elif isinstance(val, datetime.time):
         return 'TIME'
+    elif isinstance(val, bool):
+        return 'BOOL'
     elif isinstance(val, int):
+        if data.max() >= 2147483648 or data.min() <= -2147483648:
+            return 'BIGINT'
         return 'INT'
     else:
         raise TypeError("Unhandled type {}".format(data.dtype))
@@ -80,20 +84,31 @@ def thrift_cast(data, mapd_type):
     elif mapd_type == 'TIME':
         return pd.Series(time_to_seconds(x) for x in data)
     elif mapd_type == 'DATE':
-        return date_to_seconds(data)
+        data = date_to_seconds(data)
+        data = data.fillna(mapd_to_na[mapd_type])
+        data = data if not data.any() else (data).astype(int)
+        return data
     elif mapd_type == 'BOOL':
+        # fillna before converting to int, since int cols
+        # in Pandas do not support None or NaN
         data = data.fillna(mapd_to_na[mapd_type])
         return data.astype(int)
 
 
-def build_input_columnar(df, tbl_cols, chunk_size_bytes, preserve_index=True):
+def build_input_columnar(df, tbl_cols={}, chunk_size_bytes=0, preserve_index=True):
     if preserve_index:
         df = df.reset_index()
 
+    if not tbl_cols:
+        tbl_cols = {col: get_mapd_dtype(df[col]) for col in df.columns}
+
     dfsize = df.memory_usage().sum()
-    chunks = math.ceil(dfsize / chunk_size_bytes) if chunk_size_bytes > 0 else 1
     
-    print(chunks)
+    if chunk_size_bytes > 0:
+        chunks = math.ceil(dfsize / chunk_size_bytes)
+    else:
+        chunks = 1
+
     dfs = (np.array_split(df, chunks))
     cols_array = []
     for df in dfs:
@@ -106,7 +121,7 @@ def build_input_columnar(df, tbl_cols, chunk_size_bytes, preserve_index=True):
             else:
                 nulls = [False] * len(df)
 
-            if mapd_type == 'TIMESTAMP' and data.dtype == 'object':
+            if mapd_type in ['TIMESTAMP', 'DATE'] and data.dtype == 'object':
                 data = pd.to_datetime(data)
 
             if mapd_type in ['TIME', 'TIMESTAMP', 'DATE', 'BOOL']:

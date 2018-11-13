@@ -499,13 +499,8 @@ class Connection(object):
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
 
-    def load_table_columnar(
-            self,
-            table_name,
-            data,
-            chunk_size_bytes=1000000,
-            preserve_index=False
-    ):
+    def load_table_columnar(self, table_name, data, preserve_index=False,
+                            chunk_size_bytes=0 ,load_by_table_schema=False):
         """Load a pandas DataFrame to the database using MapD's Thrift-based
         columnar format
 
@@ -515,6 +510,19 @@ class Connection(object):
         data : DataFrame
         preserve_index : bool, default False
             Whether to include the index of a pandas DataFrame when writing.
+        chunk_size_bytes : integer, default 0
+            Chunk the loading of columns to prevent large Thrift requests. A
+            value of 0 means do not chunk and send the dataframe as a single
+            request
+        load_by_table_schema : bool, default False
+            Whether to match the column names of the table to the column names
+            in the dataframe, and load in the correct order. This also
+            determines the datatype from the existing column and bypasses the
+            detection. Useful if a table already exists and the dataframe
+            column names match the table column names but are in a different
+            order, and when there are too few rows for OmniSci to determine the
+            datatype in the source data, but is unnecessary if the table
+            already exists and the datatype is therefore known.
 
         Examples
         --------
@@ -529,10 +537,12 @@ class Connection(object):
         """
         from . import _pandas_loaders
 
-        table_details = self.get_table_details(table_name)
-        tbl_cols = {i[0]: i[1] for i in table_details}
-
         if _is_pandas(data):
+            tbl_cols = {}
+            if load_by_table_schema:
+                table_details = self.get_table_details(table_name)
+                tbl_cols = {i[0]: i[1] for i in table_details}
+
             input_cols = _pandas_loaders.build_input_columnar(
                 data,
                 tbl_cols=tbl_cols,
@@ -556,7 +566,6 @@ class Connection(object):
         data : pandas.DataFrame, pyarrow.RecordBatch, pyarrow.Table
         preserve_index : bool, default False
             Whether to include the index of a pandas DataFrame when writing.
-
         Examples
         --------
         >>> df = pd.DataFrame({"a": [1, 2, 3], "b": ['d', 'e', 'f']})
