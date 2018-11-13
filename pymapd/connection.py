@@ -500,7 +500,7 @@ class Connection(object):
         self._client.load_table(self._session, table_name, input_data)
 
     def load_table_columnar(self, table_name, data, preserve_index=False,
-                            chunk_size_bytes=0 ,load_by_table_schema=False):
+                            chunk_size_bytes=0, load_by_table_schema=False):
         """Load a pandas DataFrame to the database using MapD's Thrift-based
         columnar format
 

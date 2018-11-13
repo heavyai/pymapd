@@ -35,7 +35,7 @@ class TestLoaders(object):
             TColumn(TColumnData(int_col=[1, 2, 3]), nulls=nulls),
             TColumn(TColumnData(real_col=[1.1, 2.2, 3.3]), nulls=nulls)
         ]
-        assert_columnar_equal(result, expected)
+        assert_columnar_equal(result[0], expected)
 
     def test_build_table_columnar_pandas(self):
         import pandas as pd
@@ -88,21 +88,12 @@ class TestLoaders(object):
             TColumn(TColumnData(int_col=[1451606400, 1483228800]), nulls=nulls),  # noqa
             TColumn(TColumnData(int_col=[1451606400, 1483228800]), nulls=nulls)
         ]
-        assert_columnar_equal(result, expected)
+        assert_columnar_equal(result[0], expected)
 
     def test_build_table_columnar_nulls(self):
         import pandas as pd
         import numpy as np
-        columns = {
-            'boolean_': 'BOOL',
-            'bigint_': 'BIGINT',
-            'double_': 'DOUBLE',
-            'varchar_': 'STR',
-            'text_': 'STR',
-            'time_': 'TIME',
-            'timestamp_': 'TIMESTAMP',
-            'date_': 'DATE'
-        }
+
         data = pd.DataFrame({
             "boolean_": [True, False, None],
             # Currently Pandas does not support storing None or NaN
@@ -124,8 +115,7 @@ class TestLoaders(object):
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
                     'date_'])
         result = _pandas_loaders.build_input_columnar(data,
-                                                      preserve_index=False,
-                                                      tbl_cols=columns)
+                                                      preserve_index=False)
 
         nulls = [False, False, True]
         bool_na = -128
@@ -145,7 +135,7 @@ class TestLoaders(object):
             TColumn(TColumnData(int_col=[1451606400, 1483228800, ns_na]), nulls=nulls),  # noqa
             TColumn(TColumnData(int_col=[1451606400, 1483228800, bigint_na]), nulls=nulls)  # noqa
         ]
-        assert_columnar_equal(result, expected)
+        assert_columnar_equal(result[0], expected)
 
     def test_build_row_desc(self):
         pd = pytest.importorskip("pandas")
