@@ -1,6 +1,5 @@
 import datetime
 
-
 def seconds_to_time(seconds):
     """Convert seconds since midnight to a datetime.time"""
     m, s = divmod(seconds, 60)
@@ -55,7 +54,6 @@ mapd_to_slot = {
     'GEOGRAPHY': 'str_col',
 }
 
-
 mapd_to_na = {
     'BOOL': -128,
     'BOOLEAN': -128,
@@ -63,8 +61,8 @@ mapd_to_na = {
     'INT': -2147483648,
     'INTEGER': -2147483648,
     'BIGINT': -9223372036854775808,
-    'FLOAT': float('nan'),
-    'DOUBLE': float('nan'),
+    'FLOAT': 1.1754943508222875e-38,
+    'DOUBLE': 2.2250738585072014e-308,
     'TIMESTAMP': -9223372036854775808,
     'DATE': -9223372036854775808,
     'TIME': -9223372036854775808,
