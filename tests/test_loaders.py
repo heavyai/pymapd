@@ -26,11 +26,8 @@ class TestLoaders(object):
         from pymapd._pandas_loaders import build_input_columnar
 
         data = pd.DataFrame({"a": [1, 2, 3], "b": [1.1, 2.2, 3.3]})
-        columns = {'a': 'INT', 'b': 'DOUBLE'}
         nulls = [False] * 3
-        result = build_input_columnar(data,
-                                      tbl_cols=columns,
-                                      preserve_index=False)
+        result = build_input_columnar(data, preserve_index=False)
         expected = [
             TColumn(TColumnData(int_col=[1, 2, 3]), nulls=nulls),
             TColumn(TColumnData(real_col=[1.1, 2.2, 3.3]), nulls=nulls)
@@ -41,20 +38,6 @@ class TestLoaders(object):
         import pandas as pd
         import numpy as np
 
-        columns = {
-            'boolean_': 'BOOL',
-            'tinyint_': 'TINYINT',
-            'smallint_': 'SMALLINT',
-            'int_': 'INT',
-            'bigint_': 'BIGINT',
-            'float_': 'FLOAT',
-            'double_': 'DOUBLE',
-            'varchar_': 'STR',
-            'text_': 'STR',
-            'time_': 'TIME',
-            'timestamp_': 'TIMESTAMP',
-            'date_': 'DATE'
-        }
         data = pd.DataFrame({
             "boolean_": [True, False],
             "tinyint_": np.array([0, 1], dtype=np.int8),
@@ -68,9 +51,10 @@ class TestLoaders(object):
             "time_": [datetime.time(0, 11, 59), datetime.time(13)],
             "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
             "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
-        }, columns=columns.keys())
+        }, columns=['boolean_', 'tinyint_', 'smallint_', 'int_', 'bigint_',
+                    'float_', 'double_', 'varchar_', 'text_', 'time_',
+                    'timestamp_', 'date_'])
         result = _pandas_loaders.build_input_columnar(data,
-                                                      tbl_cols=columns,
                                                       preserve_index=False)
 
         nulls = [False, False]
@@ -134,6 +118,102 @@ class TestLoaders(object):
             TColumn(TColumnData(int_col=[719, 46800, bigint_na]), nulls=nulls),
             TColumn(TColumnData(int_col=[1451606400, 1483228800, ns_na]), nulls=nulls),  # noqa
             TColumn(TColumnData(int_col=[1451606400, 1483228800, bigint_na]), nulls=nulls)  # noqa
+        ]
+        assert_columnar_equal(result[0], expected)
+
+    def test_build_table_columnar_nulls_from_schema(self):
+        import pandas as pd
+        import numpy as np
+
+        columns = {
+            'boolean_': 'BOOL',
+            'tinyint_': 'TINYINT',
+            'smallint_': 'SMALLINT',
+            'int_': 'INT',
+            'bigint_': 'BIGINT',
+            'float_': 'FLOAT',
+            'double_': 'DOUBLE',
+            'varchar_': 'STR',
+            'text_': 'STR',
+            'time_': 'TIME',
+            'timestamp_': 'TIMESTAMP',
+            'date_': 'DATE',
+            'decimal_': 'DECIMAL'
+        }
+        data = pd.DataFrame({
+            "boolean_": [True, False, None],
+            # Currently Pandas does not support storing None or NaN
+            # in integer columns, so int cols with null
+            # need to be objects. This means our type detection will be
+            # unreliable since if there is no number outside the int32
+            # bounds in a column with nulls then we will be assuming int
+            "tinyint_": np.array([0, 1, None], dtype=np.object),
+            "smallint_": np.array([0, 1, None], dtype=np.object),
+            "int_": np.array([0, 1, None], dtype=np.object),
+            "bigint_": np.array([0, 9223372036854775807, None],
+                                dtype=np.object),
+            "float_": np.array([0, 1, None], dtype=np.float64),
+            "double_": np.array([0, 1, None], dtype=np.float64),
+            "varchar_": ["a", "b", None],
+            "text_": ['a', 'b', None],
+            "time_": [datetime.time(0, 11, 59), datetime.time(13), None],
+            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017"), None],
+            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1),
+                      None],
+            "decimal_": np.array([0, 1, None], dtype=np.float64),
+        }, columns=columns.keys())
+        result = _pandas_loaders.build_input_columnar(data, tbl_cols=columns,
+                                                      preserve_index=False)
+
+        nulls = [False, False, True]
+        bool_na = -128
+        tinyint_na = -128
+        smallint_na = -32768
+        int_na = -2147483648
+        bigint_na = -9223372036854775808
+        ns_na = -9223372037
+        flt_na = 1.1754943508222875e-38
+        dbl_na = 2.2250738585072014e-308
+        dec_na = -9223372036854775808
+
+        expected = [
+            TColumn(TColumnData(int_col=[1, 0, bool_na]), nulls=nulls),
+            TColumn(TColumnData(
+                    int_col=np.array([0, 1, tinyint_na], dtype=np.int32)
+                ),
+                nulls=nulls
+            ),
+            TColumn(TColumnData(
+                int_col=np.array(
+                    [0, 1, smallint_na], dtype=np.int32
+                    )
+                ),
+                nulls=nulls
+            ),
+            TColumn(TColumnData(
+                int_col=np.array([0, 1, int_na], dtype=np.int32)),
+                nulls=nulls
+            ),
+            TColumn(TColumnData(
+                int_col=np.array(
+                    [0, 9223372036854775807, bigint_na], dtype=np.int64)
+                ),
+                nulls=nulls
+            ),
+            TColumn(TColumnData(
+                real_col=np.array([0, 1, flt_na], dtype=np.float64)),
+                nulls=nulls),  # noqa
+            TColumn(TColumnData(real_col=np.array([0, 1, dbl_na], dtype=np.float64)), nulls=nulls),  # noqa
+            TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
+            TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
+            TColumn(TColumnData(int_col=[719, 46800, bigint_na]),
+                    nulls=nulls),
+            TColumn(TColumnData(int_col=[1451606400, 1483228800, ns_na]), nulls=nulls),  # noqa
+            TColumn(TColumnData(int_col=[1451606400, 1483228800, bigint_na]), nulls=nulls),  # noqa
+            TColumn(TColumnData(
+                real_col=np.array([0, 1, dec_na], dtype=np.float64)),
+                nulls=nulls
+            )
         ]
         assert_columnar_equal(result[0], expected)
 
