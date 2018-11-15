@@ -9,7 +9,7 @@ Usage
 
 .. note::
 
-   This assumes you have a MapD server running on ``localhost:9091`` with the
+   This assumes you have an OmniSci server running on ``localhost:9091`` with the
    default logins and databases, and have loaded the example "flights_2008_10k"
    dataset.
 
@@ -58,7 +58,7 @@ The best option depends on the hardware you have available, your connection to
 the database, and what you plan to do with the returned data. In general, the
 third method, using Thrift to serialize and deserialize the data, will slower
 than the GPU or CPU shared memory methods. The shared memory methods require
-that your MapD database is running on the same machine.
+that your OmniSci database is running on the same machine.
 
 GPU Select
 ^^^^^^^^^^
@@ -97,7 +97,7 @@ using CPU shared memory to avoid unnecessary intermediate copies.
 
 Cursors
 -------
-           
+
 A cursor can be created with :meth:`Connection.cursor`
 
 .. code-block:: python
@@ -113,7 +113,7 @@ Or by using a context manager:
    >>> with con as c:
    ...     print(c)
    <pymapd.cursor.Cursor object at 0x1041f9630>
-               
+
 Arbitrary SQL can be executed using :meth:`Cursor.execute`.
 
 .. code-block:: python
@@ -145,7 +145,7 @@ Loading Data
 
 The fastest way to load data is :meth:`Connection.load_table_arrow`. Internally,
 this will use ``pyarrow`` and the `Apache Arrow`_ format to exchange data with
-the MapD database.
+the OmniSci database.
 
 .. code-block:: python
 
@@ -205,7 +205,7 @@ Some helpful metadata are available on the ``Connection`` object.
     ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
                   scale=0, comp_param=32),
     ...
- 
+
 .. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
 .. _pygdf: http://pygdf.readthedocs.io/en/latest/
 .. _Apache Arrow: http://arrow.apache.org/

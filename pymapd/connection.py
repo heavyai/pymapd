@@ -1,5 +1,5 @@
 """
-Connect to a MapD database.
+Connect to an OmniSci database.
 """
 from collections import namedtuple
 import base64
@@ -112,7 +112,7 @@ def _parse_uri(uri):
 
 
 class Connection(object):
-    """Connect to your mapd database."""
+    """Connect to your OmniSci database."""
 
     def __init__(self,
                  uri=None,           # type: Optional[str]
@@ -207,7 +207,7 @@ class Connection(object):
 
     def commit(self):
         # type: () -> None
-        """This is a noop, as mapd does not provide transactions.
+        """This is a noop, as OmniSci does not provide transactions.
 
         Implementing to comply with the specification.
         """
@@ -506,7 +506,7 @@ class Connection(object):
             preserve_index=False,
             chunk_size_bytes=0
     ):
-        """Load a pandas DataFrame to the database using MapD's Thrift-based
+        """Load a pandas DataFrame to the database using OmniSci's Thrift-based
         columnar format
 
         Parameters
@@ -607,7 +607,7 @@ class RenderedVega(object):
         return {
             'image/png': self.image_data,
             'text/html':
-                '<img src="data:image/png;base64,{}" alt="MapD Vega">'
+                '<img src="data:image/png;base64,{}" alt="OmniSci Vega">'
                 .format(self.image_data)
             }
 
