@@ -287,17 +287,12 @@ class Connection(object):
 
         Notes
         -----
-        This method requires pandas and pyarrow to be installed
+        This method requires pyarrow to be installed
         """
         try:
             import pyarrow  # noqa
         except ImportError:
             raise ImportError("pyarrow is required for `select_ipc`")
-
-        try:
-            import pandas  # noqa
-        except ImportError:
-            raise ImportError("pandas is required for `select_ipc`")
 
         from .shm import load_buffer
 
@@ -456,7 +451,7 @@ class Connection(object):
             self.create_table(table_name, data)
 
         if method == 'infer':
-            if (_is_pandas(data) or _is_arrow(data)) and _HAS_ARROW:
+            if (isinstance(data, pd.DataFrame) or _is_arrow(data)) and _HAS_ARROW:
                 return self.load_table_arrow(table_name, data)
 
             elif _is_pandas(data):
@@ -523,7 +518,7 @@ class Connection(object):
         """
         from . import _pandas_loaders
 
-        if _is_pandas(data):
+        if isinstance(data, pd.DataFrame):
             input_cols = _pandas_loaders.build_input_columnar(
                 data, preserve_index=preserve_index
             )
@@ -597,15 +592,6 @@ class RenderedVega(object):
                 '<img src="data:image/png;base64,{}" alt="MapD Vega">'
                 .format(self.image_data)
             }
-
-
-def _is_pandas(data):
-    try:
-        import pandas as pd
-    except ImportError:
-        return False
-    else:
-        return isinstance(data, pd.DataFrame)
 
 
 def _is_arrow(data):
