@@ -455,7 +455,7 @@ class Connection(object):
             if (isinstance(data, pd.DataFrame) or _is_arrow(data)) and _HAS_ARROW:
                 return self.load_table_arrow(table_name, data)
 
-            elif (isinstance(data, pd.DataFrame):
+            elif (isinstance(data, pd.DataFrame)):
                 return self.load_table_columnar(table_name, data)
 
         elif method == 'arrow':
