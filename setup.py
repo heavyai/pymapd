@@ -18,7 +18,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires = ['six', 'thrift == 0.11.0', 'sqlalchemy', 'numpy', 'pandas', 
+install_requires = ['six', 'thrift == 0.11.0', 'sqlalchemy', 'numpy', 'pandas',
                     'pyarrow == 0.10.0']
 
 # Optional Requirements
