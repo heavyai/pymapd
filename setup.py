@@ -18,7 +18,8 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires = ['six', 'thrift == 0.11.0', 'sqlalchemy']
+install_requires = ['six', 'thrift == 0.11.0', 'sqlalchemy', 'numpy', 'pandas', 
+                    'pyarrow == 0.10.0']
 
 # Optional Requirements
 
@@ -27,8 +28,7 @@ doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
 test_requires = ['coverage', 'pytest == 3.3.1', 'pytest-mock']
 dev_requires = doc_requires + test_requires
 gpu_requires = ['pygdf', 'libgdf']
-arrow_requires = ['pyarrow == 0.10.0']
-complete_requires = dev_requires + gpu_requires + arrow_requires
+complete_requires = dev_requires + gpu_requires
 
 if sys.version_info.major == 2:
     test_requires.append("mock")
@@ -39,7 +39,6 @@ extra_requires = {
     'test': test_requires,
     'dev': dev_requires,
     'gpu': gpu_requires,
-    'arrow': arrow_requires,
     'complete': complete_requires,
 }
 
