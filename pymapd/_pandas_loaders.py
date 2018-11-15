@@ -91,7 +91,7 @@ def thrift_cast(data, mapd_type):
         return data.astype(int)
 
 
-def build_input_columnar(df, chunk_size_bytes=0, preserve_index=True):
+def build_input_columnar(df, preserve_index=True, chunk_size_bytes=0):
     if preserve_index:
         df = df.reset_index()
 

@@ -536,8 +536,8 @@ class Connection(object):
         if _is_pandas(data):
             input_cols = _pandas_loaders.build_input_columnar(
                 data,
-                chunk_size_bytes=chunk_size_bytes,
-                preserve_index=preserve_index
+                preserve_index=preserve_index,
+                chunk_size_bytes=chunk_size_bytes
             )
         else:
             raise TypeError("Unknown type {}".format(type(data)))
