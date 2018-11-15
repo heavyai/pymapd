@@ -1,5 +1,4 @@
 set -e
 
 echo "Building pymapd"
-conda build conda-recipes/pymapd -c conda-forge -c numba -c gpuopenanalytics/label/dev \
--c defaults --python ${PYTHON} --numpy=1.14.*
+conda build conda-recipes/pymapd -c conda-forge -c numba -c gpuopenanalytics/label/dev -c defaults --python ${PYTHON}

@@ -24,6 +24,7 @@ requirements:
     - arrow-cpp =0.10.0
     - pyarrow =0.10.0
     - pandas
+    - conda-verify
   run:
     - python
     - setuptools
