@@ -1,5 +1,7 @@
 import six
 import datetime
+import numpy as np
+import math
 
 from pandas.api.types import (
     is_bool_dtype,
@@ -89,40 +91,50 @@ def thrift_cast(data, mapd_type):
         return data.astype(int)
 
 
-def build_input_columnar(df, preserve_index=True):
+def build_input_columnar(df, preserve_index=True, chunk_size_bytes=0):
     if preserve_index:
         df = df.reset_index()
 
-    input_cols = []
-    all_nulls = None
+    dfsize = df.memory_usage().sum()
+    if chunk_size_bytes > 0:
+        chunks = math.ceil(dfsize / chunk_size_bytes)
+    else:
+        chunks = 1
 
-    for col in df.columns:
-        data = df[col]
-        mapd_type = get_mapd_dtype(data)
-        has_nulls = data.hasnans
+    dfs = (np.array_split(df, chunks))
+    cols_array = []
+    for df in dfs:
+        input_cols = []
+        all_nulls = None
 
-        if has_nulls:
-            nulls = data.isnull().values
-        elif all_nulls is None:
-            nulls = all_nulls = [False] * len(df)
+        for col in df.columns:
+            data = df[col]
+            mapd_type = get_mapd_dtype(data)
+            has_nulls = data.hasnans
 
-        if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
-            # requires a cast to integer
-            data = thrift_cast(data, mapd_type)
+            if has_nulls:
+                nulls = data.isnull().values
+            elif all_nulls is None:
+                nulls = all_nulls = [False] * len(df)
 
-        if has_nulls:
-            data = data.fillna(mapd_to_na[mapd_type])
+            if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
+                # requires a cast to integer
+                data = thrift_cast(data, mapd_type)
 
-            if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'STR'}:
-                data = data.astype('int64')
-        # use .values so that indexes don't have to be serialized too
-        kwargs = {mapd_to_slot[mapd_type]: data.values}
+            if has_nulls:
+                data = data.fillna(mapd_to_na[mapd_type])
 
-        input_cols.append(
-            TColumn(data=TColumnData(**kwargs), nulls=nulls)
-        )
+                if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'STR'}:
+                    data = data.astype('int64')
+            # use .values so that indexes don't have to be serialized too
+            kwargs = {mapd_to_slot[mapd_type]: data.values}
 
-    return input_cols
+            input_cols.append(
+                TColumn(data=TColumnData(**kwargs), nulls=nulls)
+            )
+        cols_array.append(input_cols)
+
+    return cols_array
 
 
 def _cast_int8(data):
