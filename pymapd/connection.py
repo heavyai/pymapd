@@ -3,6 +3,7 @@ Connect to a MapD database.
 """
 from collections import namedtuple
 import base64
+import pandas as pd
 
 import six
 from sqlalchemy.engine.url import make_url
@@ -454,7 +455,7 @@ class Connection(object):
             if (isinstance(data, pd.DataFrame) or _is_arrow(data)) and _HAS_ARROW:
                 return self.load_table_arrow(table_name, data)
 
-            elif _is_pandas(data):
+            elif (isinstance(data, pd.DataFrame):
                 return self.load_table_columnar(table_name, data)
 
         elif method == 'arrow':
