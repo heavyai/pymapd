@@ -46,4 +46,4 @@ about:
   home: https://www.omnisci.com/
   license: Apache
   # license_file: LICENSE
-  summary: Python client for the MapD GPU Database
+  summary: Python client for the OmniSci GPU Database
