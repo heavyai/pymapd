@@ -503,8 +503,8 @@ class Connection(object):
             self,
             table_name,
             data,
-            chunk_size_bytes=0,
-            preserve_index=False
+            preserve_index=False,
+            chunk_size_bytes=0
     ):
         """Load a pandas DataFrame to the database using MapD's Thrift-based
         columnar format
