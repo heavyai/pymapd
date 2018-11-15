@@ -94,9 +94,13 @@ def thrift_cast(data, mapd_type):
 def build_input_columnar(df, chunk_size_bytes=0, preserve_index=True):
     if preserve_index:
         df = df.reset_index()
-    
+
     dfsize = df.memory_usage().sum()
-    chunks = math.ceil(dfsize / chunk_size_bytes) if chunk_size_bytes > 0 else 1
+    if chunk_size_bytes > 0:
+        chunks = math.ceil(dfsize / chunk_size_bytes)
+    else:
+        chunks = 1
+
     dfs = (np.array_split(df, chunks))
     cols_array = []
     for df in dfs:
