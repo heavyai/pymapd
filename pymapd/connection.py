@@ -592,7 +592,8 @@ class RenderedVega(object):
 
 def _is_arrow(data):
     """Whether `data` is an arrow `Table` or `RecordBatch`"""
-        return isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)
+    return isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)
+
 
 def _check_create(create):
     valid = {'infer', True, False}
