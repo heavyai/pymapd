@@ -452,7 +452,7 @@ class Connection(object):
             self.create_table(table_name, data)
 
         if method == 'infer':
-            if (isinstance(data, pd.DataFrame) or _is_arrow(data)) and _HAS_ARROW:
+            if (isinstance(data, pd.DataFrame) or _is_arrow(data)) and _HAS_ARROW:  # noqa
                 return self.load_table_arrow(table_name, data)
 
             elif (isinstance(data, pd.DataFrame)):
