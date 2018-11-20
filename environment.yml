@@ -11,5 +11,5 @@ dependencies:
 - arrow-cpp=0.10.0
 - sqlalchemy
 - cython
-- numpy
+- numpy>=1.14
 - pandas
