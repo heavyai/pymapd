@@ -20,13 +20,15 @@ requirements:
     - setuptools
     - setuptools_scm
     - cython
-    - numpy 1.11.*
+    - numpy>= 1.14
     - arrow-cpp =0.10.0
     - pyarrow =0.10.0
+    - pandas
+    - conda-verify
   run:
     - python
     - setuptools
-    - numpy >=1.11.*
+    - numpy>=1.14
     - libgdf
     - pygdf
     - arrow-cpp =0.10.0

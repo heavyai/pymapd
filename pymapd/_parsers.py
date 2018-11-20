@@ -2,6 +2,7 @@
 Utility methods for parsing data returned from MapD
 """
 import datetime
+import pyarrow as pa
 from collections import namedtuple
 from sqlalchemy import text
 import mapd.ttypes as T
@@ -122,8 +123,6 @@ def _load_schema(buf):
     -------
     schema : pyarrow.Schema
     """
-    import pyarrow as pa
-
     reader = pa.RecordBatchStreamReader(buf)
     return reader.schema
 
@@ -142,8 +141,6 @@ def _load_data(buf, schema, tdf=None):
     -------
     df : pandas.DataFrame
     """
-    import pyarrow as pa
-
     message = pa.read_message(buf)
     rb = pa.read_record_batch(message, schema)
     df = rb.to_pandas()
