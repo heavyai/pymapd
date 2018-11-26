@@ -1,8 +1,10 @@
 """
-Connect to a MapD database.
+Connect to an OmniSci database.
 """
 from collections import namedtuple
 import base64
+import pandas as pd
+import pyarrow as pa
 
 import six
 from sqlalchemy.engine.url import make_url
@@ -21,12 +23,6 @@ from ._parsers import (
     _extract_column_details
 )
 from ._loaders import _build_input_rows
-
-try:
-    import pyarrow as pa
-    _HAS_ARROW = True
-except ImportError:
-    _HAS_ARROW = False
 
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
@@ -112,7 +108,7 @@ def _parse_uri(uri):
 
 
 class Connection(object):
-    """Connect to your mapd database."""
+    """Connect to your OmniSci database."""
 
     def __init__(self,
                  uri=None,           # type: Optional[str]
@@ -207,7 +203,7 @@ class Connection(object):
 
     def commit(self):
         # type: () -> None
-        """This is a noop, as mapd does not provide transactions.
+        """This is a noop, as OmniSci does not provide transactions.
 
         Implementing to comply with the specification.
         """
@@ -287,17 +283,12 @@ class Connection(object):
 
         Notes
         -----
-        This method requires pandas and pyarrow to be installed
+        This method requires pyarrow to be installed
         """
         try:
             import pyarrow  # noqa
         except ImportError:
             raise ImportError("pyarrow is required for `select_ipc`")
-
-        try:
-            import pandas  # noqa
-        except ImportError:
-            raise ImportError("pandas is required for `select_ipc`")
 
         from .shm import load_buffer
 
@@ -315,6 +306,10 @@ class Connection(object):
 
         schema = _load_schema(sm_buf)
         df = _load_data(df_buf, schema, tdf)
+
+        # Deallocate TDataFrame at OmniSci instance
+        self.deallocate_ipc(df)
+
         return df
 
     def deallocate_ipc_gpu(self, df, device_id=0):
@@ -456,10 +451,10 @@ class Connection(object):
             self.create_table(table_name, data)
 
         if method == 'infer':
-            if (_is_pandas(data) or _is_arrow(data)) and _HAS_ARROW:
+            if (isinstance(data, pd.DataFrame) or _is_arrow(data)):
                 return self.load_table_arrow(table_name, data)
 
-            elif _is_pandas(data):
+            elif (isinstance(data, pd.DataFrame)):
                 return self.load_table_columnar(table_name, data)
 
         elif method == 'arrow':
@@ -499,9 +494,15 @@ class Connection(object):
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
 
-    def load_table_columnar(self, table_name, data, preserve_index=False,
-                            chunk_size_bytes=0, load_by_table_schema=False):
-        """Load a pandas DataFrame to the database using MapD's Thrift-based
+    def load_table_columnar(
+            self,
+            table_name,
+            data,
+            preserve_index=False,
+            chunk_size_bytes=0,
+            load_by_table_schema=False
+    ):
+        """Load a pandas DataFrame to the database using OmniSci's Thrift-based
         columnar format
 
         Parameters
@@ -554,7 +555,6 @@ class Connection(object):
         for cols in input_cols:
             self._client.load_table_binary_columnar(self._session, table_name,
                                                     cols)
-
 
     def load_table_arrow(self, table_name, data, preserve_index=False):
         """Load a pandas.DataFrame or a pyarrow Table or RecordBatch to the
@@ -617,25 +617,14 @@ class RenderedVega(object):
         return {
             'image/png': self.image_data,
             'text/html':
-                '<img src="data:image/png;base64,{}" alt="MapD Vega">'
+                '<img src="data:image/png;base64,{}" alt="OmniSci Vega">'
                 .format(self.image_data)
             }
 
 
-def _is_pandas(data):
-    try:
-        import pandas as pd
-    except ImportError:
-        return False
-    else:
-        return isinstance(data, pd.DataFrame)
-
-
 def _is_arrow(data):
     """Whether `data` is an arrow `Table` or `RecordBatch`"""
-    if _HAS_ARROW:
-        return isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)
-    return False
+    return isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)
 
 
 def _check_create(create):

@@ -1,9 +1,6 @@
-cimport numpy as np
-import numpy as np
 import pyarrow as pa
-from numpy cimport ndarray
-from cython cimport view
-import pyarrow as pa
+from libc.stdint cimport uintptr_t
+import struct
 
 # ------------------------
 # Shared Memory Wrappers #
@@ -30,23 +27,25 @@ cdef extern from "sys/shm.h":
 
 cpdef load_buffer(bytes handle, int size):
 
-    shmkey = <unsigned int>ndarray(shape=1, dtype=np.uint32, buffer=handle)[0]
+    shmkey = struct.unpack('<L', handle)[0]
     shmid = shmget(shmkey, size, 0)
     if shmid == -1:
         raise ValueError("Invalid shared memory key {}".format(shmkey))
     ptr = shmat(shmid, NULL, 0)    # shared memory segment's start address
-    # TODO: remove this intermediate NumPy step. Should be easy
-    # well, maybe not so easy, since I think this is causing a copy,
-    # which is allowing be to detach the shared memory segment immediately
-    npbuff = np.asarray(<np.uint8_t[:size]>ptr, dtype=np.uint8)
-    pabuff = pa.py_buffer(npbuff.tobytes())
 
-    # release
-    # How best to handle failures here?
-    rm_status = shmctl(shmid, IPC_RMID, NULL)
-
-    status = shmdt(ptr)
-    if status == -1:
-        raise TypeError("Could not release shared memory")
+    pabuff = pa.foreign_buffer(<uintptr_t>ptr, size, None)
 
     return pabuff
+
+#pa.cuda.foreign_buffer in pyarrow 0.11.0
+#cpdef load_buffer_gpu(bytes handle, int size):
+#
+#    shmkey = struct.unpack('<L', handle)[0]
+#    shmid = shmget(shmkey, size, 0)
+#    if shmid == -1:
+#        raise ValueError("Invalid shared memory key {}".format(shmkey))
+#    ptr = shmat(shmid, NULL, 0)    # shared memory segment's start address
+#
+#    pabuff = pa.cuda.foreign_buffer(<uintptr_t>ptr, size, None)
+#
+#    return pabuff

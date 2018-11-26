@@ -22,7 +22,7 @@ from ._utils import (
 
 
 def get_mapd_dtype(data):
-    "Get the mapd type"
+    "Get the OmniSci type"
     if is_object_dtype(data):
         return get_mapd_type_from_object(data)
     else:
@@ -95,8 +95,8 @@ def thrift_cast(data, mapd_type):
         return data.astype(int)
 
 
-def build_input_columnar(df, tbl_cols={}, chunk_size_bytes=0,
-                         preserve_index=True):
+def build_input_columnar(df, tbl_cols={}, preserve_index=True,
+                         chunk_size_bytes=0):
     if preserve_index:
         df = df.reset_index()
 

@@ -1,6 +1,6 @@
 """
 This script generates the thrift structures used for unit testing pymapd.
-It requires a mapd server to be running on localhost:9091 with the default
+It requires an OmniSci server to be running on localhost:9091 with the default
 username, password, and database name.
 
 .. code-block:: console
