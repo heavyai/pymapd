@@ -112,6 +112,7 @@ bencmarks/*.ipynb
 /benchmarks/gpu
 /benchmarks/gpu-small
 /benchmarks/thrift
+mapdql_history.txt
 
 # Folder metadata
 **/.DS_Store

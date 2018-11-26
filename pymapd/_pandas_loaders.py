@@ -21,7 +21,7 @@ from ._utils import (
 
 
 def get_mapd_dtype(data):
-    "Get the mapd type"
+    "Get the OmniSci type"
     if is_object_dtype(data):
         return get_mapd_type_from_object(data)
     else:
