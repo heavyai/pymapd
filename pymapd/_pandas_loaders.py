@@ -83,7 +83,7 @@ def thrift_cast(data, mapd_type):
     elif mapd_type == 'TIME':
         return pd.Series(time_to_seconds(x) for x in data)
     elif mapd_type == 'DATE':
-        return date_to_seconds(data).astype(int)
+        return date_to_seconds(data)
     elif mapd_type == 'BOOL':
         # fillna before converting to int, since int cols
         # in Pandas do not support None or NaN
