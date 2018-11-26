@@ -91,9 +91,14 @@ def thrift_cast(data, mapd_type):
         return data.astype(int)
 
 
-def build_input_columnar(df, preserve_index=True, chunk_size_bytes=0):
+def build_input_columnar(df, preserve_index=True, 
+                         chunk_size_bytes=0,
+                         col_types=[]):
     if preserve_index:
         df = df.reset_index()
+
+    if not col_types:
+        col_types = [get_mapd_dtype(df[col]) for col in df.columns]
 
     dfsize = df.memory_usage().sum()
     if chunk_size_bytes > 0:
@@ -107,9 +112,10 @@ def build_input_columnar(df, preserve_index=True, chunk_size_bytes=0):
         input_cols = []
         all_nulls = None
 
+        colindex = 0
         for col in df.columns:
             data = df[col]
-            mapd_type = get_mapd_dtype(data)
+            mapd_type = col_types[colindex]
             has_nulls = data.hasnans
 
             if has_nulls:
@@ -132,6 +138,7 @@ def build_input_columnar(df, preserve_index=True, chunk_size_bytes=0):
             input_cols.append(
                 TColumn(data=TColumnData(**kwargs), nulls=nulls)
             )
+            colindex += 1
         cols_array.append(input_cols)
 
     return cols_array
