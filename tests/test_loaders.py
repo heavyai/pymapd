@@ -91,7 +91,7 @@ class TestLoaders(object):
             "text_": ['a', 'b', None],
             "time_": [datetime.time(0, 11, 59), datetime.time(13), None],
             "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017"), None],
-            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1),
+            "date_": [datetime.date(1001, 1, 1), datetime.date(2017, 1, 1),
                       None],
         }, columns=['boolean_', 'int_', 'bigint_',
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
@@ -114,7 +114,7 @@ class TestLoaders(object):
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
             TColumn(TColumnData(int_col=[719, 46800, bigint_na]), nulls=nulls),
             TColumn(TColumnData(int_col=[1451606400, 1483228800, ns_na]), nulls=nulls),  # noqa
-            TColumn(TColumnData(int_col=[1451606400, 1483228800, bigint_na]), nulls=nulls)  # noqa
+            TColumn(TColumnData(int_col=[-30578688000, 1483228800, bigint_na]), nulls=nulls)  # noqa
         ]
         assert_columnar_equal(result[0], expected)
 

@@ -26,16 +26,8 @@ def datetime_to_seconds(arr):
 
 
 def date_to_seconds(arr):
-    # Pandas supports only the datetime64[ns] datatype, which has and upper
-    # and lower bounds of 1678 AD and 2262 AD. OmniSci has date and time
-    # bounds of 1000-01-01 00:00:00 and 2900-12-31 23:59:59.
-    # This means we will need to convert to datetime64[s] in order to support
-    # the OmniSci bounds. This means we drop the nanoseconds, however OmniSci
-    # does not currently support nanoseconds anyway
-    data = (
-        (arr.astype('datetime64[s]') - datetime.datetime(1970, 1, 1))
-        .dt.total_seconds()
-    )
+    import numpy as np
+    data = arr.apply(lambda x: np.datetime64(x, "s").astype(int))
     return data
 
 
