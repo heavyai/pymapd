@@ -109,7 +109,7 @@ class TestLoaders(object):
             TColumn(TColumnData(int_col=[1, 0, bool_na]), nulls=nulls),
             TColumn(TColumnData(int_col=np.array([0, 1, int_na], dtype=np.int32)), nulls=nulls),  # noqa
             TColumn(TColumnData(int_col=np.array([0, 9223372036854775807, bigint_na], dtype=np.int64)), nulls=nulls),  # noqa
-            TColumn(TColumnData(real_col=np.array([0, 1, np.nan], dtype=np.float64)), nulls=nulls),  # noqa
+            TColumn(TColumnData(real_col=np.array([0, 1, 0], dtype=np.float64)), nulls=nulls),  # noqa
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
             TColumn(TColumnData(int_col=[719, 46800, bigint_na]), nulls=nulls),

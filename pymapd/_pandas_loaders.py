@@ -135,7 +135,6 @@ def build_input_columnar(df, preserve_index=True,
                     data = data.astype('int64')
             # use .values so that indexes don't have to be serialized too
             kwargs = {mapd_to_slot[mapd_type]: data.values}
-            print(nulls)
             input_cols.append(
                 TColumn(data=TColumnData(**kwargs), nulls=nulls)
             )
