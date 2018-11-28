@@ -105,7 +105,6 @@ def build_input_columnar(df, preserve_index=True, chunk_size_bytes=0):
     cols_array = []
     for df in dfs:
         input_cols = []
-        all_nulls = None
 
         for col in df.columns:
             data = df[col]
@@ -114,8 +113,8 @@ def build_input_columnar(df, preserve_index=True, chunk_size_bytes=0):
 
             if has_nulls:
                 nulls = data.isnull().values.tolist()
-            elif all_nulls is None:
-                nulls = all_nulls = [False] * len(df)
+            else:
+                nulls = [False] * len(df)
 
             if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
                 # requires a cast to integer
