@@ -83,7 +83,9 @@ def thrift_cast(data, mapd_type):
     elif mapd_type == 'TIME':
         return pd.Series(time_to_seconds(x) for x in data)
     elif mapd_type == 'DATE':
-        return date_to_seconds(data).astype(int)
+        data = date_to_seconds(data)
+        data = data.fillna(mapd_to_na[mapd_type])
+        return data.astype(int)
     elif mapd_type == 'BOOL':
         # fillna before converting to int, since int cols
         # in Pandas do not support None or NaN
@@ -110,7 +112,6 @@ def build_input_columnar(df, preserve_index=True,
     cols_array = []
     for df in dfs:
         input_cols = []
-        all_nulls = None
 
         colindex = 0
         for col in df.columns:
@@ -119,9 +120,9 @@ def build_input_columnar(df, preserve_index=True,
             has_nulls = data.hasnans
 
             if has_nulls:
-                nulls = data.isnull().values
-            elif all_nulls is None:
-                nulls = all_nulls = [False] * len(df)
+                nulls = data.isnull().values.tolist()
+            else:
+                nulls = [False] * len(df)
 
             if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
                 # requires a cast to integer
@@ -130,11 +131,11 @@ def build_input_columnar(df, preserve_index=True,
             if has_nulls:
                 data = data.fillna(mapd_to_na[mapd_type])
 
-                if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'STR'}:
+                if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'STR', 'DECIMAL'}:
                     data = data.astype('int64')
             # use .values so that indexes don't have to be serialized too
             kwargs = {mapd_to_slot[mapd_type]: data.values}
-
+            print(nulls)
             input_cols.append(
                 TColumn(data=TColumnData(**kwargs), nulls=nulls)
             )
