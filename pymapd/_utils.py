@@ -26,10 +26,8 @@ def datetime_to_seconds(arr):
 
 
 def date_to_seconds(arr):
-    data = (
-        (arr.astype('datetime64[ns]') - datetime.datetime(1970, 1, 1))
-        .dt.total_seconds()
-    )
+    import numpy as np
+    data = arr.apply(lambda x: np.datetime64(x, "s").astype(int))
     return data
 
 
