@@ -113,7 +113,7 @@ def build_input_columnar(df, preserve_index=True, chunk_size_bytes=0):
             has_nulls = data.hasnans
 
             if has_nulls:
-                nulls = data.isnull().values
+                nulls = data.isnull().values.tolist()
             elif all_nulls is None:
                 nulls = all_nulls = [False] * len(df)
 
