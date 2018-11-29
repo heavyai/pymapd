@@ -537,7 +537,7 @@ class Connection(object):
             col_types = []
             if col_types_from_schema:
                 table_details = self.get_table_details(table_name)
-                col_types = [i[1] for i in table_details]
+                col_types = [(i[1], i[4]) for i in table_details]
 
             input_cols = _pandas_loaders.build_input_columnar(
                 data,
