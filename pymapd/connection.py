@@ -500,7 +500,8 @@ class Connection(object):
             data,
             preserve_index=False,
             chunk_size_bytes=0,
-            col_types_from_schema=False
+            col_types_from_schema=False,
+            col_names_from_schema=False
     ):
         """Load a pandas DataFrame to the database using OmniSci's Thrift-based
         columnar format
@@ -519,6 +520,12 @@ class Connection(object):
             Read the existing table schema to determine the column types. This
             will read the schema of an existing table in OmniSci and use those
             types explicitly instead of attempting to infer them from the data.
+        col_names_from_schema : bool, default False
+            Read the existing table schema to determine the column names. This
+            will read the schema of an existing table in OmniSci and match
+            those names to the column names of the dataframe. This is for
+            user convenience when loading from data that is unordered,
+            especially handy when a table has a large number of columns.
 
         Examples
         --------
@@ -535,15 +542,20 @@ class Connection(object):
 
         if isinstance(data, pd.DataFrame):
             col_types = []
-            if col_types_from_schema:
+            col_names = []
+            if col_types_from_schema or col_names_from_schema:
                 table_details = self.get_table_details(table_name)
+            if col_types_from_schema:
                 col_types = [i[1] for i in table_details]
+            if col_names_from_schema:
+                col_names = [i[0] for i in table_details]
 
             input_cols = _pandas_loaders.build_input_columnar(
                 data,
                 preserve_index=preserve_index,
                 chunk_size_bytes=chunk_size_bytes,
-                col_types=col_types
+                col_types=col_types,
+                col_names=col_names
             )
         else:
             raise TypeError("Unknown type {}".format(type(data)))
