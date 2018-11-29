@@ -104,12 +104,13 @@ class TestLoaders(object):
         int_na = -2147483648
         bigint_na = -9223372036854775808
         ns_na = -9223372037
+        double_na = 0
 
         expected = [
             TColumn(TColumnData(int_col=[1, 0, bool_na]), nulls=nulls),
             TColumn(TColumnData(int_col=np.array([0, 1, int_na], dtype=np.int32)), nulls=nulls),  # noqa
             TColumn(TColumnData(int_col=np.array([0, 9223372036854775807, bigint_na], dtype=np.int64)), nulls=nulls),  # noqa
-            TColumn(TColumnData(real_col=np.array([0, 1, np.nan], dtype=np.float64)), nulls=nulls),  # noqa
+            TColumn(TColumnData(real_col=np.array([0, 1, double_na], dtype=np.float64)), nulls=nulls),  # noqa
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
             TColumn(TColumnData(int_col=[719, 46800, bigint_na]), nulls=nulls),
