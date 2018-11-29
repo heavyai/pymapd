@@ -93,7 +93,7 @@ def thrift_cast(data, mapd_type):
         return data.astype(int)
 
 
-def build_input_columnar(df, preserve_index=True, 
+def build_input_columnar(df, preserve_index=True,
                          chunk_size_bytes=0,
                          col_types=[]):
     if preserve_index:
@@ -131,7 +131,8 @@ def build_input_columnar(df, preserve_index=True,
             if has_nulls:
                 data = data.fillna(mapd_to_na[mapd_type])
 
-                if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'STR', 'DECIMAL'}:
+                if mapd_type not in ['FLOAT', 'DOUBLE', 'VARCHAR', 'STR',
+                                     'DECIMAL']:
                     data = data.astype('int64')
             # use .values so that indexes don't have to be serialized too
             kwargs = {mapd_to_slot[mapd_type]: data.values}
