@@ -499,7 +499,8 @@ class Connection(object):
             table_name,
             data,
             preserve_index=False,
-            chunk_size_bytes=0
+            chunk_size_bytes=0,
+            col_types_from_schema=False
     ):
         """Load a pandas DataFrame to the database using OmniSci's Thrift-based
         columnar format
@@ -514,6 +515,10 @@ class Connection(object):
             Chunk the loading of columns to prevent large Thrift requests. A
             value of 0 means do not chunk and send the dataframe as a single
             request
+        col_types_from_schema : bool, default False
+            Read the existing table schema to determine the column types. This
+            will read the schema of an existing table in OmniSci and use those
+            types explicitly instead of attempting to infer them from the data.
 
         Examples
         --------
@@ -529,10 +534,16 @@ class Connection(object):
         from . import _pandas_loaders
 
         if isinstance(data, pd.DataFrame):
+            col_types = []
+            if col_types_from_schema:
+                table_details = self.get_table_details(table_name)
+                col_types = [(i[1], i[4]) for i in table_details]
+
             input_cols = _pandas_loaders.build_input_columnar(
                 data,
                 preserve_index=preserve_index,
-                chunk_size_bytes=chunk_size_bytes
+                chunk_size_bytes=chunk_size_bytes,
+                col_types=col_types
             )
         else:
             raise TypeError("Unknown type {}".format(type(data)))
