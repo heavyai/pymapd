@@ -74,7 +74,7 @@ def get_mapd_type_from_object(data):
         raise TypeError("Unhandled type {}".format(data.dtype))
 
 
-def thrift_cast(data, mapd_type):
+def thrift_cast(data, mapd_type, scale=0):
     """Cast data type to the expected thrift types"""
     import pandas as pd
 
@@ -91,6 +91,12 @@ def thrift_cast(data, mapd_type):
         # in Pandas do not support None or NaN
         data = data.fillna(mapd_to_na[mapd_type])
         return data.astype(int)
+    elif mapd_type == 'DECIMAL':
+        # Multiply by 10^scale
+        data = data * 10**scale
+        # fillna and convert to int
+        data = data.fillna(mapd_to_na[mapd_type])
+        return data.astype(int)
 
 
 def build_input_columnar(df, preserve_index=True,
@@ -101,7 +107,7 @@ def build_input_columnar(df, preserve_index=True,
         df = df.reset_index()
 
     if not col_types:
-        col_types = [get_mapd_dtype(df[col]) for col in df.columns]
+        col_types = [(get_mapd_dtype(df[col]), 0) for col in df.columns]
 
     if not col_names:
         col_names = list(df)
@@ -120,7 +126,7 @@ def build_input_columnar(df, preserve_index=True,
         colindex = 0
         for col in col_names:
             data = df[col]
-            mapd_type = col_types[colindex]
+            mapd_type = col_types[colindex][0]
             has_nulls = data.hasnans
 
             if has_nulls:
@@ -132,12 +138,16 @@ def build_input_columnar(df, preserve_index=True,
                 # requires a cast to integer
                 data = thrift_cast(data, mapd_type)
 
+            if mapd_type in ['DECIMAL']:
+                # requires a calculation be done using the scale
+                # then cast to int
+                data = thrift_cast(data, mapd_type, col_types[colindex][1])
+
             if has_nulls:
                 data = data.fillna(mapd_to_na[mapd_type])
 
-                if mapd_type not in ['FLOAT', 'DOUBLE', 'VARCHAR', 'STR',
-                                     'DECIMAL']:
-                    data = data.astype('int64')
+            if mapd_type not in ['FLOAT', 'DOUBLE', 'VARCHAR', 'STR']:
+                data = data.astype('int64')
             # use .values so that indexes don't have to be serialized too
             kwargs = {mapd_to_slot[mapd_type]: data.values}
             input_cols.append(

@@ -546,7 +546,7 @@ class Connection(object):
             if col_types_from_schema or col_names_from_schema:
                 table_details = self.get_table_details(table_name)
             if col_types_from_schema:
-                col_types = [i[1] for i in table_details]
+                col_types = [(i[1], i[4]) for i in table_details]
             if col_names_from_schema:
                 col_names = [i[0] for i in table_details]
 

@@ -39,7 +39,7 @@ mapd_to_slot = {
     'INTEGER': 'int_col',
     'BIGINT': 'int_col',
     'FLOAT': 'real_col',
-    'DECIMAL': 'real_col',
+    'DECIMAL': 'int_col',
     'DOUBLE': 'real_col',
     'TIMESTAMP': 'int_col',
     'DATE': 'int_col',
