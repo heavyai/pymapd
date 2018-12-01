@@ -106,12 +106,6 @@ def build_input_columnar(df, preserve_index=True,
     if preserve_index:
         df = df.reset_index()
 
-    if not col_types:
-        col_types = [(get_mapd_dtype(df[col]), 0) for col in df.columns]
-
-    if not col_names:
-        col_names = list(df)
-
     dfsize = df.memory_usage().sum()
     if chunk_size_bytes > 0:
         chunks = math.ceil(dfsize / chunk_size_bytes)
@@ -126,9 +120,10 @@ def build_input_columnar(df, preserve_index=True,
         colindex = 0
         for col in col_names:
             data = df[col]
-            mapd_type = col_types[colindex][0]
-            has_nulls = data.hasnans
 
+            mapd_type = col_types[colindex][0]
+
+            has_nulls = data.hasnans
             if has_nulls:
                 nulls = data.isnull().values.tolist()
             else:
