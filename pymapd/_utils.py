@@ -26,10 +26,8 @@ def datetime_to_seconds(arr):
 
 
 def date_to_seconds(arr):
-    data = (
-        (arr.astype('datetime64[ns]') - datetime.datetime(1970, 1, 1))
-        .dt.total_seconds()
-    )
+    import numpy as np
+    data = arr.apply(lambda x: np.datetime64(x, "s").astype(int))
     return data
 
 
@@ -41,6 +39,7 @@ mapd_to_slot = {
     'INTEGER': 'int_col',
     'BIGINT': 'int_col',
     'FLOAT': 'real_col',
+    'DECIMAL': 'int_col',
     'DOUBLE': 'real_col',
     'TIMESTAMP': 'int_col',
     'DATE': 'int_col',
@@ -63,8 +62,9 @@ mapd_to_na = {
     'INT': -2147483648,
     'INTEGER': -2147483648,
     'BIGINT': -9223372036854775808,
-    'FLOAT': float('nan'),
-    'DOUBLE': float('nan'),
+    'FLOAT': 0,
+    'DECIMAL': 0,
+    'DOUBLE': 0,
     'TIMESTAMP': -9223372036854775808,
     'DATE': -9223372036854775808,
     'TIME': -9223372036854775808,

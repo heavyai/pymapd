@@ -74,7 +74,7 @@ def get_mapd_type_from_object(data):
         raise TypeError("Unhandled type {}".format(data.dtype))
 
 
-def thrift_cast(data, mapd_type):
+def thrift_cast(data, mapd_type, scale=0):
     """Cast data type to the expected thrift types"""
     import pandas as pd
 
@@ -83,15 +83,26 @@ def thrift_cast(data, mapd_type):
     elif mapd_type == 'TIME':
         return pd.Series(time_to_seconds(x) for x in data)
     elif mapd_type == 'DATE':
-        return date_to_seconds(data)
+        data = date_to_seconds(data)
+        data = data.fillna(mapd_to_na[mapd_type])
+        return data.astype(int)
     elif mapd_type == 'BOOL':
         # fillna before converting to int, since int cols
         # in Pandas do not support None or NaN
         data = data.fillna(mapd_to_na[mapd_type])
         return data.astype(int)
+    elif mapd_type == 'DECIMAL':
+        # Multiply by 10^scale
+        data = data * 10**scale
+        # fillna and convert to int
+        data = data.fillna(mapd_to_na[mapd_type])
+        return data.astype(int)
 
 
-def build_input_columnar(df, preserve_index=True, chunk_size_bytes=0):
+def build_input_columnar(df, preserve_index=True,
+                         chunk_size_bytes=0,
+                         col_types=[],
+                         col_names=[]):
     if preserve_index:
         df = df.reset_index()
 
@@ -105,33 +116,39 @@ def build_input_columnar(df, preserve_index=True, chunk_size_bytes=0):
     cols_array = []
     for df in dfs:
         input_cols = []
-        all_nulls = None
 
-        for col in df.columns:
+        colindex = 0
+        for col in col_names:
             data = df[col]
-            mapd_type = get_mapd_dtype(data)
-            has_nulls = data.hasnans
 
+            mapd_type = col_types[colindex][0]
+
+            has_nulls = data.hasnans
             if has_nulls:
-                nulls = data.isnull().values
-            elif all_nulls is None:
-                nulls = all_nulls = [False] * len(df)
+                nulls = data.isnull().values.tolist()
+            else:
+                nulls = [False] * len(df)
 
             if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
                 # requires a cast to integer
                 data = thrift_cast(data, mapd_type)
 
+            if mapd_type in ['DECIMAL']:
+                # requires a calculation be done using the scale
+                # then cast to int
+                data = thrift_cast(data, mapd_type, col_types[colindex][1])
+
             if has_nulls:
                 data = data.fillna(mapd_to_na[mapd_type])
 
-                if mapd_type not in {'FLOAT', 'DOUBLE', 'VARCHAR', 'STR'}:
-                    data = data.astype('int64')
+            if mapd_type not in ['FLOAT', 'DOUBLE', 'VARCHAR', 'STR']:
+                data = data.astype('int64')
             # use .values so that indexes don't have to be serialized too
             kwargs = {mapd_to_slot[mapd_type]: data.values}
-
             input_cols.append(
                 TColumn(data=TColumnData(**kwargs), nulls=nulls)
             )
+            colindex += 1
         cols_array.append(input_cols)
 
     return cols_array

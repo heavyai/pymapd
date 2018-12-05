@@ -91,7 +91,7 @@ class TestLoaders(object):
             "text_": ['a', 'b', None],
             "time_": [datetime.time(0, 11, 59), datetime.time(13), None],
             "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017"), None],
-            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1),
+            "date_": [datetime.date(1001, 1, 1), datetime.date(2017, 1, 1),
                       None],
         }, columns=['boolean_', 'int_', 'bigint_',
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
@@ -104,17 +104,18 @@ class TestLoaders(object):
         int_na = -2147483648
         bigint_na = -9223372036854775808
         ns_na = -9223372037
+        double_na = 0
 
         expected = [
             TColumn(TColumnData(int_col=[1, 0, bool_na]), nulls=nulls),
             TColumn(TColumnData(int_col=np.array([0, 1, int_na], dtype=np.int32)), nulls=nulls),  # noqa
             TColumn(TColumnData(int_col=np.array([0, 9223372036854775807, bigint_na], dtype=np.int64)), nulls=nulls),  # noqa
-            TColumn(TColumnData(real_col=np.array([0, 1, np.nan], dtype=np.float64)), nulls=nulls),  # noqa
+            TColumn(TColumnData(real_col=np.array([0, 1, double_na], dtype=np.float64)), nulls=nulls),  # noqa
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
             TColumn(TColumnData(str_col=['a', 'b', '']), nulls=nulls),
             TColumn(TColumnData(int_col=[719, 46800, bigint_na]), nulls=nulls),
             TColumn(TColumnData(int_col=[1451606400, 1483228800, ns_na]), nulls=nulls),  # noqa
-            TColumn(TColumnData(int_col=[1451606400, 1483228800, bigint_na]), nulls=nulls)  # noqa
+            TColumn(TColumnData(int_col=[-30578688000, 1483228800, bigint_na]), nulls=nulls)  # noqa
         ]
         assert_columnar_equal(result[0], expected)
 
