@@ -468,6 +468,11 @@ class Connection(object):
                             "'columnar', 'rows'}}. Got {} instead"
                             .format(method))
 
+        if isinstance(data, pd.DataFrame):
+            # We need to convert a Pandas dataframe to an array before we
+            # can load row wise
+            data = data.values
+
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
 
