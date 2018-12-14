@@ -29,8 +29,8 @@ requirements:
     - python
     - setuptools
     - numpy>=1.14
-    - libgdf
-    - pygdf
+    - cudf =0.4.0
+    - libcudf =0.4.0
     - arrow-cpp =0.10.0
     - pyarrow =0.10.0
     - pandas

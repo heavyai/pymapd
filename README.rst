@@ -22,7 +22,7 @@ Packages are available on conda-forge and PyPI::
 
 Developer builds of each commit are available on the ``pymapd`` channel (Linux only)::
 
-   conda install -c pymapd/label/dev -c conda-forge -c gpuopenanalytics/label/dev pymapd
+   conda install -c pymapd/label/dev -c conda-forge -c rapidsai -c nvidia pymapd
 
 
 .. _DB API: https://www.python.org/dev/peps/pep-0249/
