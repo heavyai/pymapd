@@ -20,6 +20,7 @@ def datetime_to_seconds(arr):
     import numpy as np
 
     if arr.dtype != np.dtype('datetime64[ns]'):
+        if arr.dtype == 'object' or 'datetime64[ns,' in arr.dtype:
             # Convert to datetime64[ns] from string
             # Or from datetime with timezone information
             arr = arr.astype('datetime64[ns]')
