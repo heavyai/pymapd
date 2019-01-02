@@ -20,6 +20,19 @@ class TestLoaders(object):
 
         assert result == expected
 
+    def test_build_input_rows_with_array(self):
+        data = [(1, 'a'), (2, 'b'), (3, ['c', 'd', 'e'])]
+        result = _build_input_rows(data)
+        expected = [TStringRow(cols=[TStringValue(str_val='1', is_null=None),
+                                     TStringValue(str_val='a', is_null=None)]),
+                    TStringRow(cols=[TStringValue(str_val='2', is_null=None),
+                                     TStringValue(str_val='b', is_null=None)]),
+                    TStringRow(cols=[TStringValue(str_val='3', is_null=None),
+                                     TStringValue(str_val='{c,d,e}',
+                                                  is_null=None)])]
+
+        assert result == expected
+
     def test_build_table_columnar(self):
         pd = pytest.importorskip("pandas")
         pytest.importorskip("pyarrow")
