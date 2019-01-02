@@ -141,7 +141,7 @@ class TestIntegration:
     def test_select_ipc_gpu(self, con, stocks, query, parameters):
         import pandas as pd
         import numpy as np
-        from pygdf.dataframe import DataFrame
+        from cudf.dataframe import DataFrame
 
         result = con.select_ipc_gpu("select qty, price from stocks")
         assert isinstance(result, DataFrame)
@@ -204,10 +204,10 @@ class TestOptionalImports(object):
 
     def test_select_gpu(self, con):
         with mock.patch.dict("sys.modules",
-                             {"pygdf": None, "pygdf.dataframe": None}):
+                             {"cudf": None, "cudf.dataframe": None}):
             with pytest.raises(ImportError) as m:
                 con.select_ipc_gpu("select * from foo;")
-        assert m.match("The 'pygdf' package is required")
+        assert m.match("The 'cudf' package is required")
 
 
 class TestExtras(object):

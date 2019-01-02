@@ -163,8 +163,8 @@ def _parse_tdf_gpu(tdf):
     gdf : GpuDataFrame
     """
     import numpy as np
-    from pygdf.gpuarrow import GpuArrowReader
-    from pygdf.dataframe import DataFrame
+    from cudf.comm.gpuarrow import GpuArrowReader
+    from cudf.dataframe import DataFrame
     from numba import cuda
     from numba.cuda.cudadrv import drvapi
 

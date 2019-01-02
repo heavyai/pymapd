@@ -245,18 +245,18 @@ class Connection(object):
 
         Returns
         -------
-        gdf : pygdf.GpuDataFrame
+        gdf : cudf.GpuDataFrame
 
         Notes
         -----
-        This requires the option ``pygdf`` and ``libgdf`` libraries.
+        This requires the option ``cudf`` and ``libcudf`` libraries.
         An ``ImportError`` is raised if those aren't available.
         """
         try:
-            from pygdf.gpuarrow import GpuArrowReader  # noqa
-            from pygdf.dataframe import DataFrame      # noqa
+            from cudf.comm.gpuarrow import GpuArrowReader  # noqa
+            from cudf.dataframe import DataFrame           # noqa
         except ImportError:
-            raise ImportError("The 'pygdf' package is required for "
+            raise ImportError("The 'cudf' package is required for "
                               "`select_ipc_gpu`")
 
         if parameters is not None:
@@ -324,10 +324,10 @@ class Connection(object):
 
         tdf = df.get_tdf()
         result = self._client.deallocate_df(
-                session=self._session,
-                df=tdf,
-                device_type=TDeviceType.GPU,
-                device_id=device_id)
+            session=self._session,
+            df=tdf,
+            device_type=TDeviceType.GPU,
+            device_id=device_id)
         return result
 
     def deallocate_ipc(self, df, device_id=0):
@@ -341,10 +341,10 @@ class Connection(object):
         """
         tdf = df.get_tdf()
         result = self._client.deallocate_df(
-                session=self._session,
-                df=tdf,
-                device_type=TDeviceType.CPU,
-                device_id=device_id)
+            session=self._session,
+            df=tdf,
+            device_type=TDeviceType.CPU,
+            device_id=device_id)
         return result
 
     # --------------------------------------------------------------------------
@@ -613,12 +613,12 @@ class Connection(object):
             0 (low compression, faster) to 9 (high compression, slower).
         """
         result = self._client.render_vega(
-                self._session,
-                widget_id=None,
-                vega_json=vega,
-                compression_level=compression_level,
-                nonce=None
-                )
+            self._session,
+            widget_id=None,
+            vega_json=vega,
+            compression_level=compression_level,
+            nonce=None
+        )
         rendered_vega = RenderedVega(result)
         return rendered_vega
 
@@ -634,7 +634,7 @@ class RenderedVega(object):
             'text/html':
                 '<img src="data:image/png;base64,{}" alt="OmniSci Vega">'
                 .format(self.image_data)
-            }
+        }
 
 
 def _is_arrow(data):
