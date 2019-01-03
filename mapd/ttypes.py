@@ -92,6 +92,7 @@ class TEncodingType(object):
     DICT = 4
     SPARSE = 5
     GEOINT = 6
+    DATE_IN_DAYS = 7
 
     _VALUES_TO_NAMES = {
         0: "NONE",
@@ -101,6 +102,7 @@ class TEncodingType(object):
         4: "DICT",
         5: "SPARSE",
         6: "GEOINT",
+        7: "DATE_IN_DAYS",
     }
 
     _NAMES_TO_VALUES = {
@@ -111,22 +113,20 @@ class TEncodingType(object):
         "DICT": 4,
         "SPARSE": 5,
         "GEOINT": 6,
+        "DATE_IN_DAYS": 7,
     }
 
 
 class TExecuteMode(object):
-    HYBRID = 0
     GPU = 1
     CPU = 2
 
     _VALUES_TO_NAMES = {
-        0: "HYBRID",
         1: "GPU",
         2: "CPU",
     }
 
     _NAMES_TO_VALUES = {
-        "HYBRID": 0,
         "GPU": 1,
         "CPU": 2,
     }
@@ -486,10 +486,11 @@ class TTypeInfo(object):
      - precision
      - scale
      - comp_param
+     - size
     """
 
 
-    def __init__(self, type=None, encoding=None, nullable=None, is_array=None, precision=None, scale=None, comp_param=None,):
+    def __init__(self, type=None, encoding=None, nullable=None, is_array=None, precision=None, scale=None, comp_param=None, size=-1,):
         self.type = type
         self.encoding = encoding
         self.nullable = nullable
@@ -497,6 +498,7 @@ class TTypeInfo(object):
         self.precision = precision
         self.scale = scale
         self.comp_param = comp_param
+        self.size = size
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -542,6 +544,11 @@ class TTypeInfo(object):
                     self.comp_param = iprot.readI32()
                 else:
                     iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.I32:
+                    self.size = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -579,6 +586,10 @@ class TTypeInfo(object):
         if self.comp_param is not None:
             oprot.writeFieldBegin('comp_param', TType.I32, 7)
             oprot.writeI32(self.comp_param)
+            oprot.writeFieldEnd()
+        if self.size is not None:
+            oprot.writeFieldBegin('size', TType.I32, 8)
+            oprot.writeI32(self.size)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1042,6 +1053,7 @@ class TStepResult(object):
     """
     Attributes:
      - serialized_rows
+     - uncompressed_size
      - execution_finished
      - merge_type
      - sharded
@@ -1050,8 +1062,9 @@ class TStepResult(object):
     """
 
 
-    def __init__(self, serialized_rows=None, execution_finished=None, merge_type=None, sharded=None, row_desc=None, node_id=None,):
+    def __init__(self, serialized_rows=None, uncompressed_size=None, execution_finished=None, merge_type=None, sharded=None, row_desc=None, node_id=None,):
         self.serialized_rows = serialized_rows
+        self.uncompressed_size = uncompressed_size
         self.execution_finished = execution_finished
         self.merge_type = merge_type
         self.sharded = sharded
@@ -1069,25 +1082,30 @@ class TStepResult(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.serialized_rows = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.serialized_rows = iprot.readBinary()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
+                if ftype == TType.I64:
+                    self.uncompressed_size = iprot.readI64()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
                 if ftype == TType.BOOL:
                     self.execution_finished = iprot.readBool()
                 else:
                     iprot.skip(ftype)
-            elif fid == 3:
+            elif fid == 4:
                 if ftype == TType.I32:
                     self.merge_type = iprot.readI32()
                 else:
                     iprot.skip(ftype)
-            elif fid == 4:
+            elif fid == 5:
                 if ftype == TType.BOOL:
                     self.sharded = iprot.readBool()
                 else:
                     iprot.skip(ftype)
-            elif fid == 5:
+            elif fid == 6:
                 if ftype == TType.LIST:
                     self.row_desc = []
                     (_etype59, _size56) = iprot.readListBegin()
@@ -1098,7 +1116,7 @@ class TStepResult(object):
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
-            elif fid == 6:
+            elif fid == 7:
                 if ftype == TType.I32:
                     self.node_id = iprot.readI32()
                 else:
@@ -1115,29 +1133,33 @@ class TStepResult(object):
         oprot.writeStructBegin('TStepResult')
         if self.serialized_rows is not None:
             oprot.writeFieldBegin('serialized_rows', TType.STRING, 1)
-            oprot.writeString(self.serialized_rows.encode('utf-8') if sys.version_info[0] == 2 else self.serialized_rows)
+            oprot.writeBinary(self.serialized_rows)
+            oprot.writeFieldEnd()
+        if self.uncompressed_size is not None:
+            oprot.writeFieldBegin('uncompressed_size', TType.I64, 2)
+            oprot.writeI64(self.uncompressed_size)
             oprot.writeFieldEnd()
         if self.execution_finished is not None:
-            oprot.writeFieldBegin('execution_finished', TType.BOOL, 2)
+            oprot.writeFieldBegin('execution_finished', TType.BOOL, 3)
             oprot.writeBool(self.execution_finished)
             oprot.writeFieldEnd()
         if self.merge_type is not None:
-            oprot.writeFieldBegin('merge_type', TType.I32, 3)
+            oprot.writeFieldBegin('merge_type', TType.I32, 4)
             oprot.writeI32(self.merge_type)
             oprot.writeFieldEnd()
         if self.sharded is not None:
-            oprot.writeFieldBegin('sharded', TType.BOOL, 4)
+            oprot.writeFieldBegin('sharded', TType.BOOL, 5)
             oprot.writeBool(self.sharded)
             oprot.writeFieldEnd()
         if self.row_desc is not None:
-            oprot.writeFieldBegin('row_desc', TType.LIST, 5)
+            oprot.writeFieldBegin('row_desc', TType.LIST, 6)
             oprot.writeListBegin(TType.STRUCT, len(self.row_desc))
             for iter62 in self.row_desc:
                 iter62.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.node_id is not None:
-            oprot.writeFieldBegin('node_id', TType.I32, 6)
+            oprot.writeFieldBegin('node_id', TType.I32, 7)
             oprot.writeI32(self.node_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1825,6 +1847,62 @@ class TCopyParams(object):
         if self.sanitize_column_names is not None:
             oprot.writeFieldBegin('sanitize_column_names', TType.BOOL, 20)
             oprot.writeBool(self.sanitize_column_names)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class TCreateParams(object):
+    """
+    Attributes:
+     - is_replicated
+    """
+
+
+    def __init__(self, is_replicated=None,):
+        self.is_replicated = is_replicated
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.BOOL:
+                    self.is_replicated = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('TCreateParams')
+        if self.is_replicated is not None:
+            oprot.writeFieldBegin('is_replicated', TType.BOOL, 1)
+            oprot.writeBool(self.is_replicated)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -4720,12 +4798,16 @@ class TDatabasePermissions(object):
     Attributes:
      - create_
      - delete_
+     - view_sql_editor_
+     - access_
     """
 
 
-    def __init__(self, create_=None, delete_=None,):
+    def __init__(self, create_=None, delete_=None, view_sql_editor_=None, access_=None,):
         self.create_ = create_
         self.delete_ = delete_
+        self.view_sql_editor_ = view_sql_editor_
+        self.access_ = access_
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -4746,6 +4828,16 @@ class TDatabasePermissions(object):
                     self.delete_ = iprot.readBool()
                 else:
                     iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.BOOL:
+                    self.view_sql_editor_ = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.BOOL:
+                    self.access_ = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -4763,6 +4855,14 @@ class TDatabasePermissions(object):
         if self.delete_ is not None:
             oprot.writeFieldBegin('delete_', TType.BOOL, 2)
             oprot.writeBool(self.delete_)
+            oprot.writeFieldEnd()
+        if self.view_sql_editor_ is not None:
+            oprot.writeFieldBegin('view_sql_editor_', TType.BOOL, 3)
+            oprot.writeBool(self.view_sql_editor_)
+            oprot.writeFieldEnd()
+        if self.access_ is not None:
+            oprot.writeFieldBegin('access_', TType.BOOL, 4)
+            oprot.writeBool(self.access_)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5104,6 +5204,99 @@ class TViewPermissions(object):
         return not (self == other)
 
 
+class TDBObjectPermissions(object):
+    """
+    Attributes:
+     - database_permissions_
+     - table_permissions_
+     - dashboard_permissions_
+     - view_permissions_
+    """
+
+
+    def __init__(self, database_permissions_=None, table_permissions_=None, dashboard_permissions_=None, view_permissions_=None,):
+        self.database_permissions_ = database_permissions_
+        self.table_permissions_ = table_permissions_
+        self.dashboard_permissions_ = dashboard_permissions_
+        self.view_permissions_ = view_permissions_
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRUCT:
+                    self.database_permissions_ = TDatabasePermissions()
+                    self.database_permissions_.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.table_permissions_ = TTablePermissions()
+                    self.table_permissions_.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRUCT:
+                    self.dashboard_permissions_ = TDashboardPermissions()
+                    self.dashboard_permissions_.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.STRUCT:
+                    self.view_permissions_ = TViewPermissions()
+                    self.view_permissions_.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('TDBObjectPermissions')
+        if self.database_permissions_ is not None:
+            oprot.writeFieldBegin('database_permissions_', TType.STRUCT, 1)
+            self.database_permissions_.write(oprot)
+            oprot.writeFieldEnd()
+        if self.table_permissions_ is not None:
+            oprot.writeFieldBegin('table_permissions_', TType.STRUCT, 2)
+            self.table_permissions_.write(oprot)
+            oprot.writeFieldEnd()
+        if self.dashboard_permissions_ is not None:
+            oprot.writeFieldBegin('dashboard_permissions_', TType.STRUCT, 3)
+            self.dashboard_permissions_.write(oprot)
+            oprot.writeFieldEnd()
+        if self.view_permissions_ is not None:
+            oprot.writeFieldBegin('view_permissions_', TType.STRUCT, 4)
+            self.view_permissions_.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
 class TDBObject(object):
     """
     Attributes:
@@ -5342,6 +5535,84 @@ class TLicenseInfo(object):
 
     def __ne__(self, other):
         return not (self == other)
+
+
+class TSessionInfo(object):
+    """
+    Attributes:
+     - user
+     - database
+     - start_time
+    """
+
+
+    def __init__(self, user=None, database=None, start_time=None,):
+        self.user = user
+        self.database = database
+        self.start_time = start_time
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.user = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.database = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.I64:
+                    self.start_time = iprot.readI64()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('TSessionInfo')
+        if self.user is not None:
+            oprot.writeFieldBegin('user', TType.STRING, 1)
+            oprot.writeString(self.user.encode('utf-8') if sys.version_info[0] == 2 else self.user)
+            oprot.writeFieldEnd()
+        if self.database is not None:
+            oprot.writeFieldBegin('database', TType.STRING, 2)
+            oprot.writeString(self.database.encode('utf-8') if sys.version_info[0] == 2 else self.database)
+            oprot.writeFieldEnd()
+        if self.start_time is not None:
+            oprot.writeFieldBegin('start_time', TType.I64, 3)
+            oprot.writeI64(self.start_time)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
 all_structs.append(TDatumVal)
 TDatumVal.thrift_spec = (
     None,  # 0
@@ -5372,6 +5643,7 @@ TTypeInfo.thrift_spec = (
     (5, TType.I32, 'precision', None, None, ),  # 5
     (6, TType.I32, 'scale', None, None, ),  # 6
     (7, TType.I32, 'comp_param', None, None, ),  # 7
+    (8, TType.I32, 'size', None, -1, ),  # 8
 )
 all_structs.append(TColumnType)
 TColumnType.thrift_spec = (
@@ -5410,12 +5682,13 @@ TStringRow.thrift_spec = (
 all_structs.append(TStepResult)
 TStepResult.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, 'serialized_rows', 'UTF8', None, ),  # 1
-    (2, TType.BOOL, 'execution_finished', None, None, ),  # 2
-    (3, TType.I32, 'merge_type', None, None, ),  # 3
-    (4, TType.BOOL, 'sharded', None, None, ),  # 4
-    (5, TType.LIST, 'row_desc', (TType.STRUCT, [TColumnType, None], False), None, ),  # 5
-    (6, TType.I32, 'node_id', None, None, ),  # 6
+    (1, TType.STRING, 'serialized_rows', 'BINARY', None, ),  # 1
+    (2, TType.I64, 'uncompressed_size', None, None, ),  # 2
+    (3, TType.BOOL, 'execution_finished', None, None, ),  # 3
+    (4, TType.I32, 'merge_type', None, None, ),  # 4
+    (5, TType.BOOL, 'sharded', None, None, ),  # 5
+    (6, TType.LIST, 'row_desc', (TType.STRUCT, [TColumnType, None], False), None, ),  # 6
+    (7, TType.I32, 'node_id', None, None, ),  # 7
 )
 all_structs.append(TRowSet)
 TRowSet.thrift_spec = (
@@ -5475,6 +5748,11 @@ TCopyParams.thrift_spec = (
     (18, TType.I32, 'geo_coords_type', None, 18, ),  # 18
     (19, TType.I32, 'geo_coords_srid', None, 4326, ),  # 19
     (20, TType.BOOL, 'sanitize_column_names', None, True, ),  # 20
+)
+all_structs.append(TCreateParams)
+TCreateParams.thrift_spec = (
+    None,  # 0
+    (1, TType.BOOL, 'is_replicated', None, None, ),  # 1
 )
 all_structs.append(TDetectResult)
 TDetectResult.thrift_spec = (
@@ -5724,6 +6002,8 @@ TDatabasePermissions.thrift_spec = (
     None,  # 0
     (1, TType.BOOL, 'create_', None, None, ),  # 1
     (2, TType.BOOL, 'delete_', None, None, ),  # 2
+    (3, TType.BOOL, 'view_sql_editor_', None, None, ),  # 3
+    (4, TType.BOOL, 'access_', None, None, ),  # 4
 )
 all_structs.append(TTablePermissions)
 TTablePermissions.thrift_spec = (
@@ -5754,6 +6034,14 @@ TViewPermissions.thrift_spec = (
     (5, TType.BOOL, 'update_', None, None, ),  # 5
     (6, TType.BOOL, 'delete_', None, None, ),  # 6
 )
+all_structs.append(TDBObjectPermissions)
+TDBObjectPermissions.thrift_spec = (
+    None,  # 0
+    (1, TType.STRUCT, 'database_permissions_', [TDatabasePermissions, None], None, ),  # 1
+    (2, TType.STRUCT, 'table_permissions_', [TTablePermissions, None], None, ),  # 2
+    (3, TType.STRUCT, 'dashboard_permissions_', [TDashboardPermissions, None], None, ),  # 3
+    (4, TType.STRUCT, 'view_permissions_', [TViewPermissions, None], None, ),  # 4
+)
 all_structs.append(TDBObject)
 TDBObject.thrift_spec = (
     None,  # 0
@@ -5773,6 +6061,13 @@ all_structs.append(TLicenseInfo)
 TLicenseInfo.thrift_spec = (
     None,  # 0
     (1, TType.LIST, 'claims', (TType.STRING, 'UTF8', False), None, ),  # 1
+)
+all_structs.append(TSessionInfo)
+TSessionInfo.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'user', 'UTF8', None, ),  # 1
+    (2, TType.STRING, 'database', 'UTF8', None, ),  # 2
+    (3, TType.I64, 'start_time', None, None, ),  # 3
 )
 fix_spec(all_structs)
 del all_structs

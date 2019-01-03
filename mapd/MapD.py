@@ -195,6 +195,13 @@ class Iface(object):
         """
         pass
 
+    def get_session_info(self, session):
+        """
+        Parameters:
+         - session
+        """
+        pass
+
     def sql_execute(self, session, query, column_format, nonce, first_n, at_most_n):
         """
         Parameters:
@@ -458,13 +465,14 @@ class Iface(object):
         """
         pass
 
-    def create_table(self, session, table_name, row_desc, table_type):
+    def create_table(self, session, table_name, row_desc, table_type, create_params):
         """
         Parameters:
          - session
          - table_name
          - row_desc
          - table_type
+         - create_params
         """
         pass
 
@@ -515,6 +523,14 @@ class Iface(object):
         """
         pass
 
+    def check_table_consistency(self, session, table_id):
+        """
+        Parameters:
+         - session
+         - table_id
+        """
+        pass
+
     def start_query(self, session, query_ra, just_explain):
         """
         Parameters:
@@ -531,11 +547,12 @@ class Iface(object):
         """
         pass
 
-    def broadcast_serialized_rows(self, serialized_rows, row_desc, query_id):
+    def broadcast_serialized_rows(self, serialized_rows, row_desc, uncompressed_size, query_id):
         """
         Parameters:
          - serialized_rows
          - row_desc
+         - uncompressed_size
          - query_id
         """
         pass
@@ -620,6 +637,17 @@ class Iface(object):
         Parameters:
          - session
          - userName
+        """
+        pass
+
+    def has_object_privilege(self, session, granteeName, ObjectName, objectType, permissions):
+        """
+        Parameters:
+         - session
+         - granteeName
+         - ObjectName
+         - objectType
+         - permissions
         """
         pass
 
@@ -1442,6 +1470,39 @@ class Client(Iface):
         if result.success is not None:
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_table_epoch_by_name failed: unknown result")
+
+    def get_session_info(self, session):
+        """
+        Parameters:
+         - session
+        """
+        self.send_get_session_info(session)
+        return self.recv_get_session_info()
+
+    def send_get_session_info(self, session):
+        self._oprot.writeMessageBegin('get_session_info', TMessageType.CALL, self._seqid)
+        args = get_session_info_args()
+        args.session = session
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_get_session_info(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = get_session_info_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.e is not None:
+            raise result.e
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "get_session_info failed: unknown result")
 
     def sql_execute(self, session, query, column_format, nonce, first_n, at_most_n):
         """
@@ -2475,24 +2536,26 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "detect_column_types failed: unknown result")
 
-    def create_table(self, session, table_name, row_desc, table_type):
+    def create_table(self, session, table_name, row_desc, table_type, create_params):
         """
         Parameters:
          - session
          - table_name
          - row_desc
          - table_type
+         - create_params
         """
-        self.send_create_table(session, table_name, row_desc, table_type)
+        self.send_create_table(session, table_name, row_desc, table_type, create_params)
         self.recv_create_table()
 
-    def send_create_table(self, session, table_name, row_desc, table_type):
+    def send_create_table(self, session, table_name, row_desc, table_type, create_params):
         self._oprot.writeMessageBegin('create_table', TMessageType.CALL, self._seqid)
         args = create_table_args()
         args.session = session
         args.table_name = table_name
         args.row_desc = row_desc
         args.table_type = table_type
+        args.create_params = create_params
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -2697,6 +2760,41 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_all_files_in_archive failed: unknown result")
 
+    def check_table_consistency(self, session, table_id):
+        """
+        Parameters:
+         - session
+         - table_id
+        """
+        self.send_check_table_consistency(session, table_id)
+        return self.recv_check_table_consistency()
+
+    def send_check_table_consistency(self, session, table_id):
+        self._oprot.writeMessageBegin('check_table_consistency', TMessageType.CALL, self._seqid)
+        args = check_table_consistency_args()
+        args.session = session
+        args.table_id = table_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_check_table_consistency(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = check_table_consistency_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.e is not None:
+            raise result.e
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "check_table_consistency failed: unknown result")
+
     def start_query(self, session, query_ra, just_explain):
         """
         Parameters:
@@ -2767,21 +2865,23 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "execute_first_step failed: unknown result")
 
-    def broadcast_serialized_rows(self, serialized_rows, row_desc, query_id):
+    def broadcast_serialized_rows(self, serialized_rows, row_desc, uncompressed_size, query_id):
         """
         Parameters:
          - serialized_rows
          - row_desc
+         - uncompressed_size
          - query_id
         """
-        self.send_broadcast_serialized_rows(serialized_rows, row_desc, query_id)
+        self.send_broadcast_serialized_rows(serialized_rows, row_desc, uncompressed_size, query_id)
         self.recv_broadcast_serialized_rows()
 
-    def send_broadcast_serialized_rows(self, serialized_rows, row_desc, query_id):
+    def send_broadcast_serialized_rows(self, serialized_rows, row_desc, uncompressed_size, query_id):
         self._oprot.writeMessageBegin('broadcast_serialized_rows', TMessageType.CALL, self._seqid)
         args = broadcast_serialized_rows_args()
         args.serialized_rows = serialized_rows
         args.row_desc = row_desc
+        args.uncompressed_size = uncompressed_size
         args.query_id = query_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -3154,6 +3254,47 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_all_roles_for_user failed: unknown result")
 
+    def has_object_privilege(self, session, granteeName, ObjectName, objectType, permissions):
+        """
+        Parameters:
+         - session
+         - granteeName
+         - ObjectName
+         - objectType
+         - permissions
+        """
+        self.send_has_object_privilege(session, granteeName, ObjectName, objectType, permissions)
+        return self.recv_has_object_privilege()
+
+    def send_has_object_privilege(self, session, granteeName, ObjectName, objectType, permissions):
+        self._oprot.writeMessageBegin('has_object_privilege', TMessageType.CALL, self._seqid)
+        args = has_object_privilege_args()
+        args.session = session
+        args.granteeName = granteeName
+        args.ObjectName = ObjectName
+        args.objectType = objectType
+        args.permissions = permissions
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_has_object_privilege(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = has_object_privilege_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.e is not None:
+            raise result.e
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "has_object_privilege failed: unknown result")
+
     def set_license_key(self, session, key, nonce):
         """
         Parameters:
@@ -3255,6 +3396,7 @@ class Processor(Iface, TProcessor):
         self._processMap["set_table_epoch_by_name"] = Processor.process_set_table_epoch_by_name
         self._processMap["get_table_epoch"] = Processor.process_get_table_epoch
         self._processMap["get_table_epoch_by_name"] = Processor.process_get_table_epoch_by_name
+        self._processMap["get_session_info"] = Processor.process_get_session_info
         self._processMap["sql_execute"] = Processor.process_sql_execute
         self._processMap["sql_execute_df"] = Processor.process_sql_execute_df
         self._processMap["sql_execute_gdf"] = Processor.process_sql_execute_gdf
@@ -3289,6 +3431,7 @@ class Processor(Iface, TProcessor):
         self._processMap["import_table_status"] = Processor.process_import_table_status
         self._processMap["get_first_geo_file_in_archive"] = Processor.process_get_first_geo_file_in_archive
         self._processMap["get_all_files_in_archive"] = Processor.process_get_all_files_in_archive
+        self._processMap["check_table_consistency"] = Processor.process_check_table_consistency
         self._processMap["start_query"] = Processor.process_start_query
         self._processMap["execute_first_step"] = Processor.process_execute_first_step
         self._processMap["broadcast_serialized_rows"] = Processor.process_broadcast_serialized_rows
@@ -3302,6 +3445,7 @@ class Processor(Iface, TProcessor):
         self._processMap["get_db_objects_for_grantee"] = Processor.process_get_db_objects_for_grantee
         self._processMap["get_db_object_privs"] = Processor.process_get_db_object_privs
         self._processMap["get_all_roles_for_user"] = Processor.process_get_all_roles_for_user
+        self._processMap["has_object_privilege"] = Processor.process_has_object_privilege
         self._processMap["set_license_key"] = Processor.process_set_license_key
         self._processMap["get_license_claims"] = Processor.process_get_license_claims
 
@@ -3934,6 +4078,32 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("get_table_epoch_by_name", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_get_session_info(self, seqid, iprot, oprot):
+        args = get_session_info_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = get_session_info_result()
+        try:
+            result.success = self._handler.get_session_info(args.session)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TMapDException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("get_session_info", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -4672,7 +4842,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = create_table_result()
         try:
-            self._handler.create_table(args.session, args.table_name, args.row_desc, args.table_type)
+            self._handler.create_table(args.session, args.table_name, args.row_desc, args.table_type, args.create_params)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4822,6 +4992,32 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
+    def process_check_table_consistency(self, seqid, iprot, oprot):
+        args = check_table_consistency_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = check_table_consistency_result()
+        try:
+            result.success = self._handler.check_table_consistency(args.session, args.table_id)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TMapDException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("check_table_consistency", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
     def process_start_query(self, seqid, iprot, oprot):
         args = start_query_args()
         args.read(iprot)
@@ -4880,7 +5076,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = broadcast_serialized_rows_result()
         try:
-            self._handler.broadcast_serialized_rows(args.serialized_rows, args.row_desc, args.query_id)
+            self._handler.broadcast_serialized_rows(args.serialized_rows, args.row_desc, args.uncompressed_size, args.query_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -5156,6 +5352,32 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("get_all_roles_for_user", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_has_object_privilege(self, seqid, iprot, oprot):
+        args = has_object_privilege_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = has_object_privilege_result()
+        try:
+            result.success = self._handler.has_object_privilege(args.session, args.granteeName, args.ObjectName, args.objectType, args.permissions)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TMapDException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("has_object_privilege", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -8535,6 +8757,141 @@ class get_table_epoch_by_name_result(object):
 all_structs.append(get_table_epoch_by_name_result)
 get_table_epoch_by_name_result.thrift_spec = (
     (0, TType.I32, 'success', None, None, ),  # 0
+)
+
+
+class get_session_info_args(object):
+    """
+    Attributes:
+     - session
+    """
+
+
+    def __init__(self, session=None,):
+        self.session = session
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('get_session_info_args')
+        if self.session is not None:
+            oprot.writeFieldBegin('session', TType.STRING, 1)
+            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(get_session_info_args)
+get_session_info_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'session', 'UTF8', None, ),  # 1
+)
+
+
+class get_session_info_result(object):
+    """
+    Attributes:
+     - success
+     - e
+    """
+
+
+    def __init__(self, success=None, e=None,):
+        self.success = success
+        self.e = e
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.STRUCT:
+                    self.success = TSessionInfo()
+                    self.success.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = TMapDException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('get_session_info_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRUCT, 0)
+            self.success.write(oprot)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(get_session_info_result)
+get_session_info_result.thrift_spec = (
+    (0, TType.STRUCT, 'success', [TSessionInfo, None], None, ),  # 0
+    (1, TType.STRUCT, 'e', [TMapDException, None], None, ),  # 1
 )
 
 
@@ -13087,14 +13444,16 @@ class create_table_args(object):
      - table_name
      - row_desc
      - table_type
+     - create_params
     """
 
 
-    def __init__(self, session=None, table_name=None, row_desc=None, table_type=0,):
+    def __init__(self, session=None, table_name=None, row_desc=None, table_type=0, create_params=None,):
         self.session = session
         self.table_name = table_name
         self.row_desc = row_desc
         self.table_type = table_type
+        self.create_params = create_params
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -13131,6 +13490,12 @@ class create_table_args(object):
                     self.table_type = iprot.readI32()
                 else:
                     iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRUCT:
+                    self.create_params = TCreateParams()
+                    self.create_params.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -13160,6 +13525,10 @@ class create_table_args(object):
             oprot.writeFieldBegin('table_type', TType.I32, 4)
             oprot.writeI32(self.table_type)
             oprot.writeFieldEnd()
+        if self.create_params is not None:
+            oprot.writeFieldBegin('create_params', TType.STRUCT, 5)
+            self.create_params.write(oprot)
+            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -13183,6 +13552,7 @@ create_table_args.thrift_spec = (
     (2, TType.STRING, 'table_name', 'UTF8', None, ),  # 2
     (3, TType.LIST, 'row_desc', (TType.STRUCT, [TColumnType, None], False), None, ),  # 3
     (4, TType.I32, 'table_type', None, 0, ),  # 4
+    (5, TType.STRUCT, 'create_params', [TCreateParams, None], None, ),  # 5
 )
 
 
@@ -14062,6 +14432,153 @@ get_all_files_in_archive_result.thrift_spec = (
 )
 
 
+class check_table_consistency_args(object):
+    """
+    Attributes:
+     - session
+     - table_id
+    """
+
+
+    def __init__(self, session=None, table_id=None,):
+        self.session = session
+        self.table_id = table_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.I32:
+                    self.table_id = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('check_table_consistency_args')
+        if self.session is not None:
+            oprot.writeFieldBegin('session', TType.STRING, 1)
+            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeFieldEnd()
+        if self.table_id is not None:
+            oprot.writeFieldBegin('table_id', TType.I32, 2)
+            oprot.writeI32(self.table_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(check_table_consistency_args)
+check_table_consistency_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'session', 'UTF8', None, ),  # 1
+    (2, TType.I32, 'table_id', None, None, ),  # 2
+)
+
+
+class check_table_consistency_result(object):
+    """
+    Attributes:
+     - success
+     - e
+    """
+
+
+    def __init__(self, success=None, e=None,):
+        self.success = success
+        self.e = e
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.STRUCT:
+                    self.success = TTableMeta()
+                    self.success.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = TMapDException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('check_table_consistency_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRUCT, 0)
+            self.success.write(oprot)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(check_table_consistency_result)
+check_table_consistency_result.thrift_spec = (
+    (0, TType.STRUCT, 'success', [TTableMeta, None], None, ),  # 0
+    (1, TType.STRUCT, 'e', [TMapDException, None], None, ),  # 1
+)
+
+
 class start_query_args(object):
     """
     Attributes:
@@ -14362,13 +14879,15 @@ class broadcast_serialized_rows_args(object):
     Attributes:
      - serialized_rows
      - row_desc
+     - uncompressed_size
      - query_id
     """
 
 
-    def __init__(self, serialized_rows=None, row_desc=None, query_id=None,):
+    def __init__(self, serialized_rows=None, row_desc=None, uncompressed_size=None, query_id=None,):
         self.serialized_rows = serialized_rows
         self.row_desc = row_desc
+        self.uncompressed_size = uncompressed_size
         self.query_id = query_id
 
     def read(self, iprot):
@@ -14398,6 +14917,11 @@ class broadcast_serialized_rows_args(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.I64:
+                    self.uncompressed_size = iprot.readI64()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.I64:
                     self.query_id = iprot.readI64()
                 else:
                     iprot.skip(ftype)
@@ -14422,8 +14946,12 @@ class broadcast_serialized_rows_args(object):
                 iter412.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
+        if self.uncompressed_size is not None:
+            oprot.writeFieldBegin('uncompressed_size', TType.I64, 3)
+            oprot.writeI64(self.uncompressed_size)
+            oprot.writeFieldEnd()
         if self.query_id is not None:
-            oprot.writeFieldBegin('query_id', TType.I64, 3)
+            oprot.writeFieldBegin('query_id', TType.I64, 4)
             oprot.writeI64(self.query_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -14447,7 +14975,8 @@ broadcast_serialized_rows_args.thrift_spec = (
     None,  # 0
     (1, TType.STRING, 'serialized_rows', 'UTF8', None, ),  # 1
     (2, TType.LIST, 'row_desc', (TType.STRUCT, [TColumnType, None], False), None, ),  # 2
-    (3, TType.I64, 'query_id', None, None, ),  # 3
+    (3, TType.I64, 'uncompressed_size', None, None, ),  # 3
+    (4, TType.I64, 'query_id', None, None, ),  # 4
 )
 
 
@@ -16090,6 +16619,189 @@ class get_all_roles_for_user_result(object):
 all_structs.append(get_all_roles_for_user_result)
 get_all_roles_for_user_result.thrift_spec = (
     (0, TType.LIST, 'success', (TType.STRING, 'UTF8', False), None, ),  # 0
+    (1, TType.STRUCT, 'e', [TMapDException, None], None, ),  # 1
+)
+
+
+class has_object_privilege_args(object):
+    """
+    Attributes:
+     - session
+     - granteeName
+     - ObjectName
+     - objectType
+     - permissions
+    """
+
+
+    def __init__(self, session=None, granteeName=None, ObjectName=None, objectType=None, permissions=None,):
+        self.session = session
+        self.granteeName = granteeName
+        self.ObjectName = ObjectName
+        self.objectType = objectType
+        self.permissions = permissions
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.granteeName = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.ObjectName = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.I32:
+                    self.objectType = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRUCT:
+                    self.permissions = TDBObjectPermissions()
+                    self.permissions.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('has_object_privilege_args')
+        if self.session is not None:
+            oprot.writeFieldBegin('session', TType.STRING, 1)
+            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeFieldEnd()
+        if self.granteeName is not None:
+            oprot.writeFieldBegin('granteeName', TType.STRING, 2)
+            oprot.writeString(self.granteeName.encode('utf-8') if sys.version_info[0] == 2 else self.granteeName)
+            oprot.writeFieldEnd()
+        if self.ObjectName is not None:
+            oprot.writeFieldBegin('ObjectName', TType.STRING, 3)
+            oprot.writeString(self.ObjectName.encode('utf-8') if sys.version_info[0] == 2 else self.ObjectName)
+            oprot.writeFieldEnd()
+        if self.objectType is not None:
+            oprot.writeFieldBegin('objectType', TType.I32, 4)
+            oprot.writeI32(self.objectType)
+            oprot.writeFieldEnd()
+        if self.permissions is not None:
+            oprot.writeFieldBegin('permissions', TType.STRUCT, 5)
+            self.permissions.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(has_object_privilege_args)
+has_object_privilege_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'session', 'UTF8', None, ),  # 1
+    (2, TType.STRING, 'granteeName', 'UTF8', None, ),  # 2
+    (3, TType.STRING, 'ObjectName', 'UTF8', None, ),  # 3
+    (4, TType.I32, 'objectType', None, None, ),  # 4
+    (5, TType.STRUCT, 'permissions', [TDBObjectPermissions, None], None, ),  # 5
+)
+
+
+class has_object_privilege_result(object):
+    """
+    Attributes:
+     - success
+     - e
+    """
+
+
+    def __init__(self, success=None, e=None,):
+        self.success = success
+        self.e = e
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.BOOL:
+                    self.success = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = TMapDException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('has_object_privilege_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.BOOL, 0)
+            oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(has_object_privilege_result)
+has_object_privilege_result.thrift_spec = (
+    (0, TType.BOOL, 'success', None, None, ),  # 0
     (1, TType.STRUCT, 'e', [TMapDException, None], None, ),  # 1
 )
 
