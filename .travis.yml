@@ -9,7 +9,7 @@ env:
     - PYTHON=2.7
 before_install:
   - docker pull mapd/core-os-cpu
-  - docker run -d --ipc=host -v /dev:/dev -p 9091:9091 --name=mapd mapd/core-os-cpu:latest
+  - docker run -d --ipc=host -v /dev:/dev -p 9091:9091 --name=mapd mapd/core-os-cpu:4.3.0
   - docker ps -a
   - export PATH="$HOME/miniconda3/bin:$PATH"
 install:
