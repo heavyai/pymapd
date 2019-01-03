@@ -19,4 +19,3 @@ script:
   - source activate omnisci-dev
   - pytest tests
   - flake8
-  - source ./ci/build_pymapd.sh
