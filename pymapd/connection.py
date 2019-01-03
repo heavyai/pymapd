@@ -398,7 +398,7 @@ class Connection(object):
 
         row_desc = build_row_desc(data, preserve_index=preserve_index)
         self._client.create_table(self._session, table_name, row_desc,
-                                  TTableType.DELIMITED, TCreateParams())
+                                  TTableType.DELIMITED, TCreateParams(False))
 
     def load_table(self, table_name, data, method='infer',
                    preserve_index=False,
