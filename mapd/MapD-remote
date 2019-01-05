@@ -48,6 +48,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  void set_table_epoch_by_name(TSessionId session, string table_name, i32 new_epoch)')
     print('  i32 get_table_epoch(TSessionId session, i32 db_id, i32 table_id)')
     print('  i32 get_table_epoch_by_name(TSessionId session, string table_name)')
+    print('  TSessionInfo get_session_info(TSessionId session)')
     print('  TQueryResult sql_execute(TSessionId session, string query, bool column_format, string nonce, i32 first_n, i32 at_most_n)')
     print('  TDataFrame sql_execute_df(TSessionId session, string query, TDeviceType device_type, i32 device_id, i32 first_n)')
     print('  TDataFrame sql_execute_gdf(TSessionId session, string query, i32 device_id, i32 first_n)')
@@ -76,17 +77,18 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  void load_table_binary_arrow(TSessionId session, string table_name, string arrow_stream)')
     print('  void load_table(TSessionId session, string table_name,  rows)')
     print('  TDetectResult detect_column_types(TSessionId session, string file_name, TCopyParams copy_params)')
-    print('  void create_table(TSessionId session, string table_name, TRowDescriptor row_desc, TTableType table_type)')
+    print('  void create_table(TSessionId session, string table_name, TRowDescriptor row_desc, TTableType table_type, TCreateParams create_params)')
     print('  void import_table(TSessionId session, string table_name, string file_name, TCopyParams copy_params)')
     print('  void import_geo_table(TSessionId session, string table_name, string file_name, TCopyParams copy_params, TRowDescriptor row_desc)')
     print('  TImportStatus import_table_status(TSessionId session, string import_id)')
     print('  string get_first_geo_file_in_archive(TSessionId session, string archive_path, TCopyParams copy_params)')
     print('   get_all_files_in_archive(TSessionId session, string archive_path, TCopyParams copy_params)')
+    print('  TTableMeta check_table_consistency(TSessionId session, i32 table_id)')
     print('  TPendingQuery start_query(TSessionId session, string query_ra, bool just_explain)')
     print('  TStepResult execute_first_step(TPendingQuery pending_query)')
-    print('  void broadcast_serialized_rows(string serialized_rows, TRowDescriptor row_desc, TQueryId query_id)')
+    print('  void broadcast_serialized_rows(string serialized_rows, TRowDescriptor row_desc, i64 uncompressed_size, TQueryId query_id)')
     print('  TPendingRenderQuery start_render_query(TSessionId session, i64 widget_id, i16 node_idx, string vega_json)')
-    print('  TRenderStepResult execute_next_render_step(TPendingRenderQuery pending_render, TRenderDataAggMap merged_data)')
+    print('  TRenderStepResult execute_next_render_step(TPendingRenderQuery pending_render, TRenderAggDataMap merged_data)')
     print('  void insert_data(TSessionId session, TInsertData insert_data)')
     print('  void checkpoint(TSessionId session, i32 db_id, i32 table_id)')
     print('  TTableDescriptor get_table_descriptor(TSessionId session, string table_name)')
@@ -95,6 +97,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_db_objects_for_grantee(TSessionId session, string roleName)')
     print('   get_db_object_privs(TSessionId session, string objectName, TDBObjectType type)')
     print('   get_all_roles_for_user(TSessionId session, string userName)')
+    print('  bool has_object_privilege(TSessionId session, string granteeName, string ObjectName, TDBObjectType objectType, TDBObjectPermissions permissions)')
     print('  TLicenseInfo set_license_key(TSessionId session, string key, string nonce)')
     print('  TLicenseInfo get_license_claims(TSessionId session, string nonce)')
     print('')
@@ -320,6 +323,12 @@ elif cmd == 'get_table_epoch_by_name':
         sys.exit(1)
     pp.pprint(client.get_table_epoch_by_name(eval(args[0]), args[1],))
 
+elif cmd == 'get_session_info':
+    if len(args) != 1:
+        print('get_session_info requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_session_info(eval(args[0]),))
+
 elif cmd == 'sql_execute':
     if len(args) != 6:
         print('sql_execute requires 6 args')
@@ -489,10 +498,10 @@ elif cmd == 'detect_column_types':
     pp.pprint(client.detect_column_types(eval(args[0]), args[1], eval(args[2]),))
 
 elif cmd == 'create_table':
-    if len(args) != 4:
-        print('create_table requires 4 args')
+    if len(args) != 5:
+        print('create_table requires 5 args')
         sys.exit(1)
-    pp.pprint(client.create_table(eval(args[0]), args[1], eval(args[2]), eval(args[3]),))
+    pp.pprint(client.create_table(eval(args[0]), args[1], eval(args[2]), eval(args[3]), eval(args[4]),))
 
 elif cmd == 'import_table':
     if len(args) != 4:
@@ -524,6 +533,12 @@ elif cmd == 'get_all_files_in_archive':
         sys.exit(1)
     pp.pprint(client.get_all_files_in_archive(eval(args[0]), args[1], eval(args[2]),))
 
+elif cmd == 'check_table_consistency':
+    if len(args) != 2:
+        print('check_table_consistency requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.check_table_consistency(eval(args[0]), eval(args[1]),))
+
 elif cmd == 'start_query':
     if len(args) != 3:
         print('start_query requires 3 args')
@@ -537,10 +552,10 @@ elif cmd == 'execute_first_step':
     pp.pprint(client.execute_first_step(eval(args[0]),))
 
 elif cmd == 'broadcast_serialized_rows':
-    if len(args) != 3:
-        print('broadcast_serialized_rows requires 3 args')
+    if len(args) != 4:
+        print('broadcast_serialized_rows requires 4 args')
         sys.exit(1)
-    pp.pprint(client.broadcast_serialized_rows(args[0], eval(args[1]), eval(args[2]),))
+    pp.pprint(client.broadcast_serialized_rows(args[0], eval(args[1]), eval(args[2]), eval(args[3]),))
 
 elif cmd == 'start_render_query':
     if len(args) != 4:
@@ -601,6 +616,12 @@ elif cmd == 'get_all_roles_for_user':
         print('get_all_roles_for_user requires 2 args')
         sys.exit(1)
     pp.pprint(client.get_all_roles_for_user(eval(args[0]), args[1],))
+
+elif cmd == 'has_object_privilege':
+    if len(args) != 5:
+        print('has_object_privilege requires 5 args')
+        sys.exit(1)
+    pp.pprint(client.has_object_privilege(eval(args[0]), args[1], args[2], eval(args[3]), eval(args[4]),))
 
 elif cmd == 'set_license_key':
     if len(args) != 3:
