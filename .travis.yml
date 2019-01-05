@@ -3,18 +3,12 @@ services:
   - docker
 language: python
 env:
-  # generated with
-  # anaconda login pymapd
-  # anaconda auth -n travis-upload-key -o pymapd --create
-  # travis encrypt <key>
-  global:
-    secure: "DOR4RTMOLjOq2kNLy2OC5HYgsMyzB7JFuebtw6Wrl4PzuQDqSKLODYuiTFMEEyqrljcoNo1BaC3Gtirl4uMynxrb6wgB/d+nddz5cX6HeHhllFbLR6dXAxM/k3BfnXPcNCuW+1a2bxKVFrLTF0La4XfKCX5uJv+p2Yu2sSVplUgfDq/HlvWPloGuH+PVSpihyqtycafMvwK4c8d9/DfdNpH3AnQRr47EJ2jeCz7QvEsHF86rhyBFnMdT02Sgw3efHaDVwKzgHQaGgBoOT+sy3cj4/yYwu+WIC7a0WmeKupqYTpLdRM2A+vrBpu0KAd4lyRuYFcq4DHMe9jaKpca0+b0t7bAFaluV4Z4nnuxmJFJsiYa7vDXvr0/Ge+n3UjykX4E0WfDDsbNTHmeYJR2fYkeyYBv26COT5DrrCoX2M9wtM6ndSG7HAG6NqJCs2pbvR70zx1+GPei1vClqw+hZ6FgBQFXdgVVDsiFhAjaFTeiJCHTw1edX7dtA5M/SbHlYYEibuK2VlfxK1ALkimXjTwhsGdTx18W27UlwNA1FMmHvR1AMXWcdwUoKAfa0T3eaSuoPYp88XZ7otEYar7wX+RQR1i1ePBQNdPKFBeBGQo0Wc8flRxtJit624845F1Gh+4HhTwj7+P11AeBeuwMZr8gSW7wBNOjjxsZKj8bibCE="
   matrix:
     - PYTHON=3.6
     - PYTHON=3.5
     - PYTHON=2.7
 before_install:
-  - docker pull mapd/core-os-cpu
+  - docker pull mapd/core-os-cpu:latest
   - docker run -d --ipc=host -v /dev:/dev -p 9091:9091 --name=mapd mapd/core-os-cpu:latest
   - docker ps -a
   - export PATH="$HOME/miniconda3/bin:$PATH"
@@ -25,7 +19,3 @@ script:
   - source activate omnisci-dev
   - pytest tests
   - flake8
-  - source ./ci/build_pymapd.sh
-
-after_success:
-  - source ./ci/upload-anaconda.sh
