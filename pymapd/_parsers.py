@@ -168,7 +168,7 @@ def _parse_tdf_gpu(tdf):
     from numba import cuda
     from numba.cuda.cudadrv import drvapi
 
-    from .shm import load_buffer
+    from .ipc import load_buffer
 
     ipc_handle = drvapi.cu_ipc_mem_handle(*tdf.df_handle)
     ipch = cuda.driver.IpcHandle(None, ipc_handle, size=tdf.df_size)

@@ -289,7 +289,7 @@ class Connection(object):
         except ImportError:
             raise ImportError("pyarrow is required for `select_ipc`")
 
-        from .shm import load_buffer
+        from .ipc import load_buffer
 
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
