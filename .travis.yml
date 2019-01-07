@@ -4,14 +4,13 @@ services:
 language: python
 os:
   - linux
-  - osx
 env:
   matrix:
     - PYTHON=3.6
     - PYTHON=3.5
     - PYTHON=3.4
     - PYTHON=2.7
-  allow_failures:
+    allow_failures:
     - PYTHON=3.7
 before_install:
   - docker pull mapd/core-os-cpu:latest
