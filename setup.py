@@ -62,18 +62,19 @@ if build_extensions and not sys.platform.startswith('win'):
         else:
             link_args.append("-Wl,-rpath,$ORIGIN/pyarrow")
 
-        extensions = [
-            Extension(
-                "pymapd.shm",
-                ["pymapd/shm.pyx"],
-                libraries=['arrow', 'arrow_python'],
-                include_dirs=[np.get_include(), include],
-                extra_compile_args=['-std=c++11'],
-                extra_link_args=['-std=c++11'],
-                language="c++",
-            ),
-        ]
-        extra_kwargs = dict(ext_modules=cythonize(extensions))
+        # extensions = [
+        #     Extension(
+        #         "pymapd.shm",
+        #         ["pymapd/shm.pyx"],
+        #         libraries=['arrow', 'arrow_python'],
+        #         include_dirs=[np.get_include(), include],
+        #         extra_compile_args=['-std=c++11'],
+        #         extra_link_args=['-std=c++11'],
+        #         language="c++",
+        #     ),
+        # ]
+        # extra_kwargs = dict(ext_modules=cythonize(extensions))
+        extra_kwargs = dict()
 else:
     extra_kwargs = dict()
 
