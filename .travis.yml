@@ -6,6 +6,7 @@ env:
   matrix:
     - PYTHON=3.6
     - PYTHON=3.5
+    - PYTHON=3.4
     - PYTHON=2.7
 before_install:
   - docker pull mapd/core-os-cpu:latest

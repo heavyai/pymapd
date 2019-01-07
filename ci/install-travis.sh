@@ -31,7 +31,7 @@ source activate omnisci-dev
 conda install -q \
       coverage \
       flake8 \
-      pytest=3.3.1 \
+      pytest=3.6 \
       pytest-cov \
       pytest-mock \
       mock
