@@ -2,12 +2,14 @@ sudo: required
 services:
   - docker
 language: python
-env:
-  matrix:
-    - PYTHON=3.6
-    - PYTHON=3.5
-    - PYTHON=3.4
-    - PYTHON=2.7
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+matrix:
+  allow_failures:
+    -"3.7"
 before_install:
   - docker pull mapd/core-os-cpu:latest
   - docker run -d --ipc=host -v /dev:/dev -p 9091:9091 --name=mapd mapd/core-os-cpu:latest

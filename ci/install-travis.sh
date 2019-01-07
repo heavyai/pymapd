@@ -24,14 +24,14 @@ echo
 echo "[add channels]"
 conda config --add channels conda-forge || exit 1
 
-conda env create -f environment.yml python=${PYTHON}
+conda env create -f environment.yml python=${TRAVIS_PYTHON_VERSION}
 source activate omnisci-dev
 
 #list of dev packages not needed for general conda environment.yml file
 conda install -q \
       coverage \
       flake8 \
-      pytest=3.3.1 \
+      pytest>=3.3.1 \
       pytest-cov \
       pytest-mock \
       mock
