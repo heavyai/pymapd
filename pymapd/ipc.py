@@ -16,6 +16,9 @@ shmat = libc.shmat
 shmat.restype = ctypes.c_void_p
 shmat.argtypes = (ctypes.c_int, ctypes.c_void_p, ctypes.c_int)
 
+shmdt = libc.shmdt
+shmdt.restype = ctypes.c_void_p
+shmdt.argtypes = (ctypes.c_void_p,)
 
 def load_buffer(handle, size):
 
@@ -35,4 +38,6 @@ def load_buffer(handle, size):
     # With ptr as shared memory segment's start address, make arrow buffer
     pabuff = pa.foreign_buffer(ptr, size, None)
 
-    return pabuff
+    # Return the ptr value as well as the buffer, as its too early here
+    # to release shared memory from Python
+    return (pabuff, ptr)

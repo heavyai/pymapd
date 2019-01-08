@@ -177,7 +177,7 @@ def _parse_tdf_gpu(tdf):
 
     schema_buffer = load_buffer(tdf.sm_handle, tdf.sm_size)
     # TODO: extra copy.
-    schema_buffer = np.frombuffer(schema_buffer.to_pybytes(), dtype=np.uint8)
+    schema_buffer = np.frombuffer(schema_buffer[0].to_pybytes(), dtype=np.uint8)
 
     dtype = np.dtype(np.byte)
     darr = cuda.devicearray.DeviceNDArray(shape=dptr.size,

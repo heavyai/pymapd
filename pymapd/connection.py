@@ -5,6 +5,7 @@ from collections import namedtuple
 import base64
 import pandas as pd
 import pyarrow as pa
+import ctypes
 
 import six
 from sqlalchemy.engine.url import make_url
@@ -289,7 +290,7 @@ class Connection(object):
         except ImportError:
             raise ImportError("pyarrow is required for `select_ipc`")
 
-        from .ipc import load_buffer
+        from .ipc import load_buffer, shmdt
 
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
@@ -303,8 +304,14 @@ class Connection(object):
         sm_buf = load_buffer(tdf.sm_handle, tdf.sm_size)
         df_buf = load_buffer(tdf.df_handle, tdf.df_size)
 
-        schema = _load_schema(sm_buf)
-        df = _load_data(df_buf, schema, tdf)
+        schema = _load_schema(sm_buf[0])
+        df = _load_data(df_buf[0], schema, tdf)
+
+        # free shared memory from Python
+        # https://github.com/omnisci/pymapd/issues/46
+        # https://github.com/omnisci/pymapd/issues/31
+        free_sm = shmdt(ctypes.cast(sm_buf[1], ctypes.c_void_p))
+        free_df = shmdt(ctypes.cast(df_buf[1], ctypes.c_void_p))
 
         # Deallocate TDataFrame at OmniSci instance
         self.deallocate_ipc(df)
