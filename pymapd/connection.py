@@ -265,7 +265,13 @@ class Connection(object):
         tdf = self._client.sql_execute_gdf(
             self._session, operation, device_id=device_id, first_n=first_n)
         self._tdf = tdf
-        return _parse_tdf_gpu(tdf)
+
+        df = _parse_tdf_gpu(tdf)
+
+        # Deallocate TDataFrame at OmniSci instance
+        self.deallocate_ipc_gpu(df)
+
+        return df
 
     def select_ipc(self, operation, parameters=None, first_n=-1):
         """Execute a ``SELECT`` operation using CPU shared memory
