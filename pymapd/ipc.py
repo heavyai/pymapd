@@ -20,6 +20,7 @@ shmdt = libc.shmdt
 shmdt.restype = ctypes.c_void_p
 shmdt.argtypes = (ctypes.c_void_p,)
 
+
 def load_buffer(handle, size):
 
     # OmniSci passes struct as bytes, convert to int

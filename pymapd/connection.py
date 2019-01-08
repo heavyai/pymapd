@@ -310,8 +310,8 @@ class Connection(object):
         # free shared memory from Python
         # https://github.com/omnisci/pymapd/issues/46
         # https://github.com/omnisci/pymapd/issues/31
-        free_sm = shmdt(ctypes.cast(sm_buf[1], ctypes.c_void_p))
-        free_df = shmdt(ctypes.cast(df_buf[1], ctypes.c_void_p))
+        free_sm = shmdt(ctypes.cast(sm_buf[1], ctypes.c_void_p))  # noqa
+        free_df = shmdt(ctypes.cast(df_buf[1], ctypes.c_void_p))  # noqa
 
         # Deallocate TDataFrame at OmniSci instance
         self.deallocate_ipc(df)
