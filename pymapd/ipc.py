@@ -1,6 +1,7 @@
 import pyarrow as pa
 import struct
 import ctypes
+import platform
 from ctypes.util import find_library
 
 # find c in OS
@@ -22,6 +23,15 @@ shmdt.argtypes = (ctypes.c_void_p,)
 
 
 def load_buffer(handle, size):
+
+    if find_library('c') is None:
+        if platform.system == "Windows":
+            assert("IPC uses POSIX shared memory, which is not supported \
+                   on Windows")
+        else:
+            # libc should be available by default on linux/darwin systems
+            assert("ctypes.find_library('c') did not find libc, which is \
+                   required for IPC")
 
     # OmniSci passes struct as bytes, convert to int
     shmkey = struct.unpack('<L', handle)[0]
