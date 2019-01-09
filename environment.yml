@@ -3,7 +3,6 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- python=${PYTHON}  
 - six>=1.10.0
 - thrift=0.11.0
 - numpydoc
@@ -12,3 +11,9 @@ dependencies:
 - sqlalchemy
 - numpy>=1.14
 - pandas
+- coverage
+- flake8
+- "pytest>=3.6,<4.0"
+- pytest-cov
+- pytest-mock
+- mock
