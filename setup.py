@@ -17,7 +17,7 @@ install_requires = ['six', 'thrift == 0.11.0', 'sqlalchemy', 'numpy', 'pandas',
 
 
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
-test_requires = ['coverage', 'pytest == 3.6', 'pytest-mock']
+test_requires = ['coverage', 'pytest >= 3.6,<4.0', 'pytest-mock']
 dev_requires = doc_requires + test_requires
 gpu_requires = ['cudf', 'libcudf']
 complete_requires = dev_requires + gpu_requires
