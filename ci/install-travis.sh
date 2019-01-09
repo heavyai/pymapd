@@ -38,4 +38,5 @@ conda install -q \
 
 pip install -e .
 conda list omnisci-dev
+echo
 exit 0
