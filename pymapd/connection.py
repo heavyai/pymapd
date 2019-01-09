@@ -5,6 +5,7 @@ from collections import namedtuple
 import base64
 import pandas as pd
 import pyarrow as pa
+import ctypes
 
 import six
 from sqlalchemy.engine.url import make_url
@@ -230,7 +231,7 @@ class Connection(object):
         return Cursor(self)
 
     def select_ipc_gpu(self, operation, parameters=None, device_id=0,
-                       first_n=-1):
+                       first_n=-1, release_memory=True):
         """Execute a ``SELECT`` operation using GPU memory.
 
         Parameters
@@ -241,6 +242,10 @@ class Connection(object):
             Parameters to insert into a parametrized query
         device_id : int
             GPU to return results to
+        first_n : int, optional
+            Number of records to return
+        release_memory: bool, optional
+            Call ``self.deallocate_ipc_gpu(df)`` after DataFrame created
 
         Returns
         -------
@@ -248,7 +253,7 @@ class Connection(object):
 
         Notes
         -----
-        This requires the option ``cudf`` and ``libcudf`` libraries.
+        This method requires ``cudf`` and ``libcudf`` to be installed.
         An ``ImportError`` is raised if those aren't available.
         """
         try:
@@ -264,9 +269,17 @@ class Connection(object):
         tdf = self._client.sql_execute_gdf(
             self._session, operation, device_id=device_id, first_n=first_n)
         self._tdf = tdf
-        return _parse_tdf_gpu(tdf)
 
-    def select_ipc(self, operation, parameters=None, first_n=-1):
+        df = _parse_tdf_gpu(tdf)
+
+        # Deallocate TDataFrame at OmniSci instance
+        if release_memory:
+            self.deallocate_ipc_gpu(df)
+
+        return df
+
+    def select_ipc(self, operation, parameters=None, first_n=-1,
+                   release_memory=True):
         """Execute a ``SELECT`` operation using CPU shared memory
 
         Parameters
@@ -275,6 +288,10 @@ class Connection(object):
             A SQL select statement
         parameters : dict, optional
             Parameters to insert for a parametrized query
+        first_n : int, optional
+            Number of records to return
+        release_memory: bool, optional
+            Call ``self.deallocate_ipc(df)`` after DataFrame created
 
         Returns
         -------
@@ -282,14 +299,14 @@ class Connection(object):
 
         Notes
         -----
-        This method requires pyarrow to be installed
+        This method requires pyarrow to be installed.
         """
         try:
             import pyarrow  # noqa
         except ImportError:
             raise ImportError("pyarrow is required for `select_ipc`")
 
-        from .shm import load_buffer
+        from .ipc import load_buffer, shmdt
 
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
@@ -303,11 +320,18 @@ class Connection(object):
         sm_buf = load_buffer(tdf.sm_handle, tdf.sm_size)
         df_buf = load_buffer(tdf.df_handle, tdf.df_size)
 
-        schema = _load_schema(sm_buf)
-        df = _load_data(df_buf, schema, tdf)
+        schema = _load_schema(sm_buf[0])
+        df = _load_data(df_buf[0], schema, tdf)
+
+        # free shared memory from Python
+        # https://github.com/omnisci/pymapd/issues/46
+        # https://github.com/omnisci/pymapd/issues/31
+        free_sm = shmdt(ctypes.cast(sm_buf[1], ctypes.c_void_p))  # noqa
+        free_df = shmdt(ctypes.cast(df_buf[1], ctypes.c_void_p))  # noqa
 
         # Deallocate TDataFrame at OmniSci instance
-        self.deallocate_ipc(df)
+        if release_memory:
+            self.deallocate_ipc(df)
 
         return df
 

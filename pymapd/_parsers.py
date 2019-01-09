@@ -6,9 +6,9 @@ import pyarrow as pa
 from collections import namedtuple
 from sqlalchemy import text
 import mapd.ttypes as T
+import ctypes
 from types import MethodType
 from ._mutators import set_tdf, get_tdf
-
 from ._utils import seconds_to_time
 
 
@@ -168,7 +168,7 @@ def _parse_tdf_gpu(tdf):
     from numba import cuda
     from numba.cuda.cudadrv import drvapi
 
-    from .shm import load_buffer
+    from .ipc import load_buffer, shmdt
 
     ipc_handle = drvapi.cu_ipc_mem_handle(*tdf.df_handle)
     ipch = cuda.driver.IpcHandle(None, ipc_handle, size=tdf.df_size)
@@ -176,8 +176,13 @@ def _parse_tdf_gpu(tdf):
     dptr = ipch.open(ctx)
 
     schema_buffer = load_buffer(tdf.sm_handle, tdf.sm_size)
+
+    # save ptr value before overwritten below copy with np.frombuffer()
+    ptr = schema_buffer[1]
+
     # TODO: extra copy.
-    schema_buffer = np.frombuffer(schema_buffer.to_pybytes(), dtype=np.uint8)
+    schema_buffer = np.frombuffer(schema_buffer[0].to_pybytes(),
+                                  dtype=np.uint8)
 
     dtype = np.dtype(np.byte)
     darr = cuda.devicearray.DeviceNDArray(shape=dptr.size,
@@ -193,6 +198,12 @@ def _parse_tdf_gpu(tdf):
         df[k] = v
 
     df.set_tdf(tdf)
+
+    # free shared memory from Python
+    # https://github.com/omnisci/pymapd/issues/46
+    # https://github.com/omnisci/pymapd/issues/31
+    free_sm = shmdt(ctypes.cast(ptr, ctypes.c_void_p))  # noqa
+
     return df
 
 

@@ -3,14 +3,6 @@ import os
 from codecs import open
 
 from setuptools import setup
-from setuptools.extension import Extension
-try:
-    from Cython.Build import cythonize
-    import numpy as np
-except ImportError:
-    build_extensions = False
-else:
-    build_extensions = True
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -42,41 +34,6 @@ extra_requires = {
     'complete': complete_requires,
 }
 
-# ------------
-# C Extensions
-# ------------
-if build_extensions and not sys.platform.startswith('win'):
-    try:
-        import pyarrow
-    except ImportError as msg:
-        print('Failed to import pyarrow: %s' % (msg))
-        extensions = []
-        extra_kwargs = dict()
-    else:
-        home = os.path.dirname(pyarrow.__file__)
-        include = os.path.join(home, 'include')
-        link_args = []
-
-        if sys.platform == "darwin":
-            link_args.append('-Wl,-rpath,@loader_path/pyarrow')
-        else:
-            link_args.append("-Wl,-rpath,$ORIGIN/pyarrow")
-
-        extensions = [
-            Extension(
-                "pymapd.shm",
-                ["pymapd/shm.pyx"],
-                libraries=['arrow', 'arrow_python'],
-                include_dirs=[np.get_include(), include],
-                extra_compile_args=['-std=c++11'],
-                extra_link_args=['-std=c++11'],
-                language="c++",
-            ),
-        ]
-        extra_kwargs = dict(ext_modules=cythonize(extensions))
-else:
-    extra_kwargs = dict()
-
 setup(
     name='pymapd',
     description='A DB API 2 compatible client for OmniSci (formerly MapD).',
@@ -105,6 +62,5 @@ setup(
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
-    extras_require=extra_requires,
-    **extra_kwargs
+    extras_require=extra_requires
 )

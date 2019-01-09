@@ -10,6 +10,5 @@ dependencies:
 - pyarrow=0.10.0
 - arrow-cpp=0.10.0
 - sqlalchemy
-- cython
 - numpy>=1.14
 - pandas
