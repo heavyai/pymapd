@@ -11,13 +11,13 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 install_requires = ['six', 'thrift == 0.11.0', 'sqlalchemy', 'numpy', 'pandas',
-                    'pyarrow == 0.10.0']
+                    'pyarrow >= 0.10.0,<0.12']
 
 # Optional Requirements
 
 
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
-test_requires = ['coverage', 'pytest == 3.6', 'pytest-mock']
+test_requires = ['coverage', 'pytest >= 3.6,<4.0', 'pytest-mock']
 dev_requires = doc_requires + test_requires
 gpu_requires = ['cudf', 'libcudf']
 complete_requires = dev_requires + gpu_requires
@@ -54,9 +54,9 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7'
     ],
     packages=['pymapd', 'mapd'],
     use_scm_version=True,
