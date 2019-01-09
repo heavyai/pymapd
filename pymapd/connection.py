@@ -231,7 +231,7 @@ class Connection(object):
         return Cursor(self)
 
     def select_ipc_gpu(self, operation, parameters=None, device_id=0,
-                       first_n=-1):
+                       first_n=-1, release_memory=True):
         """Execute a ``SELECT`` operation using GPU memory.
 
         Parameters
@@ -242,6 +242,10 @@ class Connection(object):
             Parameters to insert into a parametrized query
         device_id : int
             GPU to return results to
+        first_n : int, optional
+            Number of records to return
+        release_memory: bool, optional
+            Call ``self.deallocate_ipc_gpu(df)`` after DataFrame created
 
         Returns
         -------
@@ -249,7 +253,7 @@ class Connection(object):
 
         Notes
         -----
-        This requires the option ``cudf`` and ``libcudf`` libraries.
+        This method requires ``cudf`` and ``libcudf`` to be installed.
         An ``ImportError`` is raised if those aren't available.
         """
         try:
@@ -269,11 +273,13 @@ class Connection(object):
         df = _parse_tdf_gpu(tdf)
 
         # Deallocate TDataFrame at OmniSci instance
-        self.deallocate_ipc_gpu(df)
+        if release_memory:
+            self.deallocate_ipc_gpu(df)
 
         return df
 
-    def select_ipc(self, operation, parameters=None, first_n=-1):
+    def select_ipc(self, operation, parameters=None, first_n=-1,
+                   release_memory=True):
         """Execute a ``SELECT`` operation using CPU shared memory
 
         Parameters
@@ -282,6 +288,10 @@ class Connection(object):
             A SQL select statement
         parameters : dict, optional
             Parameters to insert for a parametrized query
+        first_n : int, optional
+            Number of records to return
+        release_memory: bool, optional
+            Call ``self.deallocate_ipc(df)`` after DataFrame created
 
         Returns
         -------
@@ -289,7 +299,7 @@ class Connection(object):
 
         Notes
         -----
-        This method requires pyarrow to be installed
+        This method requires pyarrow to be installed.
         """
         try:
             import pyarrow  # noqa
@@ -320,7 +330,8 @@ class Connection(object):
         free_df = shmdt(ctypes.cast(df_buf[1], ctypes.c_void_p))  # noqa
 
         # Deallocate TDataFrame at OmniSci instance
-        self.deallocate_ipc(df)
+        if release_memory:
+            self.deallocate_ipc(df)
 
         return df
 
