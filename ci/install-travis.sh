@@ -24,7 +24,7 @@ echo
 echo "[add channels]"
 conda config --add channels conda-forge || exit 1
 
-conda env create -n omnisci-dev python=${PYTHON} \
+conda create -n omnisci-dev python=${PYTHON} \
 six>=1.10.0 \
 thrift=0.11.0 \
 numpydoc \
