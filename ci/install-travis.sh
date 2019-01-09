@@ -18,7 +18,7 @@ conda update -q conda
 
 echo
 echo "[conda build]"
-conda install conda-build anaconda-client conda-verify --yes
+conda install conda-build anaconda-client conda-verify --python=${PYTHON}  --yes
 
 echo
 echo "[add channels]"
