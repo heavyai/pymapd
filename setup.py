@@ -11,7 +11,7 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 install_requires = ['six', 'thrift == 0.11.0', 'sqlalchemy', 'numpy', 'pandas',
-                    'pyarrow == 0.10.0']
+                    'pyarrow >= 0.10.0,<0.12']
 
 # Optional Requirements
 
@@ -57,6 +57,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7'
     ],
     packages=['pymapd', 'mapd'],
     use_scm_version=True,

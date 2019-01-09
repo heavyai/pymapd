@@ -4,6 +4,7 @@ services:
 language: python
 env:
   matrix:
+    - PYTHON=3.7
     - PYTHON=3.6
     - PYTHON=3.5
     - PYTHON=3.4
