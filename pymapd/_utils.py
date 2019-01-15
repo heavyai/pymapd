@@ -20,8 +20,17 @@ def datetime_to_seconds(arr):
     import numpy as np
 
     if arr.dtype != np.dtype('datetime64[ns]'):
-        raise TypeError("Invalid type {}, expected datetime64[ns]".format(
-            arr.dtype))
+        if arr.dtype == 'object' or 'datetime64[ns,' in arr.dtype:
+            # Convert to datetime64[ns] from string
+            # Or from datetime with timezone information
+            arr = arr.astype('datetime64[ns]')
+        elif arr.type == 'int64':
+            # The user has passed a unix timestamp already
+            return arr
+        else:
+            raise TypeError("Invalid type {0}, expected one of \
+                datetime64[ns], int64 (seconds since epoch), \
+                or object (string)".format(arr.dtype))
     return arr.view('i8') // 10**9  # ns -> s since epoch
 
 

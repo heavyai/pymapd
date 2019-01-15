@@ -18,24 +18,31 @@ conda update -q conda
 
 echo
 echo "[conda build]"
-conda install conda-build anaconda-client conda-verify --yes
+conda install -q conda-build anaconda-client conda-verify --yes
 
 echo
 echo "[add channels]"
 conda config --add channels conda-forge || exit 1
 
-conda env create -f environment.yml python=${PYTHON}
-source activate omnisci-dev
+conda create -n omnisci-dev python=${PYTHON} \
+six>=1.10.0 \
+thrift=0.11.0 \
+numpydoc \
+"pyarrow>=0.10.0,<0.12" \
+arrow-cpp \
+sqlalchemy \
+numpy>=1.14 \
+pandas \
+coverage \
+flake8 \
+"pytest>=3.6,<4.0" \
+pytest-cov \
+pytest-mock \
+mock
 
-#list of dev packages not needed for general conda environment.yml file
-conda install -q \
-      coverage \
-      flake8 \
-      pytest=3.3.1 \
-      pytest-cov \
-      pytest-mock \
-      mock
+source activate omnisci-dev
 
 pip install -e .
 conda list omnisci-dev
+echo
 exit 0

@@ -49,7 +49,7 @@ Querying
 A few options are available for getting the results of a query into your Python
 process.
 
-1. Into GPU Memory via `pygdf`_ (:meth:`Connection.select_ipc_gpu`)
+1. Into GPU Memory via `cudf`_ (:meth:`Connection.select_ipc_gpu`)
 2. Into CPU shared memory via Apache Arrow and pandas
    (:meth:`Connection.select_ipc`)
 3. Into python objects via Apache Thrift (:meth:`Connection.execute`)
@@ -64,7 +64,7 @@ GPU Select
 ^^^^^^^^^^
 
 Use :meth:`Connection.select_ipc_gpu` to select data into a ``GpuDataFrame``,
-provided by `pygdf`_
+provided by `cudf`_
 
 .. code-block:: python
 
@@ -207,5 +207,5 @@ Some helpful metadata are available on the ``Connection`` object.
     ...
 
 .. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
-.. _pygdf: http://pygdf.readthedocs.io/en/latest/
+.. _cudf: http://cudf.readthedocs.io/en/latest/
 .. _Apache Arrow: http://arrow.apache.org/

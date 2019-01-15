@@ -5,15 +5,15 @@ from collections import namedtuple
 import base64
 import pandas as pd
 import pyarrow as pa
+import ctypes
 
 import six
 from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
-from mapd.MapD import Client
+from mapd.MapD import Client, TDeviceType, TCreateParams
 from mapd.ttypes import TMapDException
-from mapd.MapD import TDeviceType
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
@@ -231,7 +231,7 @@ class Connection(object):
         return Cursor(self)
 
     def select_ipc_gpu(self, operation, parameters=None, device_id=0,
-                       first_n=-1):
+                       first_n=-1, release_memory=True):
         """Execute a ``SELECT`` operation using GPU memory.
 
         Parameters
@@ -242,21 +242,25 @@ class Connection(object):
             Parameters to insert into a parametrized query
         device_id : int
             GPU to return results to
+        first_n : int, optional
+            Number of records to return
+        release_memory: bool, optional
+            Call ``self.deallocate_ipc_gpu(df)`` after DataFrame created
 
         Returns
         -------
-        gdf : pygdf.GpuDataFrame
+        gdf : cudf.GpuDataFrame
 
         Notes
         -----
-        This requires the option ``pygdf`` and ``libgdf`` libraries.
+        This method requires ``cudf`` and ``libcudf`` to be installed.
         An ``ImportError`` is raised if those aren't available.
         """
         try:
-            from pygdf.gpuarrow import GpuArrowReader  # noqa
-            from pygdf.dataframe import DataFrame      # noqa
+            from cudf.comm.gpuarrow import GpuArrowReader  # noqa
+            from cudf.dataframe import DataFrame           # noqa
         except ImportError:
-            raise ImportError("The 'pygdf' package is required for "
+            raise ImportError("The 'cudf' package is required for "
                               "`select_ipc_gpu`")
 
         if parameters is not None:
@@ -265,9 +269,17 @@ class Connection(object):
         tdf = self._client.sql_execute_gdf(
             self._session, operation, device_id=device_id, first_n=first_n)
         self._tdf = tdf
-        return _parse_tdf_gpu(tdf)
 
-    def select_ipc(self, operation, parameters=None, first_n=-1):
+        df = _parse_tdf_gpu(tdf)
+
+        # Deallocate TDataFrame at OmniSci instance
+        if release_memory:
+            self.deallocate_ipc_gpu(df)
+
+        return df
+
+    def select_ipc(self, operation, parameters=None, first_n=-1,
+                   release_memory=True):
         """Execute a ``SELECT`` operation using CPU shared memory
 
         Parameters
@@ -276,6 +288,10 @@ class Connection(object):
             A SQL select statement
         parameters : dict, optional
             Parameters to insert for a parametrized query
+        first_n : int, optional
+            Number of records to return
+        release_memory: bool, optional
+            Call ``self.deallocate_ipc(df)`` after DataFrame created
 
         Returns
         -------
@@ -283,14 +299,14 @@ class Connection(object):
 
         Notes
         -----
-        This method requires pyarrow to be installed
+        This method requires pyarrow to be installed.
         """
         try:
             import pyarrow  # noqa
         except ImportError:
             raise ImportError("pyarrow is required for `select_ipc`")
 
-        from .shm import load_buffer
+        from .ipc import load_buffer, shmdt
 
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
@@ -304,11 +320,18 @@ class Connection(object):
         sm_buf = load_buffer(tdf.sm_handle, tdf.sm_size)
         df_buf = load_buffer(tdf.df_handle, tdf.df_size)
 
-        schema = _load_schema(sm_buf)
-        df = _load_data(df_buf, schema, tdf)
+        schema = _load_schema(sm_buf[0])
+        df = _load_data(df_buf[0], schema, tdf)
+
+        # free shared memory from Python
+        # https://github.com/omnisci/pymapd/issues/46
+        # https://github.com/omnisci/pymapd/issues/31
+        free_sm = shmdt(ctypes.cast(sm_buf[1], ctypes.c_void_p))  # noqa
+        free_df = shmdt(ctypes.cast(df_buf[1], ctypes.c_void_p))  # noqa
 
         # Deallocate TDataFrame at OmniSci instance
-        self.deallocate_ipc(df)
+        if release_memory:
+            self.deallocate_ipc(df)
 
         return df
 
@@ -324,10 +347,10 @@ class Connection(object):
 
         tdf = df.get_tdf()
         result = self._client.deallocate_df(
-                session=self._session,
-                df=tdf,
-                device_type=TDeviceType.GPU,
-                device_id=device_id)
+            session=self._session,
+            df=tdf,
+            device_type=TDeviceType.GPU,
+            device_id=device_id)
         return result
 
     def deallocate_ipc(self, df, device_id=0):
@@ -341,10 +364,10 @@ class Connection(object):
         """
         tdf = df.get_tdf()
         result = self._client.deallocate_df(
-                session=self._session,
-                df=tdf,
-                device_type=TDeviceType.CPU,
-                device_id=device_id)
+            session=self._session,
+            df=tdf,
+            device_type=TDeviceType.CPU,
+            device_id=device_id)
         return result
 
     # --------------------------------------------------------------------------
@@ -399,7 +422,7 @@ class Connection(object):
 
         row_desc = build_row_desc(data, preserve_index=preserve_index)
         self._client.create_table(self._session, table_name, row_desc,
-                                  TTableType.DELIMITED)
+                                  TTableType.DELIMITED, TCreateParams(False))
 
     def load_table(self, table_name, data, method='infer',
                    preserve_index=False,
@@ -613,12 +636,12 @@ class Connection(object):
             0 (low compression, faster) to 9 (high compression, slower).
         """
         result = self._client.render_vega(
-                self._session,
-                widget_id=None,
-                vega_json=vega,
-                compression_level=compression_level,
-                nonce=None
-                )
+            self._session,
+            widget_id=None,
+            vega_json=vega,
+            compression_level=compression_level,
+            nonce=None
+        )
         rendered_vega = RenderedVega(result)
         return rendered_vega
 
@@ -634,7 +657,7 @@ class RenderedVega(object):
             'text/html':
                 '<img src="data:image/png;base64,{}" alt="OmniSci Vega">'
                 .format(self.image_data)
-            }
+        }
 
 
 def _is_arrow(data):
