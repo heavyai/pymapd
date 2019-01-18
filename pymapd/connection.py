@@ -2,7 +2,6 @@
 Connect to an OmniSci database.
 """
 from collections import namedtuple
-from base64 import b64decode, b64encode
 import pandas as pd
 import pyarrow as pa
 import ctypes
@@ -664,38 +663,22 @@ class Connection(object):
         new_name : str
             The name for the new dashboard
         source_remap: dict
-            A dictionary remapping table column names.
+            A dictionary remapping table names.
         """
         d = self._client.get_dashboard(
             session=self._session,
             dashboard_id=dashboard_id
         )
-        dash_state = json.loads(
-                        b64decode(d.dashboard_state).decode('utf-8')
-                     )
-        dash_meta = json.loads(d.dashboard_metadata)
-
+        
         newdashname = new_name or '{0} (Copy)'.format(d.dashboard_name)
-
-        if source_remap:
-            current_table = dash_meta.get('table')
-            new_table = source_remap.get(current_table, {})
-            dash_state = change_dash_sources(dash_state, source_remap)
-            dash_meta['table'] = new_table.get('name', {}) or current_table
-
-        dashboard_state = json.dumps(dash_state)
-        dash_meta = json.dumps(dash_meta)
-
-        newdashdefb64 = b64encode(
-                            dashboard_state.encode('utf-8')
-                        ).decode('utf-8')
+        d = change_dash_sources(d, source_remap) if source_remap else d
 
         new_dashboard_id = self._client.create_dashboard(
             session=self._session,
             dashboard_name=newdashname,
-            dashboard_state=newdashdefb64,
+            dashboard_state=d.dashboard_state,
             image_hash='',
-            dashboard_metadata=dash_meta,
+            dashboard_metadata=d.dashboard_metadata,
         )
 
         return new_dashboard_id
