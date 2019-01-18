@@ -2,7 +2,7 @@
 Connect to an OmniSci database.
 """
 from collections import namedtuple
-import base64
+from base64 import b64decode, b64encode
 import pandas as pd
 import pyarrow as pa
 import ctypes
@@ -23,7 +23,7 @@ from ._parsers import (
     _extract_column_details
 )
 from ._loaders import _build_input_rows
-
+from ._utils import change_dash_sources
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
                                                'port', 'dbname', 'protocol'])
@@ -652,7 +652,7 @@ class Connection(object):
         return dashboards
 
     def duplicate_dashboard(self, dashboard_id, new_name=None,
-                            schema_remap={}):
+                            source_remap={}):
         """
         Duplicate an existing dashboard, returning the new dashboard id.
 
@@ -663,37 +663,39 @@ class Connection(object):
             The id of the dashboard to duplicate
         new_name : str
             The name for the new dashboard
-        schema_remap: dict
+        source_remap: dict
             A dictionary remapping table column names.
         """
-        dashboard = self._client.get_dashboard(
+        d = self._client.get_dashboard(
             session=self._session,
             dashboard_id=dashboard_id
         )
-        dashboard_state = json.loads(base64.b64decode(dashboard.dashboard_state).decode('utf-8'))
-        dashboard_metadata = json.loads(dashboard.dashboard_metadata)
+        dash_state = json.loads(
+                        b64decode(d.dashboard_state).decode('utf-8')
+                     )
+        dash_meta = json.loads(d.dashboard_metadata)
 
-        newdashname = new_name or '{0} (Copy)'.format(dashboard.dashboard_name)
+        newdashname = new_name or '{0} (Copy)'.format(d.dashboard_name)
 
-        current_table = dashboard_metadata.get('table')
-        print(schema_remap)
-        new_table = schema_remap.get(current_table, {}).get('name', {})
-        if new_table:
-            dashboard_state = _replace_dash_table(dashboard_state, new_table)
-            print(dashboard_state)
-            dashboard_metadata['table'] = new_table
+        if source_remap:
+            current_table = dash_meta.get('table')
+            new_table = source_remap.get(current_table, {})
+            dash_state = change_dash_sources(dash_state, source_remap)
+            dash_meta['table'] = new_table.get('name', {}) or current_table
 
-        dashboard_state = json.dumps(dashboard_state)
-        dashboard_metadata = json.dumps(dashboard_metadata)
+        dashboard_state = json.dumps(dash_state)
+        dash_meta = json.dumps(dash_meta)
 
-        newdashdefinitionb64 = base64.b64encode(dashboard_state.encode('utf-8')).decode('utf-8')
+        newdashdefb64 = b64encode(
+                            dashboard_state.encode('utf-8')
+                        ).decode('utf-8')
 
         new_dashboard_id = self._client.create_dashboard(
             session=self._session,
             dashboard_name=newdashname,
-            dashboard_state=newdashdefinitionb64,
+            dashboard_state=newdashdefb64,
             image_hash='',
-            dashboard_metadata=dashboard_metadata,
+            dashboard_metadata=dash_meta,
         )
 
         return new_dashboard_id
@@ -724,40 +726,3 @@ def _check_create(create):
         raise ValueError("Unexpected value for create: '{}'. "
                          "Expected one of {}".format(create, valid))
     return create
-
-def _replace_dash_table(dashdef, newtablename):
-    oldtablename = dashdef['dashboard']['table']
-    dashdef['dashboard']['table'] = newtablename
-    for k, v in dashdef['dashboard']['dataSources'].items():
-        for col in v['columnMetadata']:
-            col['table'] = newtablename
-    for chart, val in dashdef['charts'].items():
-        if val.get('dataSource', None):
-            dashdef['charts'][chart]['dataSource'] = newtablename
-
-        i = 0
-        for dim in val.get('dimensions', []):
-            if dim.get('table', {}):
-                dashdef['charts'][chart]['dimensions'][i]['table'] = newtablename
-            if dim.get('selector', {}).get('table'):
-                dashdef['charts'][chart]['dimensions'][i]['selector']['table'] = newtablename
-            i += 1
-
-        i = 0
-        for m in val.get('measures', []):
-            if m.get('table', None):
-                dashdef['charts'][chart]['measures'][i]['table'] = newtablename
-            i += 1
-
-        il = 0
-        for layer in val.get('layers', []):
-            im = 0
-            if layer.get('dataSource'):
-                dashdef['charts'][chart]['layers'][il]['dataSource'] = newtablename
-            for measure in layer.get('measures', []):
-                if measure.get('table', None):
-                    dashdef['charts'][chart]['layers'][il]['measures'][im]['table'] = newtablename
-                im += 1
-            il += 1
-    dashdef['dashboard']['dataSources'][newtablename] = dashdef['dashboard']['dataSources'].pop(oldtablename)
-    return dashdef

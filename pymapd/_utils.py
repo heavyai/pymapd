@@ -40,6 +40,45 @@ def date_to_seconds(arr):
     return data
 
 
+def change_dash_sources(dashdef, tables):
+    oldtablename = dashdef['dashboard']['table']
+    newtablename = tables.get(oldtablename, {}).get('name', {}) or oldtablename
+    dashdef['dashboard']['table'] = newtablename
+    for k, v in dashdef['dashboard']['dataSources'].items():
+        for col in v['columnMetadata']:
+            col['table'] = newtablename
+    for chart, val in dashdef['charts'].items():
+        if val.get('dataSource', None):
+            dashdef['charts'][chart]['dataSource'] = newtablename
+
+        i = 0
+        for dim in val.get('dimensions', []):
+            if dim.get('table', {}):
+                dashdef['charts'][chart]['dimensions'][i]['table'] = newtablename
+            if dim.get('selector', {}).get('table'):
+                dashdef['charts'][chart]['dimensions'][i]['selector']['table'] = newtablename
+            i += 1
+
+        i = 0
+        for m in val.get('measures', []):
+            if m.get('table', None):
+                dashdef['charts'][chart]['measures'][i]['table'] = newtablename
+            i += 1
+
+        il = 0
+        for layer in val.get('layers', []):
+            im = 0
+            if layer.get('dataSource'):
+                dashdef['charts'][chart]['layers'][il]['dataSource'] = newtablename
+            for measure in layer.get('measures', []):
+                if measure.get('table', None):
+                    dashdef['charts'][chart]['layers'][il]['measures'][im]['table'] = newtablename
+                im += 1
+            il += 1
+    dashdef['dashboard']['dataSources'][newtablename] = dashdef['dashboard']['dataSources'].pop(oldtablename)
+    return dashdef
+
+
 mapd_to_slot = {
     'BOOL': 'int_col',
     'BOOLEAN': 'int_col',
