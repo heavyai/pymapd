@@ -22,7 +22,7 @@ from ._parsers import (
     _extract_column_details
 )
 from ._loaders import _build_input_rows
-from ._utils import change_dash_sources
+from ._transforms import change_dash_sources
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
                                                'port', 'dbname', 'protocol'])
@@ -669,7 +669,7 @@ class Connection(object):
             session=self._session,
             dashboard_id=dashboard_id
         )
-        
+
         newdashname = new_name or '{0} (Copy)'.format(d.dashboard_name)
         d = change_dash_sources(d, source_remap) if source_remap else d
 
