@@ -663,7 +663,21 @@ class Connection(object):
         new_name : str
             The name for the new dashboard
         source_remap: dict
-            A dictionary remapping table names.
+            EXPERIMENTAL
+            A dictionary remapping table names. The old table name(s) 
+            should be keys of the dict, with each value being another
+            dict with a 'name' key holding the new table value. This
+            structure can be used later to support changing column
+            names.
+            Example of source_remap format:
+            {
+                'oldtablename1': {
+                    'name': 'newtablename1'
+                },
+                'oldtablename2': {
+                    'name': 'newtablename2'
+                }
+            }
         """
         d = self._client.get_dashboard(
             session=self._session,
