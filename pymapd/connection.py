@@ -644,6 +644,12 @@ class Connection(object):
         return rendered_vega
 
     def get_dashboards(self):
+        """List all the dashboards in the database
+
+        Example
+        --------
+        >>> con.get_dashboards()
+        """
         dashboards = self._client.get_dashboards(
             session=self._session
         )
