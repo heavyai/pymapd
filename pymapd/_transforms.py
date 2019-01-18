@@ -1,6 +1,7 @@
 import json
 from base64 import b64decode, b64encode
 
+
 def change_dash_sources(dashboard, remap):
     d = dashboard
     r = remap
@@ -43,10 +44,22 @@ def change_dash_sources(dashboard, remap):
                     ds['charts'][c]['layers'][il]['dataSource'] = nt
                 for measure in layer.get('measures', []):
                     if measure.get('table', None) == ot:
-                        ds['charts'][c]['layers'][il]['measures'][im]['table'] = nt
+                        (ds
+                            ['charts']
+                            [c]
+                            ['layers']
+                            [il]
+                            ['measures']
+                            [im]
+                            ['table']
+                         ) = nt
                     im += 1
                 il += 1
-        ds['dashboard']['dataSources'][nt] = ds['dashboard']['dataSources'].pop(ot)
+        (ds
+            ['dashboard']
+            ['dataSources']
+            [nt]
+         ) = ds['dashboard']['dataSources'].pop(ot)
     ds = b64encode(json.dumps(ds).encode()).decode()
     dm = json.dumps(dm)
     d.dashboard_state = ds

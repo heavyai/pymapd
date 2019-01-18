@@ -5,7 +5,6 @@ from collections import namedtuple
 import pandas as pd
 import pyarrow as pa
 import ctypes
-import json
 import six
 from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
@@ -13,7 +12,7 @@ from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
 from mapd.MapD import Client, TDeviceType, TCreateParams
 from mapd.ttypes import TMapDException
-
+import base64
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
 
@@ -664,7 +663,7 @@ class Connection(object):
             The name for the new dashboard
         source_remap: dict
             EXPERIMENTAL
-            A dictionary remapping table names. The old table name(s) 
+            A dictionary remapping table names. The old table name(s)
             should be keys of the dict, with each value being another
             dict with a 'name' key holding the new table value. This
             structure can be used later to support changing column

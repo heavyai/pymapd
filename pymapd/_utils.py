@@ -1,5 +1,6 @@
 import datetime
 
+
 def seconds_to_time(seconds):
     """Convert seconds since midnight to a datetime.time"""
     m, s = divmod(seconds, 60)
