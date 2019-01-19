@@ -9,7 +9,6 @@
 from thrift.Thrift import TType, TMessageType, TApplicationException
 from thrift.TRecursive import fix_spec
 
-import sys
 import logging
 from .ttypes import *
 from thrift.Thrift import TProcessor
@@ -5462,17 +5461,17 @@ class connect_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.user = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.user = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.passwd = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.passwd = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.dbname = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dbname = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -5487,15 +5486,15 @@ class connect_args(object):
         oprot.writeStructBegin('connect_args')
         if self.user is not None:
             oprot.writeFieldBegin('user', TType.STRING, 1)
-            oprot.writeString(self.user.encode('utf-8') if sys.version_info[0] == 2 else self.user)
+            oprot.writeString(self.user)
             oprot.writeFieldEnd()
         if self.passwd is not None:
             oprot.writeFieldBegin('passwd', TType.STRING, 2)
-            oprot.writeString(self.passwd.encode('utf-8') if sys.version_info[0] == 2 else self.passwd)
+            oprot.writeString(self.passwd)
             oprot.writeFieldEnd()
         if self.dbname is not None:
             oprot.writeFieldBegin('dbname', TType.STRING, 3)
-            oprot.writeString(self.dbname.encode('utf-8') if sys.version_info[0] == 2 else self.dbname)
+            oprot.writeString(self.dbname)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5545,7 +5544,7 @@ class connect_result(object):
                 break
             if fid == 0:
                 if ftype == TType.STRING:
-                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.success = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 1:
@@ -5566,7 +5565,7 @@ class connect_result(object):
         oprot.writeStructBegin('connect_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
-            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeString(self.success)
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
@@ -5616,7 +5615,7 @@ class disconnect_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -5631,7 +5630,7 @@ class disconnect_args(object):
         oprot.writeStructBegin('disconnect_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5739,7 +5738,7 @@ class get_server_status_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -5754,7 +5753,7 @@ class get_server_status_args(object):
         oprot.writeStructBegin('get_server_status_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5874,7 +5873,7 @@ class get_status_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -5889,7 +5888,7 @@ class get_status_args(object):
         oprot.writeStructBegin('get_status_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6017,7 +6016,7 @@ class get_hardware_info_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -6032,7 +6031,7 @@ class get_hardware_info_args(object):
         oprot.writeStructBegin('get_hardware_info_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6152,7 +6151,7 @@ class get_tables_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -6167,7 +6166,7 @@ class get_tables_args(object):
         oprot.writeStructBegin('get_tables_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6218,7 +6217,7 @@ class get_tables_result(object):
                     self.success = []
                     (_etype244, _size241) = iprot.readListBegin()
                     for _i245 in range(_size241):
-                        _elem246 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem246 = iprot.readString()
                         self.success.append(_elem246)
                     iprot.readListEnd()
                 else:
@@ -6243,7 +6242,7 @@ class get_tables_result(object):
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRING, len(self.success))
             for iter247 in self.success:
-                oprot.writeString(iter247.encode('utf-8') if sys.version_info[0] == 2 else iter247)
+                oprot.writeString(iter247)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -6294,7 +6293,7 @@ class get_physical_tables_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -6309,7 +6308,7 @@ class get_physical_tables_args(object):
         oprot.writeStructBegin('get_physical_tables_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6360,7 +6359,7 @@ class get_physical_tables_result(object):
                     self.success = []
                     (_etype251, _size248) = iprot.readListBegin()
                     for _i252 in range(_size248):
-                        _elem253 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem253 = iprot.readString()
                         self.success.append(_elem253)
                     iprot.readListEnd()
                 else:
@@ -6385,7 +6384,7 @@ class get_physical_tables_result(object):
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRING, len(self.success))
             for iter254 in self.success:
-                oprot.writeString(iter254.encode('utf-8') if sys.version_info[0] == 2 else iter254)
+                oprot.writeString(iter254)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -6436,7 +6435,7 @@ class get_views_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -6451,7 +6450,7 @@ class get_views_args(object):
         oprot.writeStructBegin('get_views_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6502,7 +6501,7 @@ class get_views_result(object):
                     self.success = []
                     (_etype258, _size255) = iprot.readListBegin()
                     for _i259 in range(_size255):
-                        _elem260 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem260 = iprot.readString()
                         self.success.append(_elem260)
                     iprot.readListEnd()
                 else:
@@ -6527,7 +6526,7 @@ class get_views_result(object):
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRING, len(self.success))
             for iter261 in self.success:
-                oprot.writeString(iter261.encode('utf-8') if sys.version_info[0] == 2 else iter261)
+                oprot.writeString(iter261)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -6578,7 +6577,7 @@ class get_tables_meta_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -6593,7 +6592,7 @@ class get_tables_meta_args(object):
         oprot.writeStructBegin('get_tables_meta_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6723,12 +6722,12 @@ class get_table_details_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -6743,11 +6742,11 @@ class get_table_details_args(object):
         oprot.writeStructBegin('get_table_details_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6870,12 +6869,12 @@ class get_internal_table_details_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -6890,11 +6889,11 @@ class get_internal_table_details_args(object):
         oprot.writeStructBegin('get_internal_table_details_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -7015,7 +7014,7 @@ class get_users_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -7030,7 +7029,7 @@ class get_users_args(object):
         oprot.writeStructBegin('get_users_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -7081,7 +7080,7 @@ class get_users_result(object):
                     self.success = []
                     (_etype272, _size269) = iprot.readListBegin()
                     for _i273 in range(_size269):
-                        _elem274 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem274 = iprot.readString()
                         self.success.append(_elem274)
                     iprot.readListEnd()
                 else:
@@ -7106,7 +7105,7 @@ class get_users_result(object):
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRING, len(self.success))
             for iter275 in self.success:
-                oprot.writeString(iter275.encode('utf-8') if sys.version_info[0] == 2 else iter275)
+                oprot.writeString(iter275)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -7157,7 +7156,7 @@ class get_databases_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -7172,7 +7171,7 @@ class get_databases_args(object):
         oprot.writeStructBegin('get_databases_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -7345,7 +7344,7 @@ class get_version_result(object):
                 break
             if fid == 0:
                 if ftype == TType.STRING:
-                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.success = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 1:
@@ -7366,7 +7365,7 @@ class get_version_result(object):
         oprot.writeStructBegin('get_version_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
-            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeString(self.success)
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
@@ -7416,7 +7415,7 @@ class start_heap_profile_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -7431,7 +7430,7 @@ class start_heap_profile_args(object):
         oprot.writeStructBegin('start_heap_profile_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -7539,7 +7538,7 @@ class stop_heap_profile_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -7554,7 +7553,7 @@ class stop_heap_profile_args(object):
         oprot.writeStructBegin('stop_heap_profile_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -7662,7 +7661,7 @@ class get_heap_profile_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -7677,7 +7676,7 @@ class get_heap_profile_args(object):
         oprot.writeStructBegin('get_heap_profile_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -7725,7 +7724,7 @@ class get_heap_profile_result(object):
                 break
             if fid == 0:
                 if ftype == TType.STRING:
-                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.success = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 1:
@@ -7746,7 +7745,7 @@ class get_heap_profile_result(object):
         oprot.writeStructBegin('get_heap_profile_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
-            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeString(self.success)
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
@@ -7798,12 +7797,12 @@ class get_memory_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.memory_level = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.memory_level = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -7818,11 +7817,11 @@ class get_memory_args(object):
         oprot.writeStructBegin('get_memory_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.memory_level is not None:
             oprot.writeFieldBegin('memory_level', TType.STRING, 2)
-            oprot.writeString(self.memory_level.encode('utf-8') if sys.version_info[0] == 2 else self.memory_level)
+            oprot.writeString(self.memory_level)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -7951,7 +7950,7 @@ class clear_cpu_memory_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -7966,7 +7965,7 @@ class clear_cpu_memory_args(object):
         oprot.writeStructBegin('clear_cpu_memory_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -8074,7 +8073,7 @@ class clear_gpu_memory_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -8089,7 +8088,7 @@ class clear_gpu_memory_args(object):
         oprot.writeStructBegin('clear_gpu_memory_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -8203,7 +8202,7 @@ class set_table_epoch_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -8233,7 +8232,7 @@ class set_table_epoch_args(object):
         oprot.writeStructBegin('set_table_epoch_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.db_id is not None:
             oprot.writeFieldBegin('db_id', TType.I32, 2)
@@ -8360,12 +8359,12 @@ class set_table_epoch_by_name_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -8385,11 +8384,11 @@ class set_table_epoch_by_name_args(object):
         oprot.writeStructBegin('set_table_epoch_by_name_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         if self.new_epoch is not None:
             oprot.writeFieldBegin('new_epoch', TType.I32, 3)
@@ -8507,7 +8506,7 @@ class get_table_epoch_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -8532,7 +8531,7 @@ class get_table_epoch_args(object):
         oprot.writeStructBegin('get_table_epoch_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.db_id is not None:
             oprot.writeFieldBegin('db_id', TType.I32, 2)
@@ -8650,12 +8649,12 @@ class get_table_epoch_by_name_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -8670,11 +8669,11 @@ class get_table_epoch_by_name_args(object):
         oprot.writeStructBegin('get_table_epoch_by_name_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -8781,7 +8780,7 @@ class get_session_info_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -8796,7 +8795,7 @@ class get_session_info_args(object):
         oprot.writeStructBegin('get_session_info_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -8926,12 +8925,12 @@ class sql_execute_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.query = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.query = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -8941,7 +8940,7 @@ class sql_execute_args(object):
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.nonce = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
@@ -8966,11 +8965,11 @@ class sql_execute_args(object):
         oprot.writeStructBegin('sql_execute_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.query is not None:
             oprot.writeFieldBegin('query', TType.STRING, 2)
-            oprot.writeString(self.query.encode('utf-8') if sys.version_info[0] == 2 else self.query)
+            oprot.writeString(self.query)
             oprot.writeFieldEnd()
         if self.column_format is not None:
             oprot.writeFieldBegin('column_format', TType.BOOL, 3)
@@ -8978,7 +8977,7 @@ class sql_execute_args(object):
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 4)
-            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
+            oprot.writeString(self.nonce)
             oprot.writeFieldEnd()
         if self.first_n is not None:
             oprot.writeFieldBegin('first_n', TType.I32, 5)
@@ -9119,12 +9118,12 @@ class sql_execute_df_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.query = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.query = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -9154,11 +9153,11 @@ class sql_execute_df_args(object):
         oprot.writeStructBegin('sql_execute_df_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.query is not None:
             oprot.writeFieldBegin('query', TType.STRING, 2)
-            oprot.writeString(self.query.encode('utf-8') if sys.version_info[0] == 2 else self.query)
+            oprot.writeString(self.query)
             oprot.writeFieldEnd()
         if self.device_type is not None:
             oprot.writeFieldBegin('device_type', TType.I32, 3)
@@ -9300,12 +9299,12 @@ class sql_execute_gdf_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.query = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.query = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -9330,11 +9329,11 @@ class sql_execute_gdf_args(object):
         oprot.writeStructBegin('sql_execute_gdf_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.query is not None:
             oprot.writeFieldBegin('query', TType.STRING, 2)
-            oprot.writeString(self.query.encode('utf-8') if sys.version_info[0] == 2 else self.query)
+            oprot.writeString(self.query)
             oprot.writeFieldEnd()
         if self.device_id is not None:
             oprot.writeFieldBegin('device_id', TType.I32, 3)
@@ -9471,7 +9470,7 @@ class deallocate_df_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -9502,7 +9501,7 @@ class deallocate_df_args(object):
         oprot.writeStructBegin('deallocate_df_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.df is not None:
             oprot.writeFieldBegin('df', TType.STRUCT, 2)
@@ -9625,7 +9624,7 @@ class interrupt_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -9640,7 +9639,7 @@ class interrupt_args(object):
         oprot.writeStructBegin('interrupt_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -9750,12 +9749,12 @@ class sql_validate_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.query = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.query = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -9770,11 +9769,11 @@ class sql_validate_args(object):
         oprot.writeStructBegin('sql_validate_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.query is not None:
             oprot.writeFieldBegin('query', TType.STRING, 2)
-            oprot.writeString(self.query.encode('utf-8') if sys.version_info[0] == 2 else self.query)
+            oprot.writeString(self.query)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -9826,7 +9825,7 @@ class sql_validate_result(object):
                     self.success = {}
                     (_ktype291, _vtype292, _size290) = iprot.readMapBegin()
                     for _i294 in range(_size290):
-                        _key295 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _key295 = iprot.readString()
                         _val296 = TColumnType()
                         _val296.read(iprot)
                         self.success[_key295] = _val296
@@ -9853,7 +9852,7 @@ class sql_validate_result(object):
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRUCT, len(self.success))
             for kiter297, viter298 in self.success.items():
-                oprot.writeString(kiter297.encode('utf-8') if sys.version_info[0] == 2 else kiter297)
+                oprot.writeString(kkiter297)
                 viter298.write(oprot)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
@@ -9907,7 +9906,7 @@ class set_execution_mode_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -9927,7 +9926,7 @@ class set_execution_mode_args(object):
         oprot.writeStructBegin('set_execution_mode_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.mode is not None:
             oprot.writeFieldBegin('mode', TType.I32, 2)
@@ -10048,7 +10047,7 @@ class render_vega_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -10058,7 +10057,7 @@ class render_vega_args(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.vega_json = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.vega_json = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
@@ -10068,7 +10067,7 @@ class render_vega_args(object):
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.nonce = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -10083,7 +10082,7 @@ class render_vega_args(object):
         oprot.writeStructBegin('render_vega_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.widget_id is not None:
             oprot.writeFieldBegin('widget_id', TType.I64, 2)
@@ -10091,7 +10090,7 @@ class render_vega_args(object):
             oprot.writeFieldEnd()
         if self.vega_json is not None:
             oprot.writeFieldBegin('vega_json', TType.STRING, 3)
-            oprot.writeString(self.vega_json.encode('utf-8') if sys.version_info[0] == 2 else self.vega_json)
+            oprot.writeString(self.vega_json)
             oprot.writeFieldEnd()
         if self.compression_level is not None:
             oprot.writeFieldBegin('compression_level', TType.I32, 4)
@@ -10099,7 +10098,7 @@ class render_vega_args(object):
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 5)
-            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
+            oprot.writeString(self.nonce)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -10235,7 +10234,7 @@ class get_result_row_for_pixel_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -10254,11 +10253,11 @@ class get_result_row_for_pixel_args(object):
                     self.table_col_names = {}
                     (_ktype300, _vtype301, _size299) = iprot.readMapBegin()
                     for _i303 in range(_size299):
-                        _key304 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _key304 = iprot.readString()
                         _val305 = []
                         (_etype309, _size306) = iprot.readListBegin()
                         for _i310 in range(_size306):
-                            _elem311 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                            _elem311 = iprot.readString()
                             _val305.append(_elem311)
                         iprot.readListEnd()
                         self.table_col_names[_key304] = _val305
@@ -10277,7 +10276,7 @@ class get_result_row_for_pixel_args(object):
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.nonce = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -10292,7 +10291,7 @@ class get_result_row_for_pixel_args(object):
         oprot.writeStructBegin('get_result_row_for_pixel_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.widget_id is not None:
             oprot.writeFieldBegin('widget_id', TType.I64, 2)
@@ -10306,10 +10305,10 @@ class get_result_row_for_pixel_args(object):
             oprot.writeFieldBegin('table_col_names', TType.MAP, 4)
             oprot.writeMapBegin(TType.STRING, TType.LIST, len(self.table_col_names))
             for kiter312, viter313 in self.table_col_names.items():
-                oprot.writeString(kiter312.encode('utf-8') if sys.version_info[0] == 2 else kiter312)
+                oprot.writeString(kkiter312)
                 oprot.writeListBegin(TType.STRING, len(viter313))
                 for iter314 in viter313:
-                    oprot.writeString(iter314.encode('utf-8') if sys.version_info[0] == 2 else iter314)
+                    oprot.writeString(iter314)
                 oprot.writeListEnd()
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
@@ -10323,7 +10322,7 @@ class get_result_row_for_pixel_args(object):
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 7)
-            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
+            oprot.writeString(self.nonce)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -10451,12 +10450,12 @@ class get_frontend_view_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.view_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -10471,11 +10470,11 @@ class get_frontend_view_args(object):
         oprot.writeStructBegin('get_frontend_view_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.view_name is not None:
             oprot.writeFieldBegin('view_name', TType.STRING, 2)
-            oprot.writeString(self.view_name.encode('utf-8') if sys.version_info[0] == 2 else self.view_name)
+            oprot.writeString(self.view_name)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -10596,7 +10595,7 @@ class get_frontend_views_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -10611,7 +10610,7 @@ class get_frontend_views_args(object):
         oprot.writeStructBegin('get_frontend_views_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -10747,27 +10746,27 @@ class create_frontend_view_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.view_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.view_state = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_state = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.image_hash = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.image_hash = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.view_metadata = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_metadata = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -10782,23 +10781,23 @@ class create_frontend_view_args(object):
         oprot.writeStructBegin('create_frontend_view_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.view_name is not None:
             oprot.writeFieldBegin('view_name', TType.STRING, 2)
-            oprot.writeString(self.view_name.encode('utf-8') if sys.version_info[0] == 2 else self.view_name)
+            oprot.writeString(self.view_name)
             oprot.writeFieldEnd()
         if self.view_state is not None:
             oprot.writeFieldBegin('view_state', TType.STRING, 3)
-            oprot.writeString(self.view_state.encode('utf-8') if sys.version_info[0] == 2 else self.view_state)
+            oprot.writeString(self.view_state)
             oprot.writeFieldEnd()
         if self.image_hash is not None:
             oprot.writeFieldBegin('image_hash', TType.STRING, 4)
-            oprot.writeString(self.image_hash.encode('utf-8') if sys.version_info[0] == 2 else self.image_hash)
+            oprot.writeString(self.image_hash)
             oprot.writeFieldEnd()
         if self.view_metadata is not None:
             oprot.writeFieldBegin('view_metadata', TType.STRING, 5)
-            oprot.writeString(self.view_metadata.encode('utf-8') if sys.version_info[0] == 2 else self.view_metadata)
+            oprot.writeString(self.view_metadata)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -10912,12 +10911,12 @@ class delete_frontend_view_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.view_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -10932,11 +10931,11 @@ class delete_frontend_view_args(object):
         oprot.writeStructBegin('delete_frontend_view_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.view_name is not None:
             oprot.writeFieldBegin('view_name', TType.STRING, 2)
-            oprot.writeString(self.view_name.encode('utf-8') if sys.version_info[0] == 2 else self.view_name)
+            oprot.writeString(self.view_name)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -11047,7 +11046,7 @@ class get_dashboard_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -11067,7 +11066,7 @@ class get_dashboard_args(object):
         oprot.writeStructBegin('get_dashboard_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.dashboard_id is not None:
             oprot.writeFieldBegin('dashboard_id', TType.I32, 2)
@@ -11192,7 +11191,7 @@ class get_dashboards_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -11207,7 +11206,7 @@ class get_dashboards_args(object):
         oprot.writeStructBegin('get_dashboards_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -11343,27 +11342,27 @@ class create_dashboard_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.dashboard_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.dashboard_state = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_state = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.image_hash = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.image_hash = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.dashboard_metadata = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_metadata = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -11378,23 +11377,23 @@ class create_dashboard_args(object):
         oprot.writeStructBegin('create_dashboard_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.dashboard_name is not None:
             oprot.writeFieldBegin('dashboard_name', TType.STRING, 2)
-            oprot.writeString(self.dashboard_name.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_name)
+            oprot.writeString(self.dashboard_name)
             oprot.writeFieldEnd()
         if self.dashboard_state is not None:
             oprot.writeFieldBegin('dashboard_state', TType.STRING, 3)
-            oprot.writeString(self.dashboard_state.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_state)
+            oprot.writeString(self.dashboard_state)
             oprot.writeFieldEnd()
         if self.image_hash is not None:
             oprot.writeFieldBegin('image_hash', TType.STRING, 4)
-            oprot.writeString(self.image_hash.encode('utf-8') if sys.version_info[0] == 2 else self.image_hash)
+            oprot.writeString(self.image_hash)
             oprot.writeFieldEnd()
         if self.dashboard_metadata is not None:
             oprot.writeFieldBegin('dashboard_metadata', TType.STRING, 5)
-            oprot.writeString(self.dashboard_metadata.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_metadata)
+            oprot.writeString(self.dashboard_metadata)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -11529,7 +11528,7 @@ class replace_dashboard_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -11539,27 +11538,27 @@ class replace_dashboard_args(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.dashboard_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.dashboard_owner = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_owner = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.dashboard_state = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_state = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.image_hash = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.image_hash = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.dashboard_metadata = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_metadata = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -11574,7 +11573,7 @@ class replace_dashboard_args(object):
         oprot.writeStructBegin('replace_dashboard_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.dashboard_id is not None:
             oprot.writeFieldBegin('dashboard_id', TType.I32, 2)
@@ -11582,23 +11581,23 @@ class replace_dashboard_args(object):
             oprot.writeFieldEnd()
         if self.dashboard_name is not None:
             oprot.writeFieldBegin('dashboard_name', TType.STRING, 3)
-            oprot.writeString(self.dashboard_name.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_name)
+            oprot.writeString(self.dashboard_name)
             oprot.writeFieldEnd()
         if self.dashboard_owner is not None:
             oprot.writeFieldBegin('dashboard_owner', TType.STRING, 4)
-            oprot.writeString(self.dashboard_owner.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_owner)
+            oprot.writeString(self.dashboard_owner)
             oprot.writeFieldEnd()
         if self.dashboard_state is not None:
             oprot.writeFieldBegin('dashboard_state', TType.STRING, 5)
-            oprot.writeString(self.dashboard_state.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_state)
+            oprot.writeString(self.dashboard_state)
             oprot.writeFieldEnd()
         if self.image_hash is not None:
             oprot.writeFieldBegin('image_hash', TType.STRING, 6)
-            oprot.writeString(self.image_hash.encode('utf-8') if sys.version_info[0] == 2 else self.image_hash)
+            oprot.writeString(self.image_hash)
             oprot.writeFieldEnd()
         if self.dashboard_metadata is not None:
             oprot.writeFieldBegin('dashboard_metadata', TType.STRING, 7)
-            oprot.writeString(self.dashboard_metadata.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_metadata)
+            oprot.writeString(self.dashboard_metadata)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -11714,7 +11713,7 @@ class delete_dashboard_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -11734,7 +11733,7 @@ class delete_dashboard_args(object):
         oprot.writeStructBegin('delete_dashboard_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.dashboard_id is not None:
             oprot.writeFieldBegin('dashboard_id', TType.I32, 2)
@@ -11855,7 +11854,7 @@ class share_dashboard_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -11868,7 +11867,7 @@ class share_dashboard_args(object):
                     self.groups = []
                     (_etype332, _size329) = iprot.readListBegin()
                     for _i333 in range(_size329):
-                        _elem334 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem334 = iprot.readString()
                         self.groups.append(_elem334)
                     iprot.readListEnd()
                 else:
@@ -11878,7 +11877,7 @@ class share_dashboard_args(object):
                     self.objects = []
                     (_etype338, _size335) = iprot.readListBegin()
                     for _i339 in range(_size335):
-                        _elem340 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem340 = iprot.readString()
                         self.objects.append(_elem340)
                     iprot.readListEnd()
                 else:
@@ -11901,7 +11900,7 @@ class share_dashboard_args(object):
         oprot.writeStructBegin('share_dashboard_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.dashboard_id is not None:
             oprot.writeFieldBegin('dashboard_id', TType.I32, 2)
@@ -11911,14 +11910,14 @@ class share_dashboard_args(object):
             oprot.writeFieldBegin('groups', TType.LIST, 3)
             oprot.writeListBegin(TType.STRING, len(self.groups))
             for iter341 in self.groups:
-                oprot.writeString(iter341.encode('utf-8') if sys.version_info[0] == 2 else iter341)
+                oprot.writeString(iter341)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.objects is not None:
             oprot.writeFieldBegin('objects', TType.LIST, 4)
             oprot.writeListBegin(TType.STRING, len(self.objects))
             for iter342 in self.objects:
-                oprot.writeString(iter342.encode('utf-8') if sys.version_info[0] == 2 else iter342)
+                oprot.writeString(iter342)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.permissions is not None:
@@ -12043,7 +12042,7 @@ class unshare_dashboard_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -12056,7 +12055,7 @@ class unshare_dashboard_args(object):
                     self.groups = []
                     (_etype346, _size343) = iprot.readListBegin()
                     for _i347 in range(_size343):
-                        _elem348 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem348 = iprot.readString()
                         self.groups.append(_elem348)
                     iprot.readListEnd()
                 else:
@@ -12066,7 +12065,7 @@ class unshare_dashboard_args(object):
                     self.objects = []
                     (_etype352, _size349) = iprot.readListBegin()
                     for _i353 in range(_size349):
-                        _elem354 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem354 = iprot.readString()
                         self.objects.append(_elem354)
                     iprot.readListEnd()
                 else:
@@ -12089,7 +12088,7 @@ class unshare_dashboard_args(object):
         oprot.writeStructBegin('unshare_dashboard_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.dashboard_id is not None:
             oprot.writeFieldBegin('dashboard_id', TType.I32, 2)
@@ -12099,14 +12098,14 @@ class unshare_dashboard_args(object):
             oprot.writeFieldBegin('groups', TType.LIST, 3)
             oprot.writeListBegin(TType.STRING, len(self.groups))
             for iter355 in self.groups:
-                oprot.writeString(iter355.encode('utf-8') if sys.version_info[0] == 2 else iter355)
+                oprot.writeString(iter355)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.objects is not None:
             oprot.writeFieldBegin('objects', TType.LIST, 4)
             oprot.writeListBegin(TType.STRING, len(self.objects))
             for iter356 in self.objects:
-                oprot.writeString(iter356.encode('utf-8') if sys.version_info[0] == 2 else iter356)
+                oprot.writeString(iter356)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.permissions is not None:
@@ -12225,7 +12224,7 @@ class get_dashboard_grantees_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -12245,7 +12244,7 @@ class get_dashboard_grantees_args(object):
         oprot.writeStructBegin('get_dashboard_grantees_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.dashboard_id is not None:
             oprot.writeFieldBegin('dashboard_id', TType.I32, 2)
@@ -12380,12 +12379,12 @@ class get_link_view_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.link = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.link = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -12400,11 +12399,11 @@ class get_link_view_args(object):
         oprot.writeStructBegin('get_link_view_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.link is not None:
             oprot.writeFieldBegin('link', TType.STRING, 2)
-            oprot.writeString(self.link.encode('utf-8') if sys.version_info[0] == 2 else self.link)
+            oprot.writeString(self.link)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -12529,17 +12528,17 @@ class create_link_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.view_state = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_state = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.view_metadata = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_metadata = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -12554,15 +12553,15 @@ class create_link_args(object):
         oprot.writeStructBegin('create_link_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.view_state is not None:
             oprot.writeFieldBegin('view_state', TType.STRING, 2)
-            oprot.writeString(self.view_state.encode('utf-8') if sys.version_info[0] == 2 else self.view_state)
+            oprot.writeString(self.view_state)
             oprot.writeFieldEnd()
         if self.view_metadata is not None:
             oprot.writeFieldBegin('view_metadata', TType.STRING, 3)
-            oprot.writeString(self.view_metadata.encode('utf-8') if sys.version_info[0] == 2 else self.view_metadata)
+            oprot.writeString(self.view_metadata)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -12612,7 +12611,7 @@ class create_link_result(object):
                 break
             if fid == 0:
                 if ftype == TType.STRING:
-                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.success = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 1:
@@ -12633,7 +12632,7 @@ class create_link_result(object):
         oprot.writeStructBegin('create_link_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
-            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeString(self.success)
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
@@ -12687,12 +12686,12 @@ class load_table_binary_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -12718,11 +12717,11 @@ class load_table_binary_args(object):
         oprot.writeStructBegin('load_table_binary_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         if self.rows is not None:
             oprot.writeFieldBegin('rows', TType.LIST, 3)
@@ -12843,12 +12842,12 @@ class load_table_binary_columnar_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -12874,11 +12873,11 @@ class load_table_binary_columnar_args(object):
         oprot.writeStructBegin('load_table_binary_columnar_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         if self.cols is not None:
             oprot.writeFieldBegin('cols', TType.LIST, 3)
@@ -12999,12 +12998,12 @@ class load_table_binary_arrow_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -13024,11 +13023,11 @@ class load_table_binary_arrow_args(object):
         oprot.writeStructBegin('load_table_binary_arrow_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         if self.arrow_stream is not None:
             oprot.writeFieldBegin('arrow_stream', TType.STRING, 3)
@@ -13146,12 +13145,12 @@ class load_table_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -13177,11 +13176,11 @@ class load_table_args(object):
         oprot.writeStructBegin('load_table_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         if self.rows is not None:
             oprot.writeFieldBegin('rows', TType.LIST, 3)
@@ -13302,12 +13301,12 @@ class detect_column_types_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.file_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.file_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -13328,11 +13327,11 @@ class detect_column_types_args(object):
         oprot.writeStructBegin('detect_column_types_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.file_name is not None:
             oprot.writeFieldBegin('file_name', TType.STRING, 2)
-            oprot.writeString(self.file_name.encode('utf-8') if sys.version_info[0] == 2 else self.file_name)
+            oprot.writeString(self.file_name)
             oprot.writeFieldEnd()
         if self.copy_params is not None:
             oprot.writeFieldBegin('copy_params', TType.STRUCT, 3)
@@ -13466,12 +13465,12 @@ class create_table_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -13508,11 +13507,11 @@ class create_table_args(object):
         oprot.writeStructBegin('create_table_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         if self.row_desc is not None:
             oprot.writeFieldBegin('row_desc', TType.LIST, 3)
@@ -13645,17 +13644,17 @@ class import_table_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.file_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.file_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
@@ -13676,15 +13675,15 @@ class import_table_args(object):
         oprot.writeStructBegin('import_table_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         if self.file_name is not None:
             oprot.writeFieldBegin('file_name', TType.STRING, 3)
-            oprot.writeString(self.file_name.encode('utf-8') if sys.version_info[0] == 2 else self.file_name)
+            oprot.writeString(self.file_name)
             oprot.writeFieldEnd()
         if self.copy_params is not None:
             oprot.writeFieldBegin('copy_params', TType.STRUCT, 4)
@@ -13807,17 +13806,17 @@ class import_geo_table_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.file_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.file_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
@@ -13849,15 +13848,15 @@ class import_geo_table_args(object):
         oprot.writeStructBegin('import_geo_table_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         if self.file_name is not None:
             oprot.writeFieldBegin('file_name', TType.STRING, 3)
-            oprot.writeString(self.file_name.encode('utf-8') if sys.version_info[0] == 2 else self.file_name)
+            oprot.writeString(self.file_name)
             oprot.writeFieldEnd()
         if self.copy_params is not None:
             oprot.writeFieldBegin('copy_params', TType.STRUCT, 4)
@@ -13982,12 +13981,12 @@ class import_table_status_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.import_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.import_id = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -14002,11 +14001,11 @@ class import_table_status_args(object):
         oprot.writeStructBegin('import_table_status_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.import_id is not None:
             oprot.writeFieldBegin('import_id', TType.STRING, 2)
-            oprot.writeString(self.import_id.encode('utf-8') if sys.version_info[0] == 2 else self.import_id)
+            oprot.writeString(self.import_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -14131,12 +14130,12 @@ class get_first_geo_file_in_archive_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.archive_path = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.archive_path = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -14157,11 +14156,11 @@ class get_first_geo_file_in_archive_args(object):
         oprot.writeStructBegin('get_first_geo_file_in_archive_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.archive_path is not None:
             oprot.writeFieldBegin('archive_path', TType.STRING, 2)
-            oprot.writeString(self.archive_path.encode('utf-8') if sys.version_info[0] == 2 else self.archive_path)
+            oprot.writeString(self.archive_path)
             oprot.writeFieldEnd()
         if self.copy_params is not None:
             oprot.writeFieldBegin('copy_params', TType.STRUCT, 3)
@@ -14215,7 +14214,7 @@ class get_first_geo_file_in_archive_result(object):
                 break
             if fid == 0:
                 if ftype == TType.STRING:
-                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.success = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 1:
@@ -14236,7 +14235,7 @@ class get_first_geo_file_in_archive_result(object):
         oprot.writeStructBegin('get_first_geo_file_in_archive_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
-            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeString(self.success)
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
@@ -14290,12 +14289,12 @@ class get_all_files_in_archive_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.archive_path = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.archive_path = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -14316,11 +14315,11 @@ class get_all_files_in_archive_args(object):
         oprot.writeStructBegin('get_all_files_in_archive_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.archive_path is not None:
             oprot.writeFieldBegin('archive_path', TType.STRING, 2)
-            oprot.writeString(self.archive_path.encode('utf-8') if sys.version_info[0] == 2 else self.archive_path)
+            oprot.writeString(self.archive_path)
             oprot.writeFieldEnd()
         if self.copy_params is not None:
             oprot.writeFieldBegin('copy_params', TType.STRUCT, 3)
@@ -14377,7 +14376,7 @@ class get_all_files_in_archive_result(object):
                     self.success = []
                     (_etype402, _size399) = iprot.readListBegin()
                     for _i403 in range(_size399):
-                        _elem404 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem404 = iprot.readString()
                         self.success.append(_elem404)
                     iprot.readListEnd()
                 else:
@@ -14402,7 +14401,7 @@ class get_all_files_in_archive_result(object):
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRING, len(self.success))
             for iter405 in self.success:
-                oprot.writeString(iter405.encode('utf-8') if sys.version_info[0] == 2 else iter405)
+                oprot.writeString(iter405)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -14455,7 +14454,7 @@ class check_table_consistency_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -14475,7 +14474,7 @@ class check_table_consistency_args(object):
         oprot.writeStructBegin('check_table_consistency_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_id is not None:
             oprot.writeFieldBegin('table_id', TType.I32, 2)
@@ -14604,12 +14603,12 @@ class start_query_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.query_ra = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.query_ra = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -14629,11 +14628,11 @@ class start_query_args(object):
         oprot.writeStructBegin('start_query_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.query_ra is not None:
             oprot.writeFieldBegin('query_ra', TType.STRING, 2)
-            oprot.writeString(self.query_ra.encode('utf-8') if sys.version_info[0] == 2 else self.query_ra)
+            oprot.writeString(self.query_ra)
             oprot.writeFieldEnd()
         if self.just_explain is not None:
             oprot.writeFieldBegin('just_explain', TType.BOOL, 3)
@@ -14901,7 +14900,7 @@ class broadcast_serialized_rows_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.serialized_rows = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.serialized_rows = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -14937,7 +14936,7 @@ class broadcast_serialized_rows_args(object):
         oprot.writeStructBegin('broadcast_serialized_rows_args')
         if self.serialized_rows is not None:
             oprot.writeFieldBegin('serialized_rows', TType.STRING, 1)
-            oprot.writeString(self.serialized_rows.encode('utf-8') if sys.version_info[0] == 2 else self.serialized_rows)
+            oprot.writeString(self.serialized_rows)
             oprot.writeFieldEnd()
         if self.row_desc is not None:
             oprot.writeFieldBegin('row_desc', TType.LIST, 2)
@@ -15069,7 +15068,7 @@ class start_render_query_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -15084,7 +15083,7 @@ class start_render_query_args(object):
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.vega_json = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.vega_json = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -15099,7 +15098,7 @@ class start_render_query_args(object):
         oprot.writeStructBegin('start_render_query_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.widget_id is not None:
             oprot.writeFieldBegin('widget_id', TType.I64, 2)
@@ -15111,7 +15110,7 @@ class start_render_query_args(object):
             oprot.writeFieldEnd()
         if self.vega_json is not None:
             oprot.writeFieldBegin('vega_json', TType.STRING, 4)
-            oprot.writeString(self.vega_json.encode('utf-8') if sys.version_info[0] == 2 else self.vega_json)
+            oprot.writeString(self.vega_json)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -15245,19 +15244,19 @@ class execute_next_render_step_args(object):
                     self.merged_data = {}
                     (_ktype414, _vtype415, _size413) = iprot.readMapBegin()
                     for _i417 in range(_size413):
-                        _key418 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _key418 = iprot.readString()
                         _val419 = {}
                         (_ktype421, _vtype422, _size420) = iprot.readMapBegin()
                         for _i424 in range(_size420):
-                            _key425 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                            _key425 = iprot.readString()
                             _val426 = {}
                             (_ktype428, _vtype429, _size427) = iprot.readMapBegin()
                             for _i431 in range(_size427):
-                                _key432 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                                _key432 = iprot.readString()
                                 _val433 = {}
                                 (_ktype435, _vtype436, _size434) = iprot.readMapBegin()
                                 for _i438 in range(_size434):
-                                    _key439 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                                    _key439 = iprot.readString()
                                     _val440 = []
                                     (_etype444, _size441) = iprot.readListBegin()
                                     for _i445 in range(_size441):
@@ -15293,16 +15292,16 @@ class execute_next_render_step_args(object):
             oprot.writeFieldBegin('merged_data', TType.MAP, 2)
             oprot.writeMapBegin(TType.STRING, TType.MAP, len(self.merged_data))
             for kiter447, viter448 in self.merged_data.items():
-                oprot.writeString(kiter447.encode('utf-8') if sys.version_info[0] == 2 else kiter447)
+                oprot.writeString(kkiter447)
                 oprot.writeMapBegin(TType.STRING, TType.MAP, len(viter448))
                 for kiter449, viter450 in viter448.items():
-                    oprot.writeString(kiter449.encode('utf-8') if sys.version_info[0] == 2 else kiter449)
+                    oprot.writeString(kkiter449)
                     oprot.writeMapBegin(TType.STRING, TType.MAP, len(viter450))
                     for kiter451, viter452 in viter450.items():
-                        oprot.writeString(kiter451.encode('utf-8') if sys.version_info[0] == 2 else kiter451)
+                        oprot.writeString(kkiter451)
                         oprot.writeMapBegin(TType.STRING, TType.LIST, len(viter452))
                         for kiter453, viter454 in viter452.items():
-                            oprot.writeString(kiter453.encode('utf-8') if sys.version_info[0] == 2 else kiter453)
+                            oprot.writeString(kkiter453)
                             oprot.writeListBegin(TType.STRUCT, len(viter454))
                             for iter455 in viter454:
                                 iter455.write(oprot)
@@ -15433,7 +15432,7 @@ class insert_data_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -15454,7 +15453,7 @@ class insert_data_args(object):
         oprot.writeStructBegin('insert_data_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.insert_data is not None:
             oprot.writeFieldBegin('insert_data', TType.STRUCT, 2)
@@ -15571,7 +15570,7 @@ class checkpoint_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -15596,7 +15595,7 @@ class checkpoint_args(object):
         oprot.writeStructBegin('checkpoint_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.db_id is not None:
             oprot.writeFieldBegin('db_id', TType.I32, 2)
@@ -15716,12 +15715,12 @@ class get_table_descriptor_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -15736,11 +15735,11 @@ class get_table_descriptor_args(object):
         oprot.writeStructBegin('get_table_descriptor_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -15792,7 +15791,7 @@ class get_table_descriptor_result(object):
                     self.success = {}
                     (_ktype457, _vtype458, _size456) = iprot.readMapBegin()
                     for _i460 in range(_size456):
-                        _key461 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _key461 = iprot.readString()
                         _val462 = TColumnType()
                         _val462.read(iprot)
                         self.success[_key461] = _val462
@@ -15819,7 +15818,7 @@ class get_table_descriptor_result(object):
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRUCT, len(self.success))
             for kiter463, viter464 in self.success.items():
-                oprot.writeString(kiter463.encode('utf-8') if sys.version_info[0] == 2 else kiter463)
+                oprot.writeString(kkiter463)
                 viter464.write(oprot)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
@@ -15873,12 +15872,12 @@ class get_row_descriptor_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -15893,11 +15892,11 @@ class get_row_descriptor_args(object):
         oprot.writeStructBegin('get_row_descriptor_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -16026,7 +16025,7 @@ class get_roles_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -16041,7 +16040,7 @@ class get_roles_args(object):
         oprot.writeStructBegin('get_roles_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -16092,7 +16091,7 @@ class get_roles_result(object):
                     self.success = []
                     (_etype475, _size472) = iprot.readListBegin()
                     for _i476 in range(_size472):
-                        _elem477 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem477 = iprot.readString()
                         self.success.append(_elem477)
                     iprot.readListEnd()
                 else:
@@ -16117,7 +16116,7 @@ class get_roles_result(object):
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRING, len(self.success))
             for iter478 in self.success:
-                oprot.writeString(iter478.encode('utf-8') if sys.version_info[0] == 2 else iter478)
+                oprot.writeString(iter478)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -16170,12 +16169,12 @@ class get_db_objects_for_grantee_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.roleName = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.roleName = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -16190,11 +16189,11 @@ class get_db_objects_for_grantee_args(object):
         oprot.writeStructBegin('get_db_objects_for_grantee_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.roleName is not None:
             oprot.writeFieldBegin('roleName', TType.STRING, 2)
-            oprot.writeString(self.roleName.encode('utf-8') if sys.version_info[0] == 2 else self.roleName)
+            oprot.writeString(self.roleName)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -16327,12 +16326,12 @@ class get_db_object_privs_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.objectName = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.objectName = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -16352,11 +16351,11 @@ class get_db_object_privs_args(object):
         oprot.writeStructBegin('get_db_object_privs_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.objectName is not None:
             oprot.writeFieldBegin('objectName', TType.STRING, 2)
-            oprot.writeString(self.objectName.encode('utf-8') if sys.version_info[0] == 2 else self.objectName)
+            oprot.writeString(self.objectName)
             oprot.writeFieldEnd()
         if self.type is not None:
             oprot.writeFieldBegin('type', TType.I32, 3)
@@ -16492,12 +16491,12 @@ class get_all_roles_for_user_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.userName = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.userName = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -16512,11 +16511,11 @@ class get_all_roles_for_user_args(object):
         oprot.writeStructBegin('get_all_roles_for_user_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.userName is not None:
             oprot.writeFieldBegin('userName', TType.STRING, 2)
-            oprot.writeString(self.userName.encode('utf-8') if sys.version_info[0] == 2 else self.userName)
+            oprot.writeString(self.userName)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -16568,7 +16567,7 @@ class get_all_roles_for_user_result(object):
                     self.success = []
                     (_etype496, _size493) = iprot.readListBegin()
                     for _i497 in range(_size493):
-                        _elem498 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem498 = iprot.readString()
                         self.success.append(_elem498)
                     iprot.readListEnd()
                 else:
@@ -16593,7 +16592,7 @@ class get_all_roles_for_user_result(object):
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRING, len(self.success))
             for iter499 in self.success:
-                oprot.writeString(iter499.encode('utf-8') if sys.version_info[0] == 2 else iter499)
+                oprot.writeString(iter499)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -16652,17 +16651,17 @@ class has_object_privilege_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.granteeName = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.granteeName = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.ObjectName = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.ObjectName = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
@@ -16688,15 +16687,15 @@ class has_object_privilege_args(object):
         oprot.writeStructBegin('has_object_privilege_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.granteeName is not None:
             oprot.writeFieldBegin('granteeName', TType.STRING, 2)
-            oprot.writeString(self.granteeName.encode('utf-8') if sys.version_info[0] == 2 else self.granteeName)
+            oprot.writeString(self.granteeName)
             oprot.writeFieldEnd()
         if self.ObjectName is not None:
             oprot.writeFieldBegin('ObjectName', TType.STRING, 3)
-            oprot.writeString(self.ObjectName.encode('utf-8') if sys.version_info[0] == 2 else self.ObjectName)
+            oprot.writeString(self.ObjectName)
             oprot.writeFieldEnd()
         if self.objectType is not None:
             oprot.writeFieldBegin('objectType', TType.I32, 4)
@@ -16831,17 +16830,17 @@ class set_license_key_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.key = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.nonce = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -16856,15 +16855,15 @@ class set_license_key_args(object):
         oprot.writeStructBegin('set_license_key_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.key is not None:
             oprot.writeFieldBegin('key', TType.STRING, 2)
-            oprot.writeString(self.key.encode('utf-8') if sys.version_info[0] == 2 else self.key)
+            oprot.writeString(self.key)
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 3)
-            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
+            oprot.writeString(self.nonce)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -16988,12 +16987,12 @@ class get_license_claims_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.session = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.session = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.nonce = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -17008,11 +17007,11 @@ class get_license_claims_args(object):
         oprot.writeStructBegin('get_license_claims_args')
         if self.session is not None:
             oprot.writeFieldBegin('session', TType.STRING, 1)
-            oprot.writeString(self.session.encode('utf-8') if sys.version_info[0] == 2 else self.session)
+            oprot.writeString(self.session)
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 2)
-            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
+            oprot.writeString(self.nonce)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()

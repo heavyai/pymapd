@@ -9,10 +9,7 @@
 
 import sys
 import pprint
-if sys.version_info[0] > 2:
-    from urllib.parse import urlparse
-else:
-    from urlparse import urlparse
+from urllib.parse import urlparse
 from thrift.transport import TTransport, TSocket, TSSLSocket, THttpClient
 from thrift.protocol.TBinaryProtocol import TBinaryProtocol
 

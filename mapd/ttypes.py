@@ -9,8 +9,6 @@
 from thrift.Thrift import TType, TException, TApplicationException
 from thrift.TRecursive import fix_spec
 
-import sys
-
 from thrift.transport import TTransport
 all_structs = []
 
@@ -280,7 +278,7 @@ class TDatumVal(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.str_val = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.str_val = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
@@ -314,7 +312,7 @@ class TDatumVal(object):
             oprot.writeFieldEnd()
         if self.str_val is not None:
             oprot.writeFieldBegin('str_val', TType.STRING, 3)
-            oprot.writeString(self.str_val.encode('utf-8') if sys.version_info[0] == 2 else self.str_val)
+            oprot.writeString(self.str_val)
             oprot.writeFieldEnd()
         if self.arr_val is not None:
             oprot.writeFieldBegin('arr_val', TType.LIST, 4)
@@ -432,7 +430,7 @@ class TStringValue(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.str_val = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.str_val = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -452,7 +450,7 @@ class TStringValue(object):
         oprot.writeStructBegin('TStringValue')
         if self.str_val is not None:
             oprot.writeFieldBegin('str_val', TType.STRING, 1)
-            oprot.writeString(self.str_val.encode('utf-8') if sys.version_info[0] == 2 else self.str_val)
+            oprot.writeString(self.str_val)
             oprot.writeFieldEnd()
         if self.is_null is not None:
             oprot.writeFieldBegin('is_null', TType.BOOL, 2)
@@ -640,7 +638,7 @@ class TColumnType(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.col_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.col_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -656,7 +654,7 @@ class TColumnType(object):
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.src_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.src_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
@@ -681,7 +679,7 @@ class TColumnType(object):
         oprot.writeStructBegin('TColumnType')
         if self.col_name is not None:
             oprot.writeFieldBegin('col_name', TType.STRING, 1)
-            oprot.writeString(self.col_name.encode('utf-8') if sys.version_info[0] == 2 else self.col_name)
+            oprot.writeString(self.col_name)
             oprot.writeFieldEnd()
         if self.col_type is not None:
             oprot.writeFieldBegin('col_type', TType.STRUCT, 2)
@@ -693,7 +691,7 @@ class TColumnType(object):
             oprot.writeFieldEnd()
         if self.src_name is not None:
             oprot.writeFieldBegin('src_name', TType.STRING, 4)
-            oprot.writeString(self.src_name.encode('utf-8') if sys.version_info[0] == 2 else self.src_name)
+            oprot.writeString(self.src_name)
             oprot.writeFieldEnd()
         if self.is_system is not None:
             oprot.writeFieldBegin('is_system', TType.BOOL, 5)
@@ -836,7 +834,7 @@ class TColumnData(object):
                     self.str_col = []
                     (_etype29, _size26) = iprot.readListBegin()
                     for _i30 in range(_size26):
-                        _elem31 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem31 = iprot.readString()
                         self.str_col.append(_elem31)
                     iprot.readListEnd()
                 else:
@@ -880,7 +878,7 @@ class TColumnData(object):
             oprot.writeFieldBegin('str_col', TType.LIST, 3)
             oprot.writeListBegin(TType.STRING, len(self.str_col))
             for iter40 in self.str_col:
-                oprot.writeString(iter40.encode('utf-8') if sys.version_info[0] == 2 else iter40)
+                oprot.writeString(iter40)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.arr_col is not None:
@@ -1339,7 +1337,7 @@ class TQueryResult(object):
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.nonce = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1366,7 +1364,7 @@ class TQueryResult(object):
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 4)
-            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
+            oprot.writeString(self.nonce)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1498,12 +1496,12 @@ class TDBInfo(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.db_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.db_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.db_owner = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.db_owner = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1518,11 +1516,11 @@ class TDBInfo(object):
         oprot.writeStructBegin('TDBInfo')
         if self.db_name is not None:
             oprot.writeFieldBegin('db_name', TType.STRING, 1)
-            oprot.writeString(self.db_name.encode('utf-8') if sys.version_info[0] == 2 else self.db_name)
+            oprot.writeString(self.db_name)
             oprot.writeFieldEnd()
         if self.db_owner is not None:
             oprot.writeFieldBegin('db_owner', TType.STRING, 2)
-            oprot.writeString(self.db_owner.encode('utf-8') if sys.version_info[0] == 2 else self.db_owner)
+            oprot.writeString(self.db_owner)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1563,7 +1561,7 @@ class TMapDException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.error_msg = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.error_msg = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1578,7 +1576,7 @@ class TMapDException(TException):
         oprot.writeStructBegin('TMapDException')
         if self.error_msg is not None:
             oprot.writeFieldBegin('error_msg', TType.STRING, 1)
-            oprot.writeString(self.error_msg.encode('utf-8') if sys.version_info[0] == 2 else self.error_msg)
+            oprot.writeString(self.error_msg)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1660,12 +1658,12 @@ class TCopyParams(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.delimiter = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.delimiter = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.null_str = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.null_str = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -1680,32 +1678,32 @@ class TCopyParams(object):
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.quote = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.quote = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.escape = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.escape = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.line_delim = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.line_delim = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
                 if ftype == TType.STRING:
-                    self.array_delim = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.array_delim = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 9:
                 if ftype == TType.STRING:
-                    self.array_begin = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.array_begin = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 10:
                 if ftype == TType.STRING:
-                    self.array_end = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.array_end = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 11:
@@ -1720,17 +1718,17 @@ class TCopyParams(object):
                     iprot.skip(ftype)
             elif fid == 13:
                 if ftype == TType.STRING:
-                    self.s3_access_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.s3_access_key = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 14:
                 if ftype == TType.STRING:
-                    self.s3_secret_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.s3_secret_key = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 15:
                 if ftype == TType.STRING:
-                    self.s3_region = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.s3_region = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 16:
@@ -1770,11 +1768,11 @@ class TCopyParams(object):
         oprot.writeStructBegin('TCopyParams')
         if self.delimiter is not None:
             oprot.writeFieldBegin('delimiter', TType.STRING, 1)
-            oprot.writeString(self.delimiter.encode('utf-8') if sys.version_info[0] == 2 else self.delimiter)
+            oprot.writeString(self.delimiter)
             oprot.writeFieldEnd()
         if self.null_str is not None:
             oprot.writeFieldBegin('null_str', TType.STRING, 2)
-            oprot.writeString(self.null_str.encode('utf-8') if sys.version_info[0] == 2 else self.null_str)
+            oprot.writeString(self.null_str)
             oprot.writeFieldEnd()
         if self.has_header is not None:
             oprot.writeFieldBegin('has_header', TType.BOOL, 3)
@@ -1786,27 +1784,27 @@ class TCopyParams(object):
             oprot.writeFieldEnd()
         if self.quote is not None:
             oprot.writeFieldBegin('quote', TType.STRING, 5)
-            oprot.writeString(self.quote.encode('utf-8') if sys.version_info[0] == 2 else self.quote)
+            oprot.writeString(self.quote)
             oprot.writeFieldEnd()
         if self.escape is not None:
             oprot.writeFieldBegin('escape', TType.STRING, 6)
-            oprot.writeString(self.escape.encode('utf-8') if sys.version_info[0] == 2 else self.escape)
+            oprot.writeString(self.escape)
             oprot.writeFieldEnd()
         if self.line_delim is not None:
             oprot.writeFieldBegin('line_delim', TType.STRING, 7)
-            oprot.writeString(self.line_delim.encode('utf-8') if sys.version_info[0] == 2 else self.line_delim)
+            oprot.writeString(self.line_delim)
             oprot.writeFieldEnd()
         if self.array_delim is not None:
             oprot.writeFieldBegin('array_delim', TType.STRING, 8)
-            oprot.writeString(self.array_delim.encode('utf-8') if sys.version_info[0] == 2 else self.array_delim)
+            oprot.writeString(self.array_delim)
             oprot.writeFieldEnd()
         if self.array_begin is not None:
             oprot.writeFieldBegin('array_begin', TType.STRING, 9)
-            oprot.writeString(self.array_begin.encode('utf-8') if sys.version_info[0] == 2 else self.array_begin)
+            oprot.writeString(self.array_begin)
             oprot.writeFieldEnd()
         if self.array_end is not None:
             oprot.writeFieldBegin('array_end', TType.STRING, 10)
-            oprot.writeString(self.array_end.encode('utf-8') if sys.version_info[0] == 2 else self.array_end)
+            oprot.writeString(self.array_end)
             oprot.writeFieldEnd()
         if self.threads is not None:
             oprot.writeFieldBegin('threads', TType.I32, 11)
@@ -1818,15 +1816,15 @@ class TCopyParams(object):
             oprot.writeFieldEnd()
         if self.s3_access_key is not None:
             oprot.writeFieldBegin('s3_access_key', TType.STRING, 13)
-            oprot.writeString(self.s3_access_key.encode('utf-8') if sys.version_info[0] == 2 else self.s3_access_key)
+            oprot.writeString(self.s3_access_key)
             oprot.writeFieldEnd()
         if self.s3_secret_key is not None:
             oprot.writeFieldBegin('s3_secret_key', TType.STRING, 14)
-            oprot.writeString(self.s3_secret_key.encode('utf-8') if sys.version_info[0] == 2 else self.s3_secret_key)
+            oprot.writeString(self.s3_secret_key)
             oprot.writeFieldEnd()
         if self.s3_region is not None:
             oprot.writeFieldBegin('s3_region', TType.STRING, 15)
-            oprot.writeString(self.s3_region.encode('utf-8') if sys.version_info[0] == 2 else self.s3_region)
+            oprot.writeString(self.s3_region)
             oprot.writeFieldEnd()
         if self.geo_coords_encoding is not None:
             oprot.writeFieldBegin('geo_coords_encoding', TType.I32, 16)
@@ -2109,27 +2107,27 @@ class TFrontendView(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.view_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.view_state = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_state = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.image_hash = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.image_hash = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.update_time = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.update_time = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.view_metadata = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_metadata = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2144,23 +2142,23 @@ class TFrontendView(object):
         oprot.writeStructBegin('TFrontendView')
         if self.view_name is not None:
             oprot.writeFieldBegin('view_name', TType.STRING, 1)
-            oprot.writeString(self.view_name.encode('utf-8') if sys.version_info[0] == 2 else self.view_name)
+            oprot.writeString(self.view_name)
             oprot.writeFieldEnd()
         if self.view_state is not None:
             oprot.writeFieldBegin('view_state', TType.STRING, 2)
-            oprot.writeString(self.view_state.encode('utf-8') if sys.version_info[0] == 2 else self.view_state)
+            oprot.writeString(self.view_state)
             oprot.writeFieldEnd()
         if self.image_hash is not None:
             oprot.writeFieldBegin('image_hash', TType.STRING, 3)
-            oprot.writeString(self.image_hash.encode('utf-8') if sys.version_info[0] == 2 else self.image_hash)
+            oprot.writeString(self.image_hash)
             oprot.writeFieldEnd()
         if self.update_time is not None:
             oprot.writeFieldBegin('update_time', TType.STRING, 4)
-            oprot.writeString(self.update_time.encode('utf-8') if sys.version_info[0] == 2 else self.update_time)
+            oprot.writeString(self.update_time)
             oprot.writeFieldEnd()
         if self.view_metadata is not None:
             oprot.writeFieldBegin('view_metadata', TType.STRING, 5)
-            oprot.writeString(self.view_metadata.encode('utf-8') if sys.version_info[0] == 2 else self.view_metadata)
+            oprot.writeString(self.view_metadata)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2215,27 +2213,27 @@ class TDashboard(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.dashboard_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.dashboard_state = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_state = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.image_hash = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.image_hash = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.update_time = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.update_time = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.dashboard_metadata = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_metadata = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
@@ -2245,7 +2243,7 @@ class TDashboard(object):
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.dashboard_owner = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.dashboard_owner = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
@@ -2265,23 +2263,23 @@ class TDashboard(object):
         oprot.writeStructBegin('TDashboard')
         if self.dashboard_name is not None:
             oprot.writeFieldBegin('dashboard_name', TType.STRING, 1)
-            oprot.writeString(self.dashboard_name.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_name)
+            oprot.writeString(self.dashboard_name)
             oprot.writeFieldEnd()
         if self.dashboard_state is not None:
             oprot.writeFieldBegin('dashboard_state', TType.STRING, 2)
-            oprot.writeString(self.dashboard_state.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_state)
+            oprot.writeString(self.dashboard_state)
             oprot.writeFieldEnd()
         if self.image_hash is not None:
             oprot.writeFieldBegin('image_hash', TType.STRING, 3)
-            oprot.writeString(self.image_hash.encode('utf-8') if sys.version_info[0] == 2 else self.image_hash)
+            oprot.writeString(self.image_hash)
             oprot.writeFieldEnd()
         if self.update_time is not None:
             oprot.writeFieldBegin('update_time', TType.STRING, 4)
-            oprot.writeString(self.update_time.encode('utf-8') if sys.version_info[0] == 2 else self.update_time)
+            oprot.writeString(self.update_time)
             oprot.writeFieldEnd()
         if self.dashboard_metadata is not None:
             oprot.writeFieldBegin('dashboard_metadata', TType.STRING, 5)
-            oprot.writeString(self.dashboard_metadata.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_metadata)
+            oprot.writeString(self.dashboard_metadata)
             oprot.writeFieldEnd()
         if self.dashboard_id is not None:
             oprot.writeFieldBegin('dashboard_id', TType.I32, 6)
@@ -2289,7 +2287,7 @@ class TDashboard(object):
             oprot.writeFieldEnd()
         if self.dashboard_owner is not None:
             oprot.writeFieldBegin('dashboard_owner', TType.STRING, 7)
-            oprot.writeString(self.dashboard_owner.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_owner)
+            oprot.writeString(self.dashboard_owner)
             oprot.writeFieldEnd()
         if self.is_dash_shared is not None:
             oprot.writeFieldBegin('is_dash_shared', TType.BOOL, 8)
@@ -2351,7 +2349,7 @@ class TServerStatus(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.version = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.version = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -2366,12 +2364,12 @@ class TServerStatus(object):
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.edition = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.edition = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.host_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.host_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
@@ -2395,7 +2393,7 @@ class TServerStatus(object):
             oprot.writeFieldEnd()
         if self.version is not None:
             oprot.writeFieldBegin('version', TType.STRING, 2)
-            oprot.writeString(self.version.encode('utf-8') if sys.version_info[0] == 2 else self.version)
+            oprot.writeString(self.version)
             oprot.writeFieldEnd()
         if self.rendering_enabled is not None:
             oprot.writeFieldBegin('rendering_enabled', TType.BOOL, 3)
@@ -2407,11 +2405,11 @@ class TServerStatus(object):
             oprot.writeFieldEnd()
         if self.edition is not None:
             oprot.writeFieldBegin('edition', TType.STRING, 5)
-            oprot.writeString(self.edition.encode('utf-8') if sys.version_info[0] == 2 else self.edition)
+            oprot.writeString(self.edition)
             oprot.writeFieldEnd()
         if self.host_name is not None:
             oprot.writeFieldBegin('host_name', TType.STRING, 6)
-            oprot.writeString(self.host_name.encode('utf-8') if sys.version_info[0] == 2 else self.host_name)
+            oprot.writeString(self.host_name)
             oprot.writeFieldEnd()
         if self.poly_rendering_enabled is not None:
             oprot.writeFieldBegin('poly_rendering_enabled', TType.BOOL, 7)
@@ -2539,7 +2537,7 @@ class TPixelTableRowResult(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.vega_table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.vega_table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -2560,7 +2558,7 @@ class TPixelTableRowResult(object):
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.nonce = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2579,7 +2577,7 @@ class TPixelTableRowResult(object):
             oprot.writeFieldEnd()
         if self.vega_table_name is not None:
             oprot.writeFieldBegin('vega_table_name', TType.STRING, 2)
-            oprot.writeString(self.vega_table_name.encode('utf-8') if sys.version_info[0] == 2 else self.vega_table_name)
+            oprot.writeString(self.vega_table_name)
             oprot.writeFieldEnd()
         if self.table_id is not None:
             oprot.writeFieldBegin('table_id', TType.I64, 3)
@@ -2595,7 +2593,7 @@ class TPixelTableRowResult(object):
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 6)
-            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
+            oprot.writeString(self.nonce)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2651,7 +2649,7 @@ class TRenderResult(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.nonce = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -2671,7 +2669,7 @@ class TRenderResult(object):
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.vega_metadata = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.vega_metadata = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2690,7 +2688,7 @@ class TRenderResult(object):
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 2)
-            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
+            oprot.writeString(self.nonce)
             oprot.writeFieldEnd()
         if self.execution_time_ms is not None:
             oprot.writeFieldBegin('execution_time_ms', TType.I64, 3)
@@ -2706,7 +2704,7 @@ class TRenderResult(object):
             oprot.writeFieldEnd()
         if self.vega_metadata is not None:
             oprot.writeFieldBegin('vega_metadata', TType.STRING, 6)
-            oprot.writeString(self.vega_metadata.encode('utf-8') if sys.version_info[0] == 2 else self.vega_metadata)
+            oprot.writeString(self.vega_metadata)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2877,7 +2875,7 @@ class THardwareInfo(object):
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.host_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.host_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
@@ -2919,7 +2917,7 @@ class THardwareInfo(object):
             oprot.writeFieldEnd()
         if self.host_name is not None:
             oprot.writeFieldBegin('host_name', TType.STRING, 5)
-            oprot.writeString(self.host_name.encode('utf-8') if sys.version_info[0] == 2 else self.host_name)
+            oprot.writeString(self.host_name)
             oprot.writeFieldEnd()
         if self.gpu_info is not None:
             oprot.writeFieldBegin('gpu_info', TType.LIST, 6)
@@ -3172,7 +3170,7 @@ class TNodeMemoryInfo(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.host_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.host_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -3218,7 +3216,7 @@ class TNodeMemoryInfo(object):
         oprot.writeStructBegin('TNodeMemoryInfo')
         if self.host_name is not None:
             oprot.writeFieldBegin('host_name', TType.STRING, 1)
-            oprot.writeString(self.host_name.encode('utf-8') if sys.version_info[0] == 2 else self.host_name)
+            oprot.writeString(self.host_name)
             oprot.writeFieldEnd()
         if self.page_size is not None:
             oprot.writeFieldBegin('page_size', TType.I64, 2)
@@ -3294,7 +3292,7 @@ class TTableMeta(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.table_name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -3344,7 +3342,7 @@ class TTableMeta(object):
         oprot.writeStructBegin('TTableMeta')
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 1)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
+            oprot.writeString(self.table_name)
             oprot.writeFieldEnd()
         if self.num_cols is not None:
             oprot.writeFieldBegin('num_cols', TType.I64, 2)
@@ -3454,7 +3452,7 @@ class TTableDetails(object):
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.view_sql = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.view_sql = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
@@ -3464,7 +3462,7 @@ class TTableDetails(object):
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.key_metainfo = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.key_metainfo = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
@@ -3508,7 +3506,7 @@ class TTableDetails(object):
             oprot.writeFieldEnd()
         if self.view_sql is not None:
             oprot.writeFieldBegin('view_sql', TType.STRING, 5)
-            oprot.writeString(self.view_sql.encode('utf-8') if sys.version_info[0] == 2 else self.view_sql)
+            oprot.writeString(self.view_sql)
             oprot.writeFieldEnd()
         if self.shard_count is not None:
             oprot.writeFieldBegin('shard_count', TType.I64, 6)
@@ -3516,7 +3514,7 @@ class TTableDetails(object):
             oprot.writeFieldEnd()
         if self.key_metainfo is not None:
             oprot.writeFieldBegin('key_metainfo', TType.STRING, 7)
-            oprot.writeString(self.key_metainfo.encode('utf-8') if sys.version_info[0] == 2 else self.key_metainfo)
+            oprot.writeString(self.key_metainfo)
             oprot.writeFieldEnd()
         if self.is_temporary is not None:
             oprot.writeFieldBegin('is_temporary', TType.BOOL, 8)
@@ -4675,19 +4673,19 @@ class TRenderStepResult(object):
                     self.merge_data = {}
                     (_ktype178, _vtype179, _size177) = iprot.readMapBegin()
                     for _i181 in range(_size177):
-                        _key182 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _key182 = iprot.readString()
                         _val183 = {}
                         (_ktype185, _vtype186, _size184) = iprot.readMapBegin()
                         for _i188 in range(_size184):
-                            _key189 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                            _key189 = iprot.readString()
                             _val190 = {}
                             (_ktype192, _vtype193, _size191) = iprot.readMapBegin()
                             for _i195 in range(_size191):
-                                _key196 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                                _key196 = iprot.readString()
                                 _val197 = {}
                                 (_ktype199, _vtype200, _size198) = iprot.readMapBegin()
                                 for _i202 in range(_size198):
-                                    _key203 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                                    _key203 = iprot.readString()
                                     _val204 = []
                                     (_etype208, _size205) = iprot.readListBegin()
                                     for _i209 in range(_size205):
@@ -4740,16 +4738,16 @@ class TRenderStepResult(object):
             oprot.writeFieldBegin('merge_data', TType.MAP, 1)
             oprot.writeMapBegin(TType.STRING, TType.MAP, len(self.merge_data))
             for kiter211, viter212 in self.merge_data.items():
-                oprot.writeString(kiter211.encode('utf-8') if sys.version_info[0] == 2 else kiter211)
+                oprot.writeString(kiter211)
                 oprot.writeMapBegin(TType.STRING, TType.MAP, len(viter212))
                 for kiter213, viter214 in viter212.items():
-                    oprot.writeString(kiter213.encode('utf-8') if sys.version_info[0] == 2 else kiter213)
+                    oprot.writeString(kiter213)
                     oprot.writeMapBegin(TType.STRING, TType.MAP, len(viter214))
                     for kiter215, viter216 in viter214.items():
-                        oprot.writeString(kiter215.encode('utf-8') if sys.version_info[0] == 2 else kiter215)
+                        oprot.writeString(kiter215)
                         oprot.writeMapBegin(TType.STRING, TType.LIST, len(viter216))
                         for kiter217, viter218 in viter216.items():
-                            oprot.writeString(kiter217.encode('utf-8') if sys.version_info[0] == 2 else kiter217)
+                            oprot.writeString(kiter217)
                             oprot.writeListBegin(TType.STRUCT, len(viter218))
                             for iter219 in viter218:
                                 iter219.write(oprot)
@@ -5324,7 +5322,7 @@ class TDBObject(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.objectName = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.objectName = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -5344,7 +5342,7 @@ class TDBObject(object):
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.grantee = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.grantee = iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -5359,7 +5357,7 @@ class TDBObject(object):
         oprot.writeStructBegin('TDBObject')
         if self.objectName is not None:
             oprot.writeFieldBegin('objectName', TType.STRING, 1)
-            oprot.writeString(self.objectName.encode('utf-8') if sys.version_info[0] == 2 else self.objectName)
+            oprot.writeString(self.objectName)
             oprot.writeFieldEnd()
         if self.objectType is not None:
             oprot.writeFieldBegin('objectType', TType.I32, 2)
@@ -5374,7 +5372,7 @@ class TDBObject(object):
             oprot.writeFieldEnd()
         if self.grantee is not None:
             oprot.writeFieldBegin('grantee', TType.STRING, 4)
-            oprot.writeString(self.grantee.encode('utf-8') if sys.version_info[0] == 2 else self.grantee)
+            oprot.writeString(self.grantee)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5419,7 +5417,7 @@ class TDashboardGrantees(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.name = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -5445,7 +5443,7 @@ class TDashboardGrantees(object):
         oprot.writeStructBegin('TDashboardGrantees')
         if self.name is not None:
             oprot.writeFieldBegin('name', TType.STRING, 1)
-            oprot.writeString(self.name.encode('utf-8') if sys.version_info[0] == 2 else self.name)
+            oprot.writeString(self.name)
             oprot.writeFieldEnd()
         if self.is_user is not None:
             oprot.writeFieldBegin('is_user', TType.BOOL, 2)
@@ -5497,7 +5495,7 @@ class TLicenseInfo(object):
                     self.claims = []
                     (_etype230, _size227) = iprot.readListBegin()
                     for _i231 in range(_size227):
-                        _elem232 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _elem232 = iprot.readString()
                         self.claims.append(_elem232)
                     iprot.readListEnd()
                 else:
@@ -5516,7 +5514,7 @@ class TLicenseInfo(object):
             oprot.writeFieldBegin('claims', TType.LIST, 1)
             oprot.writeListBegin(TType.STRING, len(self.claims))
             for iter233 in self.claims:
-                oprot.writeString(iter233.encode('utf-8') if sys.version_info[0] == 2 else iter233)
+                oprot.writeString(iter233)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -5562,12 +5560,12 @@ class TSessionInfo(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.user = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.user = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.database = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.database = iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -5587,11 +5585,11 @@ class TSessionInfo(object):
         oprot.writeStructBegin('TSessionInfo')
         if self.user is not None:
             oprot.writeFieldBegin('user', TType.STRING, 1)
-            oprot.writeString(self.user.encode('utf-8') if sys.version_info[0] == 2 else self.user)
+            oprot.writeString(self.user)
             oprot.writeFieldEnd()
         if self.database is not None:
             oprot.writeFieldBegin('database', TType.STRING, 2)
-            oprot.writeString(self.database.encode('utf-8') if sys.version_info[0] == 2 else self.database)
+            oprot.writeString(self.database)
             oprot.writeFieldEnd()
         if self.start_time is not None:
             oprot.writeFieldBegin('start_time', TType.I64, 3)
