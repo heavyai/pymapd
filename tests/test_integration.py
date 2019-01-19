@@ -3,6 +3,7 @@ Tests that rely on a server running
 """
 import datetime
 from distutils.version import LooseVersion
+from unittest import mock
 
 import pytest
 
@@ -11,7 +12,7 @@ from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails
 from pymapd.compat import TMapDException
 
-from .utils import no_gpu, mock
+from .utils import no_gpu
 
 # XXX: Make it hashable to silence warnings; see if this can be done upstream
 # This isn't a huge deal, but our testing context mangers for asserting

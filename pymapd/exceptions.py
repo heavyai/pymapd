@@ -7,13 +7,6 @@ exceptions to the ones defined here.
 from mapd.ttypes import TMapDException
 
 
-try:
-    # python 2
-    from exceptions import StandardError as Exception
-except ImportError:
-    pass
-
-
 class Warning(Exception):
     """Emitted for important warnings, e.g. data truncatiions"""
 
