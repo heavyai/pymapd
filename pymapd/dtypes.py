@@ -14,7 +14,7 @@ if six.PY2:
 T = MapD.TDatumType
 
 
-class DataType(object):
+class DataType:
 
     def __init__(self, matches):
         # type: (List[Any]) -> None

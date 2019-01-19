@@ -16,7 +16,7 @@ from thrift.transport import TTransport
 all_structs = []
 
 
-class Iface(object):
+class Iface:
     def connect(self, user, passwd, dbname):
         """
         Parameters:
@@ -5436,7 +5436,7 @@ class Processor(Iface, TProcessor):
 # HELPER FUNCTIONS AND STRUCTURES
 
 
-class connect_args(object):
+class connect_args:
     """
     Attributes:
      - user
@@ -5503,9 +5503,9 @@ class connect_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5521,7 +5521,7 @@ connect_args.thrift_spec = (
 )
 
 
-class connect_result(object):
+class connect_result:
     """
     Attributes:
      - success
@@ -5578,9 +5578,9 @@ class connect_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5594,7 +5594,7 @@ connect_result.thrift_spec = (
 )
 
 
-class disconnect_args(object):
+class disconnect_args:
     """
     Attributes:
      - session
@@ -5639,9 +5639,9 @@ class disconnect_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5655,7 +5655,7 @@ disconnect_args.thrift_spec = (
 )
 
 
-class disconnect_result(object):
+class disconnect_result:
     """
     Attributes:
      - e
@@ -5701,9 +5701,9 @@ class disconnect_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5717,7 +5717,7 @@ disconnect_result.thrift_spec = (
 )
 
 
-class get_server_status_args(object):
+class get_server_status_args:
     """
     Attributes:
      - session
@@ -5762,9 +5762,9 @@ class get_server_status_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5778,7 +5778,7 @@ get_server_status_args.thrift_spec = (
 )
 
 
-class get_server_status_result(object):
+class get_server_status_result:
     """
     Attributes:
      - success
@@ -5836,9 +5836,9 @@ class get_server_status_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5852,7 +5852,7 @@ get_server_status_result.thrift_spec = (
 )
 
 
-class get_status_args(object):
+class get_status_args:
     """
     Attributes:
      - session
@@ -5897,9 +5897,9 @@ class get_status_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5913,7 +5913,7 @@ get_status_args.thrift_spec = (
 )
 
 
-class get_status_result(object):
+class get_status_result:
     """
     Attributes:
      - success
@@ -5979,9 +5979,9 @@ class get_status_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5995,7 +5995,7 @@ get_status_result.thrift_spec = (
 )
 
 
-class get_hardware_info_args(object):
+class get_hardware_info_args:
     """
     Attributes:
      - session
@@ -6040,9 +6040,9 @@ class get_hardware_info_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6056,7 +6056,7 @@ get_hardware_info_args.thrift_spec = (
 )
 
 
-class get_hardware_info_result(object):
+class get_hardware_info_result:
     """
     Attributes:
      - success
@@ -6114,9 +6114,9 @@ class get_hardware_info_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6130,7 +6130,7 @@ get_hardware_info_result.thrift_spec = (
 )
 
 
-class get_tables_args(object):
+class get_tables_args:
     """
     Attributes:
      - session
@@ -6175,9 +6175,9 @@ class get_tables_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6191,7 +6191,7 @@ get_tables_args.thrift_spec = (
 )
 
 
-class get_tables_result(object):
+class get_tables_result:
     """
     Attributes:
      - success
@@ -6256,9 +6256,9 @@ class get_tables_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6272,7 +6272,7 @@ get_tables_result.thrift_spec = (
 )
 
 
-class get_physical_tables_args(object):
+class get_physical_tables_args:
     """
     Attributes:
      - session
@@ -6317,9 +6317,9 @@ class get_physical_tables_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6333,7 +6333,7 @@ get_physical_tables_args.thrift_spec = (
 )
 
 
-class get_physical_tables_result(object):
+class get_physical_tables_result:
     """
     Attributes:
      - success
@@ -6398,9 +6398,9 @@ class get_physical_tables_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6414,7 +6414,7 @@ get_physical_tables_result.thrift_spec = (
 )
 
 
-class get_views_args(object):
+class get_views_args:
     """
     Attributes:
      - session
@@ -6459,9 +6459,9 @@ class get_views_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6475,7 +6475,7 @@ get_views_args.thrift_spec = (
 )
 
 
-class get_views_result(object):
+class get_views_result:
     """
     Attributes:
      - success
@@ -6540,9 +6540,9 @@ class get_views_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6556,7 +6556,7 @@ get_views_result.thrift_spec = (
 )
 
 
-class get_tables_meta_args(object):
+class get_tables_meta_args:
     """
     Attributes:
      - session
@@ -6601,9 +6601,9 @@ class get_tables_meta_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6617,7 +6617,7 @@ get_tables_meta_args.thrift_spec = (
 )
 
 
-class get_tables_meta_result(object):
+class get_tables_meta_result:
     """
     Attributes:
      - success
@@ -6683,9 +6683,9 @@ class get_tables_meta_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6699,7 +6699,7 @@ get_tables_meta_result.thrift_spec = (
 )
 
 
-class get_table_details_args(object):
+class get_table_details_args:
     """
     Attributes:
      - session
@@ -6755,9 +6755,9 @@ class get_table_details_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6772,7 +6772,7 @@ get_table_details_args.thrift_spec = (
 )
 
 
-class get_table_details_result(object):
+class get_table_details_result:
     """
     Attributes:
      - success
@@ -6830,9 +6830,9 @@ class get_table_details_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6846,7 +6846,7 @@ get_table_details_result.thrift_spec = (
 )
 
 
-class get_internal_table_details_args(object):
+class get_internal_table_details_args:
     """
     Attributes:
      - session
@@ -6902,9 +6902,9 @@ class get_internal_table_details_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6919,7 +6919,7 @@ get_internal_table_details_args.thrift_spec = (
 )
 
 
-class get_internal_table_details_result(object):
+class get_internal_table_details_result:
     """
     Attributes:
      - success
@@ -6977,9 +6977,9 @@ class get_internal_table_details_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6993,7 +6993,7 @@ get_internal_table_details_result.thrift_spec = (
 )
 
 
-class get_users_args(object):
+class get_users_args:
     """
     Attributes:
      - session
@@ -7038,9 +7038,9 @@ class get_users_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7054,7 +7054,7 @@ get_users_args.thrift_spec = (
 )
 
 
-class get_users_result(object):
+class get_users_result:
     """
     Attributes:
      - success
@@ -7119,9 +7119,9 @@ class get_users_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7135,7 +7135,7 @@ get_users_result.thrift_spec = (
 )
 
 
-class get_databases_args(object):
+class get_databases_args:
     """
     Attributes:
      - session
@@ -7180,9 +7180,9 @@ class get_databases_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7196,7 +7196,7 @@ get_databases_args.thrift_spec = (
 )
 
 
-class get_databases_result(object):
+class get_databases_result:
     """
     Attributes:
      - success
@@ -7262,9 +7262,9 @@ class get_databases_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7278,7 +7278,7 @@ get_databases_result.thrift_spec = (
 )
 
 
-class get_version_args(object):
+class get_version_args:
 
 
     def read(self, iprot):
@@ -7307,9 +7307,9 @@ class get_version_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7321,7 +7321,7 @@ get_version_args.thrift_spec = (
 )
 
 
-class get_version_result(object):
+class get_version_result:
     """
     Attributes:
      - success
@@ -7378,9 +7378,9 @@ class get_version_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7394,7 +7394,7 @@ get_version_result.thrift_spec = (
 )
 
 
-class start_heap_profile_args(object):
+class start_heap_profile_args:
     """
     Attributes:
      - session
@@ -7439,9 +7439,9 @@ class start_heap_profile_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7455,7 +7455,7 @@ start_heap_profile_args.thrift_spec = (
 )
 
 
-class start_heap_profile_result(object):
+class start_heap_profile_result:
     """
     Attributes:
      - e
@@ -7501,9 +7501,9 @@ class start_heap_profile_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7517,7 +7517,7 @@ start_heap_profile_result.thrift_spec = (
 )
 
 
-class stop_heap_profile_args(object):
+class stop_heap_profile_args:
     """
     Attributes:
      - session
@@ -7562,9 +7562,9 @@ class stop_heap_profile_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7578,7 +7578,7 @@ stop_heap_profile_args.thrift_spec = (
 )
 
 
-class stop_heap_profile_result(object):
+class stop_heap_profile_result:
     """
     Attributes:
      - e
@@ -7624,9 +7624,9 @@ class stop_heap_profile_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7640,7 +7640,7 @@ stop_heap_profile_result.thrift_spec = (
 )
 
 
-class get_heap_profile_args(object):
+class get_heap_profile_args:
     """
     Attributes:
      - session
@@ -7685,9 +7685,9 @@ class get_heap_profile_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7701,7 +7701,7 @@ get_heap_profile_args.thrift_spec = (
 )
 
 
-class get_heap_profile_result(object):
+class get_heap_profile_result:
     """
     Attributes:
      - success
@@ -7758,9 +7758,9 @@ class get_heap_profile_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7774,7 +7774,7 @@ get_heap_profile_result.thrift_spec = (
 )
 
 
-class get_memory_args(object):
+class get_memory_args:
     """
     Attributes:
      - session
@@ -7830,9 +7830,9 @@ class get_memory_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7847,7 +7847,7 @@ get_memory_args.thrift_spec = (
 )
 
 
-class get_memory_result(object):
+class get_memory_result:
     """
     Attributes:
      - success
@@ -7913,9 +7913,9 @@ class get_memory_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7929,7 +7929,7 @@ get_memory_result.thrift_spec = (
 )
 
 
-class clear_cpu_memory_args(object):
+class clear_cpu_memory_args:
     """
     Attributes:
      - session
@@ -7974,9 +7974,9 @@ class clear_cpu_memory_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7990,7 +7990,7 @@ clear_cpu_memory_args.thrift_spec = (
 )
 
 
-class clear_cpu_memory_result(object):
+class clear_cpu_memory_result:
     """
     Attributes:
      - e
@@ -8036,9 +8036,9 @@ class clear_cpu_memory_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8052,7 +8052,7 @@ clear_cpu_memory_result.thrift_spec = (
 )
 
 
-class clear_gpu_memory_args(object):
+class clear_gpu_memory_args:
     """
     Attributes:
      - session
@@ -8097,9 +8097,9 @@ class clear_gpu_memory_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8113,7 +8113,7 @@ clear_gpu_memory_args.thrift_spec = (
 )
 
 
-class clear_gpu_memory_result(object):
+class clear_gpu_memory_result:
     """
     Attributes:
      - e
@@ -8159,9 +8159,9 @@ class clear_gpu_memory_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8175,7 +8175,7 @@ clear_gpu_memory_result.thrift_spec = (
 )
 
 
-class set_table_epoch_args(object):
+class set_table_epoch_args:
     """
     Attributes:
      - session
@@ -8253,9 +8253,9 @@ class set_table_epoch_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8272,7 +8272,7 @@ set_table_epoch_args.thrift_spec = (
 )
 
 
-class set_table_epoch_result(object):
+class set_table_epoch_result:
     """
     Attributes:
      - e
@@ -8318,9 +8318,9 @@ class set_table_epoch_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8334,7 +8334,7 @@ set_table_epoch_result.thrift_spec = (
 )
 
 
-class set_table_epoch_by_name_args(object):
+class set_table_epoch_by_name_args:
     """
     Attributes:
      - session
@@ -8401,9 +8401,9 @@ class set_table_epoch_by_name_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8419,7 +8419,7 @@ set_table_epoch_by_name_args.thrift_spec = (
 )
 
 
-class set_table_epoch_by_name_result(object):
+class set_table_epoch_by_name_result:
     """
     Attributes:
      - e
@@ -8465,9 +8465,9 @@ class set_table_epoch_by_name_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8481,7 +8481,7 @@ set_table_epoch_by_name_result.thrift_spec = (
 )
 
 
-class get_table_epoch_args(object):
+class get_table_epoch_args:
     """
     Attributes:
      - session
@@ -8548,9 +8548,9 @@ class get_table_epoch_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8566,7 +8566,7 @@ get_table_epoch_args.thrift_spec = (
 )
 
 
-class get_table_epoch_result(object):
+class get_table_epoch_result:
     """
     Attributes:
      - success
@@ -8611,9 +8611,9 @@ class get_table_epoch_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8626,7 +8626,7 @@ get_table_epoch_result.thrift_spec = (
 )
 
 
-class get_table_epoch_by_name_args(object):
+class get_table_epoch_by_name_args:
     """
     Attributes:
      - session
@@ -8682,9 +8682,9 @@ class get_table_epoch_by_name_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8699,7 +8699,7 @@ get_table_epoch_by_name_args.thrift_spec = (
 )
 
 
-class get_table_epoch_by_name_result(object):
+class get_table_epoch_by_name_result:
     """
     Attributes:
      - success
@@ -8744,9 +8744,9 @@ class get_table_epoch_by_name_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8759,7 +8759,7 @@ get_table_epoch_by_name_result.thrift_spec = (
 )
 
 
-class get_session_info_args(object):
+class get_session_info_args:
     """
     Attributes:
      - session
@@ -8804,9 +8804,9 @@ class get_session_info_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8820,7 +8820,7 @@ get_session_info_args.thrift_spec = (
 )
 
 
-class get_session_info_result(object):
+class get_session_info_result:
     """
     Attributes:
      - success
@@ -8878,9 +8878,9 @@ class get_session_info_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8894,7 +8894,7 @@ get_session_info_result.thrift_spec = (
 )
 
 
-class sql_execute_args(object):
+class sql_execute_args:
     """
     Attributes:
      - session
@@ -8994,9 +8994,9 @@ class sql_execute_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9015,7 +9015,7 @@ sql_execute_args.thrift_spec = (
 )
 
 
-class sql_execute_result(object):
+class sql_execute_result:
     """
     Attributes:
      - success
@@ -9073,9 +9073,9 @@ class sql_execute_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9089,7 +9089,7 @@ sql_execute_result.thrift_spec = (
 )
 
 
-class sql_execute_df_args(object):
+class sql_execute_df_args:
     """
     Attributes:
      - session
@@ -9178,9 +9178,9 @@ class sql_execute_df_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9198,7 +9198,7 @@ sql_execute_df_args.thrift_spec = (
 )
 
 
-class sql_execute_df_result(object):
+class sql_execute_df_result:
     """
     Attributes:
      - success
@@ -9256,9 +9256,9 @@ class sql_execute_df_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9272,7 +9272,7 @@ sql_execute_df_result.thrift_spec = (
 )
 
 
-class sql_execute_gdf_args(object):
+class sql_execute_gdf_args:
     """
     Attributes:
      - session
@@ -9350,9 +9350,9 @@ class sql_execute_gdf_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9369,7 +9369,7 @@ sql_execute_gdf_args.thrift_spec = (
 )
 
 
-class sql_execute_gdf_result(object):
+class sql_execute_gdf_result:
     """
     Attributes:
      - success
@@ -9427,9 +9427,9 @@ class sql_execute_gdf_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9443,7 +9443,7 @@ sql_execute_gdf_result.thrift_spec = (
 )
 
 
-class deallocate_df_args(object):
+class deallocate_df_args:
     """
     Attributes:
      - session
@@ -9522,9 +9522,9 @@ class deallocate_df_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9541,7 +9541,7 @@ deallocate_df_args.thrift_spec = (
 )
 
 
-class deallocate_df_result(object):
+class deallocate_df_result:
     """
     Attributes:
      - e
@@ -9587,9 +9587,9 @@ class deallocate_df_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9603,7 +9603,7 @@ deallocate_df_result.thrift_spec = (
 )
 
 
-class interrupt_args(object):
+class interrupt_args:
     """
     Attributes:
      - session
@@ -9648,9 +9648,9 @@ class interrupt_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9664,7 +9664,7 @@ interrupt_args.thrift_spec = (
 )
 
 
-class interrupt_result(object):
+class interrupt_result:
     """
     Attributes:
      - e
@@ -9710,9 +9710,9 @@ class interrupt_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9726,7 +9726,7 @@ interrupt_result.thrift_spec = (
 )
 
 
-class sql_validate_args(object):
+class sql_validate_args:
     """
     Attributes:
      - session
@@ -9782,9 +9782,9 @@ class sql_validate_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9799,7 +9799,7 @@ sql_validate_args.thrift_spec = (
 )
 
 
-class sql_validate_result(object):
+class sql_validate_result:
     """
     Attributes:
      - success
@@ -9867,9 +9867,9 @@ class sql_validate_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9883,7 +9883,7 @@ sql_validate_result.thrift_spec = (
 )
 
 
-class set_execution_mode_args(object):
+class set_execution_mode_args:
     """
     Attributes:
      - session
@@ -9939,9 +9939,9 @@ class set_execution_mode_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9956,7 +9956,7 @@ set_execution_mode_args.thrift_spec = (
 )
 
 
-class set_execution_mode_result(object):
+class set_execution_mode_result:
     """
     Attributes:
      - e
@@ -10002,9 +10002,9 @@ class set_execution_mode_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10018,7 +10018,7 @@ set_execution_mode_result.thrift_spec = (
 )
 
 
-class render_vega_args(object):
+class render_vega_args:
     """
     Attributes:
      - session
@@ -10107,9 +10107,9 @@ class render_vega_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10127,7 +10127,7 @@ render_vega_args.thrift_spec = (
 )
 
 
-class render_vega_result(object):
+class render_vega_result:
     """
     Attributes:
      - success
@@ -10185,9 +10185,9 @@ class render_vega_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10201,7 +10201,7 @@ render_vega_result.thrift_spec = (
 )
 
 
-class get_result_row_for_pixel_args(object):
+class get_result_row_for_pixel_args:
     """
     Attributes:
      - session
@@ -10331,9 +10331,9 @@ class get_result_row_for_pixel_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10353,7 +10353,7 @@ get_result_row_for_pixel_args.thrift_spec = (
 )
 
 
-class get_result_row_for_pixel_result(object):
+class get_result_row_for_pixel_result:
     """
     Attributes:
      - success
@@ -10411,9 +10411,9 @@ class get_result_row_for_pixel_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10427,7 +10427,7 @@ get_result_row_for_pixel_result.thrift_spec = (
 )
 
 
-class get_frontend_view_args(object):
+class get_frontend_view_args:
     """
     Attributes:
      - session
@@ -10483,9 +10483,9 @@ class get_frontend_view_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10500,7 +10500,7 @@ get_frontend_view_args.thrift_spec = (
 )
 
 
-class get_frontend_view_result(object):
+class get_frontend_view_result:
     """
     Attributes:
      - success
@@ -10558,9 +10558,9 @@ class get_frontend_view_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10574,7 +10574,7 @@ get_frontend_view_result.thrift_spec = (
 )
 
 
-class get_frontend_views_args(object):
+class get_frontend_views_args:
     """
     Attributes:
      - session
@@ -10619,9 +10619,9 @@ class get_frontend_views_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10635,7 +10635,7 @@ get_frontend_views_args.thrift_spec = (
 )
 
 
-class get_frontend_views_result(object):
+class get_frontend_views_result:
     """
     Attributes:
      - success
@@ -10701,9 +10701,9 @@ class get_frontend_views_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10717,7 +10717,7 @@ get_frontend_views_result.thrift_spec = (
 )
 
 
-class create_frontend_view_args(object):
+class create_frontend_view_args:
     """
     Attributes:
      - session
@@ -10806,9 +10806,9 @@ class create_frontend_view_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10826,7 +10826,7 @@ create_frontend_view_args.thrift_spec = (
 )
 
 
-class create_frontend_view_result(object):
+class create_frontend_view_result:
     """
     Attributes:
      - e
@@ -10872,9 +10872,9 @@ class create_frontend_view_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10888,7 +10888,7 @@ create_frontend_view_result.thrift_spec = (
 )
 
 
-class delete_frontend_view_args(object):
+class delete_frontend_view_args:
     """
     Attributes:
      - session
@@ -10944,9 +10944,9 @@ class delete_frontend_view_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10961,7 +10961,7 @@ delete_frontend_view_args.thrift_spec = (
 )
 
 
-class delete_frontend_view_result(object):
+class delete_frontend_view_result:
     """
     Attributes:
      - e
@@ -11007,9 +11007,9 @@ class delete_frontend_view_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11023,7 +11023,7 @@ delete_frontend_view_result.thrift_spec = (
 )
 
 
-class get_dashboard_args(object):
+class get_dashboard_args:
     """
     Attributes:
      - session
@@ -11079,9 +11079,9 @@ class get_dashboard_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11096,7 +11096,7 @@ get_dashboard_args.thrift_spec = (
 )
 
 
-class get_dashboard_result(object):
+class get_dashboard_result:
     """
     Attributes:
      - success
@@ -11154,9 +11154,9 @@ class get_dashboard_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11170,7 +11170,7 @@ get_dashboard_result.thrift_spec = (
 )
 
 
-class get_dashboards_args(object):
+class get_dashboards_args:
     """
     Attributes:
      - session
@@ -11215,9 +11215,9 @@ class get_dashboards_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11231,7 +11231,7 @@ get_dashboards_args.thrift_spec = (
 )
 
 
-class get_dashboards_result(object):
+class get_dashboards_result:
     """
     Attributes:
      - success
@@ -11297,9 +11297,9 @@ class get_dashboards_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11313,7 +11313,7 @@ get_dashboards_result.thrift_spec = (
 )
 
 
-class create_dashboard_args(object):
+class create_dashboard_args:
     """
     Attributes:
      - session
@@ -11402,9 +11402,9 @@ class create_dashboard_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11422,7 +11422,7 @@ create_dashboard_args.thrift_spec = (
 )
 
 
-class create_dashboard_result(object):
+class create_dashboard_result:
     """
     Attributes:
      - success
@@ -11479,9 +11479,9 @@ class create_dashboard_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11495,7 +11495,7 @@ create_dashboard_result.thrift_spec = (
 )
 
 
-class replace_dashboard_args(object):
+class replace_dashboard_args:
     """
     Attributes:
      - session
@@ -11606,9 +11606,9 @@ class replace_dashboard_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11628,7 +11628,7 @@ replace_dashboard_args.thrift_spec = (
 )
 
 
-class replace_dashboard_result(object):
+class replace_dashboard_result:
     """
     Attributes:
      - e
@@ -11674,9 +11674,9 @@ class replace_dashboard_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11690,7 +11690,7 @@ replace_dashboard_result.thrift_spec = (
 )
 
 
-class delete_dashboard_args(object):
+class delete_dashboard_args:
     """
     Attributes:
      - session
@@ -11746,9 +11746,9 @@ class delete_dashboard_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11763,7 +11763,7 @@ delete_dashboard_args.thrift_spec = (
 )
 
 
-class delete_dashboard_result(object):
+class delete_dashboard_result:
     """
     Attributes:
      - e
@@ -11809,9 +11809,9 @@ class delete_dashboard_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11825,7 +11825,7 @@ delete_dashboard_result.thrift_spec = (
 )
 
 
-class share_dashboard_args(object):
+class share_dashboard_args:
     """
     Attributes:
      - session
@@ -11931,9 +11931,9 @@ class share_dashboard_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11951,7 +11951,7 @@ share_dashboard_args.thrift_spec = (
 )
 
 
-class share_dashboard_result(object):
+class share_dashboard_result:
     """
     Attributes:
      - e
@@ -11997,9 +11997,9 @@ class share_dashboard_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12013,7 +12013,7 @@ share_dashboard_result.thrift_spec = (
 )
 
 
-class unshare_dashboard_args(object):
+class unshare_dashboard_args:
     """
     Attributes:
      - session
@@ -12119,9 +12119,9 @@ class unshare_dashboard_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12139,7 +12139,7 @@ unshare_dashboard_args.thrift_spec = (
 )
 
 
-class unshare_dashboard_result(object):
+class unshare_dashboard_result:
     """
     Attributes:
      - e
@@ -12185,9 +12185,9 @@ class unshare_dashboard_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12201,7 +12201,7 @@ unshare_dashboard_result.thrift_spec = (
 )
 
 
-class get_dashboard_grantees_args(object):
+class get_dashboard_grantees_args:
     """
     Attributes:
      - session
@@ -12257,9 +12257,9 @@ class get_dashboard_grantees_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12274,7 +12274,7 @@ get_dashboard_grantees_args.thrift_spec = (
 )
 
 
-class get_dashboard_grantees_result(object):
+class get_dashboard_grantees_result:
     """
     Attributes:
      - success
@@ -12340,9 +12340,9 @@ class get_dashboard_grantees_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12356,7 +12356,7 @@ get_dashboard_grantees_result.thrift_spec = (
 )
 
 
-class get_link_view_args(object):
+class get_link_view_args:
     """
     Attributes:
      - session
@@ -12412,9 +12412,9 @@ class get_link_view_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12429,7 +12429,7 @@ get_link_view_args.thrift_spec = (
 )
 
 
-class get_link_view_result(object):
+class get_link_view_result:
     """
     Attributes:
      - success
@@ -12487,9 +12487,9 @@ class get_link_view_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12503,7 +12503,7 @@ get_link_view_result.thrift_spec = (
 )
 
 
-class create_link_args(object):
+class create_link_args:
     """
     Attributes:
      - session
@@ -12570,9 +12570,9 @@ class create_link_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12588,7 +12588,7 @@ create_link_args.thrift_spec = (
 )
 
 
-class create_link_result(object):
+class create_link_result:
     """
     Attributes:
      - success
@@ -12645,9 +12645,9 @@ class create_link_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12661,7 +12661,7 @@ create_link_result.thrift_spec = (
 )
 
 
-class load_table_binary_args(object):
+class load_table_binary_args:
     """
     Attributes:
      - session
@@ -12737,9 +12737,9 @@ class load_table_binary_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12755,7 +12755,7 @@ load_table_binary_args.thrift_spec = (
 )
 
 
-class load_table_binary_result(object):
+class load_table_binary_result:
     """
     Attributes:
      - e
@@ -12801,9 +12801,9 @@ class load_table_binary_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12817,7 +12817,7 @@ load_table_binary_result.thrift_spec = (
 )
 
 
-class load_table_binary_columnar_args(object):
+class load_table_binary_columnar_args:
     """
     Attributes:
      - session
@@ -12893,9 +12893,9 @@ class load_table_binary_columnar_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12911,7 +12911,7 @@ load_table_binary_columnar_args.thrift_spec = (
 )
 
 
-class load_table_binary_columnar_result(object):
+class load_table_binary_columnar_result:
     """
     Attributes:
      - e
@@ -12957,9 +12957,9 @@ class load_table_binary_columnar_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12973,7 +12973,7 @@ load_table_binary_columnar_result.thrift_spec = (
 )
 
 
-class load_table_binary_arrow_args(object):
+class load_table_binary_arrow_args:
     """
     Attributes:
      - session
@@ -13040,9 +13040,9 @@ class load_table_binary_arrow_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13058,7 +13058,7 @@ load_table_binary_arrow_args.thrift_spec = (
 )
 
 
-class load_table_binary_arrow_result(object):
+class load_table_binary_arrow_result:
     """
     Attributes:
      - e
@@ -13104,9 +13104,9 @@ class load_table_binary_arrow_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13120,7 +13120,7 @@ load_table_binary_arrow_result.thrift_spec = (
 )
 
 
-class load_table_args(object):
+class load_table_args:
     """
     Attributes:
      - session
@@ -13196,9 +13196,9 @@ class load_table_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13214,7 +13214,7 @@ load_table_args.thrift_spec = (
 )
 
 
-class load_table_result(object):
+class load_table_result:
     """
     Attributes:
      - e
@@ -13260,9 +13260,9 @@ class load_table_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13276,7 +13276,7 @@ load_table_result.thrift_spec = (
 )
 
 
-class detect_column_types_args(object):
+class detect_column_types_args:
     """
     Attributes:
      - session
@@ -13344,9 +13344,9 @@ class detect_column_types_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13362,7 +13362,7 @@ detect_column_types_args.thrift_spec = (
 )
 
 
-class detect_column_types_result(object):
+class detect_column_types_result:
     """
     Attributes:
      - success
@@ -13420,9 +13420,9 @@ class detect_column_types_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13436,7 +13436,7 @@ detect_column_types_result.thrift_spec = (
 )
 
 
-class create_table_args(object):
+class create_table_args:
     """
     Attributes:
      - session
@@ -13535,9 +13535,9 @@ class create_table_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13555,7 +13555,7 @@ create_table_args.thrift_spec = (
 )
 
 
-class create_table_result(object):
+class create_table_result:
     """
     Attributes:
      - e
@@ -13601,9 +13601,9 @@ class create_table_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13617,7 +13617,7 @@ create_table_result.thrift_spec = (
 )
 
 
-class import_table_args(object):
+class import_table_args:
     """
     Attributes:
      - session
@@ -13696,9 +13696,9 @@ class import_table_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13715,7 +13715,7 @@ import_table_args.thrift_spec = (
 )
 
 
-class import_table_result(object):
+class import_table_result:
     """
     Attributes:
      - e
@@ -13761,9 +13761,9 @@ class import_table_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13777,7 +13777,7 @@ import_table_result.thrift_spec = (
 )
 
 
-class import_geo_table_args(object):
+class import_geo_table_args:
     """
     Attributes:
      - session
@@ -13876,9 +13876,9 @@ class import_geo_table_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13896,7 +13896,7 @@ import_geo_table_args.thrift_spec = (
 )
 
 
-class import_geo_table_result(object):
+class import_geo_table_result:
     """
     Attributes:
      - e
@@ -13942,9 +13942,9 @@ class import_geo_table_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13958,7 +13958,7 @@ import_geo_table_result.thrift_spec = (
 )
 
 
-class import_table_status_args(object):
+class import_table_status_args:
     """
     Attributes:
      - session
@@ -14014,9 +14014,9 @@ class import_table_status_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14031,7 +14031,7 @@ import_table_status_args.thrift_spec = (
 )
 
 
-class import_table_status_result(object):
+class import_table_status_result:
     """
     Attributes:
      - success
@@ -14089,9 +14089,9 @@ class import_table_status_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14105,7 +14105,7 @@ import_table_status_result.thrift_spec = (
 )
 
 
-class get_first_geo_file_in_archive_args(object):
+class get_first_geo_file_in_archive_args:
     """
     Attributes:
      - session
@@ -14173,9 +14173,9 @@ class get_first_geo_file_in_archive_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14191,7 +14191,7 @@ get_first_geo_file_in_archive_args.thrift_spec = (
 )
 
 
-class get_first_geo_file_in_archive_result(object):
+class get_first_geo_file_in_archive_result:
     """
     Attributes:
      - success
@@ -14248,9 +14248,9 @@ class get_first_geo_file_in_archive_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14264,7 +14264,7 @@ get_first_geo_file_in_archive_result.thrift_spec = (
 )
 
 
-class get_all_files_in_archive_args(object):
+class get_all_files_in_archive_args:
     """
     Attributes:
      - session
@@ -14332,9 +14332,9 @@ class get_all_files_in_archive_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14350,7 +14350,7 @@ get_all_files_in_archive_args.thrift_spec = (
 )
 
 
-class get_all_files_in_archive_result(object):
+class get_all_files_in_archive_result:
     """
     Attributes:
      - success
@@ -14415,9 +14415,9 @@ class get_all_files_in_archive_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14431,7 +14431,7 @@ get_all_files_in_archive_result.thrift_spec = (
 )
 
 
-class check_table_consistency_args(object):
+class check_table_consistency_args:
     """
     Attributes:
      - session
@@ -14487,9 +14487,9 @@ class check_table_consistency_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14504,7 +14504,7 @@ check_table_consistency_args.thrift_spec = (
 )
 
 
-class check_table_consistency_result(object):
+class check_table_consistency_result:
     """
     Attributes:
      - success
@@ -14562,9 +14562,9 @@ class check_table_consistency_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14578,7 +14578,7 @@ check_table_consistency_result.thrift_spec = (
 )
 
 
-class start_query_args(object):
+class start_query_args:
     """
     Attributes:
      - session
@@ -14645,9 +14645,9 @@ class start_query_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14663,7 +14663,7 @@ start_query_args.thrift_spec = (
 )
 
 
-class start_query_result(object):
+class start_query_result:
     """
     Attributes:
      - success
@@ -14721,9 +14721,9 @@ class start_query_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14737,7 +14737,7 @@ start_query_result.thrift_spec = (
 )
 
 
-class execute_first_step_args(object):
+class execute_first_step_args:
     """
     Attributes:
      - pending_query
@@ -14783,9 +14783,9 @@ class execute_first_step_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14799,7 +14799,7 @@ execute_first_step_args.thrift_spec = (
 )
 
 
-class execute_first_step_result(object):
+class execute_first_step_result:
     """
     Attributes:
      - success
@@ -14857,9 +14857,9 @@ class execute_first_step_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14873,7 +14873,7 @@ execute_first_step_result.thrift_spec = (
 )
 
 
-class broadcast_serialized_rows_args(object):
+class broadcast_serialized_rows_args:
     """
     Attributes:
      - serialized_rows
@@ -14960,9 +14960,9 @@ class broadcast_serialized_rows_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14979,7 +14979,7 @@ broadcast_serialized_rows_args.thrift_spec = (
 )
 
 
-class broadcast_serialized_rows_result(object):
+class broadcast_serialized_rows_result:
     """
     Attributes:
      - e
@@ -15025,9 +15025,9 @@ class broadcast_serialized_rows_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15041,7 +15041,7 @@ broadcast_serialized_rows_result.thrift_spec = (
 )
 
 
-class start_render_query_args(object):
+class start_render_query_args:
     """
     Attributes:
      - session
@@ -15119,9 +15119,9 @@ class start_render_query_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15138,7 +15138,7 @@ start_render_query_args.thrift_spec = (
 )
 
 
-class start_render_query_result(object):
+class start_render_query_result:
     """
     Attributes:
      - success
@@ -15196,9 +15196,9 @@ class start_render_query_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15212,7 +15212,7 @@ start_render_query_result.thrift_spec = (
 )
 
 
-class execute_next_render_step_args(object):
+class execute_next_render_step_args:
     """
     Attributes:
      - pending_render
@@ -15318,9 +15318,9 @@ class execute_next_render_step_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15335,7 +15335,7 @@ execute_next_render_step_args.thrift_spec = (
 )
 
 
-class execute_next_render_step_result(object):
+class execute_next_render_step_result:
     """
     Attributes:
      - success
@@ -15393,9 +15393,9 @@ class execute_next_render_step_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15409,7 +15409,7 @@ execute_next_render_step_result.thrift_spec = (
 )
 
 
-class insert_data_args(object):
+class insert_data_args:
     """
     Attributes:
      - session
@@ -15466,9 +15466,9 @@ class insert_data_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15483,7 +15483,7 @@ insert_data_args.thrift_spec = (
 )
 
 
-class insert_data_result(object):
+class insert_data_result:
     """
     Attributes:
      - e
@@ -15529,9 +15529,9 @@ class insert_data_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15545,7 +15545,7 @@ insert_data_result.thrift_spec = (
 )
 
 
-class checkpoint_args(object):
+class checkpoint_args:
     """
     Attributes:
      - session
@@ -15612,9 +15612,9 @@ class checkpoint_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15630,7 +15630,7 @@ checkpoint_args.thrift_spec = (
 )
 
 
-class checkpoint_result(object):
+class checkpoint_result:
     """
     Attributes:
      - e
@@ -15676,9 +15676,9 @@ class checkpoint_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15692,7 +15692,7 @@ checkpoint_result.thrift_spec = (
 )
 
 
-class get_table_descriptor_args(object):
+class get_table_descriptor_args:
     """
     Attributes:
      - session
@@ -15748,9 +15748,9 @@ class get_table_descriptor_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15765,7 +15765,7 @@ get_table_descriptor_args.thrift_spec = (
 )
 
 
-class get_table_descriptor_result(object):
+class get_table_descriptor_result:
     """
     Attributes:
      - success
@@ -15833,9 +15833,9 @@ class get_table_descriptor_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15849,7 +15849,7 @@ get_table_descriptor_result.thrift_spec = (
 )
 
 
-class get_row_descriptor_args(object):
+class get_row_descriptor_args:
     """
     Attributes:
      - session
@@ -15905,9 +15905,9 @@ class get_row_descriptor_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15922,7 +15922,7 @@ get_row_descriptor_args.thrift_spec = (
 )
 
 
-class get_row_descriptor_result(object):
+class get_row_descriptor_result:
     """
     Attributes:
      - success
@@ -15988,9 +15988,9 @@ class get_row_descriptor_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16004,7 +16004,7 @@ get_row_descriptor_result.thrift_spec = (
 )
 
 
-class get_roles_args(object):
+class get_roles_args:
     """
     Attributes:
      - session
@@ -16049,9 +16049,9 @@ class get_roles_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16065,7 +16065,7 @@ get_roles_args.thrift_spec = (
 )
 
 
-class get_roles_result(object):
+class get_roles_result:
     """
     Attributes:
      - success
@@ -16130,9 +16130,9 @@ class get_roles_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16146,7 +16146,7 @@ get_roles_result.thrift_spec = (
 )
 
 
-class get_db_objects_for_grantee_args(object):
+class get_db_objects_for_grantee_args:
     """
     Attributes:
      - session
@@ -16202,9 +16202,9 @@ class get_db_objects_for_grantee_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16219,7 +16219,7 @@ get_db_objects_for_grantee_args.thrift_spec = (
 )
 
 
-class get_db_objects_for_grantee_result(object):
+class get_db_objects_for_grantee_result:
     """
     Attributes:
      - success
@@ -16285,9 +16285,9 @@ class get_db_objects_for_grantee_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16301,7 +16301,7 @@ get_db_objects_for_grantee_result.thrift_spec = (
 )
 
 
-class get_db_object_privs_args(object):
+class get_db_object_privs_args:
     """
     Attributes:
      - session
@@ -16368,9 +16368,9 @@ class get_db_object_privs_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16386,7 +16386,7 @@ get_db_object_privs_args.thrift_spec = (
 )
 
 
-class get_db_object_privs_result(object):
+class get_db_object_privs_result:
     """
     Attributes:
      - success
@@ -16452,9 +16452,9 @@ class get_db_object_privs_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16468,7 +16468,7 @@ get_db_object_privs_result.thrift_spec = (
 )
 
 
-class get_all_roles_for_user_args(object):
+class get_all_roles_for_user_args:
     """
     Attributes:
      - session
@@ -16524,9 +16524,9 @@ class get_all_roles_for_user_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16541,7 +16541,7 @@ get_all_roles_for_user_args.thrift_spec = (
 )
 
 
-class get_all_roles_for_user_result(object):
+class get_all_roles_for_user_result:
     """
     Attributes:
      - success
@@ -16606,9 +16606,9 @@ class get_all_roles_for_user_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16622,7 +16622,7 @@ get_all_roles_for_user_result.thrift_spec = (
 )
 
 
-class has_object_privilege_args(object):
+class has_object_privilege_args:
     """
     Attributes:
      - session
@@ -16712,9 +16712,9 @@ class has_object_privilege_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16732,7 +16732,7 @@ has_object_privilege_args.thrift_spec = (
 )
 
 
-class has_object_privilege_result(object):
+class has_object_privilege_result:
     """
     Attributes:
      - success
@@ -16789,9 +16789,9 @@ class has_object_privilege_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16805,7 +16805,7 @@ has_object_privilege_result.thrift_spec = (
 )
 
 
-class set_license_key_args(object):
+class set_license_key_args:
     """
     Attributes:
      - session
@@ -16872,9 +16872,9 @@ class set_license_key_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16890,7 +16890,7 @@ set_license_key_args.thrift_spec = (
 )
 
 
-class set_license_key_result(object):
+class set_license_key_result:
     """
     Attributes:
      - success
@@ -16948,9 +16948,9 @@ class set_license_key_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -16964,7 +16964,7 @@ set_license_key_result.thrift_spec = (
 )
 
 
-class get_license_claims_args(object):
+class get_license_claims_args:
     """
     Attributes:
      - session
@@ -17020,9 +17020,9 @@ class get_license_claims_args(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -17037,7 +17037,7 @@ get_license_claims_args.thrift_spec = (
 )
 
 
-class get_license_claims_result(object):
+class get_license_claims_result:
     """
     Attributes:
      - success
@@ -17095,9 +17095,9 @@ class get_license_claims_result(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__

@@ -7,7 +7,7 @@ from pymapd.connection import _parse_uri, ConnectionInfo
 from pymapd._parsers import ColumnDetails, _extract_column_details
 
 
-class TestConnect(object):
+class TestConnect:
 
     def test_host_specified(self):
         with pytest.raises(TypeError):
@@ -54,7 +54,7 @@ class TestConnect(object):
         assert m.match('fake-proto')
 
 
-class TestURI(object):
+class TestURI:
 
     def test_parse_uri(self):
         uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?'
@@ -71,7 +71,7 @@ class TestURI(object):
             connect(uri=uri, user='my user')
 
 
-class TestExtras(object):
+class TestExtras:
     def test_extract_row_details(self):
         data = [
             TColumnType(col_name='date_',

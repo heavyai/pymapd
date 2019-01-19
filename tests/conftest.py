@@ -116,8 +116,8 @@ def insert_unicode(con):
     c.execute(drop)
     create = ('create table text_holder (the_text text);')
     c.execute(create)
-    first = {"value": u"我和我的姐姐吃米饭鸡肉"}
-    second = {"value": u"El camina a case en bicicleta es relajante"}
+    first = {"value": "我和我的姐姐吃米饭鸡肉"}
+    second = {"value": "El camina a case en bicicleta es relajante"}
 
     i1 = "INSERT INTO text_holder VALUES ( :value );"
 

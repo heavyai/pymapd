@@ -13,7 +13,7 @@ from thrift.transport import TTransport
 all_structs = []
 
 
-class TDatumType(object):
+class TDatumType:
     SMALLINT = 0
     INT = 1
     BIGINT = 2
@@ -82,7 +82,7 @@ class TDatumType(object):
     }
 
 
-class TEncodingType(object):
+class TEncodingType:
     NONE = 0
     FIXED = 1
     RL = 2
@@ -115,7 +115,7 @@ class TEncodingType(object):
     }
 
 
-class TExecuteMode(object):
+class TExecuteMode:
     GPU = 1
     CPU = 2
 
@@ -130,7 +130,7 @@ class TExecuteMode(object):
     }
 
 
-class TDeviceType(object):
+class TDeviceType:
     CPU = 0
     GPU = 1
 
@@ -145,7 +145,7 @@ class TDeviceType(object):
     }
 
 
-class TTableType(object):
+class TTableType:
     DELIMITED = 0
     POLYGON = 1
 
@@ -160,7 +160,7 @@ class TTableType(object):
     }
 
 
-class TPartitionDetail(object):
+class TPartitionDetail:
     DEFAULT = 0
     REPLICATED = 1
     SHARDED = 2
@@ -181,7 +181,7 @@ class TPartitionDetail(object):
     }
 
 
-class TMergeType(object):
+class TMergeType:
     UNION = 0
     REDUCE = 1
 
@@ -196,7 +196,7 @@ class TMergeType(object):
     }
 
 
-class TExpressionRangeType(object):
+class TExpressionRangeType:
     INVALID = 0
     INTEGER = 1
     FLOAT = 2
@@ -217,7 +217,7 @@ class TExpressionRangeType(object):
     }
 
 
-class TDBObjectType(object):
+class TDBObjectType:
     AbstractDBObjectType = 0
     DatabaseDBObjectType = 1
     TableDBObjectType = 2
@@ -241,7 +241,7 @@ class TDBObjectType(object):
     }
 
 
-class TDatumVal(object):
+class TDatumVal:
     """
     Attributes:
      - int_val
@@ -328,9 +328,9 @@ class TDatumVal(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -339,7 +339,7 @@ class TDatumVal(object):
         return not (self == other)
 
 
-class TDatum(object):
+class TDatum:
     """
     Attributes:
      - val
@@ -396,9 +396,9 @@ class TDatum(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -407,7 +407,7 @@ class TDatum(object):
         return not (self == other)
 
 
-class TStringValue(object):
+class TStringValue:
     """
     Attributes:
      - str_val
@@ -463,9 +463,9 @@ class TStringValue(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -474,7 +474,7 @@ class TStringValue(object):
         return not (self == other)
 
 
-class TTypeInfo(object):
+class TTypeInfo:
     """
     Attributes:
      - type
@@ -596,9 +596,9 @@ class TTypeInfo(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -607,7 +607,7 @@ class TTypeInfo(object):
         return not (self == other)
 
 
-class TColumnType(object):
+class TColumnType:
     """
     Attributes:
      - col_name
@@ -708,9 +708,9 @@ class TColumnType(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -719,7 +719,7 @@ class TColumnType(object):
         return not (self == other)
 
 
-class TRow(object):
+class TRow:
     """
     Attributes:
      - cols
@@ -773,9 +773,9 @@ class TRow(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -784,7 +784,7 @@ class TRow(object):
         return not (self == other)
 
 
-class TColumnData(object):
+class TColumnData:
     """
     Attributes:
      - int_col
@@ -895,9 +895,9 @@ class TColumnData(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -906,7 +906,7 @@ class TColumnData(object):
         return not (self == other)
 
 
-class TColumn(object):
+class TColumn:
     """
     Attributes:
      - data
@@ -971,9 +971,9 @@ class TColumn(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -982,7 +982,7 @@ class TColumn(object):
         return not (self == other)
 
 
-class TStringRow(object):
+class TStringRow:
     """
     Attributes:
      - cols
@@ -1036,9 +1036,9 @@ class TStringRow(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1047,7 +1047,7 @@ class TStringRow(object):
         return not (self == other)
 
 
-class TStepResult(object):
+class TStepResult:
     """
     Attributes:
      - serialized_rows
@@ -1167,9 +1167,9 @@ class TStepResult(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1178,7 +1178,7 @@ class TStepResult(object):
         return not (self == other)
 
 
-class TRowSet(object):
+class TRowSet:
     """
     Attributes:
      - row_desc
@@ -1283,9 +1283,9 @@ class TRowSet(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1294,7 +1294,7 @@ class TRowSet(object):
         return not (self == other)
 
 
-class TQueryResult(object):
+class TQueryResult:
     """
     Attributes:
      - row_set
@@ -1373,9 +1373,9 @@ class TQueryResult(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1384,7 +1384,7 @@ class TQueryResult(object):
         return not (self == other)
 
 
-class TDataFrame(object):
+class TDataFrame:
     """
     Attributes:
      - sm_handle
@@ -1462,9 +1462,9 @@ class TDataFrame(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1473,7 +1473,7 @@ class TDataFrame(object):
         return not (self == other)
 
 
-class TDBInfo(object):
+class TDBInfo:
     """
     Attributes:
      - db_name
@@ -1529,9 +1529,9 @@ class TDBInfo(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1588,9 +1588,9 @@ class TMapDException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1599,7 +1599,7 @@ class TMapDException(TException):
         return not (self == other)
 
 
-class TCopyParams(object):
+class TCopyParams:
     """
     Attributes:
      - delimiter
@@ -1853,9 +1853,9 @@ class TCopyParams(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1864,7 +1864,7 @@ class TCopyParams(object):
         return not (self == other)
 
 
-class TCreateParams(object):
+class TCreateParams:
     """
     Attributes:
      - is_replicated
@@ -1909,9 +1909,9 @@ class TCreateParams(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1920,7 +1920,7 @@ class TCreateParams(object):
         return not (self == other)
 
 
-class TDetectResult(object):
+class TDetectResult:
     """
     Attributes:
      - row_set
@@ -1978,9 +1978,9 @@ class TDetectResult(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1989,7 +1989,7 @@ class TDetectResult(object):
         return not (self == other)
 
 
-class TImportStatus(object):
+class TImportStatus:
     """
     Attributes:
      - elapsed
@@ -2067,9 +2067,9 @@ class TImportStatus(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2078,7 +2078,7 @@ class TImportStatus(object):
         return not (self == other)
 
 
-class TFrontendView(object):
+class TFrontendView:
     """
     Attributes:
      - view_name
@@ -2167,9 +2167,9 @@ class TFrontendView(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2178,7 +2178,7 @@ class TFrontendView(object):
         return not (self == other)
 
 
-class TDashboard(object):
+class TDashboard:
     """
     Attributes:
      - dashboard_name
@@ -2300,9 +2300,9 @@ class TDashboard(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2311,7 +2311,7 @@ class TDashboard(object):
         return not (self == other)
 
 
-class TServerStatus(object):
+class TServerStatus:
     """
     Attributes:
      - read_only
@@ -2422,9 +2422,9 @@ class TServerStatus(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2433,7 +2433,7 @@ class TServerStatus(object):
         return not (self == other)
 
 
-class TPixel(object):
+class TPixel:
     """
     Attributes:
      - x
@@ -2489,9 +2489,9 @@ class TPixel(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2500,7 +2500,7 @@ class TPixel(object):
         return not (self == other)
 
 
-class TPixelTableRowResult(object):
+class TPixelTableRowResult:
     """
     Attributes:
      - pixel
@@ -2602,9 +2602,9 @@ class TPixelTableRowResult(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2613,7 +2613,7 @@ class TPixelTableRowResult(object):
         return not (self == other)
 
 
-class TRenderResult(object):
+class TRenderResult:
     """
     Attributes:
      - image
@@ -2713,9 +2713,9 @@ class TRenderResult(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2724,7 +2724,7 @@ class TRenderResult(object):
         return not (self == other)
 
 
-class TGpuSpecification(object):
+class TGpuSpecification:
     """
     Attributes:
      - num_sm
@@ -2813,9 +2813,9 @@ class TGpuSpecification(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2824,7 +2824,7 @@ class TGpuSpecification(object):
         return not (self == other)
 
 
-class THardwareInfo(object):
+class THardwareInfo:
     """
     Attributes:
      - num_gpu_hw
@@ -2933,9 +2933,9 @@ class THardwareInfo(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2944,7 +2944,7 @@ class THardwareInfo(object):
         return not (self == other)
 
 
-class TClusterHardwareInfo(object):
+class TClusterHardwareInfo:
     """
     Attributes:
      - hardware_info
@@ -2998,9 +2998,9 @@ class TClusterHardwareInfo(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3009,7 +3009,7 @@ class TClusterHardwareInfo(object):
         return not (self == other)
 
 
-class TMemoryData(object):
+class TMemoryData:
     """
     Attributes:
      - slab
@@ -3128,9 +3128,9 @@ class TMemoryData(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3139,7 +3139,7 @@ class TMemoryData(object):
         return not (self == other)
 
 
-class TNodeMemoryInfo(object):
+class TNodeMemoryInfo:
     """
     Attributes:
      - host_name
@@ -3248,9 +3248,9 @@ class TNodeMemoryInfo(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3259,7 +3259,7 @@ class TNodeMemoryInfo(object):
         return not (self == other)
 
 
-class TTableMeta(object):
+class TTableMeta:
     """
     Attributes:
      - table_name
@@ -3378,9 +3378,9 @@ class TTableMeta(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3389,7 +3389,7 @@ class TTableMeta(object):
         return not (self == other)
 
 
-class TTableDetails(object):
+class TTableDetails:
     """
     Attributes:
      - row_desc
@@ -3531,9 +3531,9 @@ class TTableDetails(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3542,7 +3542,7 @@ class TTableDetails(object):
         return not (self == other)
 
 
-class TColumnRange(object):
+class TColumnRange:
     """
     Attributes:
      - type
@@ -3675,9 +3675,9 @@ class TColumnRange(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3686,7 +3686,7 @@ class TColumnRange(object):
         return not (self == other)
 
 
-class TDictionaryGeneration(object):
+class TDictionaryGeneration:
     """
     Attributes:
      - dict_id
@@ -3742,9 +3742,9 @@ class TDictionaryGeneration(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3753,7 +3753,7 @@ class TDictionaryGeneration(object):
         return not (self == other)
 
 
-class TTableGeneration(object):
+class TTableGeneration:
     """
     Attributes:
      - table_id
@@ -3820,9 +3820,9 @@ class TTableGeneration(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3831,7 +3831,7 @@ class TTableGeneration(object):
         return not (self == other)
 
 
-class TPendingQuery(object):
+class TPendingQuery:
     """
     Attributes:
      - id
@@ -3936,9 +3936,9 @@ class TPendingQuery(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3947,7 +3947,7 @@ class TPendingQuery(object):
         return not (self == other)
 
 
-class TVarLen(object):
+class TVarLen:
     """
     Attributes:
      - payload
@@ -4003,9 +4003,9 @@ class TVarLen(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4014,7 +4014,7 @@ class TVarLen(object):
         return not (self == other)
 
 
-class TDataBlockPtr(object):
+class TDataBlockPtr:
     """
     Attributes:
      - fixed_len_data
@@ -4079,9 +4079,9 @@ class TDataBlockPtr(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4090,7 +4090,7 @@ class TDataBlockPtr(object):
         return not (self == other)
 
 
-class TInsertData(object):
+class TInsertData:
     """
     Attributes:
      - db_id
@@ -4196,9 +4196,9 @@ class TInsertData(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4207,7 +4207,7 @@ class TInsertData(object):
         return not (self == other)
 
 
-class TPendingRenderQuery(object):
+class TPendingRenderQuery:
     """
     Attributes:
      - id
@@ -4252,9 +4252,9 @@ class TPendingRenderQuery(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4263,7 +4263,7 @@ class TPendingRenderQuery(object):
         return not (self == other)
 
 
-class TRenderParseResult(object):
+class TRenderParseResult:
     """
     Attributes:
      - merge_type
@@ -4352,9 +4352,9 @@ class TRenderParseResult(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4363,7 +4363,7 @@ class TRenderParseResult(object):
         return not (self == other)
 
 
-class TRawRenderPassDataResult(object):
+class TRawRenderPassDataResult:
     """
     Attributes:
      - num_channels
@@ -4463,9 +4463,9 @@ class TRawRenderPassDataResult(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4474,7 +4474,7 @@ class TRawRenderPassDataResult(object):
         return not (self == other)
 
 
-class TRawPixelData(object):
+class TRawPixelData:
     """
     Attributes:
      - width
@@ -4552,9 +4552,9 @@ class TRawPixelData(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4563,7 +4563,7 @@ class TRawPixelData(object):
         return not (self == other)
 
 
-class TRenderDatum(object):
+class TRenderDatum:
     """
     Attributes:
      - type
@@ -4630,9 +4630,9 @@ class TRenderDatum(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4641,7 +4641,7 @@ class TRenderDatum(object):
         return not (self == other)
 
 
-class TRenderStepResult(object):
+class TRenderStepResult:
     """
     Attributes:
      - merge_data
@@ -4780,9 +4780,9 @@ class TRenderStepResult(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4791,7 +4791,7 @@ class TRenderStepResult(object):
         return not (self == other)
 
 
-class TDatabasePermissions(object):
+class TDatabasePermissions:
     """
     Attributes:
      - create_
@@ -4869,9 +4869,9 @@ class TDatabasePermissions(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4880,7 +4880,7 @@ class TDatabasePermissions(object):
         return not (self == other)
 
 
-class TTablePermissions(object):
+class TTablePermissions:
     """
     Attributes:
      - create_
@@ -4991,9 +4991,9 @@ class TTablePermissions(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5002,7 +5002,7 @@ class TTablePermissions(object):
         return not (self == other)
 
 
-class TDashboardPermissions(object):
+class TDashboardPermissions:
     """
     Attributes:
      - create_
@@ -5080,9 +5080,9 @@ class TDashboardPermissions(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5091,7 +5091,7 @@ class TDashboardPermissions(object):
         return not (self == other)
 
 
-class TViewPermissions(object):
+class TViewPermissions:
     """
     Attributes:
      - create_
@@ -5191,9 +5191,9 @@ class TViewPermissions(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5202,7 +5202,7 @@ class TViewPermissions(object):
         return not (self == other)
 
 
-class TDBObjectPermissions(object):
+class TDBObjectPermissions:
     """
     Attributes:
      - database_permissions_
@@ -5284,9 +5284,9 @@ class TDBObjectPermissions(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5295,7 +5295,7 @@ class TDBObjectPermissions(object):
         return not (self == other)
 
 
-class TDBObject(object):
+class TDBObject:
     """
     Attributes:
      - objectName
@@ -5381,9 +5381,9 @@ class TDBObject(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5392,7 +5392,7 @@ class TDBObject(object):
         return not (self == other)
 
 
-class TDashboardGrantees(object):
+class TDashboardGrantees:
     """
     Attributes:
      - name
@@ -5460,9 +5460,9 @@ class TDashboardGrantees(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5471,7 +5471,7 @@ class TDashboardGrantees(object):
         return not (self == other)
 
 
-class TLicenseInfo(object):
+class TLicenseInfo:
     """
     Attributes:
      - claims
@@ -5524,9 +5524,9 @@ class TLicenseInfo(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5535,7 +5535,7 @@ class TLicenseInfo(object):
         return not (self == other)
 
 
-class TSessionInfo(object):
+class TSessionInfo:
     """
     Attributes:
      - user
@@ -5602,9 +5602,9 @@ class TSessionInfo(object):
         return
 
     def __repr__(self):
-        L = ['%s=%r' % (key, value)
+        L = ['{}={!r}'.format(key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__

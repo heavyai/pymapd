@@ -2,7 +2,7 @@ import datetime
 from pymapd.cursor import make_row_results_set
 
 
-class TestRowResults(object):
+class TestRowResults:
 
     def test_basic(self, rowwise):
         result = list(make_row_results_set(rowwise))

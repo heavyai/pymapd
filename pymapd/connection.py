@@ -107,7 +107,7 @@ def _parse_uri(uri):
     return ConnectionInfo(user, password, host, port, dbname, protocol)
 
 
-class Connection(object):
+class Connection:
     """Connect to your OmniSci database."""
 
     def __init__(self,
@@ -161,14 +161,14 @@ class Connection(object):
         except TTransportException as e:
             if e.NOT_OPEN:
                 err = OperationalError("Could not connect to database")
-                six.raise_from(err, e)
+                raise err from e
             else:
                 raise
         self._client = Client(proto)
         try:
             self._session = self._client.connect(user, password, dbname)
         except TMapDException as e:
-            six.raise_from(_translate_exception(e), e)
+            raise _translate_exception(e) from e
 
     def __repr__(self):
         # type: () -> str
@@ -569,10 +569,10 @@ class Connection(object):
             # as there are in the dataframe. No point trying to load the data
             # if this is not the case
             if len(table_details) != len(data.columns):
-                raise ValueError('Number of columns in dataframe ({0}) does not \
+                raise ValueError('Number of columns in dataframe ({}) does not \
                                   match number of columns in OmniSci table \
-                                  ({1})'.format(len(data.columns),
-                                                len(table_details)))
+                                  ({})'.format(len(data.columns),
+                                               len(table_details)))
 
             col_names = [i[0] for i in table_details] if \
                 col_names_from_schema \
@@ -646,7 +646,7 @@ class Connection(object):
         return rendered_vega
 
 
-class RenderedVega(object):
+class RenderedVega:
     def __init__(self, render_result):
         self._render_result = render_result
         self.image_data = base64.b64encode(render_result.image).decode()

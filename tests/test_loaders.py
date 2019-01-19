@@ -8,7 +8,7 @@ from mapd.MapD import TStringRow, TStringValue, TColumn, TColumnData
 from .utils import assert_columnar_equal
 
 
-class TestLoaders(object):
+class TestLoaders:
 
     def test_build_input_rows(self):
         data = [(1, 'a'), (2, 'b')]

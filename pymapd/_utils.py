@@ -28,7 +28,7 @@ def datetime_to_seconds(arr):
             # Or from datetime with timezone information
             arr = arr.astype('datetime64[ns]')
         else:
-            raise TypeError("Invalid type {0}, expected one of \
+            raise TypeError("Invalid type {}, expected one of \
                 datetime64[ns], int64 (seconds since epoch), \
                 or object (string)".format(arr.dtype))
     return arr.view('i8') // 10**9  # ns -> s since epoch
