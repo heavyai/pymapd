@@ -2,13 +2,9 @@
 https://www.python.org/dev/peps/pep-0249/#type-objects
 """
 import datetime
-import six
 import time
 
 from mapd import MapD
-
-if six.PY2:
-    memoryview = buffer  # noqa
 
 
 T = MapD.TDatumType

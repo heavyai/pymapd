@@ -1,4 +1,3 @@
-import six
 import mapd.ttypes as T
 
 from .exceptions import _translate_exception

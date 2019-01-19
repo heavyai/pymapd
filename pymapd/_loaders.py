@@ -3,7 +3,6 @@ Internal helpers for loading data
 """
 from mapd.ttypes import TStringRow, TStringValue
 import collections
-import six
 
 
 def _build_input_rows(data):

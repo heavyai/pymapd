@@ -7,7 +7,6 @@ import pandas as pd
 import pyarrow as pa
 import ctypes
 
-import six
 from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
