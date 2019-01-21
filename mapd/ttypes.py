@@ -9,11 +9,13 @@
 from thrift.Thrift import TType, TException, TApplicationException
 from thrift.TRecursive import fix_spec
 
+import sys
+
 from thrift.transport import TTransport
 all_structs = []
 
 
-class TDatumType:
+class TDatumType(object):
     SMALLINT = 0
     INT = 1
     BIGINT = 2
@@ -82,7 +84,7 @@ class TDatumType:
     }
 
 
-class TEncodingType:
+class TEncodingType(object):
     NONE = 0
     FIXED = 1
     RL = 2
@@ -115,7 +117,7 @@ class TEncodingType:
     }
 
 
-class TExecuteMode:
+class TExecuteMode(object):
     GPU = 1
     CPU = 2
 
@@ -130,7 +132,7 @@ class TExecuteMode:
     }
 
 
-class TDeviceType:
+class TDeviceType(object):
     CPU = 0
     GPU = 1
 
@@ -145,7 +147,7 @@ class TDeviceType:
     }
 
 
-class TTableType:
+class TTableType(object):
     DELIMITED = 0
     POLYGON = 1
 
@@ -160,7 +162,7 @@ class TTableType:
     }
 
 
-class TPartitionDetail:
+class TPartitionDetail(object):
     DEFAULT = 0
     REPLICATED = 1
     SHARDED = 2
@@ -181,7 +183,7 @@ class TPartitionDetail:
     }
 
 
-class TMergeType:
+class TMergeType(object):
     UNION = 0
     REDUCE = 1
 
@@ -196,7 +198,7 @@ class TMergeType:
     }
 
 
-class TExpressionRangeType:
+class TExpressionRangeType(object):
     INVALID = 0
     INTEGER = 1
     FLOAT = 2
@@ -217,7 +219,7 @@ class TExpressionRangeType:
     }
 
 
-class TDBObjectType:
+class TDBObjectType(object):
     AbstractDBObjectType = 0
     DatabaseDBObjectType = 1
     TableDBObjectType = 2
@@ -241,7 +243,7 @@ class TDBObjectType:
     }
 
 
-class TDatumVal:
+class TDatumVal(object):
     """
     Attributes:
      - int_val
@@ -278,7 +280,7 @@ class TDatumVal:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.str_val = iprot.readString()
+                    self.str_val = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
@@ -312,7 +314,7 @@ class TDatumVal:
             oprot.writeFieldEnd()
         if self.str_val is not None:
             oprot.writeFieldBegin('str_val', TType.STRING, 3)
-            oprot.writeString(self.str_val)
+            oprot.writeString(self.str_val.encode('utf-8') if sys.version_info[0] == 2 else self.str_val)
             oprot.writeFieldEnd()
         if self.arr_val is not None:
             oprot.writeFieldBegin('arr_val', TType.LIST, 4)
@@ -328,9 +330,9 @@ class TDatumVal:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -339,7 +341,7 @@ class TDatumVal:
         return not (self == other)
 
 
-class TDatum:
+class TDatum(object):
     """
     Attributes:
      - val
@@ -396,9 +398,9 @@ class TDatum:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -407,7 +409,7 @@ class TDatum:
         return not (self == other)
 
 
-class TStringValue:
+class TStringValue(object):
     """
     Attributes:
      - str_val
@@ -430,7 +432,7 @@ class TStringValue:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.str_val = iprot.readString()
+                    self.str_val = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -450,7 +452,7 @@ class TStringValue:
         oprot.writeStructBegin('TStringValue')
         if self.str_val is not None:
             oprot.writeFieldBegin('str_val', TType.STRING, 1)
-            oprot.writeString(self.str_val)
+            oprot.writeString(self.str_val.encode('utf-8') if sys.version_info[0] == 2 else self.str_val)
             oprot.writeFieldEnd()
         if self.is_null is not None:
             oprot.writeFieldBegin('is_null', TType.BOOL, 2)
@@ -463,9 +465,9 @@ class TStringValue:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -474,7 +476,7 @@ class TStringValue:
         return not (self == other)
 
 
-class TTypeInfo:
+class TTypeInfo(object):
     """
     Attributes:
      - type
@@ -596,9 +598,9 @@ class TTypeInfo:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -607,7 +609,7 @@ class TTypeInfo:
         return not (self == other)
 
 
-class TColumnType:
+class TColumnType(object):
     """
     Attributes:
      - col_name
@@ -638,7 +640,7 @@ class TColumnType:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.col_name = iprot.readString()
+                    self.col_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -654,7 +656,7 @@ class TColumnType:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.src_name = iprot.readString()
+                    self.src_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
@@ -679,7 +681,7 @@ class TColumnType:
         oprot.writeStructBegin('TColumnType')
         if self.col_name is not None:
             oprot.writeFieldBegin('col_name', TType.STRING, 1)
-            oprot.writeString(self.col_name)
+            oprot.writeString(self.col_name.encode('utf-8') if sys.version_info[0] == 2 else self.col_name)
             oprot.writeFieldEnd()
         if self.col_type is not None:
             oprot.writeFieldBegin('col_type', TType.STRUCT, 2)
@@ -691,7 +693,7 @@ class TColumnType:
             oprot.writeFieldEnd()
         if self.src_name is not None:
             oprot.writeFieldBegin('src_name', TType.STRING, 4)
-            oprot.writeString(self.src_name)
+            oprot.writeString(self.src_name.encode('utf-8') if sys.version_info[0] == 2 else self.src_name)
             oprot.writeFieldEnd()
         if self.is_system is not None:
             oprot.writeFieldBegin('is_system', TType.BOOL, 5)
@@ -708,9 +710,9 @@ class TColumnType:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -719,7 +721,7 @@ class TColumnType:
         return not (self == other)
 
 
-class TRow:
+class TRow(object):
     """
     Attributes:
      - cols
@@ -773,9 +775,9 @@ class TRow:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -784,7 +786,7 @@ class TRow:
         return not (self == other)
 
 
-class TColumnData:
+class TColumnData(object):
     """
     Attributes:
      - int_col
@@ -834,7 +836,7 @@ class TColumnData:
                     self.str_col = []
                     (_etype29, _size26) = iprot.readListBegin()
                     for _i30 in range(_size26):
-                        _elem31 = iprot.readString()
+                        _elem31 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                         self.str_col.append(_elem31)
                     iprot.readListEnd()
                 else:
@@ -878,7 +880,7 @@ class TColumnData:
             oprot.writeFieldBegin('str_col', TType.LIST, 3)
             oprot.writeListBegin(TType.STRING, len(self.str_col))
             for iter40 in self.str_col:
-                oprot.writeString(iter40)
+                oprot.writeString(iter40.encode('utf-8') if sys.version_info[0] == 2 else iter40)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.arr_col is not None:
@@ -895,9 +897,9 @@ class TColumnData:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -906,7 +908,7 @@ class TColumnData:
         return not (self == other)
 
 
-class TColumn:
+class TColumn(object):
     """
     Attributes:
      - data
@@ -971,9 +973,9 @@ class TColumn:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -982,7 +984,7 @@ class TColumn:
         return not (self == other)
 
 
-class TStringRow:
+class TStringRow(object):
     """
     Attributes:
      - cols
@@ -1036,9 +1038,9 @@ class TStringRow:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1047,7 +1049,7 @@ class TStringRow:
         return not (self == other)
 
 
-class TStepResult:
+class TStepResult(object):
     """
     Attributes:
      - serialized_rows
@@ -1167,9 +1169,9 @@ class TStepResult:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1178,7 +1180,7 @@ class TStepResult:
         return not (self == other)
 
 
-class TRowSet:
+class TRowSet(object):
     """
     Attributes:
      - row_desc
@@ -1283,9 +1285,9 @@ class TRowSet:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1294,7 +1296,7 @@ class TRowSet:
         return not (self == other)
 
 
-class TQueryResult:
+class TQueryResult(object):
     """
     Attributes:
      - row_set
@@ -1337,7 +1339,7 @@ class TQueryResult:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString()
+                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1364,7 +1366,7 @@ class TQueryResult:
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 4)
-            oprot.writeString(self.nonce)
+            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1373,9 +1375,9 @@ class TQueryResult:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1384,7 +1386,7 @@ class TQueryResult:
         return not (self == other)
 
 
-class TDataFrame:
+class TDataFrame(object):
     """
     Attributes:
      - sm_handle
@@ -1462,9 +1464,9 @@ class TDataFrame:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1473,7 +1475,7 @@ class TDataFrame:
         return not (self == other)
 
 
-class TDBInfo:
+class TDBInfo(object):
     """
     Attributes:
      - db_name
@@ -1496,12 +1498,12 @@ class TDBInfo:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.db_name = iprot.readString()
+                    self.db_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.db_owner = iprot.readString()
+                    self.db_owner = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1516,11 +1518,11 @@ class TDBInfo:
         oprot.writeStructBegin('TDBInfo')
         if self.db_name is not None:
             oprot.writeFieldBegin('db_name', TType.STRING, 1)
-            oprot.writeString(self.db_name)
+            oprot.writeString(self.db_name.encode('utf-8') if sys.version_info[0] == 2 else self.db_name)
             oprot.writeFieldEnd()
         if self.db_owner is not None:
             oprot.writeFieldBegin('db_owner', TType.STRING, 2)
-            oprot.writeString(self.db_owner)
+            oprot.writeString(self.db_owner.encode('utf-8') if sys.version_info[0] == 2 else self.db_owner)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1529,9 +1531,9 @@ class TDBInfo:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1561,7 +1563,7 @@ class TMapDException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.error_msg = iprot.readString()
+                    self.error_msg = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1576,7 +1578,7 @@ class TMapDException(TException):
         oprot.writeStructBegin('TMapDException')
         if self.error_msg is not None:
             oprot.writeFieldBegin('error_msg', TType.STRING, 1)
-            oprot.writeString(self.error_msg)
+            oprot.writeString(self.error_msg.encode('utf-8') if sys.version_info[0] == 2 else self.error_msg)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1588,9 +1590,9 @@ class TMapDException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1599,7 +1601,7 @@ class TMapDException(TException):
         return not (self == other)
 
 
-class TCopyParams:
+class TCopyParams(object):
     """
     Attributes:
      - delimiter
@@ -1658,12 +1660,12 @@ class TCopyParams:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.delimiter = iprot.readString()
+                    self.delimiter = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.null_str = iprot.readString()
+                    self.null_str = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -1678,32 +1680,32 @@ class TCopyParams:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.quote = iprot.readString()
+                    self.quote = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.escape = iprot.readString()
+                    self.escape = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.line_delim = iprot.readString()
+                    self.line_delim = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
                 if ftype == TType.STRING:
-                    self.array_delim = iprot.readString()
+                    self.array_delim = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 9:
                 if ftype == TType.STRING:
-                    self.array_begin = iprot.readString()
+                    self.array_begin = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 10:
                 if ftype == TType.STRING:
-                    self.array_end = iprot.readString()
+                    self.array_end = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 11:
@@ -1718,17 +1720,17 @@ class TCopyParams:
                     iprot.skip(ftype)
             elif fid == 13:
                 if ftype == TType.STRING:
-                    self.s3_access_key = iprot.readString()
+                    self.s3_access_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 14:
                 if ftype == TType.STRING:
-                    self.s3_secret_key = iprot.readString()
+                    self.s3_secret_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 15:
                 if ftype == TType.STRING:
-                    self.s3_region = iprot.readString()
+                    self.s3_region = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 16:
@@ -1768,11 +1770,11 @@ class TCopyParams:
         oprot.writeStructBegin('TCopyParams')
         if self.delimiter is not None:
             oprot.writeFieldBegin('delimiter', TType.STRING, 1)
-            oprot.writeString(self.delimiter)
+            oprot.writeString(self.delimiter.encode('utf-8') if sys.version_info[0] == 2 else self.delimiter)
             oprot.writeFieldEnd()
         if self.null_str is not None:
             oprot.writeFieldBegin('null_str', TType.STRING, 2)
-            oprot.writeString(self.null_str)
+            oprot.writeString(self.null_str.encode('utf-8') if sys.version_info[0] == 2 else self.null_str)
             oprot.writeFieldEnd()
         if self.has_header is not None:
             oprot.writeFieldBegin('has_header', TType.BOOL, 3)
@@ -1784,27 +1786,27 @@ class TCopyParams:
             oprot.writeFieldEnd()
         if self.quote is not None:
             oprot.writeFieldBegin('quote', TType.STRING, 5)
-            oprot.writeString(self.quote)
+            oprot.writeString(self.quote.encode('utf-8') if sys.version_info[0] == 2 else self.quote)
             oprot.writeFieldEnd()
         if self.escape is not None:
             oprot.writeFieldBegin('escape', TType.STRING, 6)
-            oprot.writeString(self.escape)
+            oprot.writeString(self.escape.encode('utf-8') if sys.version_info[0] == 2 else self.escape)
             oprot.writeFieldEnd()
         if self.line_delim is not None:
             oprot.writeFieldBegin('line_delim', TType.STRING, 7)
-            oprot.writeString(self.line_delim)
+            oprot.writeString(self.line_delim.encode('utf-8') if sys.version_info[0] == 2 else self.line_delim)
             oprot.writeFieldEnd()
         if self.array_delim is not None:
             oprot.writeFieldBegin('array_delim', TType.STRING, 8)
-            oprot.writeString(self.array_delim)
+            oprot.writeString(self.array_delim.encode('utf-8') if sys.version_info[0] == 2 else self.array_delim)
             oprot.writeFieldEnd()
         if self.array_begin is not None:
             oprot.writeFieldBegin('array_begin', TType.STRING, 9)
-            oprot.writeString(self.array_begin)
+            oprot.writeString(self.array_begin.encode('utf-8') if sys.version_info[0] == 2 else self.array_begin)
             oprot.writeFieldEnd()
         if self.array_end is not None:
             oprot.writeFieldBegin('array_end', TType.STRING, 10)
-            oprot.writeString(self.array_end)
+            oprot.writeString(self.array_end.encode('utf-8') if sys.version_info[0] == 2 else self.array_end)
             oprot.writeFieldEnd()
         if self.threads is not None:
             oprot.writeFieldBegin('threads', TType.I32, 11)
@@ -1816,15 +1818,15 @@ class TCopyParams:
             oprot.writeFieldEnd()
         if self.s3_access_key is not None:
             oprot.writeFieldBegin('s3_access_key', TType.STRING, 13)
-            oprot.writeString(self.s3_access_key)
+            oprot.writeString(self.s3_access_key.encode('utf-8') if sys.version_info[0] == 2 else self.s3_access_key)
             oprot.writeFieldEnd()
         if self.s3_secret_key is not None:
             oprot.writeFieldBegin('s3_secret_key', TType.STRING, 14)
-            oprot.writeString(self.s3_secret_key)
+            oprot.writeString(self.s3_secret_key.encode('utf-8') if sys.version_info[0] == 2 else self.s3_secret_key)
             oprot.writeFieldEnd()
         if self.s3_region is not None:
             oprot.writeFieldBegin('s3_region', TType.STRING, 15)
-            oprot.writeString(self.s3_region)
+            oprot.writeString(self.s3_region.encode('utf-8') if sys.version_info[0] == 2 else self.s3_region)
             oprot.writeFieldEnd()
         if self.geo_coords_encoding is not None:
             oprot.writeFieldBegin('geo_coords_encoding', TType.I32, 16)
@@ -1853,9 +1855,9 @@ class TCopyParams:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1864,7 +1866,7 @@ class TCopyParams:
         return not (self == other)
 
 
-class TCreateParams:
+class TCreateParams(object):
     """
     Attributes:
      - is_replicated
@@ -1909,9 +1911,9 @@ class TCreateParams:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1920,7 +1922,7 @@ class TCreateParams:
         return not (self == other)
 
 
-class TDetectResult:
+class TDetectResult(object):
     """
     Attributes:
      - row_set
@@ -1978,9 +1980,9 @@ class TDetectResult:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1989,7 +1991,7 @@ class TDetectResult:
         return not (self == other)
 
 
-class TImportStatus:
+class TImportStatus(object):
     """
     Attributes:
      - elapsed
@@ -2067,9 +2069,9 @@ class TImportStatus:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2078,7 +2080,7 @@ class TImportStatus:
         return not (self == other)
 
 
-class TFrontendView:
+class TFrontendView(object):
     """
     Attributes:
      - view_name
@@ -2107,27 +2109,27 @@ class TFrontendView:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.view_name = iprot.readString()
+                    self.view_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.view_state = iprot.readString()
+                    self.view_state = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.image_hash = iprot.readString()
+                    self.image_hash = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.update_time = iprot.readString()
+                    self.update_time = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.view_metadata = iprot.readString()
+                    self.view_metadata = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2142,23 +2144,23 @@ class TFrontendView:
         oprot.writeStructBegin('TFrontendView')
         if self.view_name is not None:
             oprot.writeFieldBegin('view_name', TType.STRING, 1)
-            oprot.writeString(self.view_name)
+            oprot.writeString(self.view_name.encode('utf-8') if sys.version_info[0] == 2 else self.view_name)
             oprot.writeFieldEnd()
         if self.view_state is not None:
             oprot.writeFieldBegin('view_state', TType.STRING, 2)
-            oprot.writeString(self.view_state)
+            oprot.writeString(self.view_state.encode('utf-8') if sys.version_info[0] == 2 else self.view_state)
             oprot.writeFieldEnd()
         if self.image_hash is not None:
             oprot.writeFieldBegin('image_hash', TType.STRING, 3)
-            oprot.writeString(self.image_hash)
+            oprot.writeString(self.image_hash.encode('utf-8') if sys.version_info[0] == 2 else self.image_hash)
             oprot.writeFieldEnd()
         if self.update_time is not None:
             oprot.writeFieldBegin('update_time', TType.STRING, 4)
-            oprot.writeString(self.update_time)
+            oprot.writeString(self.update_time.encode('utf-8') if sys.version_info[0] == 2 else self.update_time)
             oprot.writeFieldEnd()
         if self.view_metadata is not None:
             oprot.writeFieldBegin('view_metadata', TType.STRING, 5)
-            oprot.writeString(self.view_metadata)
+            oprot.writeString(self.view_metadata.encode('utf-8') if sys.version_info[0] == 2 else self.view_metadata)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2167,9 +2169,9 @@ class TFrontendView:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2178,7 +2180,7 @@ class TFrontendView:
         return not (self == other)
 
 
-class TDashboard:
+class TDashboard(object):
     """
     Attributes:
      - dashboard_name
@@ -2213,27 +2215,27 @@ class TDashboard:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.dashboard_name = iprot.readString()
+                    self.dashboard_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.dashboard_state = iprot.readString()
+                    self.dashboard_state = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.image_hash = iprot.readString()
+                    self.image_hash = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.update_time = iprot.readString()
+                    self.update_time = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.dashboard_metadata = iprot.readString()
+                    self.dashboard_metadata = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
@@ -2243,7 +2245,7 @@ class TDashboard:
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.dashboard_owner = iprot.readString()
+                    self.dashboard_owner = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
@@ -2263,23 +2265,23 @@ class TDashboard:
         oprot.writeStructBegin('TDashboard')
         if self.dashboard_name is not None:
             oprot.writeFieldBegin('dashboard_name', TType.STRING, 1)
-            oprot.writeString(self.dashboard_name)
+            oprot.writeString(self.dashboard_name.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_name)
             oprot.writeFieldEnd()
         if self.dashboard_state is not None:
             oprot.writeFieldBegin('dashboard_state', TType.STRING, 2)
-            oprot.writeString(self.dashboard_state)
+            oprot.writeString(self.dashboard_state.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_state)
             oprot.writeFieldEnd()
         if self.image_hash is not None:
             oprot.writeFieldBegin('image_hash', TType.STRING, 3)
-            oprot.writeString(self.image_hash)
+            oprot.writeString(self.image_hash.encode('utf-8') if sys.version_info[0] == 2 else self.image_hash)
             oprot.writeFieldEnd()
         if self.update_time is not None:
             oprot.writeFieldBegin('update_time', TType.STRING, 4)
-            oprot.writeString(self.update_time)
+            oprot.writeString(self.update_time.encode('utf-8') if sys.version_info[0] == 2 else self.update_time)
             oprot.writeFieldEnd()
         if self.dashboard_metadata is not None:
             oprot.writeFieldBegin('dashboard_metadata', TType.STRING, 5)
-            oprot.writeString(self.dashboard_metadata)
+            oprot.writeString(self.dashboard_metadata.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_metadata)
             oprot.writeFieldEnd()
         if self.dashboard_id is not None:
             oprot.writeFieldBegin('dashboard_id', TType.I32, 6)
@@ -2287,7 +2289,7 @@ class TDashboard:
             oprot.writeFieldEnd()
         if self.dashboard_owner is not None:
             oprot.writeFieldBegin('dashboard_owner', TType.STRING, 7)
-            oprot.writeString(self.dashboard_owner)
+            oprot.writeString(self.dashboard_owner.encode('utf-8') if sys.version_info[0] == 2 else self.dashboard_owner)
             oprot.writeFieldEnd()
         if self.is_dash_shared is not None:
             oprot.writeFieldBegin('is_dash_shared', TType.BOOL, 8)
@@ -2300,9 +2302,9 @@ class TDashboard:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2311,7 +2313,7 @@ class TDashboard:
         return not (self == other)
 
 
-class TServerStatus:
+class TServerStatus(object):
     """
     Attributes:
      - read_only
@@ -2349,7 +2351,7 @@ class TServerStatus:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.version = iprot.readString()
+                    self.version = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -2364,12 +2366,12 @@ class TServerStatus:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.edition = iprot.readString()
+                    self.edition = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.host_name = iprot.readString()
+                    self.host_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
@@ -2393,7 +2395,7 @@ class TServerStatus:
             oprot.writeFieldEnd()
         if self.version is not None:
             oprot.writeFieldBegin('version', TType.STRING, 2)
-            oprot.writeString(self.version)
+            oprot.writeString(self.version.encode('utf-8') if sys.version_info[0] == 2 else self.version)
             oprot.writeFieldEnd()
         if self.rendering_enabled is not None:
             oprot.writeFieldBegin('rendering_enabled', TType.BOOL, 3)
@@ -2405,11 +2407,11 @@ class TServerStatus:
             oprot.writeFieldEnd()
         if self.edition is not None:
             oprot.writeFieldBegin('edition', TType.STRING, 5)
-            oprot.writeString(self.edition)
+            oprot.writeString(self.edition.encode('utf-8') if sys.version_info[0] == 2 else self.edition)
             oprot.writeFieldEnd()
         if self.host_name is not None:
             oprot.writeFieldBegin('host_name', TType.STRING, 6)
-            oprot.writeString(self.host_name)
+            oprot.writeString(self.host_name.encode('utf-8') if sys.version_info[0] == 2 else self.host_name)
             oprot.writeFieldEnd()
         if self.poly_rendering_enabled is not None:
             oprot.writeFieldBegin('poly_rendering_enabled', TType.BOOL, 7)
@@ -2422,9 +2424,9 @@ class TServerStatus:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2433,7 +2435,7 @@ class TServerStatus:
         return not (self == other)
 
 
-class TPixel:
+class TPixel(object):
     """
     Attributes:
      - x
@@ -2489,9 +2491,9 @@ class TPixel:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2500,7 +2502,7 @@ class TPixel:
         return not (self == other)
 
 
-class TPixelTableRowResult:
+class TPixelTableRowResult(object):
     """
     Attributes:
      - pixel
@@ -2537,7 +2539,7 @@ class TPixelTableRowResult:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.vega_table_name = iprot.readString()
+                    self.vega_table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -2558,7 +2560,7 @@ class TPixelTableRowResult:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString()
+                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2577,7 +2579,7 @@ class TPixelTableRowResult:
             oprot.writeFieldEnd()
         if self.vega_table_name is not None:
             oprot.writeFieldBegin('vega_table_name', TType.STRING, 2)
-            oprot.writeString(self.vega_table_name)
+            oprot.writeString(self.vega_table_name.encode('utf-8') if sys.version_info[0] == 2 else self.vega_table_name)
             oprot.writeFieldEnd()
         if self.table_id is not None:
             oprot.writeFieldBegin('table_id', TType.I64, 3)
@@ -2593,7 +2595,7 @@ class TPixelTableRowResult:
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 6)
-            oprot.writeString(self.nonce)
+            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2602,9 +2604,9 @@ class TPixelTableRowResult:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2613,7 +2615,7 @@ class TPixelTableRowResult:
         return not (self == other)
 
 
-class TRenderResult:
+class TRenderResult(object):
     """
     Attributes:
      - image
@@ -2649,7 +2651,7 @@ class TRenderResult:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.nonce = iprot.readString()
+                    self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -2669,7 +2671,7 @@ class TRenderResult:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.vega_metadata = iprot.readString()
+                    self.vega_metadata = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2688,7 +2690,7 @@ class TRenderResult:
             oprot.writeFieldEnd()
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 2)
-            oprot.writeString(self.nonce)
+            oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
             oprot.writeFieldEnd()
         if self.execution_time_ms is not None:
             oprot.writeFieldBegin('execution_time_ms', TType.I64, 3)
@@ -2704,7 +2706,7 @@ class TRenderResult:
             oprot.writeFieldEnd()
         if self.vega_metadata is not None:
             oprot.writeFieldBegin('vega_metadata', TType.STRING, 6)
-            oprot.writeString(self.vega_metadata)
+            oprot.writeString(self.vega_metadata.encode('utf-8') if sys.version_info[0] == 2 else self.vega_metadata)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2713,9 +2715,9 @@ class TRenderResult:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2724,7 +2726,7 @@ class TRenderResult:
         return not (self == other)
 
 
-class TGpuSpecification:
+class TGpuSpecification(object):
     """
     Attributes:
      - num_sm
@@ -2813,9 +2815,9 @@ class TGpuSpecification:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2824,7 +2826,7 @@ class TGpuSpecification:
         return not (self == other)
 
 
-class THardwareInfo:
+class THardwareInfo(object):
     """
     Attributes:
      - num_gpu_hw
@@ -2875,7 +2877,7 @@ class THardwareInfo:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.host_name = iprot.readString()
+                    self.host_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
@@ -2917,7 +2919,7 @@ class THardwareInfo:
             oprot.writeFieldEnd()
         if self.host_name is not None:
             oprot.writeFieldBegin('host_name', TType.STRING, 5)
-            oprot.writeString(self.host_name)
+            oprot.writeString(self.host_name.encode('utf-8') if sys.version_info[0] == 2 else self.host_name)
             oprot.writeFieldEnd()
         if self.gpu_info is not None:
             oprot.writeFieldBegin('gpu_info', TType.LIST, 6)
@@ -2933,9 +2935,9 @@ class THardwareInfo:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2944,7 +2946,7 @@ class THardwareInfo:
         return not (self == other)
 
 
-class TClusterHardwareInfo:
+class TClusterHardwareInfo(object):
     """
     Attributes:
      - hardware_info
@@ -2998,9 +3000,9 @@ class TClusterHardwareInfo:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3009,7 +3011,7 @@ class TClusterHardwareInfo:
         return not (self == other)
 
 
-class TMemoryData:
+class TMemoryData(object):
     """
     Attributes:
      - slab
@@ -3128,9 +3130,9 @@ class TMemoryData:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3139,7 +3141,7 @@ class TMemoryData:
         return not (self == other)
 
 
-class TNodeMemoryInfo:
+class TNodeMemoryInfo(object):
     """
     Attributes:
      - host_name
@@ -3170,7 +3172,7 @@ class TNodeMemoryInfo:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.host_name = iprot.readString()
+                    self.host_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -3216,7 +3218,7 @@ class TNodeMemoryInfo:
         oprot.writeStructBegin('TNodeMemoryInfo')
         if self.host_name is not None:
             oprot.writeFieldBegin('host_name', TType.STRING, 1)
-            oprot.writeString(self.host_name)
+            oprot.writeString(self.host_name.encode('utf-8') if sys.version_info[0] == 2 else self.host_name)
             oprot.writeFieldEnd()
         if self.page_size is not None:
             oprot.writeFieldBegin('page_size', TType.I64, 2)
@@ -3248,9 +3250,9 @@ class TNodeMemoryInfo:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3259,7 +3261,7 @@ class TNodeMemoryInfo:
         return not (self == other)
 
 
-class TTableMeta:
+class TTableMeta(object):
     """
     Attributes:
      - table_name
@@ -3292,7 +3294,7 @@ class TTableMeta:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.table_name = iprot.readString()
+                    self.table_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -3342,7 +3344,7 @@ class TTableMeta:
         oprot.writeStructBegin('TTableMeta')
         if self.table_name is not None:
             oprot.writeFieldBegin('table_name', TType.STRING, 1)
-            oprot.writeString(self.table_name)
+            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
             oprot.writeFieldEnd()
         if self.num_cols is not None:
             oprot.writeFieldBegin('num_cols', TType.I64, 2)
@@ -3378,9 +3380,9 @@ class TTableMeta:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3389,7 +3391,7 @@ class TTableMeta:
         return not (self == other)
 
 
-class TTableDetails:
+class TTableDetails(object):
     """
     Attributes:
      - row_desc
@@ -3452,7 +3454,7 @@ class TTableDetails:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.view_sql = iprot.readString()
+                    self.view_sql = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
@@ -3462,7 +3464,7 @@ class TTableDetails:
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.key_metainfo = iprot.readString()
+                    self.key_metainfo = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
@@ -3506,7 +3508,7 @@ class TTableDetails:
             oprot.writeFieldEnd()
         if self.view_sql is not None:
             oprot.writeFieldBegin('view_sql', TType.STRING, 5)
-            oprot.writeString(self.view_sql)
+            oprot.writeString(self.view_sql.encode('utf-8') if sys.version_info[0] == 2 else self.view_sql)
             oprot.writeFieldEnd()
         if self.shard_count is not None:
             oprot.writeFieldBegin('shard_count', TType.I64, 6)
@@ -3514,7 +3516,7 @@ class TTableDetails:
             oprot.writeFieldEnd()
         if self.key_metainfo is not None:
             oprot.writeFieldBegin('key_metainfo', TType.STRING, 7)
-            oprot.writeString(self.key_metainfo)
+            oprot.writeString(self.key_metainfo.encode('utf-8') if sys.version_info[0] == 2 else self.key_metainfo)
             oprot.writeFieldEnd()
         if self.is_temporary is not None:
             oprot.writeFieldBegin('is_temporary', TType.BOOL, 8)
@@ -3531,9 +3533,9 @@ class TTableDetails:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3542,7 +3544,7 @@ class TTableDetails:
         return not (self == other)
 
 
-class TColumnRange:
+class TColumnRange(object):
     """
     Attributes:
      - type
@@ -3675,9 +3677,9 @@ class TColumnRange:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3686,7 +3688,7 @@ class TColumnRange:
         return not (self == other)
 
 
-class TDictionaryGeneration:
+class TDictionaryGeneration(object):
     """
     Attributes:
      - dict_id
@@ -3742,9 +3744,9 @@ class TDictionaryGeneration:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3753,7 +3755,7 @@ class TDictionaryGeneration:
         return not (self == other)
 
 
-class TTableGeneration:
+class TTableGeneration(object):
     """
     Attributes:
      - table_id
@@ -3820,9 +3822,9 @@ class TTableGeneration:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3831,7 +3833,7 @@ class TTableGeneration:
         return not (self == other)
 
 
-class TPendingQuery:
+class TPendingQuery(object):
     """
     Attributes:
      - id
@@ -3936,9 +3938,9 @@ class TPendingQuery:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3947,7 +3949,7 @@ class TPendingQuery:
         return not (self == other)
 
 
-class TVarLen:
+class TVarLen(object):
     """
     Attributes:
      - payload
@@ -4003,9 +4005,9 @@ class TVarLen:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4014,7 +4016,7 @@ class TVarLen:
         return not (self == other)
 
 
-class TDataBlockPtr:
+class TDataBlockPtr(object):
     """
     Attributes:
      - fixed_len_data
@@ -4079,9 +4081,9 @@ class TDataBlockPtr:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4090,7 +4092,7 @@ class TDataBlockPtr:
         return not (self == other)
 
 
-class TInsertData:
+class TInsertData(object):
     """
     Attributes:
      - db_id
@@ -4196,9 +4198,9 @@ class TInsertData:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4207,7 +4209,7 @@ class TInsertData:
         return not (self == other)
 
 
-class TPendingRenderQuery:
+class TPendingRenderQuery(object):
     """
     Attributes:
      - id
@@ -4252,9 +4254,9 @@ class TPendingRenderQuery:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4263,7 +4265,7 @@ class TPendingRenderQuery:
         return not (self == other)
 
 
-class TRenderParseResult:
+class TRenderParseResult(object):
     """
     Attributes:
      - merge_type
@@ -4352,9 +4354,9 @@ class TRenderParseResult:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4363,7 +4365,7 @@ class TRenderParseResult:
         return not (self == other)
 
 
-class TRawRenderPassDataResult:
+class TRawRenderPassDataResult(object):
     """
     Attributes:
      - num_channels
@@ -4463,9 +4465,9 @@ class TRawRenderPassDataResult:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4474,7 +4476,7 @@ class TRawRenderPassDataResult:
         return not (self == other)
 
 
-class TRawPixelData:
+class TRawPixelData(object):
     """
     Attributes:
      - width
@@ -4552,9 +4554,9 @@ class TRawPixelData:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4563,7 +4565,7 @@ class TRawPixelData:
         return not (self == other)
 
 
-class TRenderDatum:
+class TRenderDatum(object):
     """
     Attributes:
      - type
@@ -4630,9 +4632,9 @@ class TRenderDatum:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4641,7 +4643,7 @@ class TRenderDatum:
         return not (self == other)
 
 
-class TRenderStepResult:
+class TRenderStepResult(object):
     """
     Attributes:
      - merge_data
@@ -4673,19 +4675,19 @@ class TRenderStepResult:
                     self.merge_data = {}
                     (_ktype178, _vtype179, _size177) = iprot.readMapBegin()
                     for _i181 in range(_size177):
-                        _key182 = iprot.readString()
+                        _key182 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                         _val183 = {}
                         (_ktype185, _vtype186, _size184) = iprot.readMapBegin()
                         for _i188 in range(_size184):
-                            _key189 = iprot.readString()
+                            _key189 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                             _val190 = {}
                             (_ktype192, _vtype193, _size191) = iprot.readMapBegin()
                             for _i195 in range(_size191):
-                                _key196 = iprot.readString()
+                                _key196 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                                 _val197 = {}
                                 (_ktype199, _vtype200, _size198) = iprot.readMapBegin()
                                 for _i202 in range(_size198):
-                                    _key203 = iprot.readString()
+                                    _key203 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                                     _val204 = []
                                     (_etype208, _size205) = iprot.readListBegin()
                                     for _i209 in range(_size205):
@@ -4738,16 +4740,16 @@ class TRenderStepResult:
             oprot.writeFieldBegin('merge_data', TType.MAP, 1)
             oprot.writeMapBegin(TType.STRING, TType.MAP, len(self.merge_data))
             for kiter211, viter212 in self.merge_data.items():
-                oprot.writeString(kiter211)
+                oprot.writeString(kiter211.encode('utf-8') if sys.version_info[0] == 2 else kiter211)
                 oprot.writeMapBegin(TType.STRING, TType.MAP, len(viter212))
                 for kiter213, viter214 in viter212.items():
-                    oprot.writeString(kiter213)
+                    oprot.writeString(kiter213.encode('utf-8') if sys.version_info[0] == 2 else kiter213)
                     oprot.writeMapBegin(TType.STRING, TType.MAP, len(viter214))
                     for kiter215, viter216 in viter214.items():
-                        oprot.writeString(kiter215)
+                        oprot.writeString(kiter215.encode('utf-8') if sys.version_info[0] == 2 else kiter215)
                         oprot.writeMapBegin(TType.STRING, TType.LIST, len(viter216))
                         for kiter217, viter218 in viter216.items():
-                            oprot.writeString(kiter217)
+                            oprot.writeString(kiter217.encode('utf-8') if sys.version_info[0] == 2 else kiter217)
                             oprot.writeListBegin(TType.STRUCT, len(viter218))
                             for iter219 in viter218:
                                 iter219.write(oprot)
@@ -4780,9 +4782,9 @@ class TRenderStepResult:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4791,7 +4793,7 @@ class TRenderStepResult:
         return not (self == other)
 
 
-class TDatabasePermissions:
+class TDatabasePermissions(object):
     """
     Attributes:
      - create_
@@ -4869,9 +4871,9 @@ class TDatabasePermissions:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4880,7 +4882,7 @@ class TDatabasePermissions:
         return not (self == other)
 
 
-class TTablePermissions:
+class TTablePermissions(object):
     """
     Attributes:
      - create_
@@ -4991,9 +4993,9 @@ class TTablePermissions:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5002,7 +5004,7 @@ class TTablePermissions:
         return not (self == other)
 
 
-class TDashboardPermissions:
+class TDashboardPermissions(object):
     """
     Attributes:
      - create_
@@ -5080,9 +5082,9 @@ class TDashboardPermissions:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5091,7 +5093,7 @@ class TDashboardPermissions:
         return not (self == other)
 
 
-class TViewPermissions:
+class TViewPermissions(object):
     """
     Attributes:
      - create_
@@ -5191,9 +5193,9 @@ class TViewPermissions:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5202,7 +5204,7 @@ class TViewPermissions:
         return not (self == other)
 
 
-class TDBObjectPermissions:
+class TDBObjectPermissions(object):
     """
     Attributes:
      - database_permissions_
@@ -5284,9 +5286,9 @@ class TDBObjectPermissions:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5295,7 +5297,7 @@ class TDBObjectPermissions:
         return not (self == other)
 
 
-class TDBObject:
+class TDBObject(object):
     """
     Attributes:
      - objectName
@@ -5322,7 +5324,7 @@ class TDBObject:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.objectName = iprot.readString()
+                    self.objectName = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -5342,7 +5344,7 @@ class TDBObject:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.grantee = iprot.readString()
+                    self.grantee = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -5357,7 +5359,7 @@ class TDBObject:
         oprot.writeStructBegin('TDBObject')
         if self.objectName is not None:
             oprot.writeFieldBegin('objectName', TType.STRING, 1)
-            oprot.writeString(self.objectName)
+            oprot.writeString(self.objectName.encode('utf-8') if sys.version_info[0] == 2 else self.objectName)
             oprot.writeFieldEnd()
         if self.objectType is not None:
             oprot.writeFieldBegin('objectType', TType.I32, 2)
@@ -5372,7 +5374,7 @@ class TDBObject:
             oprot.writeFieldEnd()
         if self.grantee is not None:
             oprot.writeFieldBegin('grantee', TType.STRING, 4)
-            oprot.writeString(self.grantee)
+            oprot.writeString(self.grantee.encode('utf-8') if sys.version_info[0] == 2 else self.grantee)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5381,9 +5383,9 @@ class TDBObject:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5392,7 +5394,7 @@ class TDBObject:
         return not (self == other)
 
 
-class TDashboardGrantees:
+class TDashboardGrantees(object):
     """
     Attributes:
      - name
@@ -5417,7 +5419,7 @@ class TDashboardGrantees:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.name = iprot.readString()
+                    self.name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -5443,7 +5445,7 @@ class TDashboardGrantees:
         oprot.writeStructBegin('TDashboardGrantees')
         if self.name is not None:
             oprot.writeFieldBegin('name', TType.STRING, 1)
-            oprot.writeString(self.name)
+            oprot.writeString(self.name.encode('utf-8') if sys.version_info[0] == 2 else self.name)
             oprot.writeFieldEnd()
         if self.is_user is not None:
             oprot.writeFieldBegin('is_user', TType.BOOL, 2)
@@ -5460,9 +5462,9 @@ class TDashboardGrantees:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5471,7 +5473,7 @@ class TDashboardGrantees:
         return not (self == other)
 
 
-class TLicenseInfo:
+class TLicenseInfo(object):
     """
     Attributes:
      - claims
@@ -5495,7 +5497,7 @@ class TLicenseInfo:
                     self.claims = []
                     (_etype230, _size227) = iprot.readListBegin()
                     for _i231 in range(_size227):
-                        _elem232 = iprot.readString()
+                        _elem232 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                         self.claims.append(_elem232)
                     iprot.readListEnd()
                 else:
@@ -5514,7 +5516,7 @@ class TLicenseInfo:
             oprot.writeFieldBegin('claims', TType.LIST, 1)
             oprot.writeListBegin(TType.STRING, len(self.claims))
             for iter233 in self.claims:
-                oprot.writeString(iter233)
+                oprot.writeString(iter233.encode('utf-8') if sys.version_info[0] == 2 else iter233)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -5524,9 +5526,9 @@ class TLicenseInfo:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5535,7 +5537,7 @@ class TLicenseInfo:
         return not (self == other)
 
 
-class TSessionInfo:
+class TSessionInfo(object):
     """
     Attributes:
      - user
@@ -5560,12 +5562,12 @@ class TSessionInfo:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.user = iprot.readString()
+                    self.user = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.database = iprot.readString()
+                    self.database = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -5585,11 +5587,11 @@ class TSessionInfo:
         oprot.writeStructBegin('TSessionInfo')
         if self.user is not None:
             oprot.writeFieldBegin('user', TType.STRING, 1)
-            oprot.writeString(self.user)
+            oprot.writeString(self.user.encode('utf-8') if sys.version_info[0] == 2 else self.user)
             oprot.writeFieldEnd()
         if self.database is not None:
             oprot.writeFieldBegin('database', TType.STRING, 2)
-            oprot.writeString(self.database)
+            oprot.writeString(self.database.encode('utf-8') if sys.version_info[0] == 2 else self.database)
             oprot.writeFieldEnd()
         if self.start_time is not None:
             oprot.writeFieldBegin('start_time', TType.I64, 3)
@@ -5602,9 +5604,9 @@ class TSessionInfo:
         return
 
     def __repr__(self):
-        L = ['{}={!r}'.format(key, value)
+        L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '{}({})'.format(self.__class__.__name__, ', '.join(L))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
