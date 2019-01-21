@@ -1,4 +1,3 @@
-import six
 import datetime
 import numpy as np
 import math
@@ -58,7 +57,7 @@ def get_mapd_type_from_object(data):
         val = data.dropna().iloc[0]
     except IndexError:
         raise IndexError("Not any valid values to infer the type")
-    if isinstance(val, six.string_types):
+    if isinstance(val, str):
         return 'STR'
     elif isinstance(val, datetime.date):
         return 'DATE'

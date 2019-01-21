@@ -3,6 +3,7 @@ Tests that rely on a server running
 """
 import datetime
 from distutils.version import LooseVersion
+from unittest import mock
 
 import pytest
 
@@ -11,7 +12,7 @@ from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails
 from pymapd.compat import TMapDException
 
-from .utils import no_gpu, mock
+from .utils import no_gpu
 
 # XXX: Make it hashable to silence warnings; see if this can be done upstream
 # This isn't a huge deal, but our testing context mangers for asserting
@@ -200,7 +201,7 @@ class TestIntegration:
         assert result == expected
 
 
-class TestOptionalImports(object):
+class TestOptionalImports:
 
     def test_select_gpu(self, con):
         with mock.patch.dict("sys.modules",
@@ -210,7 +211,7 @@ class TestOptionalImports(object):
         assert m.match("The 'cudf' package is required")
 
 
-class TestExtras(object):
+class TestExtras:
 
     def test_get_tables(self, con, stocks):
         result = con.get_tables()
@@ -236,7 +237,7 @@ class TestExtras(object):
         assert result == expected
 
 
-class TestLoaders(object):
+class TestLoaders:
 
     @staticmethod
     def check_empty_insert(result, expected):

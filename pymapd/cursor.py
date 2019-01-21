@@ -1,4 +1,3 @@
-import six
 import mapd.ttypes as T
 
 from .exceptions import _translate_exception
@@ -6,7 +5,7 @@ from ._parsers import (_extract_col_vals, _extract_description,
                        _extract_row_val, _is_columnar, _bind_parameters)
 
 
-class Cursor(object):
+class Cursor:
     """A database cursor."""
 
     def __init__(self, connection, columnar=True):
@@ -111,7 +110,7 @@ class Cursor(object):
         [('RHAT', 100.0), ('IBM', 500.0)]
         """
         if parameters is not None:
-            operation = six.text_type(_bind_parameters(operation, parameters))
+            operation = str(_bind_parameters(operation, parameters))
         self.rowcount = -1
         try:
             result = self.connection._client.sql_execute(
@@ -119,7 +118,7 @@ class Cursor(object):
                 column_format=self.columnar,
                 nonce=None, first_n=-1, at_most_n=-1)
         except T.TMapDException as e:
-            six.raise_from(_translate_exception(e), e)
+            raise _translate_exception(e) from e
         self._description = _extract_description(result.row_set.row_desc)
         if self.columnar:
             try:
