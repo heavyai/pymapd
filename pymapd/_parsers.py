@@ -11,6 +11,7 @@ from types import MethodType
 from ._mutators import set_tdf, get_tdf
 from ._utils import seconds_to_time
 import numpy as np
+from .ipc import load_buffer, shmdt
 
 
 Description = namedtuple("Description", ["name", "type_code", "display_size",
@@ -168,8 +169,6 @@ def _parse_tdf_gpu(tdf):
     from cudf.dataframe import DataFrame
     from numba import cuda
     from numba.cuda.cudadrv import drvapi
-
-    from .ipc import load_buffer, shmdt
 
     ipc_handle = drvapi.cu_ipc_mem_handle(*tdf.df_handle)
     ipch = cuda.driver.IpcHandle(None, ipc_handle, size=tdf.df_size)
