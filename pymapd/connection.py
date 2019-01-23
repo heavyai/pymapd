@@ -25,6 +25,7 @@ from ._parsers import (
 from ._loaders import _build_input_rows
 from .ipc import load_buffer, shmdt
 from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
+from . import _pandas_loaders
 
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
