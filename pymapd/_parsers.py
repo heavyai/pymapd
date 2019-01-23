@@ -10,6 +10,7 @@ import ctypes
 from types import MethodType
 from ._mutators import set_tdf, get_tdf
 from ._utils import seconds_to_time
+import numpy as np
 
 
 Description = namedtuple("Description", ["name", "type_code", "display_size",
@@ -162,7 +163,7 @@ def _parse_tdf_gpu(tdf):
     -------
     gdf : GpuDataFrame
     """
-    import numpy as np
+
     from cudf.comm.gpuarrow import GpuArrowReader
     from cudf.dataframe import DataFrame
     from numba import cuda

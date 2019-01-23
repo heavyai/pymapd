@@ -300,10 +300,6 @@ class Connection:
         -----
         This method requires pyarrow to be installed.
         """
-        try:
-            import pyarrow  # noqa
-        except ImportError:
-            raise ImportError("pyarrow is required for `select_ipc`")
 
         from .ipc import load_buffer, shmdt
 
