@@ -12,7 +12,7 @@ from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
 from mapd.MapD import Client, TDeviceType, TCreateParams
-from mapd.ttypes import TMapDException
+from mapd.ttypes import TMapDException, TTableType
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
@@ -21,7 +21,11 @@ from ._parsers import (
     _load_data, _load_schema, _parse_tdf_gpu, _bind_parameters,
     _extract_column_details
 )
+
 from ._loaders import _build_input_rows
+from .ipc import load_buffer, shmdt
+from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
+from . import _pandas_loaders
 
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
@@ -300,12 +304,6 @@ class Connection:
         -----
         This method requires pyarrow to be installed.
         """
-        try:
-            import pyarrow  # noqa
-        except ImportError:
-            raise ImportError("pyarrow is required for `select_ipc`")
-
-        from .ipc import load_buffer, shmdt
 
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
@@ -416,8 +414,6 @@ class Connection:
         preserve_index : bool, default False
             Whether to create a column in the table for the DataFrame index
         """
-        from mapd.ttypes import TTableType
-        from ._pandas_loaders import build_row_desc
 
         row_desc = build_row_desc(data, preserve_index=preserve_index)
         self._client.create_table(self._session, table_name, row_desc,
@@ -560,7 +556,6 @@ class Connection:
         load_table_arrow
         load_table_rowwise
         """
-        from . import _pandas_loaders
 
         if isinstance(data, pd.DataFrame):
             table_details = self.get_table_details(table_name)
@@ -615,7 +610,6 @@ class Connection:
         load_table_rowwise
         """
         metadata = self.get_table_details(table_name)
-        from ._pandas_loaders import _serialize_arrow_payload
         payload = _serialize_arrow_payload(data, metadata,
                                            preserve_index=preserve_index)
         self._client.load_table_binary_arrow(self._session, table_name,

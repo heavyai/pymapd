@@ -1,4 +1,5 @@
 import datetime
+import numpy as np
 
 
 def seconds_to_time(seconds):
@@ -17,7 +18,6 @@ def time_to_seconds(time):
 
 def datetime_to_seconds(arr):
     """Convert an array of datetime64[ns] to seconds since the UNIX epoch"""
-    import numpy as np
 
     if arr.dtype != np.dtype('datetime64[ns]'):
         if arr.dtype == 'int64':
@@ -35,9 +35,8 @@ def datetime_to_seconds(arr):
 
 
 def date_to_seconds(arr):
-    import numpy as np
-    data = arr.apply(lambda x: np.datetime64(x, "s").astype(int))
-    return data
+
+    return arr.apply(lambda x: np.datetime64(x, "s").astype(int))
 
 
 mapd_to_slot = {

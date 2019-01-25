@@ -1,6 +1,8 @@
 import datetime
 import numpy as np
 import math
+import pandas as pd
+import pyarrow as pa
 
 from pandas.api.types import (
     is_bool_dtype,
@@ -75,7 +77,6 @@ def get_mapd_type_from_object(data):
 
 def thrift_cast(data, mapd_type, scale=0):
     """Cast data type to the expected thrift types"""
-    import pandas as pd
 
     if mapd_type == 'TIMESTAMP':
         return datetime_to_seconds(data)
@@ -154,7 +155,7 @@ def build_input_columnar(df, preserve_index=True,
 
 
 def _cast_int8(data):
-    import pandas as pd
+
     if isinstance(data, pd.DataFrame):
         cols = data.select_dtypes(include=['i1']).columns
         data[cols] = data[cols].astype('i2')
@@ -164,8 +165,6 @@ def _cast_int8(data):
 
 
 def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
-    import pyarrow as pa
-    import pandas as pd
 
     if isinstance(data, pd.DataFrame):
         data = _cast_int8(data)
@@ -184,10 +183,6 @@ def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
 
 
 def build_row_desc(data, preserve_index=False):
-    try:
-        import pandas as pd
-    except ImportError:
-        raise ImportError("create_table requires pandas.")
 
     if not isinstance(data, pd.DataFrame):
         # Once https://issues.apache.org/jira/browse/ARROW-1576 is complete
