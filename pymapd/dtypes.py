@@ -3,6 +3,7 @@ https://www.python.org/dev/peps/pep-0249/#type-objects
 """
 import datetime
 import time
+from typing import Any, List
 
 from mapd import MapD
 

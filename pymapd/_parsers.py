@@ -12,6 +12,7 @@ from ._mutators import set_tdf, get_tdf
 from ._utils import seconds_to_time
 import numpy as np
 from .ipc import load_buffer, shmdt
+from typing import Any, List
 
 
 Description = namedtuple("Description", ["name", "type_code", "display_size",
@@ -75,9 +76,8 @@ def _extract_col_vals(desc, val):
         vals = [None if v is None else base + datetime.timedelta(seconds=v)
                 for v in vals]
     elif typename == 'DATE':
-        vals = [None if v is None else (base +
-                                        datetime.timedelta(seconds=v)).date()
-                for v in vals]
+        vals = [None if v is None else
+                (base + datetime.timedelta(seconds=v)).date() for v in vals]
     elif typename == 'TIME':
         vals = [None if v is None else seconds_to_time(v) for v in vals]
 
