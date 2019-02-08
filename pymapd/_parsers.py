@@ -12,6 +12,7 @@ from ._mutators import set_tdf, get_tdf
 from ._utils import seconds_to_time
 import numpy as np
 from .ipc import load_buffer, shmdt
+from typing import Any, List
 
 
 Description = namedtuple("Description", ["name", "type_code", "display_size",

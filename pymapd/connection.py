@@ -6,6 +6,7 @@ import base64
 import pandas as pd
 import pyarrow as pa
 import ctypes
+from typing import Optional, Tuple
 
 from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
