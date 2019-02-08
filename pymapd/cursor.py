@@ -1,5 +1,5 @@
 import mapd.ttypes as T
-from typing import Any, Optional, List, Description, Iterator, Union, Tuple, Iterable
+from typing import Any, Optional, List, Iterator, Union, Tuple, Iterable
 
 from .exceptions import _translate_exception
 from ._parsers import (_extract_col_vals, _extract_description,
