@@ -15,7 +15,7 @@ class Cursor:
         self.connection = connection
         self.columnar = columnar
         self.rowcount = -1
-        self._description = None  # type: Optional[List[Description]]
+        self._description = None  # type: Optional[List[str]]
         self._arraysize = 1
         self._result = None
         self._result_set = None  # type: Optional[Iterator[Any]]
@@ -34,7 +34,7 @@ class Cursor:
 
     @property
     def description(self):
-        # type: () -> Optional[List[Description]]
+        # type: () -> Optional[List[str]]
         """
         Read-only sequence describing columns of the result set.
         Each column is an instance of `Description` describing
