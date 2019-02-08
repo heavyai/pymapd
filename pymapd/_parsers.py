@@ -76,9 +76,8 @@ def _extract_col_vals(desc, val):
         vals = [None if v is None else base + datetime.timedelta(seconds=v)
                 for v in vals]
     elif typename == 'DATE':
-        vals = [None if v is None else (base +
-                                        datetime.timedelta(seconds=v)).date()
-                for v in vals]
+        vals = [None if v is None else
+                (base + datetime.timedelta(seconds=v)).date() for v in vals]
     elif typename == 'TIME':
         vals = [None if v is None else seconds_to_time(v) for v in vals]
 
