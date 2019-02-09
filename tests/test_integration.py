@@ -335,6 +335,19 @@ class TestLoaders:
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
                     'date_'])
         con.load_table_columnar(all_types_table, data, preserve_index=False)
+        c = con.cursor()
+        c.columnar = False
+        result = list(c.execute("select * from all_types"))
+        expected = [(1, 0, 0, 0, 0.0, 0.0, 'a', 'a',
+                    datetime.time(0, 11, 59),
+                    datetime.datetime(2016, 1, 1, 0, 0),
+                    datetime.date(2016, 1, 1)),
+                    (0, 1, 1, 1, 1.0, 1.0, 'b', 'b',
+                    datetime.time(13, 0),
+                    datetime.datetime(2017, 1, 1, 0, 0),
+                    datetime.date(2017, 1, 1))]
+
+        assert result == expected
 
     def test_load_table_columnar_arrow_all(self, con, all_types_table):
         pa = pytest.importorskip("pyarrow")

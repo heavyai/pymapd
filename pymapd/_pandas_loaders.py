@@ -132,7 +132,6 @@ def build_input_columnar(df, preserve_index=True,
 
             if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
                 # requires a cast to integer
-                print(col_types[colindex][1])
                 data = thrift_cast(data, mapd_type, 0, col_types[colindex][2])
 
             if mapd_type in ['DECIMAL']:
