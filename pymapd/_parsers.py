@@ -20,7 +20,7 @@ Description = namedtuple("Description", ["name", "type_code", "display_size",
                                          "null_ok"])
 ColumnDetails = namedtuple("ColumnDetails", ["name", "type", "nullable",
                                              "precision", "scale",
-                                             "comp_param"])
+                                             "comp_param", "encoding"])
 
 _typeattr = {
     'SMALLINT': 'int',
@@ -44,6 +44,8 @@ _typeattr = {
 }
 _thrift_types_to_values = T.TDatumType._NAMES_TO_VALUES
 _thrift_values_to_types = T.TDatumType._VALUES_TO_NAMES
+_thrift_encodings_to_values = T.TEncodingType._NAMES_TO_VALUES
+_thrift_values_to_encodings = T.TEncodingType._VALUES_TO_NAMES
 
 
 def _extract_row_val(desc, val):
@@ -103,7 +105,8 @@ def _extract_column_details(row_desc):
     return [
         ColumnDetails(x.col_name, _thrift_values_to_types[x.col_type.type],
                       x.col_type.nullable, x.col_type.precision,
-                      x.col_type.scale, x.col_type.comp_param)
+                      x.col_type.scale, x.col_type.comp_param,
+                      _thrift_values_to_encodings[x.col_type.encoding])
         for x in row_desc
     ]
 
