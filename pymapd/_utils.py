@@ -34,6 +34,28 @@ def datetime_to_seconds(arr):
     return arr.view('i8') // 10**9  # ns -> s since epoch
 
 
+def datetime_in_precisions(epoch, precision):
+    """Convert epoch time value into s, ms, us, ns"""
+    base = datetime.datetime(1970, 1, 1)
+    if precision == 0:
+        return base + datetime.timedelta(seconds=epoch)
+    elif precision == 3:
+        modulus = epoch % 1000
+        seconds = epoch / 1000
+        return base + datetime.timedelta(seconds=seconds, milliseconds=modulus)
+    elif precision == 6:
+        modulus = epoch % 1000000
+        seconds = epoch / 1000000
+        return base + datetime.timedelta(seconds=seconds, microseconds=modulus)
+    elif precision == 9:
+        ns = epoch % 1000
+        modulus = (epoch / 1000) % 1000000
+        seconds = epoch / 1000000000
+        return base + datetime.timedelta(seconds=seconds, microseconds=modulus)
+    else:
+        raise TypeError("Invalid timestamp precision: {}".format(precision))
+
+
 def date_to_seconds(arr):
     """Converts date into seconds"""
 

@@ -9,7 +9,7 @@ import mapd.ttypes as T
 import ctypes
 from types import MethodType
 from ._mutators import set_tdf, get_tdf
-from ._utils import seconds_to_time
+from ._utils import seconds_to_time, datetime_in_precisions
 import numpy as np
 from .ipc import load_buffer, shmdt
 from typing import Any, List
@@ -54,10 +54,10 @@ def _extract_row_val(desc, val):
     if val.is_null:
         return None
     val = getattr(val.val, _typeattr[typename] + '_val')
-    base = datetime.datetime(1970, 1, 1)
     if typename == 'TIMESTAMP':
-        val = (base + datetime.timedelta(seconds=val))
+        val = datetime_in_precisions(val, desc.col_type.precision)
     elif typename == 'DATE':
+        base = datetime.datetime(1970, 1, 1)
         val = (base + datetime.timedelta(seconds=val)).date()
     elif typename == 'TIME':
         val = seconds_to_time(val)
@@ -73,11 +73,12 @@ def _extract_col_vals(desc, val):
     vals = [None if null else v
             for null, v in zip(nulls, vals)]
 
-    base = datetime.datetime(1970, 1, 1)
     if typename == 'TIMESTAMP':
-        vals = [None if v is None else base + datetime.timedelta(seconds=v)
+        vals = [None if v is None else
+                datetime_in_precisions(v, desc.col_type.precision)
                 for v in vals]
     elif typename == 'DATE':
+        base = datetime.datetime(1970, 1, 1)
         vals = [None if v is None else
                 (base + datetime.timedelta(seconds=v)).date() for v in vals]
     elif typename == 'TIME':
