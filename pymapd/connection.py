@@ -396,9 +396,9 @@ class Connection:
         --------
         >>> con.get_table_details('stocks')
         [ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
-                       scale=0, comp_param=32),
+                       scale=0, comp_param=32, encoding='DICT'),
          ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
-                       scale=0, comp_param=32),
+                       scale=0, comp_param=32, encoding='DICT'),
          ...
         ]
         """
@@ -573,7 +573,7 @@ class Connection:
                 col_names_from_schema \
                 else list(data)
 
-            col_types = [(i[1], i[4]) for i in table_details]
+            col_types = [(i[1], i[4], i[6]) for i in table_details]
 
             input_cols = _pandas_loaders.build_input_columnar(
                 data,

@@ -35,8 +35,15 @@ def datetime_to_seconds(arr):
 
 
 def date_to_seconds(arr):
+    """Converts date into seconds"""
 
     return arr.apply(lambda x: np.datetime64(x, "s").astype(int))
+
+
+def date_to_days(arr):
+    """Converts date into days"""
+
+    return arr.apply(lambda x: np.datetime64(x, "D").astype(int))
 
 
 mapd_to_slot = {

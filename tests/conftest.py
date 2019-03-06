@@ -207,8 +207,7 @@ def all_types_table(con):
     );'''.format(name=name))
     # skipping decimal for now
     c.execute(create)
-    yield name
-    con.execute(drop)
+    return name
 
 
 @pytest.fixture

@@ -17,7 +17,7 @@ from mapd.ttypes import (
 )
 from ._utils import (
     date_to_seconds, time_to_seconds, datetime_to_seconds,
-    mapd_to_na, mapd_to_slot
+    mapd_to_na, mapd_to_slot, date_to_days
 )
 
 
@@ -75,7 +75,7 @@ def get_mapd_type_from_object(data):
         raise TypeError("Unhandled type {}".format(data.dtype))
 
 
-def thrift_cast(data, mapd_type, scale=0):
+def thrift_cast(data, mapd_type, scale=0, type_encoding=""):
     """Cast data type to the expected thrift types"""
 
     if mapd_type == 'TIMESTAMP':
@@ -83,7 +83,8 @@ def thrift_cast(data, mapd_type, scale=0):
     elif mapd_type == 'TIME':
         return pd.Series(time_to_seconds(x) for x in data)
     elif mapd_type == 'DATE':
-        data = date_to_seconds(data)
+        data = date_to_days(data) if type_encoding == "DATE_IN_DAYS" \
+            else date_to_seconds(data)
         data = data.fillna(mapd_to_na[mapd_type])
         return data.astype(int)
     elif mapd_type == 'BOOL':
@@ -131,7 +132,7 @@ def build_input_columnar(df, preserve_index=True,
 
             if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
                 # requires a cast to integer
-                data = thrift_cast(data, mapd_type)
+                data = thrift_cast(data, mapd_type, 0, col_types[colindex][2])
 
             if mapd_type in ['DECIMAL']:
                 # requires a calculation be done using the scale
