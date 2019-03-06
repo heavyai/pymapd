@@ -1,6 +1,6 @@
 """
 This script generates the thrift structures used for unit testing pymapd.
-It requires an OmniSci server to be running on localhost:9091 with the default
+It requires an OmniSci server to be running on localhost:6274 with the default
 username, password, and database name.
 
 .. code-block:: console
@@ -44,7 +44,7 @@ def main():
     user_name = 'mapd'
     passwd = 'HyperInteractive'
     hostname = 'localhost'
-    portno = 9091
+    portno = 6274
 
     client = get_client(hostname, portno)
     session = client.connect(user_name, passwd, db_name)

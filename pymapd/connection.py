@@ -37,7 +37,7 @@ def connect(uri=None,           # type: Optional[str]
             user=None,          # type: Optional[str]
             password=None,      # type: Optional[str]
             host=None,          # type: Optional[str]
-            port=9091,          # type: Optional[int]
+            port=6274,          # type: Optional[int]
             dbname=None,        # type: Optional[str]
             protocol='binary',  # type: Optional[str]
             ):
@@ -63,12 +63,12 @@ def connect(uri=None,           # type: Optional[str]
     --------
     You can either pass a string ``uri`` or all the individual components
 
-    >>> connect('mapd://mapd:HyperInteractive@localhost:9091/mapd?'
+    >>> connect('mapd://mapd:HyperInteractive@localhost:6274/mapd?'
     ...         'protocol=binary')
-    Connection(mapd://mapd:***@localhost:9091/mapd?protocol=binary)
+    Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
 
     >>> connect(user='mapd', password='HyperInteractive', host='localhost',
-    ...         port=9091, dbname='mapd')
+    ...         port=6274, dbname='mapd')
 
     """
     return Connection(uri=uri, user=user, password=password, host=host,
@@ -119,7 +119,7 @@ class Connection:
                  user=None,          # type: Optional[str]
                  password=None,      # type: Optional[str]
                  host=None,          # type: Optional[str]
-                 port=9091,          # type: Optional[int]
+                 port=6274,          # type: Optional[int]
                  dbname=None,        # type: Optional[str]
                  protocol='binary',  # type: Optional[str]
                  ):
@@ -128,7 +128,7 @@ class Connection:
             if not all([user is None,
                         password is None,
                         host is None,
-                        port == 9091,
+                        port == 6274,
                         dbname is None,
                         protocol == 'binary']):
                 raise TypeError("Cannot specify both URI and other arguments")

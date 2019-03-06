@@ -15,7 +15,7 @@ from pymapd import connect
 ttypes = importlib.import_module("mapd.ttypes")
 HERE = os.path.dirname(__file__)
 
-socket = TSocket.TSocket("localhost", 9091)
+socket = TSocket.TSocket("localhost", 6274)
 transport = TTransport.TBufferedTransport(socket)
 
 
@@ -40,7 +40,7 @@ def mapd_server():
         subprocess.check_output(['docker', 'run', '-d',
                                  '--ipc=host',
                                  '-v', '/dev:/dev',
-                                 '-p', '9091:9091',
+                                 '-p', '6274:6274',
                                  '-p', '9092:9092',
                                  '--name=mapd', 'mapd/core-os-cpu:latest'])
         # yield and stop afterwards?
@@ -53,7 +53,7 @@ def mapd_server():
 @pytest.fixture(scope='session')
 def con(mapd_server):
     return connect(user="mapd", password='HyperInteractive', host='localhost',
-                   port=9091, protocol='binary', dbname='mapd')
+                   port=6274, protocol='binary', dbname='mapd')
 
 
 def _load_pickle(filepath):

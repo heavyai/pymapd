@@ -34,24 +34,24 @@ class TestIntegration:
         'binary'])
     def test_connect(self, protocol):
         con = connect(user="mapd", password='HyperInteractive',
-                      host='localhost', port=9091, protocol=protocol,
+                      host='localhost', port=6274, protocol=protocol,
                       dbname='mapd')
         assert con is not None
         assert protocol in repr(con)
 
     def test_connect_uri(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?protocol='
+        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?protocol='
                'binary')
         con = connect(uri=uri)
         assert con._user == 'mapd'
         assert con._password == 'HyperInteractive'
         assert con._host == 'localhost'
-        assert con._port == 9091
+        assert con._port == 6274
         assert con._dbname == 'mapd'
         assert con._protocol == 'binary'
 
     def test_connect_uri_and_others_raises(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?protocol='
+        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?protocol='
                'binary')
         with pytest.raises(TypeError):
             connect(username='mapd', uri=uri)
