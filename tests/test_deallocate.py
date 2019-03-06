@@ -24,7 +24,7 @@ class TestDeallocate:
         return connect(user="mapd",
                        password='HyperInteractive',
                        host='localhost',
-                       port=9091, protocol='binary', dbname='mapd')
+                       port=6274, protocol='binary', dbname='mapd')
 
     def _transact(self, con):
         drop = 'drop table if exists iris;'
