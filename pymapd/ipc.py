@@ -4,28 +4,33 @@ import ctypes
 import platform
 from ctypes.util import find_library
 
-# find c in OS
+# find c in OS, ipc not supported on Windows so return None
 libc_so = find_library('c')
-libc = ctypes.CDLL(libc_so)
+if platform.system() == "Windows":
+    shmget = None
+    shmat = None
+    shmdt = None
+else:
+    libc = ctypes.CDLL(libc_so)
 
-# wrap IPC functions needed
-shmget = libc.shmget
-shmget.restype = ctypes.c_int
-shmget.argtypes = (ctypes.c_int, ctypes.c_size_t, ctypes.c_int)
+    # wrap IPC functions needed
+    shmget = libc.shmget
+    shmget.restype = ctypes.c_int
+    shmget.argtypes = (ctypes.c_int, ctypes.c_size_t, ctypes.c_int)
 
-shmat = libc.shmat
-shmat.restype = ctypes.c_void_p
-shmat.argtypes = (ctypes.c_int, ctypes.c_void_p, ctypes.c_int)
+    shmat = libc.shmat
+    shmat.restype = ctypes.c_void_p
+    shmat.argtypes = (ctypes.c_int, ctypes.c_void_p, ctypes.c_int)
 
-shmdt = libc.shmdt
-shmdt.restype = ctypes.c_void_p
-shmdt.argtypes = (ctypes.c_void_p,)
+    shmdt = libc.shmdt
+    shmdt.restype = ctypes.c_void_p
+    shmdt.argtypes = (ctypes.c_void_p,)
 
 
 def load_buffer(handle, size):
 
     if find_library('c') is None:
-        if platform.system == "Windows":
+        if platform.system() == "Windows":
             assert("IPC uses POSIX shared memory, which is not supported \
                    on Windows")
         else:
