@@ -48,7 +48,9 @@ def datetime_in_precisions(epoch, precision):
         seconds = epoch / 1000000
         return base + datetime.timedelta(seconds=seconds, microseconds=modulus)
     elif precision == 9:
-        ns = epoch % 1000
+        """ TODO(Wamsi): datetime.timedelta has support only till microseconds.
+                         Need to find an alternative and fix nanoseconds
+                         granularity"""
         modulus = (epoch / 1000) % 1000000
         seconds = epoch / 1000000000
         return base + datetime.timedelta(seconds=seconds, microseconds=modulus)
