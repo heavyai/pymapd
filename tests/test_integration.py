@@ -29,9 +29,11 @@ def skip_if_no_arrow_loader(con):
 @pytest.mark.usefixtures("mapd_server")
 class TestIntegration:
 
-    @pytest.mark.parametrize('protocol', [
-        pytest.mark.skip(reason="Hangs waiting to hear back")('http'),
-        'binary'])
+    @pytest.mark.parametrize('protocol',
+                             [pytest.param('http',
+                                           marks=pytest.mark.skip("Hangs \
+                                           waiting to hear back")
+                                           ), 'binary'])
     def test_connect(self, protocol):
         con = connect(user="mapd", password='HyperInteractive',
                       host='localhost', port=6274, protocol=protocol,
