@@ -33,7 +33,7 @@ numpy>=1.14 \
 pandas \
 coverage \
 flake8 \
-pytest==4.3.1 \
+pytest==4.* \
 pytest-cov \
 pytest-mock
 
