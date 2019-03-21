@@ -53,20 +53,29 @@ def _extract_col_vals(desc, val):
     typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]
     nulls = val.nulls
 
-    vals = getattr(val.data, _typeattr[typename] + '_col')
-    vals = [None if null else v
-            for null, v in zip(nulls, vals)]
+    # arr_col has multiple levels to parse, not accounted for in original code
+    # https://github.com/omnisci/pymapd/issues/68
+    if hasattr(val.data, 'arr_col') and val.data.arr_col:
+        vals = [None if null else getattr(v.data, _typeattr[typename] + '_col')
+                for null, v in zip(nulls, val.data.arr_col)]
 
-    if typename == 'TIMESTAMP':
-        vals = [None if v is None else
-                datetime_in_precisions(v, desc.col_type.precision)
-                for v in vals]
-    elif typename == 'DATE':
-        base = datetime.datetime(1970, 1, 1)
-        vals = [None if v is None else
-                (base + datetime.timedelta(seconds=v)).date() for v in vals]
-    elif typename == 'TIME':
-        vals = [None if v is None else seconds_to_time(v) for v in vals]
+    # else clause original code path
+    else:
+        vals = getattr(val.data, _typeattr[typename] + '_col')
+        vals = [None if null else v
+                for null, v in zip(nulls, vals)]
+
+        if typename == 'TIMESTAMP':
+            vals = [None if v is None else
+                    datetime_in_precisions(v, desc.col_type.precision)
+                    for v in vals]
+        elif typename == 'DATE':
+            base = datetime.datetime(1970, 1, 1)
+            vals = [None if v is None else
+                    (base + datetime.timedelta(seconds=v)).date()
+                    for v in vals]
+        elif typename == 'TIME':
+            vals = [None if v is None else seconds_to_time(v) for v in vals]
 
     return vals
 
