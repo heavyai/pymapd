@@ -15,7 +15,6 @@ class Cursor:
         # type: (Any, bool) -> None
         # XXX: supposed to share state between cursors of the same connection
         self.connection = connection
-        self.columnar = True
         self.rowcount = -1
         self._description = None  # type: Optional[List[str]]
         self._arraysize = 1
@@ -118,7 +117,7 @@ class Cursor:
         try:
             result = self.connection._client.sql_execute(
                 self.connection._session, operation,
-                column_format=self.columnar,
+                column_format=True,
                 nonce=None, first_n=-1, at_most_n=-1)
         except T.TMapDException as e:
             raise _translate_exception(e) from e
