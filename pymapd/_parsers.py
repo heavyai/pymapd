@@ -48,22 +48,6 @@ _thrift_encodings_to_values = T.TEncodingType._NAMES_TO_VALUES
 _thrift_values_to_encodings = T.TEncodingType._VALUES_TO_NAMES
 
 
-def _extract_row_val(desc, val):
-    # type: (T.TColumnType, T.TDatum) -> Any
-    typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]
-    if val.is_null:
-        return None
-    val = getattr(val.val, _typeattr[typename] + '_val')
-    if typename == 'TIMESTAMP':
-        val = datetime_in_precisions(val, desc.col_type.precision)
-    elif typename == 'DATE':
-        base = datetime.datetime(1970, 1, 1)
-        val = (base + datetime.timedelta(seconds=val)).date()
-    elif typename == 'TIME':
-        val = seconds_to_time(val)
-    return val
-
-
 def _extract_col_vals(desc, val):
     # type: (T.TColumnType, T.TColumn) -> Any
     typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]
@@ -110,11 +94,6 @@ def _extract_column_details(row_desc):
                       _thrift_values_to_encodings[x.col_type.encoding])
         for x in row_desc
     ]
-
-
-def _is_columnar(data):
-    # type: (T.TQueryResult) -> bool
-    return data.row_set.is_columnar
 
 
 def _load_schema(buf):

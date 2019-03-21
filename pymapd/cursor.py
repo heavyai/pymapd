@@ -2,18 +2,20 @@ import mapd.ttypes as T
 from typing import Any, Optional, List, Iterator, Union, Tuple, Iterable
 
 from .exceptions import _translate_exception
-from ._parsers import (_extract_col_vals, _extract_description,
-                       _extract_row_val, _is_columnar, _bind_parameters)
+from ._parsers import (_extract_col_vals,
+                       _extract_description,
+                       _bind_parameters
+                       )
 
 
 class Cursor:
     """A database cursor."""
 
-    def __init__(self, connection, columnar=True):
+    def __init__(self, connection):
         # type: (Any, bool) -> None
         # XXX: supposed to share state between cursors of the same connection
         self.connection = connection
-        self.columnar = columnar
+        self.columnar = True
         self.rowcount = -1
         self._description = None  # type: Optional[List[str]]
         self._arraysize = 1
@@ -195,16 +197,12 @@ def make_row_results_set(data):
     -------
     results : Iterator[tuple]
     """
-    if _is_columnar(data):
-        if data.row_set.columns:
-            nrows = len(data.row_set.columns[0].nulls)
-            ncols = len(data.row_set.row_desc)
-            columns = [_extract_col_vals(desc, col)
-                       for desc, col in zip(data.row_set.row_desc,
-                                            data.row_set.columns)]
-            for i in range(nrows):
-                yield tuple(columns[j][i] for j in range(ncols))
-    else:
-        for row in data.row_set.rows:
-            yield tuple(_extract_row_val(desc, val)
-                        for desc, val in zip(data.row_set.row_desc, row.cols))
+
+    if data.row_set.columns:
+        nrows = len(data.row_set.columns[0].nulls)
+        ncols = len(data.row_set.row_desc)
+        columns = [_extract_col_vals(desc, col)
+                   for desc, col in zip(data.row_set.row_desc,
+                                        data.row_set.columns)]
+        for i in range(nrows):
+            yield tuple(columns[j][i] for j in range(ncols))

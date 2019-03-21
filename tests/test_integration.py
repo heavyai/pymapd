@@ -187,10 +187,8 @@ class TestIntegration:
         expected = [('RHAT', 100), ('GOOG', 100)]
         assert result == expected
 
-    @pytest.mark.parametrize('columnar', [True, False])
-    def test_select_dates(self, columnar, con, date_table):
+    def test_select_dates(self, con, date_table):
         c = con.cursor()
-        c.columnar = columnar
         result = list(c.execute("select * from {}".format(date_table)))
         expected = [
             (datetime.date(2006, 1, 5),
@@ -338,7 +336,6 @@ class TestLoaders:
                     'date_'])
         con.load_table_columnar(all_types_table, data, preserve_index=False)
         c = con.cursor()
-        c.columnar = False
         result = list(c.execute("select * from all_types"))
         expected = [(1, 0, 0, 0, 0.0, 0.0, 'a', 'a',
                     datetime.time(0, 11, 59),
@@ -385,12 +382,6 @@ class TestLoaders:
         # the test
 
         c = con.cursor()
-        result = c.execute("select * from pymapd_test_table")
-        expected = [(1,), (None,)]
-        assert result.fetchall() == expected
-
-        c = con.cursor()
-        c.columnar = False
         result = c.execute("select * from pymapd_test_table")
         expected = [(1,), (None,)]
         assert result.fetchall() == expected
