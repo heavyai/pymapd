@@ -123,13 +123,12 @@ class Cursor:
         except T.TMapDException as e:
             raise _translate_exception(e) from e
         self._description = _extract_description(result.row_set.row_desc)
-        if self.columnar:
-            try:
-                self.rowcount = len(result.row_set.columns[0].nulls)
-            except IndexError:
-                pass
-        else:
-            self.rowcount = len(result.row_set.rows)
+
+        try:
+            self.rowcount = len(result.row_set.columns[0].nulls)
+        except IndexError:
+            pass
+
         self._result_set = make_row_results_set(result)
         self._result = result
         return self
