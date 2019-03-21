@@ -161,13 +161,6 @@ class TestIntegration:
         result = con.select_ipc_gpu("select * from stocks", first_n=1)
         assert len(result) == 1
 
-    def test_select_rowwise(self, con, stocks):
-        c = con.cursor()
-        c.columnar = False
-        c.execute("select * from stocks;")
-        assert c.rowcount == 2
-        assert c.description is not None
-
     def test_fetchone(self, con, stocks):
         c = con.cursor()
         c.execute("select symbol, qty from stocks")
