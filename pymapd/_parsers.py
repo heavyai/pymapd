@@ -80,11 +80,17 @@ def _extract_col_vals(desc, val):
         vals = [None if null else getattr(v.data, _typeattr[typename] + '_col')
                 for null, v in zip(nulls, val.data.arr_col)]
 
+        if typename == 'TIMESTAMP':
+            vals = [_format_result_timestamp(desc, v) for v in vals]
+        elif typename == 'DATE':
+            vals = [_format_result_date(v) for v in vals]
+        elif typename == 'TIME':
+            vals = [_format_result_time(v) for v in vals]
+
     # else clause original code path
     else:
         vals = getattr(val.data, _typeattr[typename] + '_col')
-        vals = [None if null else v
-                for null, v in zip(nulls, vals)]
+        vals = [None if null else v for null, v in zip(nulls, vals)]
 
         if typename == 'TIMESTAMP':
             vals = _format_result_timestamp(desc, vals)
