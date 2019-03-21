@@ -408,3 +408,101 @@ class TestLoaders:
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
                     'date_'])
         con.load_table(not_a_table, data, create=True)
+
+    def test_array_in_result_set(self, con):
+
+        # text
+        con.execute("DROP TABLE IF EXISTS test_lists;")
+        con.execute("CREATE TABLE IF NOT EXISTS test_lists \
+                    (col1 TEXT, col2 TEXT[]);")
+
+        row = [("row1", "{hello,goodbye,aloha}"),
+               ("row2", "{hello2,goodbye2,aloha2}")]
+
+        con.load_table_rowwise("test_lists", row)
+        ans = con.execute("select * from test_lists").fetchall()
+
+        expected = [('row1', ['hello', 'goodbye', 'aloha']),
+                    ('row2', ['hello2', 'goodbye2', 'aloha2'])]
+
+        assert ans == expected
+
+        # int
+        con.execute("DROP TABLE IF EXISTS test_lists;")
+        con.execute("CREATE TABLE IF NOT EXISTS test_lists \
+                    (col1 TEXT, col2 INT[]);")
+
+        row = [("row1", "{10,20,30}"), ("row2", "{40,50,60}")]
+
+        con.load_table_rowwise("test_lists", row)
+        ans = con.execute("select * from test_lists").fetchall()
+
+        expected = [('row1', [10, 20, 30]), ('row2', [40, 50, 60])]
+
+        assert ans == expected
+
+        # timestamp
+        con.execute("DROP TABLE IF EXISTS test_lists;")
+        con.execute("CREATE TABLE IF NOT EXISTS test_lists \
+                    (col1 TEXT, col2 TIMESTAMP[]);")
+
+        row = [("row1",
+                "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}"),  # noqa
+               ("row2",
+                "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}")]  # noqa
+
+        con.load_table_rowwise("test_lists", row)
+        ans = con.execute("select * from test_lists").fetchall()
+
+        expected = [('row1',
+                    [datetime.datetime(2019, 3, 2, 0, 0),
+                     datetime.datetime(2019, 3, 2, 0, 0),
+                     datetime.datetime(2019, 3, 2, 0, 0)]),
+                    ('row2',
+                    [datetime.datetime(2019, 3, 2, 0, 0),
+                     datetime.datetime(2019, 3, 2, 0, 0),
+                     datetime.datetime(2019, 3, 2, 0, 0)])]
+
+        assert ans == expected
+
+        # date
+        con.execute("DROP TABLE IF EXISTS test_lists;")
+        con.execute("CREATE TABLE IF NOT EXISTS test_lists \
+                    (col1 TEXT, col2 DATE[]);")
+
+        row = [("row1", "{2019-03-02,2019-03-02,2019-03-02}"),
+               ("row2", "{2019-03-02,2019-03-02,2019-03-02}")]
+
+        con.load_table_rowwise("test_lists", row)
+        ans = con.execute("select * from test_lists").fetchall()
+
+        expected = [('row1',
+                     [datetime.date(2019, 3, 2),
+                      datetime.date(2019, 3, 2),
+                      datetime.date(2019, 3, 2)]),
+                    ('row2',
+                     [datetime.date(2019, 3, 2),
+                      datetime.date(2019, 3, 2),
+                      datetime.date(2019, 3, 2)])]
+
+        assert ans == expected
+
+        # time
+        con.execute("DROP TABLE IF EXISTS test_lists;")
+        con.execute("CREATE TABLE IF NOT EXISTS test_lists \
+                    (col1 TEXT, col2 TIME[]);")
+
+        row = [("row1", "{23:59,23:59,23:59}"),
+               ("row2", "{23:59,23:59,23:59}")]
+
+        con.load_table_rowwise("test_lists", row)
+        ans = con.execute("select * from test_lists").fetchall()
+
+        expected = [('row1',
+                     [datetime.time(23, 59), datetime.time(23, 59),
+                      datetime.time(23, 59)]),
+                    ('row2',
+                     [datetime.time(23, 59), datetime.time(23, 59),
+                      datetime.time(23, 59)])]
+
+        assert ans == expected
