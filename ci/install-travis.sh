@@ -28,9 +28,9 @@ conda create -n omnisci-dev python=${PYTHON} \
 thrift=0.11.0 \
 numpydoc \
 "pyarrow>=0.10.0,<0.13" \
-sqlalchemy \
-numpy>=1.14 \
-pandas \
+sqlalchemy>=1.3 \
+numpy>=1.16 \
+pandas>=0.24 \
 coverage \
 flake8 \
 pytest \
