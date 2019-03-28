@@ -62,12 +62,6 @@ def date_to_seconds(arr):
     return arr.apply(lambda x: np.datetime64(x, "s").astype(int))
 
 
-def date_to_days(arr):
-    """Converts date into days"""
-
-    return arr.apply(lambda x: np.datetime64(x, "D").astype(int))
-
-
 mapd_to_slot = {
     'BOOL': 'int_col',
     'BOOLEAN': 'int_col',

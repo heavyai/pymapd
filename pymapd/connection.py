@@ -578,7 +578,7 @@ class Connection:
                 col_names_from_schema \
                 else list(data)
 
-            col_types = [(i[1], i[4], i[6]) for i in table_details]
+            col_types = [(i[1], i[4]) for i in table_details]
 
             input_cols = _pandas_loaders.build_input_columnar(
                 data,
