@@ -49,6 +49,8 @@ def get_mapd_type_from_known(dtype):
             return 'DOUBLE'
     elif is_datetime64_any_dtype(dtype):
         return 'TIMESTAMP'
+    elif isinstance(dtype, pd.CategoricalDtype):
+        return 'STR'
     else:
         raise TypeError("Unhandled type {}".format(dtype))
 
@@ -160,6 +162,10 @@ def _cast_int8(data):
     if isinstance(data, pd.DataFrame):
         cols = data.select_dtypes(include=['i1']).columns
         data[cols] = data[cols].astype('i2')
+
+        cols = data.select_dtypes(include=['category']).columns
+        data[cols] = data[cols].astype('object')
+
     # TODO: Casts for pyarrow (waiting on python bindings for casting)
     # ARROW-229 did it for C++
     return data

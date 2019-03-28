@@ -11,6 +11,7 @@ from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails
 from mapd.ttypes import TMapDException
+import pandas as pd
 
 from .utils import no_gpu
 
@@ -506,3 +507,40 @@ class TestLoaders:
                       datetime.time(23, 59)])]
 
         assert ans == expected
+
+    def test_upload_pandas_categorical(self, con):
+
+        con.execute("DROP TABLE IF EXISTS test_categorical;")
+
+        df = pd.DataFrame({"A": ["a", "b", "c", "a"]})
+        df["B"] = df["A"].astype('category')
+
+        # test that table created correctly when it doesn't exist on server
+        con.load_table("test_categorical", df)
+        ans = con.execute("select * from test_categorical").fetchall()
+
+        assert ans == [('a', 'a'), ('b', 'b'), ('c', 'c'), ('a', 'a')]
+
+        assert con.get_table_details("test_categorical") == \
+            [ColumnDetails(name='A', type='STR', nullable=True, precision=0,
+                           scale=0, comp_param=32, encoding='DICT'),
+             ColumnDetails(name='B', type='STR', nullable=True, precision=0,
+                           scale=0, comp_param=32, encoding='DICT')]
+
+        # load row-wise
+        con.load_table("test_categorical", df, method="rows")
+
+        # load columnar
+        con.load_table("test_categorical", df, method="columnar")
+
+        # load arrow
+        con.load_table("test_categorical", df, method="arrow")
+
+        # test end result
+        df_ipc = con.select_ipc("select * from test_categorical")
+        assert df_ipc.shape == (16, 2)
+
+        res = df.append([df, df, df]).reset_index(drop=True)
+        res["A"] = res["A"].astype('category')
+        res["B"] = res["B"].astype('category')
+        assert pd.DataFrame.equals(df_ipc, res)
