@@ -202,7 +202,7 @@ def build_row_desc(data, preserve_index=False):
     ]
 
     # force text encoding dict for all string columns
-    # default is TEXT ENCODING DICT(32) when only tct.col_type.encoding = 4 set 
+    # default is TEXT ENCODING DICT(32) when only tct.col_type.encoding = 4 set
     # https://github.com/omnisci/pymapd/issues/140#issuecomment-477353420
     for tct in row_desc:
         if tct.col_type.type == 6:
