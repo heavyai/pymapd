@@ -429,7 +429,7 @@ class Connection:
         ----------
         table_name : str
         data : pyarrow.Table, pandas.DataFrame, or iterable of tuples
-        method : {'infer', 'columnar', 'rows'}
+        method : {'infer', 'columnar', 'rows', 'arrow'}
             Method to use for loading the data. Three options are available
 
             1. ``pyarrow`` and Apache Arrow loader
