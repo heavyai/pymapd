@@ -271,7 +271,8 @@ class Connection:
             operation = str(_bind_parameters(operation, parameters))
 
         tdf = self._client.sql_execute_gdf(
-            self._session, operation.strip(), device_id=device_id, first_n=first_n)
+            self._session, operation.strip(), device_id=device_id,
+            first_n=first_n)
         self._tdf = tdf
 
         df = _parse_tdf_gpu(tdf)
