@@ -200,4 +200,12 @@ def build_row_desc(data, preserve_index=False):
         TColumnType(name, TTypeInfo(getattr(TDatumType, mapd_type)))
         for name, mapd_type in dtypes
     ]
+
+    # force text encoding dict for all string columns
+    # default is TEXT ENCODING DICT(32) when only tct.col_type.encoding = 4 set
+    # https://github.com/omnisci/pymapd/issues/140#issuecomment-477353420
+    for tct in row_desc:
+        if tct.col_type.type == 6:
+            tct.col_type.encoding = 4
+
     return row_desc
