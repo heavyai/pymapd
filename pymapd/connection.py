@@ -227,7 +227,7 @@ class Connection:
         c : Cursor
         """
         c = Cursor(self)
-        return c.execute(operation, parameters=parameters)
+        return c.execute(operation.strip(), parameters=parameters)
 
     def cursor(self):
         # type: () -> Cursor
@@ -271,7 +271,8 @@ class Connection:
             operation = str(_bind_parameters(operation, parameters))
 
         tdf = self._client.sql_execute_gdf(
-            self._session, operation, device_id=device_id, first_n=first_n)
+            self._session, operation.strip(), device_id=device_id,
+            first_n=first_n)
         self._tdf = tdf
 
         df = _parse_tdf_gpu(tdf)
@@ -310,7 +311,7 @@ class Connection:
             operation = str(_bind_parameters(operation, parameters))
 
         tdf = self._client.sql_execute_df(
-            self._session, operation, device_type=0, device_id=0,
+            self._session, operation.strip(), device_type=0, device_id=0,
             first_n=first_n
         )
         self._tdf = tdf
