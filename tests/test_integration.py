@@ -12,6 +12,7 @@ from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails
 from mapd.ttypes import TMapDException
 import pandas as pd
+from pandas.api.types import is_object_dtype, is_categorical_dtype
 
 from .utils import no_gpu
 
@@ -544,3 +545,9 @@ class TestLoaders:
         res["A"] = res["A"].astype('category')
         res["B"] = res["B"].astype('category')
         assert pd.DataFrame.equals(df_ipc, res)
+
+        # test that input df wasn't mutated
+        # original input is object, categorical
+        # to load via Arrow, converted internally to object, object
+        assert is_object_dtype(df["A"])
+        assert is_categorical_dtype(df["B"])

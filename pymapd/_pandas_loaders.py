@@ -157,25 +157,23 @@ def build_input_columnar(df, preserve_index=True,
     return cols_array
 
 
-def _cast_int8(data):
-
-    if isinstance(data, pd.DataFrame):
-        cols = data.select_dtypes(include=['i1']).columns
-        data[cols] = data[cols].astype('i2')
-
-        cols = data.select_dtypes(include=['category']).columns
-        data[cols] = data[cols].astype('object')
-
-    # TODO: Casts for pyarrow (waiting on python bindings for casting)
-    # ARROW-229 did it for C++
-    return data
-
-
 def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
 
     if isinstance(data, pd.DataFrame):
-        data = _cast_int8(data)
-        data = pa.RecordBatch.from_pandas(data, preserve_index=preserve_index)
+
+        # detect if there are categorical columns in dataframe
+        cols = data.select_dtypes(include=['category']).columns
+
+        # if there are categorical columns, make a copy before casting
+        # to avoid mutating input data
+        # https://github.com/omnisci/pymapd/issues/169
+        if cols.size > 0:
+            data_ = data.copy()
+            data_[cols] = data_[cols].astype('object')
+        else:
+            data_ = data
+
+        data = pa.RecordBatch.from_pandas(data_, preserve_index=preserve_index)
 
     stream = pa.BufferOutputStream()
     writer = pa.RecordBatchStreamWriter(stream, data.schema)
