@@ -1,0 +1,11 @@
+thrift==0.11.0
+numpydoc
+pyarrow>=0.10.0,<0.13"
+sqlalchemy>=1.3
+numpy>=1.16
+pandas>=0.24
+coverage
+flake8
+pytest
+pytest-cov
+pytest-mock
