@@ -35,7 +35,7 @@ class TestIntegration:
 
     def test_connect_http(self):
         con = connect(user="mapd", password='HyperInteractive',
-                      host='localhost', port=6273, protocol='http',
+                      host='localhost', port=6278, protocol='http',
                       dbname='mapd')
         assert con is not None
 
