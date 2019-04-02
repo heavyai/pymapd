@@ -50,38 +50,38 @@ def main():
     session = client.connect(user_name, passwd, db_name)
 
     drop = 'drop table if exists stocks;'
-    client.sql_execute(session, drop, True, None, -1)
+    client.sql_execute(session, drop, True, None, -1, -1)
     create = ('create table stocks (date_ text, trans text, symbol text, '
               'qty int, price float, vol float, real_date TIMESTAMP);')
-    client.sql_execute(session, create, True, None, -1)
+    client.sql_execute(session, create, True, None, -1, -1)
 
     i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1,'2010-01-01 12:01:01');"  # noqa
     i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2,'2010-01-01 12:02:02');"  # noqa
-    client.sql_execute(session, i1, True, None, -1)
-    client.sql_execute(session, i2, True, None, -1)
+    client.sql_execute(session, i1, True, None, -1, -1)
+    client.sql_execute(session, i2, True, None, -1, -1)
     select = "select * from stocks;"
-    colwise = client.sql_execute(session, select, True, None, -1)
-    rowwise = client.sql_execute(session, select, False, None, -1)
+    colwise = client.sql_execute(session, select, True, None, -1, -1)
+    rowwise = client.sql_execute(session, select, False, None, -1, -1)
 
     write(rowwise, "rowwise.pkl")
     write(colwise, "colwise.pkl")
     # Invalid SQL
     try:
-        client.sql_execute(session, "select it;", True, None, -1)
+        client.sql_execute(session, "select it;", True, None, -1, -1)
     except TMapDException as e:
         write(e, "invalid_sql.pkl")
 
     # Valid SQL, non-existant table
     try:
         client.sql_execute(session, "select fake from not_a_table;", True,
-                           None, -1)
+                           None, -1, -1)
     except TMapDException as e:
         write(e, "nonexistant_table.pkl")
 
     # valid table, non-existant column
     try:
         client.sql_execute(session, "select fake from stocks;", True,
-                           None, -1)
+                           None, -1, -1)
     except TMapDException as e:
         write(e, "nonexistant_column.pkl")
 
