@@ -27,17 +27,17 @@ TMapDException.__hash__ = lambda x: id(x)
 @pytest.mark.usefixtures("mapd_server")
 class TestIntegration:
 
-    @pytest.mark.parametrize('protocol',
-                             [pytest.param('http',
-                                           marks=pytest.mark.skip("Hangs \
-                                           waiting to hear back")
-                                           ), 'binary'])
-    def test_connect(self, protocol):
+    def test_connect_binary(self):
         con = connect(user="mapd", password='HyperInteractive',
-                      host='localhost', port=6274, protocol=protocol,
+                      host='localhost', port=6274, protocol='binary',
                       dbname='mapd')
         assert con is not None
-        assert protocol in repr(con)
+
+    def test_connect_http(self):
+        con = connect(user="mapd", password='HyperInteractive',
+                      host='localhost', port=6273, protocol='http',
+                      dbname='mapd')
+        assert con is not None
 
     def test_connect_uri(self):
         uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?protocol='
