@@ -7,7 +7,7 @@ from pymapd import connect
 from mapd.ttypes import TMapDException, TApplicationException
 from .utils import no_gpu
 
-pd = pytest.importorskip("pandas")
+import pandas as pd
 
 HERE = os.path.dirname(__file__)
 
