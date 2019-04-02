@@ -2,7 +2,6 @@
 Tests that rely on a server running
 """
 import datetime
-from distutils.version import LooseVersion
 from unittest import mock
 
 import pytest
@@ -12,7 +11,10 @@ from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails
 from mapd.ttypes import TMapDException
 import pandas as pd
+import numpy as np
+import pyarrow as pa
 from pandas.api.types import is_object_dtype, is_categorical_dtype
+import pandas.util.testing as tm
 
 from .utils import no_gpu
 
@@ -20,12 +22,6 @@ from .utils import no_gpu
 # This isn't a huge deal, but our testing context mangers for asserting
 # exceptions need hashability
 TMapDException.__hash__ = lambda x: id(x)
-
-
-def skip_if_no_arrow_loader(con):
-    mapd_version = LooseVersion(con._client.get_version())
-    if mapd_version <= '3.3.1':
-        pytest.skip("Arrow loader requires mapd > 3.3.1")
 
 
 @pytest.mark.usefixtures("mapd_server")
@@ -121,9 +117,6 @@ class TestIntegration:
         ('select qty, price from stocks where qty=:qty', {'qty': 100}),
     ])
     def test_select_ipc_parametrized(self, con, stocks, query, parameters):
-        pd = pytest.importorskip("pandas")
-        import numpy as np
-        import pandas.util.testing as tm
 
         result = con.select_ipc(query, parameters=parameters)
         expected = pd.DataFrame({
@@ -134,7 +127,7 @@ class TestIntegration:
         tm.assert_frame_equal(result, expected)
 
     def test_select_ipc_first_n(self, con, stocks):
-        pytest.importorskip("pandas")
+
         result = con.select_ipc("select * from stocks", first_n=1)
         assert len(result) == 1
 
@@ -144,8 +137,7 @@ class TestIntegration:
     ])
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_select_ipc_gpu(self, con, stocks, query, parameters):
-        import pandas as pd
-        import numpy as np
+
         from cudf.dataframe import DataFrame
 
         result = con.select_ipc_gpu("select qty, price from stocks")
@@ -251,8 +243,6 @@ class TestLoaders:
         self.check_empty_insert(result, data)
 
     def test_load_empty_table_pandas(self, con, empty_table):
-        # TODO: just require arrow and pandas for tests
-        pd = pytest.importorskip("pandas")
 
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
@@ -263,9 +253,6 @@ class TestLoaders:
         self.check_empty_insert(result, data)
 
     def test_load_empty_table_arrow(self, con, empty_table):
-        pd = pytest.importorskip("pandas")
-        pa = pytest.importorskip("pyarrow")
-        skip_if_no_arrow_loader(con)
 
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
@@ -282,8 +269,6 @@ class TestLoaders:
         self.check_empty_insert(result, data)
 
     def test_load_table_columnar(self, con, empty_table):
-        pd = pytest.importorskip("pandas")
-        skip_if_no_arrow_loader(con)
 
         df = pd.DataFrame({"a": [1, 2, 3],
                            "b": [1.1, 2.2, 3.3],
@@ -291,9 +276,6 @@ class TestLoaders:
         con.load_table_columnar(empty_table, df)
 
     def test_load_infer(self, con, empty_table):
-        pd = pytest.importorskip("pandas")
-        skip_if_no_arrow_loader(con)
-        import numpy as np
 
         data = pd.DataFrame(
             {'a': np.array([0, 1], dtype=np.int32),
@@ -311,8 +293,6 @@ class TestLoaders:
             con.load_table(empty_table, [], method='columnar')
 
     def test_load_columnar_pandas_all(self, con, all_types_table):
-        pd = pytest.importorskip("pandas")
-        import numpy as np
 
         data = pd.DataFrame({
             "boolean_": [True, False],
@@ -344,8 +324,6 @@ class TestLoaders:
         assert result == expected
 
     def test_load_table_columnar_arrow_all(self, con, all_types_table):
-        pa = pytest.importorskip("pyarrow")
-        skip_if_no_arrow_loader(con)
 
         names = ['boolean_', 'smallint_', 'int_', 'bigint_',
                  'float_', 'double_', 'varchar_', 'text_',
@@ -385,13 +363,11 @@ class TestLoaders:
         con.execute("drop table if exists pymapd_test_table;")
 
     def test_create_table(self, con, not_a_table):
-        pd = pytest.importorskip("pandas")
+
         df = pd.DataFrame({"A": [1, 2], "B": [1., 2.]})
         con.create_table(not_a_table, df)
 
     def test_load_table_creates(self, con, not_a_table):
-        pd = pytest.importorskip("pandas")
-        import numpy as np
 
         data = pd.DataFrame({
             "boolean_": [True, False],
