@@ -27,7 +27,7 @@ conda config --add channels conda-forge || exit 1
 conda create -n omnisci-dev python=${PYTHON} \
 thrift=0.11.0 \
 numpydoc \
-"pyarrow>=0.10.0,<0.13" \
+"pyarrow>=0.10.0,<0.14" \
 sqlalchemy>=1.3 \
 numpy>=1.16 \
 pandas>=0.24 \
