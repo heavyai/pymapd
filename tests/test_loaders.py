@@ -4,8 +4,12 @@ import datetime
 from pymapd._loaders import _build_input_rows
 from pymapd import _pandas_loaders
 from mapd.MapD import TStringRow, TStringValue, TColumn, TColumnData
+import pandas as pd
+import pyarrow as pa
+import numpy as np
 
 from .utils import assert_columnar_equal
+from mapd.ttypes import TTypeInfo, TColumnType
 
 
 class TestLoaders:
@@ -34,8 +38,7 @@ class TestLoaders:
         assert result == expected
 
     def test_build_table_columnar(self):
-        pd = pytest.importorskip("pandas")
-        pytest.importorskip("pyarrow")
+
         from pymapd._pandas_loaders import build_input_columnar
 
         data = pd.DataFrame({"a": [1, 2, 3], "b": [1.1, 2.2, 3.3]})
@@ -48,8 +51,6 @@ class TestLoaders:
         assert_columnar_equal(result[0], expected)
 
     def test_build_table_columnar_pandas(self):
-        import pandas as pd
-        import numpy as np
 
         data = pd.DataFrame({
             "boolean_": [True, False],
@@ -86,8 +87,6 @@ class TestLoaders:
         assert_columnar_equal(result[0], expected)
 
     def test_build_table_columnar_nulls(self):
-        import pandas as pd
-        import numpy as np
 
         data = pd.DataFrame({
             "boolean_": [True, False, None],
@@ -133,9 +132,6 @@ class TestLoaders:
         assert_columnar_equal(result[0], expected)
 
     def test_build_row_desc(self):
-        pd = pytest.importorskip("pandas")
-        import numpy as np
-        from mapd.ttypes import TTypeInfo, TColumnType
 
         data = pd.DataFrame({
             "boolean_": [True, False],
