@@ -65,18 +65,6 @@ def main():
 
     write(rowwise, "rowwise.pkl")
     write(colwise, "colwise.pkl")
-    # Invalid SQL
-    try:
-        client.sql_execute(session, "select it;", True, None, -1, -1)
-    except TMapDException as e:
-        write(e, "invalid_sql.pkl")
-
-    # Valid SQL, non-existant table
-    try:
-        client.sql_execute(session, "select fake from not_a_table;", True,
-                           None, -1, -1)
-    except TMapDException as e:
-        write(e, "nonexistant_table.pkl")
 
     # valid table, non-existant column
     try:

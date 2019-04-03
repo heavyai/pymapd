@@ -71,16 +71,6 @@ def rowwise():
     return _load_pickle(os.path.join(HERE, "data", "rowwise.pkl"))
 
 
-@pytest.fixture
-def invalid_sql():
-    return _load_pickle(os.path.join(HERE, "data", "invalid_sql.pkl"))
-
-
-@pytest.fixture
-def nonexistant_table():
-    return _load_pickle(os.path.join(HERE, "data", "nonexistant_table.pkl"))
-
-
 @pytest.fixture(scope="session")
 def stocks(con):
     """A sample table `stocks` populated with two rows. The
