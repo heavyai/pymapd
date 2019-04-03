@@ -66,13 +66,6 @@ def main():
     write(rowwise, "rowwise.pkl")
     write(colwise, "colwise.pkl")
 
-    # valid table, non-existant column
-    try:
-        client.sql_execute(session, "select fake from stocks;", True,
-                           None, -1, -1)
-    except TMapDException as e:
-        write(e, "nonexistant_column.pkl")
-
     client.disconnect(session)
 
 
