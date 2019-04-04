@@ -11,14 +11,12 @@ from thrift.transport.TSocket import TTransportException
 
 from pymapd import connect
 
-ttypes = importlib.import_module("mapd.ttypes")
-HERE = os.path.dirname(__file__)
-
-socket = TSocket.TSocket("localhost", 6274)
-transport = TTransport.TBufferedTransport(socket)
-
 
 def _check_open():
+
+    socket = TSocket.TSocket("localhost", 6274)
+    transport = TTransport.TBufferedTransport(socket)
+
     try:
         transport.open()
         return True
