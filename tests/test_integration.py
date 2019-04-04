@@ -3,9 +3,7 @@ Tests that rely on a server running
 """
 import datetime
 from unittest import mock
-
 import pytest
-
 from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails

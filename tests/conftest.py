@@ -3,7 +3,6 @@ import time
 import pytest
 from thrift.transport import TSocket, TTransport
 from thrift.transport.TSocket import TTransportException
-
 from pymapd import connect
 
 

@@ -1,21 +1,17 @@
 import os
 import subprocess
-
 import pytest
-
 from pymapd import connect
 from mapd.ttypes import TMapDException, TApplicationException
 from .conftest import no_gpu
-
 import pandas as pd
-
-HERE = os.path.dirname(__file__)
 
 
 @pytest.mark.usefixtures("mapd_server")
 class TestDeallocate:
 
     def _data(self):
+        HERE = os.path.dirname(__file__)
         df = pd.read_pickle(os.path.join(HERE, "data", "data_load.pkl"))
         return df.itertuples(index=False)
 

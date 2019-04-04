@@ -1,5 +1,4 @@
 import pytest
-
 from pymapd.cursor import Cursor, _bind_parameters
 from pymapd import connect
 
