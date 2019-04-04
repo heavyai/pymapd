@@ -22,33 +22,6 @@ from .conftest import no_gpu
 TMapDException.__hash__ = lambda x: id(x)
 
 
-@pytest.fixture(scope="session")
-def stocks(con):
-    """A sample table `stocks` populated with two rows. The
-    table is dropped at the start of the session.
-
-    - date_ : text
-    - trans : text
-    - symbol : text
-    - qty : int
-    - price : float
-    - vol : float
-    """
-
-    c = con.cursor()
-    c.execute('drop table if exists stocks;')
-    create = ('create table stocks (date_ text, trans text, symbol text, '
-              'qty int, price float, vol float);')
-    c.execute(create)
-    i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
-    i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
-
-    c.execute(i1)
-    c.execute(i2)
-    yield "stocks"
-    c.execute('drop table if exists stocks;')
-
-
 @pytest.mark.usefixtures("mapd_server")
 class TestIntegration:
 
@@ -96,8 +69,19 @@ class TestIntegration:
         result = con.execute("create table FOO (a int);")
         assert isinstance(result, Cursor)
 
-    def test_select_sets_description(self, con, stocks):
+    def test_select_sets_description(self, con):
+
         c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
+
         c.execute("select * from stocks")
         expected = [
             Description('date_', 6, None, None, None, None, True),
@@ -108,24 +92,62 @@ class TestIntegration:
             Description('vol', 3, None, None, None, None, True),
         ]
         assert c.description == expected
+        c.execute('drop table if exists stocks;')
 
-    def test_select_parametrized(self, con, stocks):
+    def test_select_parametrized(self, con):
+
         c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
+
         c.execute('select symbol, qty from stocks where symbol = :symbol',
                   {'symbol': 'GOOG'})
         result = list(c)
         expected = [('GOOG', 100), ]  # noqa
         assert result == expected
+        c.execute('drop table if exists stocks;')
 
-    def test_executemany_parametrized(self, con, stocks):
+    def test_executemany_parametrized(self, con):
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
+
         parameters = [{'symbol': 'GOOG'}, {'symbol': "RHAT"}]
         expected = [[('GOOG', 100)], [('RHAT', 100)]]
         query = 'select symbol, qty from stocks where symbol = :symbol'
         c = con.cursor()
         result = c.executemany(query, parameters)
         assert result == expected
+        c.execute('drop table if exists stocks;')
 
     def test_executemany_parametrized_insert(self, con):
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
+
         c = con.cursor()
         c.execute("drop table if exists stocks2;")
         # Create table
@@ -136,12 +158,24 @@ class TestIntegration:
         result = c.executemany(query, params)
         assert result == [[], []]  # TODO: not sure if this is standard
         c.execute("drop table stocks2;")
+        c.execute('drop table if exists stocks;')
 
     @pytest.mark.parametrize('query, parameters', [
         ('select qty, price from stocks', None),
         ('select qty, price from stocks where qty=:qty', {'qty': 100}),
     ])
-    def test_select_ipc_parametrized(self, con, stocks, query, parameters):
+    def test_select_ipc_parametrized(self, con, query, parameters):
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
 
         result = con.select_ipc(query, parameters=parameters)
         expected = pd.DataFrame({
@@ -150,20 +184,44 @@ class TestIntegration:
                               dtype=np.float32)
         })[['qty', 'price']]
         tm.assert_frame_equal(result, expected)
+        c.execute('drop table if exists stocks;')
 
-    def test_select_ipc_first_n(self, con, stocks):
+    def test_select_ipc_first_n(self, con):
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
 
         result = con.select_ipc("select * from stocks", first_n=1)
         assert len(result) == 1
+        c.execute('drop table if exists stocks;')
 
     @pytest.mark.parametrize('query, parameters', [
         ('select qty, price from stocks', None),
         ('select qty, price from stocks where qty=:qty', {'qty': 100}),
     ])
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
-    def test_select_ipc_gpu(self, con, stocks, query, parameters):
+    def test_select_ipc_gpu(self, con, query, parameters):
 
         from cudf.dataframe import DataFrame
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
 
         result = con.select_ipc_gpu("select qty, price from stocks")
         assert isinstance(result, DataFrame)
@@ -174,21 +232,58 @@ class TestIntegration:
 
         result = result.to_pandas()[['qty', 'price']]  # column order
         pd.testing.assert_frame_equal(result, expected)
+        c.execute('drop table if exists stocks;')
 
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
-    def test_select_gpu_first_n(self, con, stocks):
+    def test_select_gpu_first_n(self, con):
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
+
         result = con.select_ipc_gpu("select * from stocks", first_n=1)
         assert len(result) == 1
+        c.execute('drop table if exists stocks;')
 
-    def test_fetchone(self, con, stocks):
+    def test_fetchone(self, con):
+
         c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
+
         c.execute("select symbol, qty from stocks")
         result = c.fetchone()
         expected = ('RHAT', 100)
         assert result == expected
+        c.execute('drop table if exists stocks;')
 
-    def test_fetchmany(self, con, stocks):
+    def test_fetchmany(self, con):
+
         c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
+
         c.execute("select symbol, qty from stocks")
         result = c.fetchmany()
         expected = [('RHAT', 100)]
@@ -198,6 +293,7 @@ class TestIntegration:
         result = c.fetchmany(size=10)
         expected = [('RHAT', 100), ('GOOG', 100)]
         assert result == expected
+        c.execute('drop table if exists stocks;')
 
     def test_select_dates(self, con):
 
@@ -237,12 +333,37 @@ class TestOptionalImports:
 
 class TestExtras:
 
-    def test_get_tables(self, con, stocks):
+    def test_get_tables(self, con):
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
+
         result = con.get_tables()
         assert isinstance(result, list)
         assert 'stocks' in result
+        c.execute('drop table if exists stocks;')
 
-    def test_get_table_details(self, con, stocks):
+    def test_get_table_details(self, con):
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
+
         result = con.get_table_details('stocks')
         expected = [
             ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
@@ -260,6 +381,7 @@ class TestExtras:
                           scale=0, comp_param=0, encoding='NONE')
         ]
         assert result == expected
+        c.execute('drop table if exists stocks;')
 
 
 class TestLoaders:
