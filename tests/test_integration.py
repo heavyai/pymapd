@@ -31,11 +31,11 @@ def empty_table(con):
         - b : float
         - c : text
     """
-    name = 'baz'
-    con.execute("drop table if exists {};".format(name))
-    con.execute("create table {} (a int, b float, c text);".format(name))
-    yield name
-    con.execute("drop table if exists {};".format(name))
+
+    con.execute("drop table if exists baz;")
+    con.execute("create table baz (a int, b float, c text);")
+    yield 'baz'
+    con.execute("drop table if exists baz;")
 
 
 @pytest.fixture(scope="session")
@@ -50,9 +50,9 @@ def stocks(con):
     - price : float
     - vol : float
     """
-    drop = 'drop table if exists stocks;'
+
     c = con.cursor()
-    c.execute(drop)
+    c.execute('drop table if exists stocks;')
     create = ('create table stocks (date_ text, trans text, symbol text, '
               'qty int, price float, vol float);')
     c.execute(create)
@@ -62,32 +62,7 @@ def stocks(con):
     c.execute(i1)
     c.execute(i2)
     yield "stocks"
-    c.execute(drop)
-
-
-@pytest.fixture(scope="session")
-def date_table(con):
-    """A sample with date and time columns
-
-    - date_ : DATE
-    - datetime_ : TIMESTAMP
-    - time_ : TIME
-    """
-    name = 'dates'
-    drop = 'drop table if exists {};'.format(name)
-    c = con.cursor()
-    c.execute(drop)
-    create = ('create table {} (date_ DATE, datetime_ TIMESTAMP, '
-              'time_ TIME);'.format(name))
-    c.execute(create)
-    i1 = ("INSERT INTO {} VALUES ('2006-01-05','2006-01-01T12:00:00',"
-          "'12:00');".format(name))
-    i2 = ("INSERT INTO {} VALUES ('1901-12-14','1901-12-13T20:45:53',"
-          "'23:59:00');".format(name))
-    c.execute(i1)
-    c.execute(i2)
-    yield name
-    c.execute(drop)
+    c.execute('drop table if exists stocks;')
 
 
 @pytest.fixture
@@ -282,9 +257,20 @@ class TestIntegration:
         expected = [('RHAT', 100), ('GOOG', 100)]
         assert result == expected
 
-    def test_select_dates(self, con, date_table):
+    def test_select_dates(self, con):
+
         c = con.cursor()
-        result = list(c.execute("select * from {}".format(date_table)))
+        c.execute('drop table if exists dates;')
+        c.execute('create table dates (date_ DATE, datetime_ TIMESTAMP, '
+                  'time_ TIME);')
+        i1 = ("INSERT INTO dates VALUES ('2006-01-05','2006-01-01T12:00:00',"
+              "'12:00');")
+        i2 = ("INSERT INTO dates VALUES ('1901-12-14','1901-12-13T20:45:53',"
+              "'23:59:00');")
+        c.execute(i1)
+        c.execute(i2)
+
+        result = list(c.execute("select * from dates"))
         expected = [
             (datetime.date(2006, 1, 5),
              datetime.datetime(2006, 1, 1, 12),
@@ -294,6 +280,7 @@ class TestIntegration:
              datetime.time(23, 59)),
         ]
         assert result == expected
+        c.execute('drop table if exists dates;')
 
 
 class TestOptionalImports:
