@@ -202,7 +202,7 @@ def all_types_table(con):
 
 @pytest.fixture
 def mock_transport(mocker):
-    """A magicmock for pymapd.connection.TTrapnsport.TBufferedTransport"""
+    """A magicmock for pymapd.connection.TTransport.TBufferedTransport"""
     return mocker.patch("pymapd.connection.TTransport.TBufferedTransport")
 
 
