@@ -18,4 +18,4 @@ script:
   - echo "script start"
   - source activate omnisci-dev
   - pytest tests
-  - flake8
+  - flake8 --ignore=F401
