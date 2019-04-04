@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import pickle
 import subprocess
 import textwrap
 import time
@@ -54,31 +53,6 @@ def mapd_server():
 def con(mapd_server):
     return connect(user="mapd", password='HyperInteractive', host='localhost',
                    port=6274, protocol='binary', dbname='mapd')
-
-
-def _load_pickle(filepath):
-    with open(filepath, 'rb') as f:
-        return pickle.load(f)
-
-
-@pytest.fixture
-def colwise():
-    return _load_pickle(os.path.join(HERE, "data", "colwise.pkl"))
-
-
-@pytest.fixture
-def rowwise():
-    return _load_pickle(os.path.join(HERE, "data", "rowwise.pkl"))
-
-
-@pytest.fixture
-def invalid_sql():
-    return _load_pickle(os.path.join(HERE, "data", "invalid_sql.pkl"))
-
-
-@pytest.fixture
-def nonexistant_table():
-    return _load_pickle(os.path.join(HERE, "data", "nonexistant_table.pkl"))
 
 
 @pytest.fixture(scope="session")
@@ -212,7 +186,7 @@ def all_types_table(con):
 
 @pytest.fixture
 def mock_transport(mocker):
-    """A magicmock for pymapd.connection.TTrapnsport.TBufferedTransport"""
+    """A magicmock for pymapd.connection.TTransport.TBufferedTransport"""
     return mocker.patch("pymapd.connection.TTransport.TBufferedTransport")
 
 
