@@ -84,12 +84,11 @@ def all_types_table(con):
 
     https://www.mapd.com/docs/latest/mapd-core-guide/tables/#create-table
     """
-    name = 'all_types'
-    drop = 'drop table if exists {};'.format(name)
+
     c = con.cursor()
-    c.execute(drop)
+    c.execute('drop table if exists all_types;')
     create = textwrap.dedent('''\
-    create table {name} (
+    create table all_types (
         boolean_ BOOLEAN,
         smallint_ SMALLINT,
         int_ INT,
@@ -101,10 +100,10 @@ def all_types_table(con):
         time_ TIME,
         timestamp_ TIMESTAMP,
         date_ DATE
-    );'''.format(name=name))
+    );''')
     # skipping decimal for now
     c.execute(create)
-    return name
+    return 'all_types'
 
 
 @pytest.mark.usefixtures("mapd_server")
