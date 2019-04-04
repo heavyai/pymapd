@@ -22,22 +22,6 @@ from .conftest import no_gpu
 TMapDException.__hash__ = lambda x: id(x)
 
 
-@pytest.fixture
-def empty_table(con):
-    """
-    An empty table named `baz`. The spec is
-
-        - a : int
-        - b : float
-        - c : text
-    """
-
-    con.execute("drop table if exists baz;")
-    con.execute("create table baz (a int, b float, c text);")
-    yield 'baz'
-    con.execute("drop table if exists baz;")
-
-
 @pytest.fixture(scope="session")
 def stocks(con):
     """A sample table `stocks` populated with two rows. The
@@ -328,25 +312,37 @@ class TestLoaders:
         assert expected[0][2] == result[0][2]
         assert abs(expected[0][1] - result[0][1]) < 1e-7  # floating point
 
-    def test_load_empty_table(self, con, empty_table):
+    def test_load_empty_table(self, con):
+
+        con.execute("drop table if exists baz;")
+        con.execute("create table baz (a int, b float, c text);")
+
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
                 (3, 3.3, '3')]
-        con.load_table(empty_table, data)
-        result = sorted(con.execute("select * from {}".format(empty_table)))
+        con.load_table("baz", data)
+        result = sorted(con.execute("select * from baz"))
         self.check_empty_insert(result, data)
+        con.execute("drop table if exists baz;")
 
-    def test_load_empty_table_pandas(self, con, empty_table):
+    def test_load_empty_table_pandas(self, con):
+
+        con.execute("drop table if exists baz;")
+        con.execute("create table baz (a int, b float, c text);")
 
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
                 (3, 3.3, '3')]
         df = pd.DataFrame(data, columns=list('abc'))
-        con.load_table(empty_table, df, method='columnar')
-        result = sorted(con.execute("select * from {}".format(empty_table)))
+        con.load_table("baz", df, method='columnar')
+        result = sorted(con.execute("select * from baz"))
         self.check_empty_insert(result, data)
+        con.execute("drop table if exists baz;")
 
-    def test_load_empty_table_arrow(self, con, empty_table):
+    def test_load_empty_table_arrow(self, con):
+
+        con.execute("drop table if exists baz;")
+        con.execute("create table baz (a int, b float, c text);")
 
         data = [(1, 1.1, 'a'),
                 (2, 2.2, '2'),
@@ -358,33 +354,54 @@ class TestLoaders:
         })
 
         table = pa.Table.from_pandas(df, preserve_index=False)
-        con.load_table(empty_table, table, method='arrow')
-        result = sorted(con.execute("select * from {}".format(empty_table)))
+        con.load_table("baz", table, method='arrow')
+        result = sorted(con.execute("select * from baz"))
         self.check_empty_insert(result, data)
+        con.execute("drop table if exists baz;")
 
-    def test_load_table_columnar(self, con, empty_table):
+    def test_load_table_columnar(self, con):
+
+        con.execute("drop table if exists baz;")
+        con.execute("create table baz (a int, b float, c text);")
 
         df = pd.DataFrame({"a": [1, 2, 3],
                            "b": [1.1, 2.2, 3.3],
                            "c": ['a', '2', '3']}, columns=['a', 'b', 'c'])
-        con.load_table_columnar(empty_table, df)
+        con.load_table_columnar("baz", df)
+        con.execute("drop table if exists baz;")
 
-    def test_load_infer(self, con, empty_table):
+    def test_load_infer(self, con):
+
+        con.execute("drop table if exists baz;")
+        con.execute("create table baz (a int, b float, c text);")
 
         data = pd.DataFrame(
             {'a': np.array([0, 1], dtype=np.int32),
              'b': np.array([1.1, 2.2], dtype=np.float32),
              'c': ['a', 'b']}
         )
-        con.load_table(empty_table, data)
+        con.load_table("baz", data)
+        con.execute("drop table if exists baz;")
 
-    def test_load_infer_bad(self, con, empty_table):
-        with pytest.raises(TypeError):
-            con.load_table(empty_table, [], method='thing')
+    def test_load_infer_bad(self, con):
 
-    def test_infer_non_pandas(self, con, empty_table):
+        con.execute("drop table if exists baz;")
+        con.execute("create table baz (a int, b float, c text);")
+
         with pytest.raises(TypeError):
-            con.load_table(empty_table, [], method='columnar')
+            con.load_table("baz", [], method='thing')
+
+        con.execute("drop table if exists baz;")
+
+    def test_infer_non_pandas(self, con):
+
+        con.execute("drop table if exists baz;")
+        con.execute("create table baz (a int, b float, c text);")
+
+        with pytest.raises(TypeError):
+            con.load_table("baz", [], method='columnar')
+
+        con.execute("drop table if exists baz;")
 
     def test_load_columnar_pandas_all(self, con, all_types_table):
 
