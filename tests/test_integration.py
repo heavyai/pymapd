@@ -15,6 +15,7 @@ import numpy as np
 import pyarrow as pa
 from pandas.api.types import is_object_dtype, is_categorical_dtype
 import pandas.util.testing as tm
+import textwrap
 
 from .utils import no_gpu
 
@@ -90,6 +91,48 @@ def date_table(con):
     c.execute(i2)
     yield name
     c.execute(drop)
+
+
+@pytest.fixture
+def all_types_table(con):
+    """A table with all the supported types
+
+    - boolean_
+    - smallint_
+    - int_
+    - bigint_
+    - decimal_
+    - float_
+    - double_
+    - varchar_
+    - text_
+    - time_
+    - timestamp_
+    - date_
+
+    https://www.mapd.com/docs/latest/mapd-core-guide/tables/#create-table
+    """
+    name = 'all_types'
+    drop = 'drop table if exists {};'.format(name)
+    c = con.cursor()
+    c.execute(drop)
+    create = textwrap.dedent('''\
+    create table {name} (
+        boolean_ BOOLEAN,
+        smallint_ SMALLINT,
+        int_ INT,
+        bigint_ BIGINT,
+        float_ FLOAT,
+        double_ DOUBLE,
+        varchar_ VARCHAR(40),
+        text_ TEXT,
+        time_ TIME,
+        timestamp_ TIMESTAMP,
+        date_ DATE
+    );'''.format(name=name))
+    # skipping decimal for now
+    c.execute(create)
+    return name
 
 
 @pytest.mark.usefixtures("mapd_server")
