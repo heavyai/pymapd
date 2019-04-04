@@ -15,13 +15,6 @@ class TestDeallocate:
         df = pd.read_pickle(os.path.join(HERE, "data", "data_load.pkl"))
         return df.itertuples(index=False)
 
-    def _connect(self):
-
-        return connect(user="mapd",
-                       password='HyperInteractive',
-                       host='localhost',
-                       port=6274, protocol='binary', dbname='mapd')
-
     def _transact(self, con):
         drop = 'drop table if exists iris;'
         con.execute(drop)
@@ -33,8 +26,8 @@ class TestDeallocate:
 
     @pytest.mark.skip(reason="deallocate non-functional in recent distros")
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
-    def test_deallocate_ipc_gpu(self):
-        con = self._connect()
+    def test_deallocate_ipc_gpu(self, con):
+
         self._transact(con)
         bmem = int(subprocess.check_output('''nvidia-smi -i 0 \
                                           -q -d MEMORY | \
@@ -52,8 +45,8 @@ class TestDeallocate:
         assert amem == bmem
 
     @pytest.mark.skip(reason="deallocate non-functional in recent distros")
-    def test_deallocate_ipc(self):
-        con = self._connect()
+    def test_deallocate_ipc(self, con):
+
         self._transact(con)
         bmem = int(subprocess.check_output('''ipcs -m | wc -l''', shell=True))
         df = con.select_ipc('''select sepal_l, sepal_W,
@@ -66,8 +59,8 @@ class TestDeallocate:
 
     @pytest.mark.skip(reason="deallocate non-functional in recent distros")
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
-    def test_gpu_raises_right_Exception(self):
-        con = self._connect()
+    def test_gpu_raises_right_Exception(self, con):
+
         self._transact(con)
 
         df = con.select_ipc_gpu('select species from iris')
@@ -78,8 +71,8 @@ class TestDeallocate:
         assert 'Exception: current data frame' in str(te.value.error_msg)
 
     @pytest.mark.skip(reason="deallocate non-functional in recent distros")
-    def test_ipc_raises_right_exception(self):
-        con = self._connect()
+    def test_ipc_raises_right_exception(self, con):
+
         self._transact(con)
 
         df = con.select_ipc('select sepal_l, sepal_W from iris')
@@ -91,9 +84,9 @@ class TestDeallocate:
 
     @pytest.mark.skip(reason="deallocate non-functional in recent distros")
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
-    def test_deallocate_session(self):
-        con = self._connect()
-        con1 = self._connect()
+    def test_deallocate_session(self, con):
+
+        con1 = con
         self._transact(con)
 
         df = con.select_ipc_gpu('select id from iris')
@@ -104,7 +97,7 @@ class TestDeallocate:
 
     @pytest.mark.skip(reason="deallocate non-functional in recent distros")
     def test_ipc_multiple_df(self):
-        con = self._connect()
+
         self._transact(con)
         bmem = int(subprocess.check_output('''ipcs -m | wc -l''', shell=True))
         df1 = con.select_ipc('''select sepal_l, sepal_W,
