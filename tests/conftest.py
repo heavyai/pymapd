@@ -61,11 +61,6 @@ def _load_pickle(filepath):
         return pickle.load(f)
 
 
-@pytest.fixture
-def colwise():
-    return _load_pickle(os.path.join(HERE, "data", "colwise.pkl"))
-
-
 @pytest.fixture(scope="session")
 def stocks(con):
     """A sample table `stocks` populated with two rows. The
