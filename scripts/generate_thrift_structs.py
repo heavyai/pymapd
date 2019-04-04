@@ -61,9 +61,7 @@ def main():
     client.sql_execute(session, i2, True, None, -1, -1)
     select = "select * from stocks;"
     colwise = client.sql_execute(session, select, True, None, -1, -1)
-    rowwise = client.sql_execute(session, select, False, None, -1, -1)
 
-    write(rowwise, "rowwise.pkl")
     write(colwise, "colwise.pkl")
 
     client.disconnect(session)
