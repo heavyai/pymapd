@@ -362,12 +362,14 @@ class TestLoaders:
         # cleanup
         con.execute("drop table if exists pymapd_test_table;")
 
-    def test_create_table(self, con, not_a_table):
+    def test_create_table(self, con):
 
+        con.execute("drop table if exists test_create_table;")
         df = pd.DataFrame({"A": [1, 2], "B": [1., 2.]})
-        con.create_table(not_a_table, df)
+        con.create_table("test_create_table", df)
+        con.execute("drop table if exists test_create_table;")
 
-    def test_load_table_creates(self, con, not_a_table):
+    def test_load_table_creates(self, con):
 
         data = pd.DataFrame({
             "boolean_": [True, False],
@@ -385,7 +387,10 @@ class TestLoaders:
         }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
                     'date_'])
-        con.load_table(not_a_table, data, create=True)
+
+        con.execute("drop table if exists test_load_table_creates;")
+        con.load_table("test_load_table_creates", data, create=True)
+        con.execute("drop table if exists test_load_table_creates;")
 
     def test_array_in_result_set(self, con):
 
