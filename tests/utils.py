@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def no_gpu():
     """Detect if don't have numba and a GPU available"""
     try:
@@ -13,7 +16,6 @@ def no_gpu():
 
 
 def assert_columnar_equal(result, expected):
-    import numpy as np
 
     for i, (a, b) in enumerate(zip(result, expected)):
         np.testing.assert_array_equal(a.nulls, b.nulls)
