@@ -62,3 +62,17 @@ def mock_transport(mocker):
 def mock_client(mocker):
     """A magicmock for pymapd.connection.Client"""
     return mocker.patch("pymapd.connection.Client")
+
+
+def no_gpu():
+    """Detect if don't have numba and a GPU available"""
+    try:
+        from numba import cuda
+
+        try:
+            cuda.select_device(0)
+        except cuda.cudadrv.error.CudaDriverError:
+            return True
+    except ImportError:
+        return True
+    return False

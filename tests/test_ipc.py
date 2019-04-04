@@ -1,14 +1,10 @@
 import os
 import pytest
-
-pa = pytest.importorskip("pyarrow")
-pd = pytest.importorskip("pandas")
-
+import pyarrow as pa
+import pandas as pd
 import numpy as np  # noqa
 import pandas.util.testing as tm  # noqa
 from pymapd._parsers import _load_schema, _load_data  # noqa
-
-HERE = os.path.dirname(__file__)
 
 
 def make_data_batch():

@@ -17,7 +17,7 @@ from pandas.api.types import is_object_dtype, is_categorical_dtype
 import pandas.util.testing as tm
 import textwrap
 
-from .utils import no_gpu
+from .conftest import no_gpu
 
 # XXX: Make it hashable to silence warnings; see if this can be done upstream
 # This isn't a huge deal, but our testing context mangers for asserting

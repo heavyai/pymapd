@@ -5,7 +5,7 @@ import pytest
 
 from pymapd import connect
 from mapd.ttypes import TMapDException, TApplicationException
-from .utils import no_gpu
+from .conftest import no_gpu
 
 import pandas as pd
 
