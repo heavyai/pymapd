@@ -49,47 +49,6 @@ def stocks(con):
     c.execute('drop table if exists stocks;')
 
 
-@pytest.fixture
-def all_types_table(con):
-    """A table with all the supported types
-
-    - boolean_
-    - smallint_
-    - int_
-    - bigint_
-    - decimal_
-    - float_
-    - double_
-    - varchar_
-    - text_
-    - time_
-    - timestamp_
-    - date_
-
-    https://www.mapd.com/docs/latest/mapd-core-guide/tables/#create-table
-    """
-
-    c = con.cursor()
-    c.execute('drop table if exists all_types;')
-    create = textwrap.dedent('''\
-    create table all_types (
-        boolean_ BOOLEAN,
-        smallint_ SMALLINT,
-        int_ INT,
-        bigint_ BIGINT,
-        float_ FLOAT,
-        double_ DOUBLE,
-        varchar_ VARCHAR(40),
-        text_ TEXT,
-        time_ TIME,
-        timestamp_ TIMESTAMP,
-        date_ DATE
-    );''')
-    # skipping decimal for now
-    c.execute(create)
-    return 'all_types'
-
-
 @pytest.mark.usefixtures("mapd_server")
 class TestIntegration:
 
@@ -403,7 +362,26 @@ class TestLoaders:
 
         con.execute("drop table if exists baz;")
 
-    def test_load_columnar_pandas_all(self, con, all_types_table):
+    def test_load_columnar_pandas_all(self, con):
+
+        c = con.cursor()
+        c.execute('drop table if exists all_types;')
+        create = textwrap.dedent('''\
+        create table all_types (
+            boolean_ BOOLEAN,
+            smallint_ SMALLINT,
+            int_ INT,
+            bigint_ BIGINT,
+            float_ FLOAT,
+            double_ DOUBLE,
+            varchar_ VARCHAR(40),
+            text_ TEXT,
+            time_ TIME,
+            timestamp_ TIMESTAMP,
+            date_ DATE
+        );''')
+        # skipping decimal for now
+        c.execute(create)
 
         data = pd.DataFrame({
             "boolean_": [True, False],
@@ -420,8 +398,8 @@ class TestLoaders:
         }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
                     'date_'])
-        con.load_table_columnar(all_types_table, data, preserve_index=False)
-        c = con.cursor()
+        con.load_table_columnar("all_types", data, preserve_index=False)
+
         result = list(c.execute("select * from all_types"))
         expected = [(1, 0, 0, 0, 0.0, 0.0, 'a', 'a',
                     datetime.time(0, 11, 59),
@@ -433,8 +411,28 @@ class TestLoaders:
                     datetime.date(2017, 1, 1))]
 
         assert result == expected
+        c.execute('drop table if exists all_types;')
 
-    def test_load_table_columnar_arrow_all(self, con, all_types_table):
+    def test_load_table_columnar_arrow_all(self, con):
+
+        c = con.cursor()
+        c.execute('drop table if exists all_types;')
+        create = textwrap.dedent('''\
+        create table all_types (
+            boolean_ BOOLEAN,
+            smallint_ SMALLINT,
+            int_ INT,
+            bigint_ BIGINT,
+            float_ FLOAT,
+            double_ DOUBLE,
+            varchar_ VARCHAR(40),
+            text_ TEXT,
+            time_ TIME,
+            timestamp_ TIMESTAMP,
+            date_ DATE
+        );''')
+        # skipping decimal for now
+        c.execute(create)
 
         names = ['boolean_', 'smallint_', 'int_', 'bigint_',
                  'float_', 'double_', 'varchar_', 'text_',
@@ -456,7 +454,8 @@ class TestLoaders:
                    pa.array([datetime.date(2016, 1, 1),
                              datetime.date(2017, 1, 1), None])]
         table = pa.Table.from_arrays(columns, names=names)
-        con.load_table_arrow(all_types_table, table)
+        con.load_table_arrow("all_types", table)
+        c.execute('drop table if exists all_types;')
 
     def test_select_null(self, con):
         con.execute("drop table if exists pymapd_test_table;")
