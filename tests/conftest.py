@@ -48,12 +48,6 @@ def con(mapd_server):
 
 
 @pytest.fixture
-def mock_transport(mocker):
-    """A magicmock for pymapd.connection.TTransport.TBufferedTransport"""
-    return mocker.patch("pymapd.connection.TTransport.TBufferedTransport")
-
-
-@pytest.fixture
 def mock_client(mocker):
     """A magicmock for pymapd.connection.Client"""
     return mocker.patch("pymapd.connection.Client")

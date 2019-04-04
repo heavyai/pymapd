@@ -4,7 +4,7 @@ from pymapd import connect
 
 
 @pytest.fixture
-def mock_connection(mock_transport, mock_client):
+def mock_connection(mock_client):
     """Connection with mocked transport layer, and
 
     - username='user'
