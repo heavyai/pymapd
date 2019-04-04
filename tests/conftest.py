@@ -80,22 +80,6 @@ def stocks(con):
     c.execute(drop)
 
 
-@pytest.fixture
-def empty_table(con):
-    """
-    An empty table named `baz`. The spec is
-
-        - a : int
-        - b : float
-        - c : text
-    """
-    name = 'baz'
-    con.execute("drop table if exists {};".format(name))
-    con.execute("create table {} (a int, b float, c text);".format(name))
-    yield name
-    con.execute("drop table if exists {};".format(name))
-
-
 @pytest.fixture(scope="session")
 def date_table(con):
     """A sample with date and time columns

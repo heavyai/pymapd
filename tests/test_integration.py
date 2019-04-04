@@ -24,6 +24,22 @@ from .utils import no_gpu
 TMapDException.__hash__ = lambda x: id(x)
 
 
+@pytest.fixture
+def empty_table(con):
+    """
+    An empty table named `baz`. The spec is
+
+        - a : int
+        - b : float
+        - c : text
+    """
+    name = 'baz'
+    con.execute("drop table if exists {};".format(name))
+    con.execute("create table {} (a int, b float, c text);".format(name))
+    yield name
+    con.execute("drop table if exists {};".format(name))
+
+
 @pytest.mark.usefixtures("mapd_server")
 class TestIntegration:
 
