@@ -40,6 +40,33 @@ def empty_table(con):
     con.execute("drop table if exists {};".format(name))
 
 
+@pytest.fixture(scope="session")
+def stocks(con):
+    """A sample table `stocks` populated with two rows. The
+    table is dropped at the start of the session.
+
+    - date_ : text
+    - trans : text
+    - symbol : text
+    - qty : int
+    - price : float
+    - vol : float
+    """
+    drop = 'drop table if exists stocks;'
+    c = con.cursor()
+    c.execute(drop)
+    create = ('create table stocks (date_ text, trans text, symbol text, '
+              'qty int, price float, vol float);')
+    c.execute(create)
+    i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+    i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+
+    c.execute(i1)
+    c.execute(i2)
+    yield "stocks"
+    c.execute(drop)
+
+
 @pytest.mark.usefixtures("mapd_server")
 class TestIntegration:
 
