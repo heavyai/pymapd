@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import pickle
 import subprocess
 import textwrap
 import time
@@ -54,11 +53,6 @@ def mapd_server():
 def con(mapd_server):
     return connect(user="mapd", password='HyperInteractive', host='localhost',
                    port=6274, protocol='binary', dbname='mapd')
-
-
-def _load_pickle(filepath):
-    with open(filepath, 'rb') as f:
-        return pickle.load(f)
 
 
 @pytest.fixture(scope="session")
