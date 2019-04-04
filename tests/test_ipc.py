@@ -1,5 +1,3 @@
-import os
-import pytest
 import pyarrow as pa
 import pandas as pd
 import numpy as np  # noqa

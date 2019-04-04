@@ -1,13 +1,11 @@
-import datetime
 from pymapd.cursor import make_row_results_set
+from mapd.ttypes import (TRowSet, TColumnType, TTypeInfo, TColumn,
+                         TColumnData, TQueryResult)
 
 
 class TestRowResults:
 
     def test_nulls_handled(self):
-        from mapd.ttypes import (TRowSet, TColumnType, TTypeInfo, TColumn,
-                                 TColumnData, TQueryResult, TDatum, TRow,
-                                 TDatumVal)
 
         rs = TQueryResult(TRowSet(
             row_desc=[

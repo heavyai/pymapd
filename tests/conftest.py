@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-import os
 import subprocess
 import time
-
 import pytest
-import importlib
 from thrift.transport import TSocket, TTransport
 from thrift.transport.TSocket import TTransportException
 

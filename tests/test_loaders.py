@@ -1,13 +1,10 @@
 import pytest
 import datetime
-
 from pymapd._loaders import _build_input_rows
 from pymapd import _pandas_loaders
 from mapd.MapD import TStringRow, TStringValue, TColumn, TColumnData
 import pandas as pd
-import pyarrow as pa
 import numpy as np
-
 from mapd.ttypes import TTypeInfo, TColumnType
 
 
