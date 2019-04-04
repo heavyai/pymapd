@@ -82,25 +82,6 @@ def stocks(con):
     c.execute(drop)
 
 
-@pytest.fixture(scope="session")
-def insert_unicode(con):
-    """INSERT Unicode using bind_params"""
-    drop = 'drop table if exists text_holder;'
-    c = con.cursor()
-    c.execute(drop)
-    create = ('create table text_holder (the_text text);')
-    c.execute(create)
-    first = {"value": "我和我的姐姐吃米饭鸡肉"}
-    second = {"value": "El camina a case en bicicleta es relajante"}
-
-    i1 = "INSERT INTO text_holder VALUES ( :value );"
-
-    c.execute(i1, parameters=first)
-    c.execute(i1, parameters=second)
-    yield "text_holder"
-    c.execute(drop)
-
-
 @pytest.fixture
 def empty_table(con):
     """

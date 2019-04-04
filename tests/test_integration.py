@@ -532,3 +532,21 @@ class TestLoaders:
         # to load via Arrow, converted internally to object, object
         assert is_object_dtype(df["A"])
         assert is_categorical_dtype(df["B"])
+
+    def test_insert_unicode(self, con):
+
+        """INSERT Unicode using bind_params"""
+
+        c = con.cursor()
+        c.execute('drop table if exists text_holder;')
+        create = ('create table text_holder (the_text text);')
+        c.execute(create)
+        first = {"value": "我和我的姐姐吃米饭鸡肉"}
+        second = {"value": "El camina a case en bicicleta es relajante"}
+
+        i1 = "INSERT INTO text_holder VALUES ( :value );"
+
+        c.execute(i1, parameters=first)
+        c.execute(i1, parameters=second)
+
+        c.execute('drop table if exists text_holder;')
