@@ -1,6 +1,5 @@
 import pytest
 from mapd.ttypes import TColumnType, TTypeInfo
-
 from pymapd import OperationalError, connect
 from pymapd.cursor import Cursor
 from pymapd.connection import _parse_uri, ConnectionInfo
@@ -17,14 +16,14 @@ class TestConnect:
         with pytest.raises(OperationalError):
             connect(host='localhost', protocol='binary', port=1234)
 
-    def test_close(self, mock_transport, mock_client):
+    def test_close(self, mock_client):
         con = connect(user='user', password='password',
                       host='localhost', dbname='dbname')
         assert con.closed == 0
         con.close()
         assert con.closed == 1
 
-    def test_connect(self, mock_transport, mock_client):
+    def test_connect(self, mock_client):
         con = connect(user='user', password='password',
                       host='localhost', dbname='dbname')
         assert mock_client.call_count == 1
@@ -32,7 +31,7 @@ class TestConnect:
             ('user', 'password', 'dbname')
         ]
 
-    def test_context_manager(self, mock_transport, mock_client):
+    def test_context_manager(self, mock_client):
         con = connect(user='user', password='password',
                       host='localhost', dbname='dbname')
         with con as cur:
@@ -41,13 +40,13 @@ class TestConnect:
         assert isinstance(cur, Cursor)
         assert con.closed == 0
 
-    def test_commit_noop(self, mock_transport, mock_client):
+    def test_commit_noop(self, mock_client):
         con = connect(user='user', password='password',
                       host='localhost', dbname='dbname')
         result = con.commit()  # it worked
         assert result is None
 
-    def test_bad_protocol(self, mock_transport, mock_client):
+    def test_bad_protocol(self, mock_client):
         with pytest.raises(ValueError) as m:
             connect(user='user', host='localhost', dbname='dbname',
                     protocol='fake-proto')

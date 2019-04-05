@@ -1,6 +1,19 @@
 import pytest
-
 from pymapd.cursor import Cursor, _bind_parameters
+from pymapd import connect
+
+
+@pytest.fixture
+def mock_connection(mock_client):
+    """Connection with mocked transport layer, and
+
+    - username='user'
+    - password='password'
+    - host='localhost'
+    - dbname='dbname'
+    """
+    return connect(user='user', password='password',
+                   host='localhost', dbname='dbname')
 
 
 class TestCursor:
