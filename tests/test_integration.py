@@ -68,6 +68,7 @@ class TestIntegration:
         result = con.execute("drop table if exists FOO;")
         result = con.execute("create table FOO (a int);")
         assert isinstance(result, Cursor)
+        con.execute("drop table if exists FOO;")
 
     def test_select_sets_description(self, con):
 
@@ -721,6 +722,7 @@ class TestLoaders:
                       datetime.time(23, 59)])]
 
         assert ans == expected
+        con.execute("DROP TABLE IF EXISTS test_lists;")
 
     def test_upload_pandas_categorical(self, con):
 
@@ -764,6 +766,7 @@ class TestLoaders:
         # to load via Arrow, converted internally to object, object
         assert is_object_dtype(df["A"])
         assert is_categorical_dtype(df["B"])
+        con.execute("DROP TABLE IF EXISTS test_categorical;")
 
     def test_insert_unicode(self, con):
 
