@@ -462,7 +462,7 @@ class Connection:
         """
 
         if create not in ['infer', True, False]:
-            ValueError(f"Unexpected value for create:  '{create}'."
+            raise ValueError(f"Unexpected value for create: '{create}'. " \
                        "Expected one of {'infer', True, False}")
 
         if create == 'infer':
