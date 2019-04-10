@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# If running as root, dont use `sudo`
+if [[ $EUID == 0 ]]; then
+   sudo_cmd=""
+else
+   sudo_cmd=sudo
+fi
+
+$sudo_cmd apt update
+$sudo_cmd apt install -y wget flake8 git
+
 echo "[install-travis]"
 
 # install iniconda
@@ -7,7 +17,9 @@ MINICONDA_DIR="$HOME/miniconda3"
 time wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh || exit 1
 time bash miniconda.sh -b -p "$MINICONDA_DIR" || exit 1
 
-echo
+echo "[link conda PATH]"
+export PATH="$HOME/miniconda3/bin:$PATH"
+
 echo "[show conda]"
 which conda
 
