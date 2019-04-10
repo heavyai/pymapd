@@ -461,8 +461,9 @@ class Connection:
         load_table_columnar
         """
 
-        assert create in {'infer', True, False}, f"Unexpected value for " \
-            "create:  '{create}'. Expected one of {'infer', True, False}"
+        if create not in {'infer', True, False}:
+            ValueError(f"Unexpected value for create:  '{create}'."
+                       "Expected one of {'infer', True, False}")
 
         if create == 'infer':
             # ask the database if we already exist, creating if not
