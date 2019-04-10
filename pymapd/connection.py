@@ -461,7 +461,7 @@ class Connection:
         load_table_columnar
         """
 
-        if create not in {'infer', True, False}:
+        if create not in ['infer', True, False]:
             ValueError(f"Unexpected value for create:  '{create}'."
                        "Expected one of {'infer', True, False}")
 
