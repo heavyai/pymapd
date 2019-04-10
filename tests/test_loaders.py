@@ -196,16 +196,3 @@ class TestLoaders:
             _pandas_loaders.build_row_desc([(1, 'a'), (2, 'b')])
 
         assert m.match('is not supported for type ')
-
-    @pytest.mark.parametrize('create', ['infer', True, False])
-    def test_check_create(self, create):
-        from pymapd.connection import _check_create
-
-        result = _check_create(create)
-        assert result == create
-
-    def test_check_create_raises(self):
-        from pymapd.connection import _check_create
-
-        with pytest.raises(ValueError):
-            _check_create('foo')

@@ -460,7 +460,10 @@ class Connection:
         load_table_arrow
         load_table_columnar
         """
-        create = _check_create(create)
+
+        if create not in ['infer', True, False]:
+            raise ValueError(f"Unexpected value for create: '{create}'. "
+                             "Expected one of {'infer', True, False}")
 
         if create == 'infer':
             # ask the database if we already exist, creating if not
@@ -471,7 +474,8 @@ class Connection:
             self.create_table(table_name, data)
 
         if method == 'infer':
-            if (isinstance(data, pd.DataFrame) or _is_arrow(data)):
+            if (isinstance(data, pd.DataFrame)
+                or isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)): # noqa
                 return self.load_table_arrow(table_name, data)
 
             elif (isinstance(data, pd.DataFrame)):
@@ -653,16 +657,3 @@ class RenderedVega:
                 '<img src="data:image/png;base64,{}" alt="OmniSci Vega">'
                 .format(self.image_data)
         }
-
-
-def _is_arrow(data):
-    """Whether `data` is an arrow `Table` or `RecordBatch`"""
-    return isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)
-
-
-def _check_create(create):
-    valid = {'infer', True, False}
-    if create not in valid:
-        raise ValueError("Unexpected value for create: '{}'. "
-                         "Expected one of {}".format(create, valid))
-    return create
