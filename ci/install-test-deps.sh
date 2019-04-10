@@ -48,7 +48,8 @@ flake8 \
 pytest \
 pytest-cov \
 pytest-mock \
-shapely
+shapely \
+numba
 
 conda activate omnisci-dev
 
