@@ -462,8 +462,8 @@ class Connection:
         """
 
         if create not in ['infer', True, False]:
-            raise ValueError(f"Unexpected value for create: '{create}'. " \
-                       "Expected one of {'infer', True, False}")
+            raise ValueError(f"Unexpected value for create: '{create}'. "
+                             "Expected one of {'infer', True, False}")
 
         if create == 'infer':
             # ask the database if we already exist, creating if not
