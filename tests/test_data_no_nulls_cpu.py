@@ -25,12 +25,15 @@ def _tests_table_no_nulls(n_samples):
 
     double_ = np.linspace(-1.79e307, 1.79e307, n_samples, dtype='float64')
 
+    bool_ = np.random.randint(low=0, high=2, size=10000, dtype='bool')
+
     d = {'tinyint_': tinyint_,
          'smallint_': smallint_,
          'int_': int_,
          'bigint_': bigint_,
          'float_': float_,
-         'double_': double_
+         'double_': double_,
+         'bool_': bool_
          }
 
     return pd.DataFrame(d)
@@ -40,7 +43,7 @@ def _tests_table_no_nulls(n_samples):
 class TestDataNoNulls:
 
     @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
-    def test_create_load_table_no_nulls(self, con, method):
+    def test_create_load_table_no_nulls_sql_execute(self, con, method):
 
         df_in = _tests_table_no_nulls(10000)
         con.execute("drop table if exists test_data_no_nulls;")
@@ -59,6 +62,7 @@ class TestDataNoNulls:
                               ('bigint_', 'BIGINT'),
                               ('float_', 'FLOAT'),
                               ('double_', 'DOUBLE'),
+                              ('bool_', 'BOOL'),
                               ]
 
         # sort tables to ensure data in same order before compare
@@ -77,7 +81,7 @@ class TestDataNoNulls:
 
         # pymapd won't necessarily return exact dtype as input using execute()
         # and pd.read_sql() since transport is rows of tuples
-        # test that results arethe same when dtypes aligned
+        # test that results are the same when dtypes aligned
         assert pd.DataFrame.equals(df_in["tinyint_"],
                                    df_out["tinyint_"].astype('int8'))
         assert pd.DataFrame.equals(df_in["smallint_"],
@@ -87,14 +91,48 @@ class TestDataNoNulls:
         assert pd.DataFrame.equals(df_in["bigint_"], df_out["bigint_"])
         assert all(np.isclose(df_in["float_"], df_out["float_"]))
         assert all(np.isclose(df_in["double_"], df_out["double_"]))
-
-        # select_ipc uses Arrow, so expect exact df dtypes back
-        df_out_arrow = con.select_ipc("select * from test_data_no_nulls")
-        df_out_arrow.sort_values(by=['tinyint_',
-                                     'smallint_',
-                                     'int_',
-                                     'bigint_'], inplace=True)
-        df_out_arrow.reset_index(drop=True, inplace=True)
-        assert pd.DataFrame.equals(df_in, df_out_arrow)
+        assert pd.DataFrame.equals(df_in["bool_"], df_out["bool_"].astype('bool'))  # noqa
 
         con.execute("drop table if exists test_data_no_nulls;")
+
+    @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
+    def test_create_load_table_no_nulls_select_ipc(self, con, method):
+
+        df_in = _tests_table_no_nulls(10000)
+        con.execute("drop table if exists test_data_no_nulls_ipc;")
+        con.load_table("test_data_no_nulls_ipc", df_in, method=method)
+
+        # need to manually specify columns since some don't currently work
+        # need to drop unsupported columns from df_in
+        # (BOOL) https://github.com/omnisci/pymapd/issues/211
+        df_in.drop(columns=["bool_"], inplace=True)
+        df_out = con.select_ipc("""select
+                                tinyint_,
+                                smallint_,
+                                int_,
+                                bigint_,
+                                float_,
+                                double_
+                                from test_data_no_nulls_ipc""")
+
+        # test size and table definition
+        assert df_in.shape == df_out.shape
+
+        # sort tables to ensure data in same order before compare
+        # need to sort by all the columns in case of ties
+        df_in.sort_values(by=['tinyint_',
+                              'smallint_',
+                              'int_',
+                              'bigint_'], inplace=True)
+        df_in.reset_index(drop=True, inplace=True)
+
+        df_out.sort_values(by=['tinyint_',
+                               'smallint_',
+                               'int_',
+                               'bigint_'], inplace=True)
+        df_out.reset_index(drop=True, inplace=True)
+
+        # select_ipc uses Arrow, so expect exact df dtypes back
+        assert pd.DataFrame.equals(df_in, df_out)
+
+        con.execute("drop table if exists test_data_no_nulls_ipc;")
