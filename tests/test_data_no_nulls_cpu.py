@@ -2,19 +2,32 @@ import pytest
 import pandas as pd
 import numpy as np
 from datetime import date, time, datetime, timedelta
+import random
+import string
+
+
+def gen_string():
+    return ''.join([random.choice(string.ascii_letters + string.digits)
+                   for n in range(10)])
 
 
 def _tests_table_no_nulls(n_samples):
 
     np.random.seed(12345)
 
-    tinyint_ = np.random.randint(low=-127, high=127, size=n_samples,
+    tinyint_ = np.random.randint(low=-127,
+                                 high=127,
+                                 size=n_samples,
                                  dtype='int8')
 
-    smallint_ = np.random.randint(low=-32767, high=32767, size=n_samples,
+    smallint_ = np.random.randint(low=-32767,
+                                  high=32767,
+                                  size=n_samples,
                                   dtype='int16')
 
-    int_ = np.random.randint(low=-2147483647, high=2147483647, size=n_samples,
+    int_ = np.random.randint(low=-2147483647,
+                             high=2147483647,
+                             size=n_samples,
                              dtype='int32')
 
     bigint_ = np.random.randint(low=-9223372036854775807,
@@ -27,7 +40,7 @@ def _tests_table_no_nulls(n_samples):
     float_ = np.linspace(-3.4e37, 3.4e37, n_samples, dtype='float32')
     double_ = np.linspace(-1.79e307, 1.79e307, n_samples, dtype='float64')
 
-    bool_ = np.random.randint(low=0, high=2, size=10000, dtype='bool')
+    bool_ = np.random.randint(low=0, high=2, size=n_samples, dtype='bool')
 
     # effective date range of 1904 to 2035
     # TODO: validate if this is an Arrow limitation, outside this range fails
@@ -35,13 +48,14 @@ def _tests_table_no_nulls(n_samples):
              for x in np.random.randint(-24000, 24000, size=n_samples)]
 
     datetime_ = [datetime(1970, 1, 1) + timedelta(days=int(x), minutes=int(x))
-                 for x in np.random.randint(-24000, 24000, size=10000)]
+                 for x in np.random.randint(-24000, 24000, size=n_samples)]
 
-    time_h = np.random.randint(0, 24, size=10000)
-    time_m = np.random.randint(0, 60, size=10000)
-    time_s = np.random.randint(0, 60, size=10000)
-
+    time_h = np.random.randint(0, 24, size=n_samples)
+    time_m = np.random.randint(0, 60, size=n_samples)
+    time_s = np.random.randint(0, 60, size=n_samples)
     time_ = [time(h, m, s) for h, m, s in zip(time_h, time_m, time_s)]
+
+    text_ = [gen_string() for x in range(n_samples)]
 
     d = {'tinyint_': tinyint_,
          'smallint_': smallint_,
@@ -52,7 +66,8 @@ def _tests_table_no_nulls(n_samples):
          'bool_': bool_,
          'date_': date_,
          'datetime_': datetime_,
-         'time_': time_
+         'time_': time_,
+         'text_': text_
          }
 
     return pd.DataFrame(d)
@@ -85,6 +100,7 @@ class TestDataNoNulls:
                               ('date_', 'DATE'),
                               ('datetime_', 'TIMESTAMP'),
                               ('time_', 'TIME'),
+                              ('text_', 'STR'),
                               ]
 
         # sort tables to ensure data in same order before compare
@@ -127,6 +143,8 @@ class TestDataNoNulls:
 
         assert pd.DataFrame.equals(df_in["time_"], df_out["time_"])
 
+        assert pd.DataFrame.equals(df_in["text_"], df_out["text_"])
+
         con.execute("drop table if exists test_data_no_nulls;")
 
     @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
@@ -149,7 +167,8 @@ class TestDataNoNulls:
                                 double_,
                                 date_,
                                 datetime_,
-                                time_
+                                time_,
+                                text_
                                 from test_data_no_nulls_ipc""")
 
         # test size and table definition
@@ -168,6 +187,10 @@ class TestDataNoNulls:
                                'int_',
                                'bigint_'], inplace=True)
         df_out.reset_index(drop=True, inplace=True)
+
+        # When Arrow result converted to pandas, dict comes back as category
+        # This providies extra functionality above base 'object' type
+        df_out["text_"] = df_out["text_"].astype('object')
 
         # select_ipc uses Arrow, so expect exact df dtypes back
         assert pd.DataFrame.equals(df_in, df_out)
