@@ -1,6 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
+from datetime import date, timedelta
 
 
 def _tests_table_no_nulls(n_samples):
@@ -21,11 +22,17 @@ def _tests_table_no_nulls(n_samples):
                                 size=n_samples,
                                 dtype='int64')
 
+    # float and double ranges slightly lower than we support, full width
+    # causes an error in np.linspace that's not worth tracking down
     float_ = np.linspace(-3.4e37, 3.4e37, n_samples, dtype='float32')
-
     double_ = np.linspace(-1.79e307, 1.79e307, n_samples, dtype='float64')
 
     bool_ = np.random.randint(low=0, high=2, size=10000, dtype='bool')
+
+    # effective date range of 1904 to 2035
+    # TODO: validate if this is an Arrow limitation, outside this range fails
+    date_ = [date(1970, 1, 1) + timedelta(days=int(x))
+             for x in np.random.randint(-24000, 24000, size=n_samples)]
 
     d = {'tinyint_': tinyint_,
          'smallint_': smallint_,
@@ -33,7 +40,8 @@ def _tests_table_no_nulls(n_samples):
          'bigint_': bigint_,
          'float_': float_,
          'double_': double_,
-         'bool_': bool_
+         'bool_': bool_,
+         'date_': date_
          }
 
     return pd.DataFrame(d)
@@ -63,6 +71,7 @@ class TestDataNoNulls:
                               ('float_', 'FLOAT'),
                               ('double_', 'DOUBLE'),
                               ('bool_', 'BOOL'),
+                              ('date_', 'DATE'),
                               ]
 
         # sort tables to ensure data in same order before compare
@@ -84,14 +93,22 @@ class TestDataNoNulls:
         # test that results are the same when dtypes aligned
         assert pd.DataFrame.equals(df_in["tinyint_"],
                                    df_out["tinyint_"].astype('int8'))
+
         assert pd.DataFrame.equals(df_in["smallint_"],
                                    df_out["smallint_"].astype('int16'))
+
         assert pd.DataFrame.equals(df_in["int_"],
                                    df_out["int_"].astype('int32'))
+
         assert pd.DataFrame.equals(df_in["bigint_"], df_out["bigint_"])
+
         assert all(np.isclose(df_in["float_"], df_out["float_"]))
+
         assert all(np.isclose(df_in["double_"], df_out["double_"]))
+
         assert pd.DataFrame.equals(df_in["bool_"], df_out["bool_"].astype('bool'))  # noqa
+
+        assert pd.DataFrame.equals(df_in["date_"], df_out["date_"])
 
         con.execute("drop table if exists test_data_no_nulls;")
 
@@ -112,7 +129,8 @@ class TestDataNoNulls:
                                 int_,
                                 bigint_,
                                 float_,
-                                double_
+                                double_,
+                                date_
                                 from test_data_no_nulls_ipc""")
 
         # test size and table definition
