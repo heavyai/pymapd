@@ -493,9 +493,9 @@ class Connection:
                             .format(method))
 
         if isinstance(data, pd.DataFrame):
-            # We need to convert a Pandas dataframe to an array before we
-            # can load row wise
-            data = data.values
+            # We need to convert a Pandas dataframe to a list of tuples before
+            # loading row wise
+            data = list(data.itertuples(index=False, name=None))
 
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
