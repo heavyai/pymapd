@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from datetime import date, datetime, timedelta
+from datetime import date, time, datetime, timedelta
 
 
 def _tests_table_no_nulls(n_samples):
@@ -37,6 +37,12 @@ def _tests_table_no_nulls(n_samples):
     datetime_ = [datetime(1970, 1, 1) + timedelta(days=int(x), minutes=int(x))
                  for x in np.random.randint(-24000, 24000, size=10000)]
 
+    time_h = np.random.randint(0, 24, size=10000)
+    time_m = np.random.randint(0, 60, size=10000)
+    time_s = np.random.randint(0, 60, size=10000)
+
+    time_ = [time(h, m, s) for h, m, s in zip(time_h, time_m, time_s)]
+
     d = {'tinyint_': tinyint_,
          'smallint_': smallint_,
          'int_': int_,
@@ -45,7 +51,8 @@ def _tests_table_no_nulls(n_samples):
          'double_': double_,
          'bool_': bool_,
          'date_': date_,
-         'datetime_': datetime_
+         'datetime_': datetime_,
+         'time_': time_
          }
 
     return pd.DataFrame(d)
@@ -77,6 +84,7 @@ class TestDataNoNulls:
                               ('bool_', 'BOOL'),
                               ('date_', 'DATE'),
                               ('datetime_', 'TIMESTAMP'),
+                              ('time_', 'TIME'),
                               ]
 
         # sort tables to ensure data in same order before compare
@@ -117,6 +125,8 @@ class TestDataNoNulls:
 
         assert pd.DataFrame.equals(df_in["datetime_"], df_out["datetime_"])
 
+        assert pd.DataFrame.equals(df_in["time_"], df_out["time_"])
+
         con.execute("drop table if exists test_data_no_nulls;")
 
     @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
@@ -138,7 +148,8 @@ class TestDataNoNulls:
                                 float_,
                                 double_,
                                 date_,
-                                datetime_
+                                datetime_,
+                                time_
                                 from test_data_no_nulls_ipc""")
 
         # test size and table definition
