@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 
 def _tests_table_no_nulls(n_samples):
@@ -34,6 +34,9 @@ def _tests_table_no_nulls(n_samples):
     date_ = [date(1970, 1, 1) + timedelta(days=int(x))
              for x in np.random.randint(-24000, 24000, size=n_samples)]
 
+    datetime_ = [datetime(1970, 1, 1) + timedelta(days=int(x), minutes=int(x))
+                 for x in np.random.randint(-24000, 24000, size=10000)]
+
     d = {'tinyint_': tinyint_,
          'smallint_': smallint_,
          'int_': int_,
@@ -41,7 +44,8 @@ def _tests_table_no_nulls(n_samples):
          'float_': float_,
          'double_': double_,
          'bool_': bool_,
-         'date_': date_
+         'date_': date_,
+         'datetime_': datetime_
          }
 
     return pd.DataFrame(d)
@@ -72,6 +76,7 @@ class TestDataNoNulls:
                               ('double_', 'DOUBLE'),
                               ('bool_', 'BOOL'),
                               ('date_', 'DATE'),
+                              ('datetime_', 'TIMESTAMP'),
                               ]
 
         # sort tables to ensure data in same order before compare
@@ -110,6 +115,8 @@ class TestDataNoNulls:
 
         assert pd.DataFrame.equals(df_in["date_"], df_out["date_"])
 
+        assert pd.DataFrame.equals(df_in["datetime_"], df_out["datetime_"])
+
         con.execute("drop table if exists test_data_no_nulls;")
 
     @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
@@ -130,7 +137,8 @@ class TestDataNoNulls:
                                 bigint_,
                                 float_,
                                 double_,
-                                date_
+                                date_,
+                                datetime_
                                 from test_data_no_nulls_ipc""")
 
         # test size and table definition
