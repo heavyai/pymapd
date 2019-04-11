@@ -49,7 +49,9 @@ pytest \
 pytest-cov \
 pytest-mock \
 shapely \
-numba
+numba \
+cudf \
+-c rapidsai
 
 conda activate omnisci-dev
 
