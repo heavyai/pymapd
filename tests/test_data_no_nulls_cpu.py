@@ -1,3 +1,9 @@
+"""
+The intent of this file is to be a full integration test. Whenever possible,
+add a datatype to the main _tests_table_no_nulls function, so that the tests
+will evaluate not only that a data type works, but that it works in the
+presence of the other data types as well in the same dataframe/database table
+"""
 import pytest
 import pandas as pd
 import numpy as np
