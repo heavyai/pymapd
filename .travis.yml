@@ -7,8 +7,8 @@ env:
     - PYTHON=3.7
     - PYTHON=3.6
 before_install:
-  - docker pull mapd/core-os-cpu:latest
-  - docker run -d --ipc=host -p 6278:6278 -p 6274:6274 --name=mapd mapd/core-os-cpu:latest
+  - docker pull omnisci/core-os-cpu:latest
+  - docker run -d --ipc=host -p 6278:6278 -p 6274:6274 --name=omnisci omnisci/core-os-cpu:latest
   - docker ps -a
   - export PATH="$HOME/miniconda3/bin:$PATH"
 install:
