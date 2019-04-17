@@ -561,6 +561,11 @@ class Connection:
         load_table
         load_table_arrow
         load_table_rowwise
+
+        Note
+        ----
+        Use ``pymapd >= 0.11.0`` while running with ``omnisci >= 4.6.0`` in
+        order to avoid loading inconsistent values into DATE column.
         """
 
         if isinstance(data, pd.DataFrame):
