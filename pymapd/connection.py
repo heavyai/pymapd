@@ -561,6 +561,11 @@ class Connection:
         load_table
         load_table_arrow
         load_table_rowwise
+
+        Note
+        ----
+        Use ``pymapd >= 0.11.0`` while running with ``omnisci >= 4.6.0`` in
+        order to avoid loading inconsistent values into DATE column.
         """
 
         if isinstance(data, pd.DataFrame):
@@ -578,7 +583,7 @@ class Connection:
                 col_names_from_schema \
                 else list(data)
 
-            col_types = [(i[1], i[4], i[6]) for i in table_details]
+            col_types = [(i[1], i[4]) for i in table_details]
 
             input_cols = _pandas_loaders.build_input_columnar(
                 data,
