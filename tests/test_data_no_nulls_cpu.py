@@ -202,3 +202,32 @@ class TestDataNoNulls:
         assert pd.DataFrame.equals(df_in, df_out)
 
         con.execute("drop table if exists test_data_no_nulls_ipc;")
+    
+    @pytest.mark.parametrize('method', ["rows", "columnar"])
+    def test_load_table_text_no_encoding_no_nulls(self, con, method):
+        
+        con.execute("drop table if exists test_text_no_encoding")
+        
+        con.execute("""create table test_text_no_encoding (
+                       idx integer, 
+                       text_ text encoding none
+                       )"""
+        )
+
+        # reset_index adds a column to sort by, since results not guaranteed
+        # to return in sorted order from OmniSci
+        df_in = _tests_table_no_nulls(10000)
+        df_test = df_in["text_"].reset_index()
+        df_test.columns = ["idx", "text_"]
+
+        con.load_table("test_text_no_encoding", df_test, method=method)
+
+        df_out = pd.read_sql("""select 
+                                * 
+                                from test_text_no_encoding order by idx""", 
+                                con)
+
+
+        assert pd.DataFrame.equals(df_test, df_out)
+
+        con.execute("drop table if exists test_text_no_encoding")
