@@ -13,7 +13,8 @@ install_requires = ['thrift == 0.11.0',
                     'sqlalchemy >= 1.3',
                     'numpy >= 1.16',
                     'pandas >= 0.24',
-                    'pyarrow >= 0.10.0,<0.14']
+                    'pyarrow >= 0.10.0,<0.14',
+                    'packaging >= 19.0']
 
 # Optional Requirements
 
