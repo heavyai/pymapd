@@ -16,7 +16,6 @@ def mock_connection(mock_client):
                    host='localhost', dbname='dbname')
 
 
-@pytest.mark.usefixtures("mapd_server")
 class TestCursor:
 
     def test_empty_iterable(self):
