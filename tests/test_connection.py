@@ -6,6 +6,7 @@ from pymapd.connection import _parse_uri, ConnectionInfo
 from pymapd._parsers import ColumnDetails, _extract_column_details
 
 
+@pytest.mark.usefixtures("mapd_server")
 class TestConnect:
 
     def test_host_specified(self):
@@ -16,33 +17,21 @@ class TestConnect:
         with pytest.raises(OperationalError):
             connect(host='localhost', protocol='binary', port=1234)
 
-    def test_close(self, mock_client):
-        con = connect(user='user', password='password',
-                      host='localhost', dbname='dbname')
-        assert con.closed == 0
-        con.close()
-        assert con.closed == 1
+    def test_close(self):
+        conn = connect(user='mapd', password='HyperInteractive',
+                       host='localhost', dbname='mapd')
+        assert conn.closed == 0
+        conn.close()
+        assert conn.closed == 1
 
-    def test_connect(self, mock_client):
-        con = connect(user='user', password='password',
-                      host='localhost', dbname='dbname')
-        assert mock_client.call_count == 1
-        assert con._client.connect.call_args == [
-            ('user', 'password', 'dbname')
-        ]
-
-    def test_context_manager(self, mock_client):
-        con = connect(user='user', password='password',
-                      host='localhost', dbname='dbname')
+    def test_context_manager(self, con):
         with con as cur:
             pass
 
         assert isinstance(cur, Cursor)
         assert con.closed == 0
 
-    def test_commit_noop(self, mock_client):
-        con = connect(user='user', password='password',
-                      host='localhost', dbname='dbname')
+    def test_commit_noop(self, con):
         result = con.commit()  # it worked
         assert result is None
 
