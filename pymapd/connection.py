@@ -28,6 +28,8 @@ from .ipc import load_buffer, shmdt
 from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
 from . import _pandas_loaders
 
+from packaging.version import Version
+
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
                                                'port', 'dbname', 'protocol'])
@@ -173,6 +175,15 @@ class Connection:
             self._session = self._client.connect(user, password, dbname)
         except TMapDException as e:
             raise _translate_exception(e) from e
+
+        # if OmniSci version <4.6, raise RuntimeError, as data import can be
+        # incorrect for columnar date loads
+        # Caused by https://github.com/omnisci/pymapd/pull/188
+        semver = self._client.get_version()
+        if Version(semver.split("-")[0]) < Version("4.6"):
+            raise RuntimeError(f"Version {semver} of OmniSci detected. "
+                               "Please use pymapd <0.11. See release notes "
+                               "for more details.")
 
     def __repr__(self):
         # type: () -> str
