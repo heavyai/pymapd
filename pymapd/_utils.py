@@ -1,4 +1,5 @@
 import datetime
+import numpy as np
 
 
 def seconds_to_time(seconds):
@@ -17,27 +18,48 @@ def time_to_seconds(time):
 
 def datetime_to_seconds(arr):
     """Convert an array of datetime64[ns] to seconds since the UNIX epoch"""
-    import numpy as np
 
     if arr.dtype != np.dtype('datetime64[ns]'):
-        if arr.dtype == 'object' or 'datetime64[ns,' in arr.dtype:
+        if arr.dtype == 'int64':
+            # The user has passed a unix timestamp already
+            return arr
+        elif arr.dtype == 'object' or 'datetime64[ns,' in arr.dtype:
             # Convert to datetime64[ns] from string
             # Or from datetime with timezone information
             arr = arr.astype('datetime64[ns]')
-        elif arr.type == 'int64':
-            # The user has passed a unix timestamp already
-            return arr
         else:
-            raise TypeError("Invalid type {0}, expected one of \
+            raise TypeError("Invalid type {}, expected one of \
                 datetime64[ns], int64 (seconds since epoch), \
                 or object (string)".format(arr.dtype))
     return arr.view('i8') // 10**9  # ns -> s since epoch
 
 
+def datetime_in_precisions(epoch, precision):
+    """Convert epoch time value into s, ms, us, ns"""
+    base = datetime.datetime(1970, 1, 1)
+    if precision == 0:
+        return base + datetime.timedelta(seconds=epoch)
+    elif precision == 3:
+        seconds, modulus = divmod(epoch, 1000)
+        return base + datetime.timedelta(seconds=seconds, milliseconds=modulus)
+    elif precision == 6:
+        seconds, modulus = divmod(epoch, 1000000)
+        return base + datetime.timedelta(seconds=seconds, microseconds=modulus)
+    elif precision == 9:
+        """ TODO(Wamsi): datetime.timedelta has support only till microseconds.
+                         Need to find an alternative and fix nanoseconds
+                         granularity"""
+        epoch /= 1000
+        seconds, modulus = divmod(epoch, 1000000)
+        return base + datetime.timedelta(seconds=seconds, microseconds=modulus)
+    else:
+        raise TypeError("Invalid timestamp precision: {}".format(precision))
+
+
 def date_to_seconds(arr):
-    import numpy as np
-    data = arr.apply(lambda x: np.datetime64(x, "s").astype(int))
-    return data
+    """Converts date into seconds"""
+
+    return arr.apply(lambda x: np.datetime64(x, "s").astype(int))
 
 
 mapd_to_slot = {

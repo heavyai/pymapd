@@ -9,7 +9,7 @@ Usage
 
 .. note::
 
-   This assumes you have an OmniSci server running on ``localhost:9091`` with the
+   This assumes you have an OmniSci server running on ``localhost:6274`` with the
    default logins and databases, and have loaded the example "flights_2008_10k"
    dataset.
 
@@ -24,15 +24,15 @@ Create a :class:`Connection` with
    >>> con = connect(user="mapd", password="HyperInteractive", host="localhost",
    ...               dbname="mapd")
    >>> con
-   Connection(mapd://mapd:***@localhost:9091/mapd?protocol=binary)
+   Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
 
 or by passing in a connection string
 
 .. code-block:: python
 
-   >>> uri = "mapd://mapd:HyperInteractive@localhost:9091/mapd?protocol=binary"
+   >>> uri = "mapd://mapd:HyperInteractive@localhost:6274/mapd?protocol=binary"
    >>> con = connect(uri=uri)
-   Connection(mapd://mapd:***@localhost:9091/mapd?protocol=binary)
+   Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
 
 See the `SQLAlchemy`_ documentation on what makes up a connection string. The
 components are::
@@ -59,6 +59,12 @@ the database, and what you plan to do with the returned data. In general, the
 third method, using Thrift to serialize and deserialize the data, will slower
 than the GPU or CPU shared memory methods. The shared memory methods require
 that your OmniSci database is running on the same machine.
+
+.. note::
+
+   We currently support ``Timestamp(0|3|6)`` data types i.e. seconds, milliseconds,
+   and microseconds granularity. Support for nanoseconds, ``Timestamp(9)`` is in
+   progress. 
 
 GPU Select
 ^^^^^^^^^^

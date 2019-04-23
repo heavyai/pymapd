@@ -20,6 +20,12 @@ Packages are available on conda-forge and PyPI::
 
    conda install -c conda-forge pymapd
 
+   pip install pymapd
+
+To install cudf for GPU Dataframe support (conda-only)::
+
+   conda install -c nvidia/label/cuda10.0 -c rapidsai/label/cuda10.0 -c rapidsai/label/cf201901 -c numba -c conda-forge -c defaults cudf pymapd=0.7.1
+
 
 
 .. _DB API: https://www.python.org/dev/peps/pep-0249/

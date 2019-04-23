@@ -1,21 +1,17 @@
 import os
 import subprocess
-
 import pytest
-
 from pymapd import connect
 from mapd.ttypes import TMapDException, TApplicationException
-from .utils import no_gpu
-
-pd = pytest.importorskip("pandas")
-
-HERE = os.path.dirname(__file__)
+from .conftest import no_gpu
+import pandas as pd
 
 
 @pytest.mark.usefixtures("mapd_server")
 class TestDeallocate:
 
     def _data(self):
+        HERE = os.path.dirname(__file__)
         df = pd.read_pickle(os.path.join(HERE, "data", "data_load.pkl"))
         return df.itertuples(index=False)
 
@@ -24,7 +20,7 @@ class TestDeallocate:
         return connect(user="mapd",
                        password='HyperInteractive',
                        host='localhost',
-                       port=9091, protocol='binary', dbname='mapd')
+                       port=6274, protocol='binary', dbname='mapd')
 
     def _transact(self, con):
         drop = 'drop table if exists iris;'

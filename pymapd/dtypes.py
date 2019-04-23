@@ -2,19 +2,16 @@
 https://www.python.org/dev/peps/pep-0249/#type-objects
 """
 import datetime
-import six
 import time
+from typing import Any, List
 
 from mapd import MapD
-
-if six.PY2:
-    memoryview = buffer  # noqa
 
 
 T = MapD.TDatumType
 
 
-class DataType(object):
+class DataType:
 
     def __init__(self, matches):
         # type: (List[Any]) -> None

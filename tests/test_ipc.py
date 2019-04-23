@@ -1,26 +1,16 @@
-import os
-import pytest
-
-pa = pytest.importorskip("pyarrow")
-pd = pytest.importorskip("pandas")
-
+import pyarrow as pa
+import pandas as pd
 import numpy as np  # noqa
 import pandas.util.testing as tm  # noqa
 from pymapd._parsers import _load_schema, _load_data  # noqa
 
-HERE = os.path.dirname(__file__)
-
 
 def make_data_batch():
-    arrow_version = pa.__version__
     np.random.seed(1234)
     depdelay = np.random.randint(-5, 30, size=10, dtype=np.int16)
     arrdelay = np.random.randint(-15, 30, size=10, dtype=np.int16)
     depdelay_ = pa.array(depdelay)
     arrdelay_ = pa.array(arrdelay)
-    if arrow_version == '0.7.1':
-        depdelay_ = depdelay_.cast(pa.int16())
-        arrdelay_ = arrdelay_.cast(pa.int16())
     batch = pa.RecordBatch.from_arrays([depdelay_, arrdelay_],
                                        ['depdelay', 'arrdelay'])
     return (depdelay, arrdelay), batch

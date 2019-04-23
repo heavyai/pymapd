@@ -3,11 +3,9 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- six>=1.10.0
 - thrift=0.11.0
 - numpydoc
-- "pyarrow>=0.10.0,<0.12"
-- arrow-cpp
+- "pyarrow>=0.10.0,<0.14"
 - sqlalchemy
 - numpy>=1.14
 - pandas
@@ -16,4 +14,3 @@ dependencies:
 - "pytest>=3.6,<4.0"
 - pytest-cov
 - pytest-mock
-- mock

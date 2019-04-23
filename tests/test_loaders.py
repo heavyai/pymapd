@@ -1,14 +1,23 @@
 import pytest
 import datetime
-
 from pymapd._loaders import _build_input_rows
 from pymapd import _pandas_loaders
 from mapd.MapD import TStringRow, TStringValue, TColumn, TColumnData
+import pandas as pd
+import numpy as np
+from mapd.ttypes import TTypeInfo, TColumnType
 
-from .utils import assert_columnar_equal
+
+def assert_columnar_equal(result, expected):
+
+    for i, (a, b) in enumerate(zip(result, expected)):
+        np.testing.assert_array_equal(a.nulls, b.nulls)
+        np.testing.assert_array_equal(a.data.int_col, b.data.int_col)
+        np.testing.assert_array_equal(a.data.real_col, b.data.real_col)
+        np.testing.assert_array_equal(a.data.str_col, b.data.str_col)
 
 
-class TestLoaders(object):
+class TestLoaders:
 
     def test_build_input_rows(self):
         data = [(1, 'a'), (2, 'b')]
@@ -34,8 +43,7 @@ class TestLoaders(object):
         assert result == expected
 
     def test_build_table_columnar(self):
-        pd = pytest.importorskip("pandas")
-        pytest.importorskip("pyarrow")
+
         from pymapd._pandas_loaders import build_input_columnar
 
         data = pd.DataFrame({"a": [1, 2, 3], "b": [1.1, 2.2, 3.3]})
@@ -48,8 +56,6 @@ class TestLoaders(object):
         assert_columnar_equal(result[0], expected)
 
     def test_build_table_columnar_pandas(self):
-        import pandas as pd
-        import numpy as np
 
         data = pd.DataFrame({
             "boolean_": [True, False],
@@ -86,8 +92,6 @@ class TestLoaders(object):
         assert_columnar_equal(result[0], expected)
 
     def test_build_table_columnar_nulls(self):
-        import pandas as pd
-        import numpy as np
 
         data = pd.DataFrame({
             "boolean_": [True, False, None],
@@ -133,9 +137,6 @@ class TestLoaders(object):
         assert_columnar_equal(result[0], expected)
 
     def test_build_row_desc(self):
-        pd = pytest.importorskip("pandas")
-        import numpy as np
-        from mapd.ttypes import TTypeInfo, TColumnType
 
         data = pd.DataFrame({
             "boolean_": [True, False],
@@ -170,9 +171,9 @@ class TestLoaders(object):
             TColumnType(col_name='double_',
                         col_type=TTypeInfo(type=5)),
             TColumnType(col_name='varchar_',
-                        col_type=TTypeInfo(type=6)),
+                        col_type=TTypeInfo(type=6, encoding=4)),
             TColumnType(col_name='text_',
-                        col_type=TTypeInfo(type=6)),
+                        col_type=TTypeInfo(type=6, encoding=4)),
             TColumnType(col_name='time_',
                         col_type=TTypeInfo(type=7)),
             TColumnType(col_name='timestamp_',
@@ -195,16 +196,3 @@ class TestLoaders(object):
             _pandas_loaders.build_row_desc([(1, 'a'), (2, 'b')])
 
         assert m.match('is not supported for type ')
-
-    @pytest.mark.parametrize('create', ['infer', True, False])
-    def test_check_create(self, create):
-        from pymapd.connection import _check_create
-
-        result = _check_create(create)
-        assert result == create
-
-    def test_check_create_raises(self):
-        from pymapd.connection import _check_create
-
-        with pytest.raises(ValueError):
-            _check_create('foo')

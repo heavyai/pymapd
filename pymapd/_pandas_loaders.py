@@ -1,7 +1,8 @@
-import six
 import datetime
 import numpy as np
 import math
+import pandas as pd
+import pyarrow as pa
 
 from pandas.api.types import (
     is_bool_dtype,
@@ -48,6 +49,8 @@ def get_mapd_type_from_known(dtype):
             return 'DOUBLE'
     elif is_datetime64_any_dtype(dtype):
         return 'TIMESTAMP'
+    elif isinstance(dtype, pd.CategoricalDtype):
+        return 'STR'
     else:
         raise TypeError("Unhandled type {}".format(dtype))
 
@@ -58,7 +61,7 @@ def get_mapd_type_from_object(data):
         val = data.dropna().iloc[0]
     except IndexError:
         raise IndexError("Not any valid values to infer the type")
-    if isinstance(val, six.string_types):
+    if isinstance(val, str):
         return 'STR'
     elif isinstance(val, datetime.date):
         return 'DATE'
@@ -76,7 +79,6 @@ def get_mapd_type_from_object(data):
 
 def thrift_cast(data, mapd_type, scale=0):
     """Cast data type to the expected thrift types"""
-    import pandas as pd
 
     if mapd_type == 'TIMESTAMP':
         return datetime_to_seconds(data)
@@ -131,7 +133,7 @@ def build_input_columnar(df, preserve_index=True,
 
             if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
                 # requires a cast to integer
-                data = thrift_cast(data, mapd_type)
+                data = thrift_cast(data, mapd_type, 0)
 
             if mapd_type in ['DECIMAL']:
                 # requires a calculation be done using the scale
@@ -154,23 +156,23 @@ def build_input_columnar(df, preserve_index=True,
     return cols_array
 
 
-def _cast_int8(data):
-    import pandas as pd
-    if isinstance(data, pd.DataFrame):
-        cols = data.select_dtypes(include=['i1']).columns
-        data[cols] = data[cols].astype('i2')
-    # TODO: Casts for pyarrow (waiting on python bindings for casting)
-    # ARROW-229 did it for C++
-    return data
-
-
 def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
-    import pyarrow as pa
-    import pandas as pd
 
     if isinstance(data, pd.DataFrame):
-        data = _cast_int8(data)
-        data = pa.RecordBatch.from_pandas(data, preserve_index=preserve_index)
+
+        # detect if there are categorical columns in dataframe
+        cols = data.select_dtypes(include=['category']).columns
+
+        # if there are categorical columns, make a copy before casting
+        # to avoid mutating input data
+        # https://github.com/omnisci/pymapd/issues/169
+        if cols.size > 0:
+            data_ = data.copy()
+            data_[cols] = data_[cols].astype('object')
+        else:
+            data_ = data
+
+        data = pa.RecordBatch.from_pandas(data_, preserve_index=preserve_index)
 
     stream = pa.BufferOutputStream()
     writer = pa.RecordBatchStreamWriter(stream, data.schema)
@@ -185,10 +187,6 @@ def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
 
 
 def build_row_desc(data, preserve_index=False):
-    try:
-        import pandas as pd
-    except ImportError:
-        raise ImportError("create_table requires pandas.")
 
     if not isinstance(data, pd.DataFrame):
         # Once https://issues.apache.org/jira/browse/ARROW-1576 is complete
@@ -205,4 +203,12 @@ def build_row_desc(data, preserve_index=False):
         TColumnType(name, TTypeInfo(getattr(TDatumType, mapd_type)))
         for name, mapd_type in dtypes
     ]
+
+    # force text encoding dict for all string columns
+    # default is TEXT ENCODING DICT(32) when only tct.col_type.encoding = 4 set
+    # https://github.com/omnisci/pymapd/issues/140#issuecomment-477353420
+    for tct in row_desc:
+        if tct.col_type.type == 6:
+            tct.col_type.encoding = 4
+
     return row_desc
