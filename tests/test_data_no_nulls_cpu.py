@@ -7,85 +7,21 @@ presence of the other data types as well in the same dataframe/database table
 import pytest
 import pandas as pd
 import numpy as np
-from datetime import date, time, datetime, timedelta
-import random
-import string
 
-
-def gen_string():
-    return ''.join([random.choice(string.ascii_letters + string.digits)
-                   for n in range(10)])
-
-
-def _tests_table_no_nulls(n_samples):
-
-    np.random.seed(12345)
-
-    tinyint_ = np.random.randint(low=-127,
-                                 high=127,
-                                 size=n_samples,
-                                 dtype='int8')
-
-    smallint_ = np.random.randint(low=-32767,
-                                  high=32767,
-                                  size=n_samples,
-                                  dtype='int16')
-
-    int_ = np.random.randint(low=-2147483647,
-                             high=2147483647,
-                             size=n_samples,
-                             dtype='int32')
-
-    bigint_ = np.random.randint(low=-9223372036854775807,
-                                high=9223372036854775807,
-                                size=n_samples,
-                                dtype='int64')
-
-    # float and double ranges slightly lower than we support, full width
-    # causes an error in np.linspace that's not worth tracking down
-    float_ = np.linspace(-3.4e37, 3.4e37, n_samples, dtype='float32')
-    double_ = np.linspace(-1.79e307, 1.79e307, n_samples, dtype='float64')
-
-    bool_ = np.random.randint(low=0, high=2, size=n_samples, dtype='bool')
-
-    # effective date range of 1904 to 2035
-    # TODO: validate if this is an Arrow limitation, outside this range fails
-    date_ = [date(1970, 1, 1) + timedelta(days=int(x))
-             for x in np.random.randint(-24000, 24000, size=n_samples)]
-
-    datetime_ = [datetime(1970, 1, 1) + timedelta(days=int(x), minutes=int(x))
-                 for x in np.random.randint(-24000, 24000, size=n_samples)]
-
-    time_h = np.random.randint(0, 24, size=n_samples)
-    time_m = np.random.randint(0, 60, size=n_samples)
-    time_s = np.random.randint(0, 60, size=n_samples)
-    time_ = [time(h, m, s) for h, m, s in zip(time_h, time_m, time_s)]
-
-    text_ = [gen_string() for x in range(n_samples)]
-
-    d = {'tinyint_': tinyint_,
-         'smallint_': smallint_,
-         'int_': int_,
-         'bigint_': bigint_,
-         'float_': float_,
-         'double_': double_,
-         'bool_': bool_,
-         'date_': date_,
-         'datetime_': datetime_,
-         'time_': time_,
-         'text_': text_
-         }
-
-    return pd.DataFrame(d)
+from .conftest import _tests_table_no_nulls
 
 
 @pytest.mark.usefixtures("mapd_server")
-class TestDataNoNulls:
+class TestCPUDataNoNulls:
 
     @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
     def test_create_load_table_no_nulls_sql_execute(self, con, method):
 
         df_in = _tests_table_no_nulls(10000)
+        df_in.drop(columns=["point_",
+                            "line_",
+                            "mpoly_",
+                            "poly_"], inplace=True)
         con.execute("drop table if exists test_data_no_nulls;")
         con.load_table("test_data_no_nulls", df_in, method=method)
 
@@ -156,14 +92,19 @@ class TestDataNoNulls:
     @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
     def test_create_load_table_no_nulls_select_ipc(self, con, method):
 
-        df_in = _tests_table_no_nulls(10000)
-        con.execute("drop table if exists test_data_no_nulls_ipc;")
-        con.load_table("test_data_no_nulls_ipc", df_in, method=method)
-
         # need to manually specify columns since some don't currently work
         # need to drop unsupported columns from df_in
         # (BOOL) https://github.com/omnisci/pymapd/issues/211
-        df_in.drop(columns=["bool_"], inplace=True)
+        df_in = _tests_table_no_nulls(10000)
+        df_in.drop(columns=["bool_",
+                            "point_",
+                            "line_",
+                            "mpoly_",
+                            "poly_"], inplace=True)
+
+        con.execute("drop table if exists test_data_no_nulls_ipc;")
+        con.load_table("test_data_no_nulls_ipc", df_in, method=method)
+
         df_out = con.select_ipc("""select
                                 tinyint_,
                                 smallint_,
@@ -202,17 +143,16 @@ class TestDataNoNulls:
         assert pd.DataFrame.equals(df_in, df_out)
 
         con.execute("drop table if exists test_data_no_nulls_ipc;")
-    
+
     @pytest.mark.parametrize('method', ["rows", "columnar"])
     def test_load_table_text_no_encoding_no_nulls(self, con, method):
-        
+
         con.execute("drop table if exists test_text_no_encoding")
-        
+
         con.execute("""create table test_text_no_encoding (
-                       idx integer, 
+                       idx integer,
                        text_ text encoding none
-                       )"""
-        )
+                       )""")
 
         # reset_index adds a column to sort by, since results not guaranteed
         # to return in sorted order from OmniSci
@@ -222,11 +162,10 @@ class TestDataNoNulls:
 
         con.load_table("test_text_no_encoding", df_test, method=method)
 
-        df_out = pd.read_sql("""select 
-                                * 
-                                from test_text_no_encoding order by idx""", 
-                                con)
-
+        df_out = pd.read_sql("""select
+                                *
+                                from test_text_no_encoding order by idx""",
+                             con)
 
         assert pd.DataFrame.equals(df_test, df_out)
 

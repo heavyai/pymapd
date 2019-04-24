@@ -6,8 +6,6 @@ import base64
 import pandas as pd
 import pyarrow as pa
 import ctypes
-from typing import Optional, Tuple
-
 from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
@@ -28,20 +26,21 @@ from .ipc import load_buffer, shmdt
 from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
 from . import _pandas_loaders
 
+from packaging.version import Version
+
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
                                                'port', 'dbname', 'protocol'])
 
 
-def connect(uri=None,           # type: Optional[str]
-            user=None,          # type: Optional[str]
-            password=None,      # type: Optional[str]
-            host=None,          # type: Optional[str]
-            port=6274,          # type: Optional[int]
-            dbname=None,        # type: Optional[str]
-            protocol='binary',  # type: Optional[str]
+def connect(uri=None,
+            user=None,
+            password=None,
+            host=None,
+            port=6274,
+            dbname=None,
+            protocol='binary',
             ):
-    # type: (...) -> Connection
     """
     Crate a new Connection.
 
@@ -76,7 +75,6 @@ def connect(uri=None,           # type: Optional[str]
 
 
 def _parse_uri(uri):
-    # type: (str) -> ConnectionInfo
     """
     Parse connection string
 
@@ -115,15 +113,14 @@ class Connection:
     """Connect to your OmniSci database."""
 
     def __init__(self,
-                 uri=None,           # type: Optional[str]
-                 user=None,          # type: Optional[str]
-                 password=None,      # type: Optional[str]
-                 host=None,          # type: Optional[str]
-                 port=6274,          # type: Optional[int]
-                 dbname=None,        # type: Optional[str]
-                 protocol='binary',  # type: Optional[str]
+                 uri=None,
+                 user=None,
+                 password=None,
+                 host=None,
+                 port=6274,
+                 dbname=None,
+                 protocol='binary',
                  ):
-        # type: (...) -> None
         if uri is not None:
             if not all([user is None,
                         password is None,
@@ -174,15 +171,22 @@ class Connection:
         except TMapDException as e:
             raise _translate_exception(e) from e
 
+        # if OmniSci version <4.6, raise RuntimeError, as data import can be
+        # incorrect for columnar date loads
+        # Caused by https://github.com/omnisci/pymapd/pull/188
+        semver = self._client.get_version()
+        if Version(semver.split("-")[0]) < Version("4.6"):
+            raise RuntimeError(f"Version {semver} of OmniSci detected. "
+                               "Please use pymapd <0.11. See release notes "
+                               "for more details.")
+
     def __repr__(self):
-        # type: () -> str
         tpl = ('Connection(mapd://{user}:***@{host}:{port}/{dbname}?protocol'
                '={protocol})')
         return tpl.format(user=self._user, host=self._host, port=self._port,
                           dbname=self._dbname, protocol=self._protocol)
 
     def __del__(self):
-        # type: () -> None
         self.close()
 
     def __enter__(self):
@@ -196,7 +200,6 @@ class Connection:
         return self._closed
 
     def close(self):
-        # type: () -> None
         """Disconnect from the database"""
         try:
             self._client.disconnect(self._session)
@@ -206,7 +209,6 @@ class Connection:
             self._closed = 1
 
     def commit(self):
-        # type: () -> None
         """This is a noop, as OmniSci does not provide transactions.
 
         Implementing to comply with the specification.
@@ -214,7 +216,6 @@ class Connection:
         return None
 
     def execute(self, operation, parameters=None):
-        # type: (str, Optional[Tuple]) -> Cursor
         """Execute a SQL statement
 
         Parameters
@@ -230,7 +231,6 @@ class Connection:
         return c.execute(operation.strip(), parameters=parameters)
 
     def cursor(self):
-        # type: () -> Cursor
         """Create a new :class:`Cursor` object attached to this connection."""
         return Cursor(self)
 
@@ -335,7 +335,6 @@ class Connection:
         return df
 
     def deallocate_ipc_gpu(self, df, device_id=0):
-        # type: () -> None
         """Deallocate a DataFrame using GPU memory.
 
         Parameters
@@ -353,7 +352,6 @@ class Connection:
         return result
 
     def deallocate_ipc(self, df, device_id=0):
-        # type: () -> None
         """Deallocate a DataFrame using CPU shared memory.
 
         Parameters
