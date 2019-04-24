@@ -4,7 +4,6 @@ Setter and Getter for TDataFrame
 
 
 def set_tdf(self, tdf):
-    # type: () -> None
     """Assigns a TDataFrame to cudf/pandas Dataframe
 
         Parameters
