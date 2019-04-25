@@ -20,7 +20,7 @@ install_requires = ['thrift == 0.11.0',
 
 
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
-test_requires = ['coverage', 'pytest', 'pytest-mock']
+test_requires = ['coverage', 'pytest', 'pytest-mock', 'shapely']
 dev_requires = doc_requires + test_requires
 gpu_requires = ['cudf', 'libcudf']
 complete_requires = dev_requires + gpu_requires
@@ -38,7 +38,7 @@ setup(
     name='pymapd',
     description='A DB API 2 compatible client for OmniSci (formerly MapD).',
     long_description=long_description,
-    url='https://github.com/omnisci/mapd-core',
+    url='https://github.com/omnisci/pymapd',
 
     author='Tom Augspurger',
     author_email='taugspurger@continuum.io',
