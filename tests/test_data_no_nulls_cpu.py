@@ -16,7 +16,11 @@ class TestCPUDataNoNulls:
 
     @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
     def test_create_load_table_no_nulls_sql_execute(self, con, method):
-
+        """
+        Demonstrate that regardless of how data loaded, roundtrip answers
+        are the same when con.execute()/pd.read_sql called for row-wise
+        data retrieval
+        """
         df_in = _tests_table_no_nulls(10000)
         df_in.drop(columns=["point_",
                             "line_",
@@ -91,7 +95,10 @@ class TestCPUDataNoNulls:
 
     @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
     def test_create_load_table_no_nulls_select_ipc(self, con, method):
-
+        """
+        Demonstrate that regardless of how data loaded, roundtrip answer
+        is same when con.select_ipc() called to retrieve data using Arrow
+        """
         # need to manually specify columns since some don't currently work
         # need to drop unsupported columns from df_in
         # (BOOL) https://github.com/omnisci/pymapd/issues/211
@@ -146,6 +153,11 @@ class TestCPUDataNoNulls:
 
     @pytest.mark.parametrize('method', ["rows", "columnar"])
     def test_load_table_text_no_encoding_no_nulls(self, con, method):
+        """
+        Demonstrate that data can be loaded as text encoding none,
+        assuming that user creates the table beforehand/inserting to
+        pre-existing table
+        """
 
         con.execute("drop table if exists test_text_no_encoding")
 

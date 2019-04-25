@@ -12,7 +12,9 @@ import pandas as pd
 
 
 def _check_open():
-
+    """
+    Test to see if OmniSci running on localhost and socket open
+    """
     socket = TSocket.TSocket("localhost", 6274)
     transport = TTransport.TBufferedTransport(socket)
 
@@ -25,9 +27,7 @@ def _check_open():
 
 @pytest.fixture(scope='session')
 def mapd_server():
-    """
-    Ensure a mapd server is running.
-    """
+    """Ensure a mapd server is running, optionally starting one if none"""
     if _check_open():
         # already running before pytest started
         pass
@@ -48,6 +48,9 @@ def mapd_server():
 
 @pytest.fixture(scope='session')
 def con(mapd_server):
+    """
+    Fixture to provide Connection for tests run against live OmniSci instance
+    """
     return connect(user="mapd", password='HyperInteractive', host='localhost',
                    port=6274, protocol='binary', dbname='mapd')
 
@@ -73,11 +76,16 @@ def no_gpu():
 
 
 def gen_string():
+    """Generate a random string sequence for use in _tests_table_no_nulls"""
     return ''.join([random.choice(string.ascii_letters + string.digits)
                    for n in range(10)])
 
 
 def _tests_table_no_nulls(n_samples):
+    """
+    Generates a dataframe with all OmniSci types in it for use in integration
+    testing
+    """
 
     np.random.seed(12345)
 
