@@ -7,6 +7,7 @@ presence of the other data types as well in the same dataframe/database table
 import pytest
 import pandas as pd
 import numpy as np
+from shapely import wkt
 
 from .conftest import _tests_table_no_nulls
 
@@ -245,5 +246,28 @@ class TestCPUDataNoNulls:
         assert pd.DataFrame.equals(df_in["datetime_"], df_out["datetime_"])
         assert pd.DataFrame.equals(df_in["time_"], df_out["time_"])
         assert pd.DataFrame.equals(df_in["text_"], df_out["text_"])
+
+        # convert geospatial data to Shapely objects to prove their equality
+        point_in = [wkt.loads(x) for x in df_in["point_"]]
+        point_out = [wkt.loads(x) for x in df_out["point_"]]
+        assert all([x.equals_exact(y, 0.000001) for x, y
+                    in zip(point_in, point_out)])
+
+        line_in = [wkt.loads(x) for x in df_in["line_"]]
+        line_out = [wkt.loads(x) for x in df_out["line_"]]
+        assert all([x.equals_exact(y, 0.000001) for x, y
+                    in zip(line_in, line_out)])
+
+        mpoly_in = [wkt.loads(x) for x in df_in["mpoly_"]]
+        mpoly_out = [wkt.loads(x) for x in df_out["mpoly_"]]
+        assert all([x.equals_exact(y, 0.000001) for x, y
+                    in zip(mpoly_in, mpoly_out)])
+
+        # TODO: tol only passes at 0.011, whereas others pass at much tighter
+        # Figure out why
+        poly_in = [wkt.loads(x) for x in df_in["poly_"]]
+        poly_out = [wkt.loads(x) for x in df_out["poly_"]]
+        assert all([x.equals_exact(y, 0.011) for x, y
+                    in zip(poly_in, poly_out)])
 
         con.execute("drop table if exists test_geospatial_no_nulls")
