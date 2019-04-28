@@ -130,8 +130,43 @@ two files, ``mapd/MapD.py`` and ``mapd/ttypes.py``, which can be committed to th
 updated, take note to remove unneeded imports as shown in this `commit`_, as the unneeded imports can be problematic,
 especially when calling pymapd from other languages (specifically, R).
 
+--------------------------------
+Publishing a new package version
+--------------------------------
 
+pymapd doesn't currently follow a rigid release schedule; rather, when enough functionality is deemed to be "enough" for a new
+version to be released, or a sufficiently serious bug/issue is fixed, we will release a new version. pymapd is distributed via `PyPI`_
+and `conda-forge`_.
 
+Prior to submitting to PyPI and/or conda-forge, create a new `release tag`_ on GitHub (with notes), then run ``git pull`` to bring this tag to your
+local pymapd repository folder.
+
+****
+PyPI
+****
+
+To publish to PyPI, we use the `twine`_ package via the CLI. twine only allows for submitting to PyPI by registered users
+(currently, internal OmniSci employees):
+
+.. code-block:: shell
+
+   conda install twine
+   python setup.py sdist
+   twine upload dist/*
+
+Publishing a package to PyPI is near instantaneous after runnning ``twine upload dist/*``. Before running ``twine upload``, be sure
+the ``dist`` directory only has the current version of the package you are intending to upload.
+
+***********
+conda-forge
+***********
+
+The release process for conda-forge is triggered via creating a new version number on the pymapd GitHub repository. Given the
+volume of packages released on conda-forge, it can take several hours for the bot to open a PR on pymapd-feedstock. There is
+nothing that needs to be done to speed this up, just be patient.
+
+When the conda-forge bot opens a PR on the pymapd-feedstock repo, one of the feedstock maintainers needs to validate the correctness
+of the PR, check the accuracy of the package versions on the `meta.yaml`_ recipe file, and then merge once the CI tests pass.
 
 .. _mapd-core: https://github.com/omnisci/mapd-core
 .. _Docker: https://hub.docker.com/u/omnisci
@@ -143,3 +178,8 @@ especially when calling pymapd from other languages (specifically, R).
 .. _pymapd GitHub repository: https://github.com/omnisci/pymapd
 .. _create a GitHub issue: https://github.com/omnisci/pymapd/issues
 .. _pull requests: https://github.com/omnisci/pymapd/pulls
+.. _PyPI: https://pypi.org/project/pymapd/
+.. _conda-forge: https://github.com/conda-forge/pymapd-feedstock
+.. _release tag: https://github.com/omnisci/pymapd/releases
+.. _twine: https://pypi.org/project/twine/
+.. _meta.yaml: https://github.com/conda-forge/pymapd-feedstock/blob/master/recipe/meta.yaml
