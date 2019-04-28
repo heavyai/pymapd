@@ -55,7 +55,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pymapd'
-copyright = '2018, OmniSci'
+copyright = '2019, OmniSci'
 author = 'Tom Augspurger'
 
 # The version info for the project you're documenting, acts as replacement for
