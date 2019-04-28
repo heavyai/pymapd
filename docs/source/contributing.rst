@@ -3,6 +3,14 @@
 Contributing to pymapd
 ======================
 
+As a philosophically open-source company, OmniSci welcomes contributions to all of its open-source repositories,
+including pymapd. All discussion and development takes place via the `pymapd GitHub repository`_.
+
+It is suggested, but not required, that you `create a GitHub issue`_ before contributing a feature or bug fix. This is so that other
+developers 1) know that you are working on the feature/issue and 2) that internal OmniSci experts can help you navigate
+any database-specific logic that may not be obvious within pymapd. All patches should be submitted as `pull requests`_, and upon passing
+the test suite and review by OmniSci, will be merged to master for release as part of the next package release cycle.
+
 -----------------------------
 Development Environment Setup
 -----------------------------
@@ -105,22 +113,24 @@ You also need to `install cudf`_ in your development environment. Because cudf i
 to the specific version of CUDA installed, we recommend checking the `cudf documentation`_ to get the most up-to-date
 installation instructions.
 
-------------------------
-Updating Thrift Bindings
-------------------------
+-------------------------------
+Updating Apache Thrift Bindings
+-------------------------------
 
-When the upstream `mapd-core`_ project updates its Thrift definition, we have to
-regenerate the bindings we ship with ``pymapd``. From the root of the ``pymapd``
-repository, run
+When the upstream `mapd-core`_ project updates its Apache Thrift definition file, the bindings shipped with
+``pymapd`` need to be regenerated. From the root of the ``pymapd`` repository, run
 
 .. code-block:: shell
 
    python scripts/generate_accelerated_bindings.py </path/to/mapd-core>/mapd.thrift
 
 
-The requires that Thrift is installed and on your PATH. Running it will update
-two files, ``mapd/MapD.py`` and ``mapd/ttypes.py``, which can be committed to
-the repository.
+The python script above requires Apache Thrift is installed and on the PATH. Running the script will update
+two files, ``mapd/MapD.py`` and ``mapd/ttypes.py``, which can be committed to the repository. When the bindings are
+updated, take note to remove unneeded imports as shown in this `commit`_, as the unneeded imports can be problematic,
+especially when calling pymapd from other languages (specifically, R).
+
+
 
 
 .. _mapd-core: https://github.com/omnisci/mapd-core
@@ -129,3 +139,7 @@ the repository.
 .. _OmniSci Core GPU-enabled: https://hub.docker.com/r/omnisci/core-os-cuda
 .. _install cudf: https://github.com/rapidsai/cudf#installation
 .. _cudf documentation: https://rapidsai.github.io/projects/cudf/en/latest/
+.. _commit: https://github.com/omnisci/pymapd/commit/28441055959e62443954a9826f1f03d876a1cfdb
+.. _pymapd GitHub repository: https://github.com/omnisci/pymapd
+.. _create a GitHub issue: https://github.com/omnisci/pymapd/issues
+.. _pull requests: https://github.com/omnisci/pymapd/pulls
