@@ -8,7 +8,7 @@ pymapd
 
 The pymapd client interface provides a python DB API 2.0-compliant `OmniSci`_
 interface (formerly MapD). In addition, it provides methods to get results in
-the `Apache Arrow`_ -based `cudf GPU DataFrame`_ format for efficient data interchange.
+the `Apache Arrow`_-based `cudf GPU DataFrame`_ format for efficient data interchange.
 
 .. code-block:: python
 

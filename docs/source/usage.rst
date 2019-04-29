@@ -56,7 +56,7 @@ process.
 
 The best option depends on the hardware you have available, your connection to
 the database, and what you plan to do with the returned data. In general, the
-third method, using Thrift to serialize and deserialize the data, will slower
+third method, using Thrift to serialize and deserialize the data, will be slower
 than the GPU or CPU shared memory methods. The shared memory methods require
 that your OmniSci database is running on the same machine.
 
@@ -64,7 +64,7 @@ that your OmniSci database is running on the same machine.
 
    We currently support ``Timestamp(0|3|6)`` data types i.e. seconds, milliseconds,
    and microseconds granularity. Support for nanoseconds, ``Timestamp(9)`` is in
-   progress. 
+   progress.
 
 GPU Select
 ^^^^^^^^^^

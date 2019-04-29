@@ -16,9 +16,6 @@ This describes how to install the python package. To setup an OmniSci (formerly 
    # pip
    pip install pymapd
 
-This actually installs two packages, ``pymapd``, the pythonic interface to OmniSci,
-and ``mapd``, the Apache thrift bindings for OmniSci.
-
 There are several optional dependencies that may be useful. To return results sets
 into GPU memory as a GpuDataFrame, you'll need `cudf`_. To return results into CPU
 shared memory, using the `Apache Arrow`_ memory layout, you'll need `pyarrow`_ and
