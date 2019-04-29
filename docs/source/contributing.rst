@@ -3,7 +3,7 @@
 Contributing to pymapd
 ======================
 
-As a philosophically open-source company, OmniSci welcomes contributions to all of its open-source repositories,
+As an open-source company, OmniSci welcomes contributions to all of its open-source repositories,
 including pymapd. All discussion and development takes place via the `pymapd GitHub repository`_.
 
 It is suggested, but not required, that you `create a GitHub issue`_ before contributing a feature or bug fix. This is so that other
@@ -64,7 +64,7 @@ Unless you are planning on developing GPU-specific functionality in pymapd, usin
 With the above code, we:
    * create/run an instance of OmniSci Core CPU as a daemon (i.e. running in the background until stopped)
    * forward ports ``6274`` (binary connection) and ``6278`` (http connection).
-   * set `ipc=host` for testing shared memory/IPC functionality
+   * set ``ipc=host`` for testing shared memory/IPC functionality
    * point to a local directory to store data loaded to OmniSci. This allows our container to be ephemeral.
 
 To run the test suite, call ``pytest`` from the top-level pymapd folder:
