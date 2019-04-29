@@ -30,7 +30,6 @@ the `Apache Arrow`_-based `cudf GPU DataFrame`_ format for efficient data interc
    :maxdepth: 2
    :caption: Contents:
 
-   install
    usage
    api
    contributing
