@@ -15,10 +15,9 @@ the `Apache Arrow`_ -based `cudf GPU DataFrame`_ format for efficient data inter
    >>> from pymapd import connect
    >>> con = connect(user="mapd", password="HyperInteractive", host="localhost",
    ...               dbname="mapd")
-   >>> query = "SELECT depdelay, arrdelay FROM flights_2008_10k limit 100"
-   >>> df = con.select_ipc_gpu("SELECT depdelay, arrdelay "
-   ...                         "FROM   flights_2008_10k "
-   ...                         "LIMIT  100")
+   >>> df = con.select_ipc_gpu("SELECT depdelay, arrdelay"
+   ...                         "FROM flights_2008_10k"
+   ...                         "LIMIT 100")
    >>> df.head()
      depdelay arrdelay
    0       -2      -13
