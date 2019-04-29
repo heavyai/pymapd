@@ -33,6 +33,7 @@ the `Apache Arrow`_-based `cudf GPU DataFrame`_ format for efficient data interc
    usage
    api
    contributing
+   releasenotes
 
 
 .. _DB-API-2.0: https://www.python.org/dev/peps/pep-0249/
