@@ -1,21 +1,22 @@
-import six
 import mapd.ttypes as T
+from typing import Any, Optional, List, Iterator, Union, Tuple, Iterable
 
 from .exceptions import _translate_exception
-from ._parsers import (_extract_col_vals, _extract_description,
-                       _extract_row_val, _is_columnar, _bind_parameters)
+from ._parsers import (_extract_col_vals,
+                       _extract_description,
+                       _bind_parameters
+                       )
 
 
-class Cursor(object):
+class Cursor:
     """A database cursor."""
 
-    def __init__(self, connection, columnar=True):
+    def __init__(self, connection):
         # type: (Any, bool) -> None
         # XXX: supposed to share state between cursors of the same connection
         self.connection = connection
-        self.columnar = columnar
         self.rowcount = -1
-        self._description = None  # type: Optional[List[Description]]
+        self._description = None  # type: Optional[List[str]]
         self._arraysize = 1
         self._result = None
         self._result_set = None  # type: Optional[Iterator[Any]]
@@ -34,7 +35,7 @@ class Cursor(object):
 
     @property
     def description(self):
-        # type: () -> Optional[List[Description]]
+        # type: () -> Optional[List[str]]
         """
         Read-only sequence describing columns of the result set.
         Each column is an instance of `Description` describing
@@ -111,23 +112,22 @@ class Cursor(object):
         [('RHAT', 100.0), ('IBM', 500.0)]
         """
         if parameters is not None:
-            operation = six.text_type(_bind_parameters(operation, parameters))
+            operation = str(_bind_parameters(operation, parameters))
         self.rowcount = -1
         try:
             result = self.connection._client.sql_execute(
                 self.connection._session, operation,
-                column_format=self.columnar,
+                column_format=True,
                 nonce=None, first_n=-1, at_most_n=-1)
         except T.TMapDException as e:
-            six.raise_from(_translate_exception(e), e)
+            raise _translate_exception(e) from e
         self._description = _extract_description(result.row_set.row_desc)
-        if self.columnar:
-            try:
-                self.rowcount = len(result.row_set.columns[0].nulls)
-            except IndexError:
-                pass
-        else:
-            self.rowcount = len(result.row_set.rows)
+
+        try:
+            self.rowcount = len(result.row_set.columns[0].nulls)
+        except IndexError:
+            pass
+
         self._result_set = make_row_results_set(result)
         self._result = result
         return self
@@ -195,16 +195,12 @@ def make_row_results_set(data):
     -------
     results : Iterator[tuple]
     """
-    if _is_columnar(data):
-        if data.row_set.columns:
-            nrows = len(data.row_set.columns[0].nulls)
-            ncols = len(data.row_set.row_desc)
-            columns = [_extract_col_vals(desc, col)
-                       for desc, col in zip(data.row_set.row_desc,
-                                            data.row_set.columns)]
-            for i in range(nrows):
-                yield tuple(columns[j][i] for j in range(ncols))
-    else:
-        for row in data.row_set.rows:
-            yield tuple(_extract_row_val(desc, val)
-                        for desc, val in zip(data.row_set.row_desc, row.cols))
+
+    if data.row_set.columns:
+        nrows = len(data.row_set.columns[0].nulls)
+        ncols = len(data.row_set.row_desc)
+        columns = [_extract_col_vals(desc, col)
+                   for desc, col in zip(data.row_set.row_desc,
+                                        data.row_set.columns)]
+        for i in range(nrows):
+            yield tuple(columns[j][i] for j in range(ncols))

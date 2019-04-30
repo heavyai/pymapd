@@ -1,13 +1,13 @@
 import pytest
 from mapd.ttypes import TColumnType, TTypeInfo
-
 from pymapd import OperationalError, connect
 from pymapd.cursor import Cursor
 from pymapd.connection import _parse_uri, ConnectionInfo
 from pymapd._parsers import ColumnDetails, _extract_column_details
 
 
-class TestConnect(object):
+@pytest.mark.usefixtures("mapd_server")
+class TestConnect:
 
     def test_host_specified(self):
         with pytest.raises(TypeError):
@@ -17,61 +17,49 @@ class TestConnect(object):
         with pytest.raises(OperationalError):
             connect(host='localhost', protocol='binary', port=1234)
 
-    def test_close(self, mock_transport, mock_client):
-        con = connect(user='user', password='password',
-                      host='localhost', dbname='dbname')
-        assert con.closed == 0
-        con.close()
-        assert con.closed == 1
+    def test_close(self):
+        conn = connect(user='mapd', password='HyperInteractive',
+                       host='localhost', dbname='mapd')
+        assert conn.closed == 0
+        conn.close()
+        assert conn.closed == 1
 
-    def test_connect(self, mock_transport, mock_client):
-        con = connect(user='user', password='password',
-                      host='localhost', dbname='dbname')
-        assert mock_client.call_count == 1
-        assert con._client.connect.call_args == [
-            ('user', 'password', 'dbname')
-        ]
-
-    def test_context_manager(self, mock_transport, mock_client):
-        con = connect(user='user', password='password',
-                      host='localhost', dbname='dbname')
+    def test_context_manager(self, con):
         with con as cur:
             pass
 
         assert isinstance(cur, Cursor)
         assert con.closed == 0
 
-    def test_commit_noop(self, mock_transport, mock_client):
-        con = connect(user='user', password='password',
-                      host='localhost', dbname='dbname')
+    def test_commit_noop(self, con):
         result = con.commit()  # it worked
         assert result is None
 
-    def test_bad_protocol(self, mock_transport, mock_client):
+    def test_bad_protocol(self, mock_client):
         with pytest.raises(ValueError) as m:
             connect(user='user', host='localhost', dbname='dbname',
                     protocol='fake-proto')
         assert m.match('fake-proto')
 
 
-class TestURI(object):
+class TestURI:
 
     def test_parse_uri(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?'
+        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?'
                'protocol=binary')
         result = _parse_uri(uri)
         expected = ConnectionInfo("mapd", "HyperInteractive", "localhost",
-                                  9091, "mapd", "binary")
+                                  6274, "mapd", "binary")
         assert result == expected
 
     def test_both_raises(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:9091/mapd?'
+        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?'
                'protocol=binary')
         with pytest.raises(TypeError):
             connect(uri=uri, user='my user')
 
 
-class TestExtras(object):
+class TestExtras:
     def test_extract_row_details(self):
         data = [
             TColumnType(col_name='date_',
@@ -108,16 +96,17 @@ class TestExtras(object):
 
         expected = [
             ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
-                          scale=0, comp_param=32),
+                          scale=0, comp_param=32, encoding='DICT'),
             ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
-                          scale=0, comp_param=32),
+                          scale=0, comp_param=32, encoding='DICT'),
             ColumnDetails(name='symbol', type='STR', nullable=True,
-                          precision=0, scale=0, comp_param=32),
+                          precision=0, scale=0, comp_param=32,
+                          encoding='DICT'),
             ColumnDetails(name='qty', type='INT', nullable=True, precision=0,
-                          scale=0, comp_param=0),
+                          scale=0, comp_param=0, encoding='NONE'),
             ColumnDetails(name='price', type='FLOAT', nullable=True,
-                          precision=0, scale=0, comp_param=0),
+                          precision=0, scale=0, comp_param=0, encoding='NONE'),
             ColumnDetails(name='vol', type='FLOAT', nullable=True, precision=0,
-                          scale=0, comp_param=0)
+                          scale=0, comp_param=0, encoding='NONE')
         ]
         assert result == expected

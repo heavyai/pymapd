@@ -5,14 +5,15 @@ from collections import namedtuple
 import pandas as pd
 import pyarrow as pa
 import ctypes
+
 import six
 from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
 from mapd.MapD import Client, TDeviceType, TCreateParams
-from mapd.ttypes import TMapDException
-import base64
+from mapd.ttypes import TMapDException, TTableType
+
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
 
@@ -20,8 +21,15 @@ from ._parsers import (
     _load_data, _load_schema, _parse_tdf_gpu, _bind_parameters,
     _extract_column_details
 )
+
 from ._loaders import _build_input_rows
 from ._transforms import change_dashboard_sources
+from .ipc import load_buffer, shmdt
+from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
+from . import _pandas_loaders
+
+from packaging.version import Version
+
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
                                                'port', 'dbname', 'protocol'])
@@ -31,7 +39,7 @@ def connect(uri=None,           # type: Optional[str]
             user=None,          # type: Optional[str]
             password=None,      # type: Optional[str]
             host=None,          # type: Optional[str]
-            port=9091,          # type: Optional[int]
+            port=6274,          # type: Optional[int]
             dbname=None,        # type: Optional[str]
             protocol='binary',  # type: Optional[str]
             ):
@@ -57,12 +65,12 @@ def connect(uri=None,           # type: Optional[str]
     --------
     You can either pass a string ``uri`` or all the individual components
 
-    >>> connect('mapd://mapd:HyperInteractive@localhost:9091/mapd?'
+    >>> connect('mapd://mapd:HyperInteractive@localhost:6274/mapd?'
     ...         'protocol=binary')
-    Connection(mapd://mapd:***@localhost:9091/mapd?protocol=binary)
+    Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
 
     >>> connect(user='mapd', password='HyperInteractive', host='localhost',
-    ...         port=9091, dbname='mapd')
+    ...         port=6274, dbname='mapd')
 
     """
     return Connection(uri=uri, user=user, password=password, host=host,
@@ -105,7 +113,7 @@ def _parse_uri(uri):
     return ConnectionInfo(user, password, host, port, dbname, protocol)
 
 
-class Connection(object):
+class Connection:
     """Connect to your OmniSci database."""
 
     def __init__(self,
@@ -113,7 +121,7 @@ class Connection(object):
                  user=None,          # type: Optional[str]
                  password=None,      # type: Optional[str]
                  host=None,          # type: Optional[str]
-                 port=9091,          # type: Optional[int]
+                 port=6274,          # type: Optional[int]
                  dbname=None,        # type: Optional[str]
                  protocol='binary',  # type: Optional[str]
                  ):
@@ -122,7 +130,7 @@ class Connection(object):
             if not all([user is None,
                         password is None,
                         host is None,
-                        port == 9091,
+                        port == 6274,
                         dbname is None,
                         protocol == 'binary']):
                 raise TypeError("Cannot specify both URI and other arguments")
@@ -159,14 +167,23 @@ class Connection(object):
         except TTransportException as e:
             if e.NOT_OPEN:
                 err = OperationalError("Could not connect to database")
-                six.raise_from(err, e)
+                raise err from e
             else:
                 raise
         self._client = Client(proto)
         try:
             self._session = self._client.connect(user, password, dbname)
         except TMapDException as e:
-            six.raise_from(_translate_exception(e), e)
+            raise _translate_exception(e) from e
+
+        # if OmniSci version <4.6, raise RuntimeError, as data import can be
+        # incorrect for columnar date loads
+        # Caused by https://github.com/omnisci/pymapd/pull/188
+        semver = self._client.get_version()
+        if Version(semver.split("-")[0]) < Version("4.6"):
+            raise RuntimeError(f"Version {semver} of OmniSci detected. "
+                               "Please use pymapd <0.11. See release notes "
+                               "for more details.")
 
     def __repr__(self):
         # type: () -> str
@@ -221,7 +238,7 @@ class Connection(object):
         c : Cursor
         """
         c = Cursor(self)
-        return c.execute(operation, parameters=parameters)
+        return c.execute(operation.strip(), parameters=parameters)
 
     def cursor(self):
         # type: () -> Cursor
@@ -265,7 +282,8 @@ class Connection(object):
             operation = str(_bind_parameters(operation, parameters))
 
         tdf = self._client.sql_execute_gdf(
-            self._session, operation, device_id=device_id, first_n=first_n)
+            self._session, operation.strip(), device_id=device_id,
+            first_n=first_n)
         self._tdf = tdf
 
         df = _parse_tdf_gpu(tdf)
@@ -299,18 +317,12 @@ class Connection(object):
         -----
         This method requires pyarrow to be installed.
         """
-        try:
-            import pyarrow  # noqa
-        except ImportError:
-            raise ImportError("pyarrow is required for `select_ipc`")
-
-        from .ipc import load_buffer, shmdt
 
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
 
         tdf = self._client.sql_execute_df(
-            self._session, operation, device_type=0, device_id=0,
+            self._session, operation.strip(), device_type=0, device_id=0,
             first_n=first_n
         )
         self._tdf = tdf
@@ -396,9 +408,9 @@ class Connection(object):
         --------
         >>> con.get_table_details('stocks')
         [ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
-                       scale=0, comp_param=32),
+                       scale=0, comp_param=32, encoding='DICT'),
          ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
-                       scale=0, comp_param=32),
+                       scale=0, comp_param=32, encoding='DICT'),
          ...
         ]
         """
@@ -415,8 +427,6 @@ class Connection(object):
         preserve_index : bool, default False
             Whether to create a column in the table for the DataFrame index
         """
-        from mapd.ttypes import TTableType
-        from ._pandas_loaders import build_row_desc
 
         row_desc = build_row_desc(data, preserve_index=preserve_index)
         self._client.create_table(self._session, table_name, row_desc,
@@ -431,7 +441,7 @@ class Connection(object):
         ----------
         table_name : str
         data : pyarrow.Table, pandas.DataFrame, or iterable of tuples
-        method : {'infer', 'columnar', 'rows'}
+        method : {'infer', 'columnar', 'rows', 'arrow'}
             Method to use for loading the data. Three options are available
 
             1. ``pyarrow`` and Apache Arrow loader
@@ -461,7 +471,10 @@ class Connection(object):
         load_table_arrow
         load_table_columnar
         """
-        create = _check_create(create)
+
+        if create not in ['infer', True, False]:
+            raise ValueError(f"Unexpected value for create: '{create}'. "
+                             "Expected one of {'infer', True, False}")
 
         if create == 'infer':
             # ask the database if we already exist, creating if not
@@ -472,7 +485,8 @@ class Connection(object):
             self.create_table(table_name, data)
 
         if method == 'infer':
-            if (isinstance(data, pd.DataFrame) or _is_arrow(data)):
+            if (isinstance(data, pd.DataFrame)
+                or isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)): # noqa
                 return self.load_table_arrow(table_name, data)
 
             elif (isinstance(data, pd.DataFrame)):
@@ -490,9 +504,9 @@ class Connection(object):
                             .format(method))
 
         if isinstance(data, pd.DataFrame):
-            # We need to convert a Pandas dataframe to an array before we
-            # can load row wise
-            data = data.values
+            # We need to convert a Pandas dataframe to a list of tuples before
+            # loading row wise
+            data = data.itertuples(index=preserve_index, name=None)
 
         input_data = _build_input_rows(data)
         self._client.load_table(self._session, table_name, input_data)
@@ -558,8 +572,12 @@ class Connection(object):
         load_table
         load_table_arrow
         load_table_rowwise
+
+        Note
+        ----
+        Use ``pymapd >= 0.11.0`` while running with ``omnisci >= 4.6.0`` in
+        order to avoid loading inconsistent values into DATE column.
         """
-        from . import _pandas_loaders
 
         if isinstance(data, pd.DataFrame):
             table_details = self.get_table_details(table_name)
@@ -567,10 +585,10 @@ class Connection(object):
             # as there are in the dataframe. No point trying to load the data
             # if this is not the case
             if len(table_details) != len(data.columns):
-                raise ValueError('Number of columns in dataframe ({0}) does not \
+                raise ValueError('Number of columns in dataframe ({}) does not \
                                   match number of columns in OmniSci table \
-                                  ({1})'.format(len(data.columns),
-                                                len(table_details)))
+                                  ({})'.format(len(data.columns),
+                                               len(table_details)))
 
             col_names = [i[0] for i in table_details] if \
                 col_names_from_schema \
@@ -614,7 +632,6 @@ class Connection(object):
         load_table_rowwise
         """
         metadata = self.get_table_details(table_name)
-        from ._pandas_loaders import _serialize_arrow_payload
         payload = _serialize_arrow_payload(data, metadata,
                                            preserve_index=preserve_index)
         self._client.load_table_binary_arrow(self._session, table_name,
@@ -704,7 +721,7 @@ class Connection(object):
         return new_dashboard_id
 
 
-class RenderedVega(object):
+class RenderedVega:
     def __init__(self, render_result):
         self._render_result = render_result
         self.image_data = base64.b64encode(render_result.image).decode()
@@ -716,16 +733,3 @@ class RenderedVega(object):
                 '<img src="data:image/png;base64,{}" alt="OmniSci Vega">'
                 .format(self.image_data)
         }
-
-
-def _is_arrow(data):
-    """Whether `data` is an arrow `Table` or `RecordBatch`"""
-    return isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)
-
-
-def _check_create(create):
-    valid = {'infer', True, False}
-    if create not in valid:
-        raise ValueError("Unexpected value for create: '{}'. "
-                         "Expected one of {}".format(create, valid))
-    return create

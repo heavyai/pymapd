@@ -25,20 +25,17 @@ echo "[add channels]"
 conda config --add channels conda-forge || exit 1
 
 conda create -n omnisci-dev python=${PYTHON} \
-six>=1.10.0 \
 thrift=0.11.0 \
 numpydoc \
-"pyarrow>=0.10.0,<0.12" \
-arrow-cpp \
-sqlalchemy \
-numpy>=1.14 \
-pandas \
+"pyarrow>=0.10.0,<0.14" \
+sqlalchemy>=1.3 \
+numpy>=1.16 \
+pandas>=0.24 \
 coverage \
 flake8 \
-"pytest>=3.6,<4.0" \
+pytest \
 pytest-cov \
-pytest-mock \
-mock
+pytest-mock
 
 source activate omnisci-dev
 
