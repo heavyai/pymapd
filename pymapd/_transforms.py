@@ -17,7 +17,8 @@ def change_dashboard_sources(dashboard, remap):
     """
     dm = json.loads(dashboard.dashboard_metadata)
     tlst = map(str.strip, dm.get('table', '').split(','))
-    tlst = [remap[t]['name'] if remap.get(t, {}).get('name', {}) else t for t in tlst]
+    tlst = [remap[t]['name'] if remap.get(t, {}).get('name',
+                                                     {}) else t for t in tlst]
     dm['table'] = ', '.join(tlst)
 
     # Load our dashboard state into a python dictionary
@@ -29,8 +30,9 @@ def change_dashboard_sources(dashboard, remap):
         if ds['dashboard']['table'] == old_table:
             ds['dashboard']['table'] = new_table
 
-        # Change the name of the dashboard to the one provided or use the old one
-        ds['dashboard']['title'] = defs.get('title', {}) or ds['dashboard']['title']
+        # Change the name of the dashboard or use the old one
+        ds['dashboard']['title'] = defs.get('title',
+                                            {}) or ds['dashboard']['title']
 
         # Remap our datasources keys
         for key, val in ds['dashboard']['dataSources'].items():
@@ -50,7 +52,8 @@ def change_dashboard_sources(dashboard, remap):
                 if dim.get('table', {}) == old_table:
                     ds['charts'][c]['dimensions'][i]['table'] = new_table
                 if dim.get('selector', {}).get('table') == old_table:
-                    ds['charts'][c]['dimensions'][i]['selector']['table'] = new_table
+                    (ds['charts'][c]['dimensions'][i]
+                        ['selector']['table']) = new_table
                 i += 1
 
             # Remap Our Measures to the new table
