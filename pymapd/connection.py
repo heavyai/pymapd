@@ -21,7 +21,7 @@ from ._parsers import (
     _extract_column_details
 )
 from ._loaders import _build_input_rows
-from ._transforms import change_dash_sources
+from ._transforms import change_dashboard_sources
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
                                                'port', 'dbname', 'protocol'])
@@ -656,7 +656,7 @@ class Connection(object):
         return dashboards
 
     def duplicate_dashboard(self, dashboard_id, new_name=None,
-                            source_remap={}):
+                            source_remap=None):
         """
         Duplicate an existing dashboard, returning the new dashboard id.
 
@@ -684,13 +684,14 @@ class Connection(object):
                 }
             }
         """
+        source_remap = source_remap or {}
         d = self._client.get_dashboard(
             session=self._session,
             dashboard_id=dashboard_id
         )
 
         newdashname = new_name or '{0} (Copy)'.format(d.dashboard_name)
-        d = change_dash_sources(d, source_remap) if source_remap else d
+        d = change_dashboard_sources(d, source_remap) if source_remap else d
 
         new_dashboard_id = self._client.create_dashboard(
             session=self._session,
