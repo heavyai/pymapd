@@ -2,6 +2,7 @@
 Connect to an OmniSci database.
 """
 from collections import namedtuple
+import base64
 import pandas as pd
 import pyarrow as pa
 import ctypes
