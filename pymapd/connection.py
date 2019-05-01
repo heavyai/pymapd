@@ -22,6 +22,7 @@ from ._parsers import (
 )
 
 from ._loaders import _build_input_rows
+from ._transforms import change_dashboard_sources
 from .ipc import load_buffer, shmdt
 from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
 from . import _pandas_loaders
@@ -646,6 +647,66 @@ class Connection:
         )
         rendered_vega = RenderedVega(result)
         return rendered_vega
+
+    def get_dashboards(self):
+        """List all the dashboards in the database
+
+        Example
+        --------
+        >>> con.get_dashboards()
+        """
+        dashboards = self._client.get_dashboards(
+            session=self._session
+        )
+        return dashboards
+
+    def duplicate_dashboard(self, dashboard_id, new_name=None,
+                            source_remap=None):
+        """
+        Duplicate an existing dashboard, returning the new dashboard id.
+
+        Parameters
+        ----------
+
+        dashboard_id : int
+            The id of the dashboard to duplicate
+        new_name : str
+            The name for the new dashboard
+        source_remap: dict
+            EXPERIMENTAL
+            A dictionary remapping table names. The old table name(s)
+            should be keys of the dict, with each value being another
+            dict with a 'name' key holding the new table value. This
+            structure can be used later to support changing column
+            names.
+            Example of source_remap format:
+            {
+                'oldtablename1': {
+                    'name': 'newtablename1'
+                },
+                'oldtablename2': {
+                    'name': 'newtablename2'
+                }
+            }
+        """
+        source_remap = source_remap or {}
+        d = self._client.get_dashboard(
+            session=self._session,
+            dashboard_id=dashboard_id
+        )
+
+        newdashname = new_name or '{0} (Copy)'.format(d.dashboard_name)
+        d = change_dashboard_sources(d, source_remap) if source_remap else d
+
+        new_dashboard_id = self._client.create_dashboard(
+            session=self._session,
+            dashboard_name=newdashname,
+            dashboard_state=d.dashboard_state,
+            image_hash='',
+            dashboard_metadata=d.dashboard_metadata,
+        )
+
+        return new_dashboard_id
 
 
 class RenderedVega:
