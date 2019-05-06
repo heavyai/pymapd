@@ -8,6 +8,9 @@ from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails
 from mapd.ttypes import TMapDException
+from .data import dashboard_metadata
+import json
+import base64
 import pandas as pd
 import numpy as np
 import pyarrow as pa
@@ -320,6 +323,63 @@ class TestIntegration:
         ]
         assert result == expected
         c.execute('drop table if exists dates;')
+
+    def test_dashboard_duplication_remap(self, con):
+        # This test relies on the test_data_no_nulls_ipc table
+        # Setup our testing variables
+        old_dashboard_state = dashboard_metadata.old_dashboard_state
+        old_dashboard_name = dashboard_metadata.old_dashboard_name
+        new_dashboard_name = "new_test"
+        meta_data = {"table": "test_data_no_nulls_ipc", "version": "v2"}
+        remap = {
+                    "test_data_no_nulls_ipc": {
+                        "name": new_dashboard_name,
+                        "title": new_dashboard_name
+                        }
+                }
+        dashboard_id = ""
+
+        # Create testing dashboard
+        con._client.create_dashboard(
+            session=con._session,
+            dashboard_name=old_dashboard_name,
+            dashboard_state=(
+                base64.b64encode(json.dumps(old_dashboard_state).encode(
+                    "utf-8"))),
+            image_hash="",
+            dashboard_metadata=json.dumps(meta_data),
+        )
+
+        # Grab our testing dashboard id from the database
+        dashboards = con._client.get_dashboards(session=con._session)
+        for dashboard in dashboards:
+            if dashboard.dashboard_name == old_dashboard_name:
+                dashboard_id = dashboard.dashboard_id
+
+        # Duplicate and remap our dashboard
+        new_dashboard = con.duplicate_dashboard(
+                    dashboard_id, new_dashboard_name, remap
+                )
+
+        # Get our new dashboard from the database
+        dashboards = con._client.get_dashboards(session=con._session)
+        for dashboard in dashboards:
+            if dashboard.dashboard_name == new_dashboard_name:
+                dashboard_id = dashboard.dashboard_id
+        d = con._client.get_dashboard(
+                                        session=con._session,
+                                        dashboard_id=dashboard_id
+                                    )
+        remapped_dashboard = json.loads(base64.b64decode(
+            d.dashboard_state).decode())
+
+        # Assert that the table and title changed
+        assert remapped_dashboard['dashboard']['title'] == new_dashboard_name
+
+        # Ensure the datasources change
+        for key, val in remapped_dashboard['dashboard']['dataSources'].items():
+            for col in val['columnMetadata']:
+                assert col['table'] == new_dashboard_name
 
 
 class TestOptionalImports:
