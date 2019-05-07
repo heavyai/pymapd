@@ -11,12 +11,112 @@ from thrift.protocol.TProtocol import TProtocolException
 from thrift.TRecursive import fix_spec
 
 import sys
-import common.ttypes
 import completion_hints.ttypes
-import serialized_result_set.ttypes
 
 from thrift.transport import TTransport
 all_structs = []
+
+
+class TDatumType(object):
+    SMALLINT = 0
+    INT = 1
+    BIGINT = 2
+    FLOAT = 3
+    DECIMAL = 4
+    DOUBLE = 5
+    STR = 6
+    TIME = 7
+    TIMESTAMP = 8
+    DATE = 9
+    BOOL = 10
+    INTERVAL_DAY_TIME = 11
+    INTERVAL_YEAR_MONTH = 12
+    POINT = 13
+    LINESTRING = 14
+    POLYGON = 15
+    MULTIPOLYGON = 16
+    TINYINT = 17
+    GEOMETRY = 18
+    GEOGRAPHY = 19
+
+    _VALUES_TO_NAMES = {
+        0: "SMALLINT",
+        1: "INT",
+        2: "BIGINT",
+        3: "FLOAT",
+        4: "DECIMAL",
+        5: "DOUBLE",
+        6: "STR",
+        7: "TIME",
+        8: "TIMESTAMP",
+        9: "DATE",
+        10: "BOOL",
+        11: "INTERVAL_DAY_TIME",
+        12: "INTERVAL_YEAR_MONTH",
+        13: "POINT",
+        14: "LINESTRING",
+        15: "POLYGON",
+        16: "MULTIPOLYGON",
+        17: "TINYINT",
+        18: "GEOMETRY",
+        19: "GEOGRAPHY",
+    }
+
+    _NAMES_TO_VALUES = {
+        "SMALLINT": 0,
+        "INT": 1,
+        "BIGINT": 2,
+        "FLOAT": 3,
+        "DECIMAL": 4,
+        "DOUBLE": 5,
+        "STR": 6,
+        "TIME": 7,
+        "TIMESTAMP": 8,
+        "DATE": 9,
+        "BOOL": 10,
+        "INTERVAL_DAY_TIME": 11,
+        "INTERVAL_YEAR_MONTH": 12,
+        "POINT": 13,
+        "LINESTRING": 14,
+        "POLYGON": 15,
+        "MULTIPOLYGON": 16,
+        "TINYINT": 17,
+        "GEOMETRY": 18,
+        "GEOGRAPHY": 19,
+    }
+
+
+class TEncodingType(object):
+    NONE = 0
+    FIXED = 1
+    RL = 2
+    DIFF = 3
+    DICT = 4
+    SPARSE = 5
+    GEOINT = 6
+    DATE_IN_DAYS = 7
+
+    _VALUES_TO_NAMES = {
+        0: "NONE",
+        1: "FIXED",
+        2: "RL",
+        3: "DIFF",
+        4: "DICT",
+        5: "SPARSE",
+        6: "GEOINT",
+        7: "DATE_IN_DAYS",
+    }
+
+    _NAMES_TO_VALUES = {
+        "NONE": 0,
+        "FIXED": 1,
+        "RL": 2,
+        "DIFF": 3,
+        "DICT": 4,
+        "SPARSE": 5,
+        "GEOINT": 6,
+        "DATE_IN_DAYS": 7,
+    }
 
 
 class TExecuteMode(object):
@@ -31,6 +131,21 @@ class TExecuteMode(object):
     _NAMES_TO_VALUES = {
         "GPU": 1,
         "CPU": 2,
+    }
+
+
+class TDeviceType(object):
+    CPU = 0
+    GPU = 1
+
+    _VALUES_TO_NAMES = {
+        0: "CPU",
+        1: "GPU",
+    }
+
+    _NAMES_TO_VALUES = {
+        "CPU": 0,
+        "GPU": 1,
     }
 
 
@@ -426,6 +541,139 @@ class TStringValue(object):
         return not (self == other)
 
 
+class TTypeInfo(object):
+    """
+    Attributes:
+     - type
+     - encoding
+     - nullable
+     - is_array
+     - precision
+     - scale
+     - comp_param
+     - size
+    """
+
+
+    def __init__(self, type=None, encoding=None, nullable=None, is_array=None, precision=None, scale=None, comp_param=None, size=-1,):
+        self.type = type
+        self.encoding = encoding
+        self.nullable = nullable
+        self.is_array = is_array
+        self.precision = precision
+        self.scale = scale
+        self.comp_param = comp_param
+        self.size = size
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.I32:
+                    self.type = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.I32:
+                    self.encoding = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.BOOL:
+                    self.nullable = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.BOOL:
+                    self.is_array = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.I32:
+                    self.precision = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.I32:
+                    self.scale = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 7:
+                if ftype == TType.I32:
+                    self.comp_param = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.I32:
+                    self.size = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('TTypeInfo')
+        if self.type is not None:
+            oprot.writeFieldBegin('type', TType.I32, 1)
+            oprot.writeI32(self.type)
+            oprot.writeFieldEnd()
+        if self.nullable is not None:
+            oprot.writeFieldBegin('nullable', TType.BOOL, 2)
+            oprot.writeBool(self.nullable)
+            oprot.writeFieldEnd()
+        if self.is_array is not None:
+            oprot.writeFieldBegin('is_array', TType.BOOL, 3)
+            oprot.writeBool(self.is_array)
+            oprot.writeFieldEnd()
+        if self.encoding is not None:
+            oprot.writeFieldBegin('encoding', TType.I32, 4)
+            oprot.writeI32(self.encoding)
+            oprot.writeFieldEnd()
+        if self.precision is not None:
+            oprot.writeFieldBegin('precision', TType.I32, 5)
+            oprot.writeI32(self.precision)
+            oprot.writeFieldEnd()
+        if self.scale is not None:
+            oprot.writeFieldBegin('scale', TType.I32, 6)
+            oprot.writeI32(self.scale)
+            oprot.writeFieldEnd()
+        if self.comp_param is not None:
+            oprot.writeFieldBegin('comp_param', TType.I32, 7)
+            oprot.writeI32(self.comp_param)
+            oprot.writeFieldEnd()
+        if self.size is not None:
+            oprot.writeFieldBegin('size', TType.I32, 8)
+            oprot.writeI32(self.size)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
 class TColumnType(object):
     """
     Attributes:
@@ -464,7 +712,7 @@ class TColumnType(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.col_type = common.ttypes.TTypeInfo()
+                    self.col_type = TTypeInfo()
                     self.col_type.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -909,9 +1157,8 @@ class TStepResult(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRUCT:
-                    self.serialized_rows = serialized_result_set.ttypes.TSerializedRows()
-                    self.serialized_rows.read(iprot)
+                if ftype == TType.STRING:
+                    self.serialized_rows = iprot.readBinary()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -961,8 +1208,8 @@ class TStepResult(object):
             return
         oprot.writeStructBegin('TStepResult')
         if self.serialized_rows is not None:
-            oprot.writeFieldBegin('serialized_rows', TType.STRUCT, 1)
-            self.serialized_rows.write(oprot)
+            oprot.writeFieldBegin('serialized_rows', TType.STRING, 1)
+            oprot.writeBinary(self.serialized_rows)
             oprot.writeFieldEnd()
         if self.uncompressed_size is not None:
             oprot.writeFieldBegin('uncompressed_size', TType.I64, 2)
@@ -5611,11 +5858,23 @@ TStringValue.thrift_spec = (
     (1, TType.STRING, 'str_val', 'UTF8', None, ),  # 1
     (2, TType.BOOL, 'is_null', None, None, ),  # 2
 )
+all_structs.append(TTypeInfo)
+TTypeInfo.thrift_spec = (
+    None,  # 0
+    (1, TType.I32, 'type', None, None, ),  # 1
+    (2, TType.BOOL, 'nullable', None, None, ),  # 2
+    (3, TType.BOOL, 'is_array', None, None, ),  # 3
+    (4, TType.I32, 'encoding', None, None, ),  # 4
+    (5, TType.I32, 'precision', None, None, ),  # 5
+    (6, TType.I32, 'scale', None, None, ),  # 6
+    (7, TType.I32, 'comp_param', None, None, ),  # 7
+    (8, TType.I32, 'size', None, -1, ),  # 8
+)
 all_structs.append(TColumnType)
 TColumnType.thrift_spec = (
     None,  # 0
     (1, TType.STRING, 'col_name', 'UTF8', None, ),  # 1
-    (2, TType.STRUCT, 'col_type', [common.ttypes.TTypeInfo, None], None, ),  # 2
+    (2, TType.STRUCT, 'col_type', [TTypeInfo, None], None, ),  # 2
     (3, TType.BOOL, 'is_reserved_keyword', None, None, ),  # 3
     (4, TType.STRING, 'src_name', 'UTF8', None, ),  # 4
     (5, TType.BOOL, 'is_system', None, None, ),  # 5
@@ -5649,7 +5908,7 @@ TStringRow.thrift_spec = (
 all_structs.append(TStepResult)
 TStepResult.thrift_spec = (
     None,  # 0
-    (1, TType.STRUCT, 'serialized_rows', [serialized_result_set.ttypes.TSerializedRows, None], None, ),  # 1
+    (1, TType.STRING, 'serialized_rows', 'BINARY', None, ),  # 1
     (2, TType.I64, 'uncompressed_size', None, None, ),  # 2
     (3, TType.BOOL, 'execution_finished', None, None, ),  # 3
     (4, TType.I32, 'merge_type', None, None, ),  # 4
