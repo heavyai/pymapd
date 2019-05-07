@@ -357,7 +357,7 @@ class TestIntegration:
                 dashboard_id = dashboard.dashboard_id
 
         # Duplicate and remap our dashboard
-        new_dashboard = con.duplicate_dashboard(
+        con.duplicate_dashboard(
                     dashboard_id, new_dashboard_name, remap
                 )
 
