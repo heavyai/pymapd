@@ -10,7 +10,8 @@ from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
-from mapd.MapD import Client, TDeviceType, TCreateParams
+from mapd.MapD import Client, TCreateParams
+from common.ttypes import TDeviceType
 from mapd.ttypes import TMapDException, TFileType
 
 from .cursor import Cursor

@@ -6,8 +6,7 @@
 #  options string: py
 #
 
-from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplicationException
-from thrift.protocol.TProtocol import TProtocolException
+from thrift.Thrift import TType
 from thrift.TRecursive import fix_spec
 
 import sys
@@ -576,12 +575,11 @@ class Iface(object):
         """
         pass
 
-    def broadcast_serialized_rows(self, serialized_rows, row_desc, uncompressed_size, query_id):
+    def broadcast_serialized_rows(self, serialized_rows, row_desc, query_id):
         """
         Parameters:
          - serialized_rows
          - row_desc
-         - uncompressed_size
          - query_id
         """
         pass
@@ -3005,23 +3003,21 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "execute_first_step failed: unknown result")
 
-    def broadcast_serialized_rows(self, serialized_rows, row_desc, uncompressed_size, query_id):
+    def broadcast_serialized_rows(self, serialized_rows, row_desc, query_id):
         """
         Parameters:
          - serialized_rows
          - row_desc
-         - uncompressed_size
          - query_id
         """
-        self.send_broadcast_serialized_rows(serialized_rows, row_desc, uncompressed_size, query_id)
+        self.send_broadcast_serialized_rows(serialized_rows, row_desc, query_id)
         self.recv_broadcast_serialized_rows()
 
-    def send_broadcast_serialized_rows(self, serialized_rows, row_desc, uncompressed_size, query_id):
+    def send_broadcast_serialized_rows(self, serialized_rows, row_desc, query_id):
         self._oprot.writeMessageBegin('broadcast_serialized_rows', TMessageType.CALL, self._seqid)
         args = broadcast_serialized_rows_args()
         args.serialized_rows = serialized_rows
         args.row_desc = row_desc
-        args.uncompressed_size = uncompressed_size
         args.query_id = query_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -5297,7 +5293,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = broadcast_serialized_rows_result()
         try:
-            self._handler.broadcast_serialized_rows(args.serialized_rows, args.row_desc, args.uncompressed_size, args.query_id)
+            self._handler.broadcast_serialized_rows(args.serialized_rows, args.row_desc, args.query_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -15595,15 +15591,13 @@ class broadcast_serialized_rows_args(object):
     Attributes:
      - serialized_rows
      - row_desc
-     - uncompressed_size
      - query_id
     """
 
 
-    def __init__(self, serialized_rows=None, row_desc=None, uncompressed_size=None, query_id=None,):
+    def __init__(self, serialized_rows=None, row_desc=None, query_id=None,):
         self.serialized_rows = serialized_rows
         self.row_desc = row_desc
-        self.uncompressed_size = uncompressed_size
         self.query_id = query_id
 
     def read(self, iprot):
@@ -15616,8 +15610,9 @@ class broadcast_serialized_rows_args(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRING:
-                    self.serialized_rows = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.STRUCT:
+                    self.serialized_rows = serialized_result_set.ttypes.TSerializedRows()
+                    self.serialized_rows.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -15633,11 +15628,6 @@ class broadcast_serialized_rows_args(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.I64:
-                    self.uncompressed_size = iprot.readI64()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.I64:
                     self.query_id = iprot.readI64()
                 else:
                     iprot.skip(ftype)
@@ -15652,8 +15642,8 @@ class broadcast_serialized_rows_args(object):
             return
         oprot.writeStructBegin('broadcast_serialized_rows_args')
         if self.serialized_rows is not None:
-            oprot.writeFieldBegin('serialized_rows', TType.STRING, 1)
-            oprot.writeString(self.serialized_rows.encode('utf-8') if sys.version_info[0] == 2 else self.serialized_rows)
+            oprot.writeFieldBegin('serialized_rows', TType.STRUCT, 1)
+            self.serialized_rows.write(oprot)
             oprot.writeFieldEnd()
         if self.row_desc is not None:
             oprot.writeFieldBegin('row_desc', TType.LIST, 2)
@@ -15662,12 +15652,8 @@ class broadcast_serialized_rows_args(object):
                 iter440.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
-        if self.uncompressed_size is not None:
-            oprot.writeFieldBegin('uncompressed_size', TType.I64, 3)
-            oprot.writeI64(self.uncompressed_size)
-            oprot.writeFieldEnd()
         if self.query_id is not None:
-            oprot.writeFieldBegin('query_id', TType.I64, 4)
+            oprot.writeFieldBegin('query_id', TType.I64, 3)
             oprot.writeI64(self.query_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -15689,10 +15675,9 @@ class broadcast_serialized_rows_args(object):
 all_structs.append(broadcast_serialized_rows_args)
 broadcast_serialized_rows_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, 'serialized_rows', 'UTF8', None, ),  # 1
+    (1, TType.STRUCT, 'serialized_rows', [serialized_result_set.ttypes.TSerializedRows, None], None, ),  # 1
     (2, TType.LIST, 'row_desc', (TType.STRUCT, [TColumnType, None], False), None, ),  # 2
-    (3, TType.I64, 'uncompressed_size', None, None, ),  # 3
-    (4, TType.I64, 'query_id', None, None, ),  # 4
+    (3, TType.I64, 'query_id', None, None, ),  # 3
 )
 
 
@@ -17828,4 +17813,3 @@ get_license_claims_result.thrift_spec = (
 )
 fix_spec(all_structs)
 del all_structs
-

@@ -89,7 +89,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  TTableMeta check_table_consistency(TSessionId session, i32 table_id)')
     print('  TPendingQuery start_query(TSessionId session, string query_ra, bool just_explain)')
     print('  TStepResult execute_first_step(TPendingQuery pending_query)')
-    print('  void broadcast_serialized_rows(string serialized_rows, TRowDescriptor row_desc, i64 uncompressed_size, TQueryId query_id)')
+    print('  void broadcast_serialized_rows(TSerializedRows serialized_rows, TRowDescriptor row_desc, TQueryId query_id)')
     print('  TPendingRenderQuery start_render_query(TSessionId session, i64 widget_id, i16 node_idx, string vega_json)')
     print('  TRenderStepResult execute_next_render_step(TPendingRenderQuery pending_render, TRenderAggDataMap merged_data)')
     print('  void insert_data(TSessionId session, TInsertData insert_data)')
@@ -573,10 +573,10 @@ elif cmd == 'execute_first_step':
     pp.pprint(client.execute_first_step(eval(args[0]),))
 
 elif cmd == 'broadcast_serialized_rows':
-    if len(args) != 4:
-        print('broadcast_serialized_rows requires 4 args')
+    if len(args) != 3:
+        print('broadcast_serialized_rows requires 3 args')
         sys.exit(1)
-    pp.pprint(client.broadcast_serialized_rows(args[0], eval(args[1]), eval(args[2]), eval(args[3]),))
+    pp.pprint(client.broadcast_serialized_rows(eval(args[0]), eval(args[1]), eval(args[2]),))
 
 elif cmd == 'start_render_query':
     if len(args) != 4:
