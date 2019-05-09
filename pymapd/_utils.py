@@ -23,14 +23,15 @@ def datetime_to_seconds(arr):
         if arr.dtype == 'int64':
             # The user has passed a unix timestamp already
             return arr
-        elif arr.dtype == 'object' or 'datetime64[ns,' in arr.dtype:
+        elif arr.dtype == 'object' or arr.dtype == 'datetime64[ns, UTC]':
             # Convert to datetime64[ns] from string
             # Or from datetime with timezone information
             arr = arr.astype('datetime64[ns]')
         else:
-            raise TypeError("Invalid type {}, expected one of \
-                datetime64[ns], int64 (seconds since epoch), \
-                or object (string)".format(arr.dtype))
+            raise TypeError(f"Invalid dtype '{arr.dtype}', expected one of: "
+                            "datetime64[ns], datetime64[ns, UTC], "
+                            "int64 (representing seconds since epoch), "
+                            "or object (string)")
     return arr.view('i8') // 10**9  # ns -> s since epoch
 
 
