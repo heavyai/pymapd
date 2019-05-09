@@ -35,7 +35,8 @@ coverage \
 flake8 \
 pytest \
 pytest-cov \
-pytest-mock
+pytest-mock \
+shapely
 
 source activate omnisci-dev
 

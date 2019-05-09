@@ -6,14 +6,13 @@ import base64
 import pandas as pd
 import pyarrow as pa
 import ctypes
-from typing import Optional, Tuple
-
 from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
-from mapd.MapD import Client, TDeviceType, TCreateParams
-from mapd.ttypes import TMapDException, TTableType
+from mapd.MapD import Client, TCreateParams
+from common.ttypes import TDeviceType
+from mapd.ttypes import TMapDException, TFileType
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
@@ -24,6 +23,7 @@ from ._parsers import (
 )
 
 from ._loaders import _build_input_rows
+from ._transforms import change_dashboard_sources
 from .ipc import load_buffer, shmdt
 from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
 from . import _pandas_loaders
@@ -35,15 +35,14 @@ ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
                                                'port', 'dbname', 'protocol'])
 
 
-def connect(uri=None,           # type: Optional[str]
-            user=None,          # type: Optional[str]
-            password=None,      # type: Optional[str]
-            host=None,          # type: Optional[str]
-            port=6274,          # type: Optional[int]
-            dbname=None,        # type: Optional[str]
-            protocol='binary',  # type: Optional[str]
+def connect(uri=None,
+            user=None,
+            password=None,
+            host=None,
+            port=6274,
+            dbname=None,
+            protocol='binary',
             ):
-    # type: (...) -> Connection
     """
     Crate a new Connection.
 
@@ -78,7 +77,6 @@ def connect(uri=None,           # type: Optional[str]
 
 
 def _parse_uri(uri):
-    # type: (str) -> ConnectionInfo
     """
     Parse connection string
 
@@ -117,15 +115,14 @@ class Connection:
     """Connect to your OmniSci database."""
 
     def __init__(self,
-                 uri=None,           # type: Optional[str]
-                 user=None,          # type: Optional[str]
-                 password=None,      # type: Optional[str]
-                 host=None,          # type: Optional[str]
-                 port=6274,          # type: Optional[int]
-                 dbname=None,        # type: Optional[str]
-                 protocol='binary',  # type: Optional[str]
+                 uri=None,
+                 user=None,
+                 password=None,
+                 host=None,
+                 port=6274,
+                 dbname=None,
+                 protocol='binary',
                  ):
-        # type: (...) -> None
         if uri is not None:
             if not all([user is None,
                         password is None,
@@ -175,6 +172,12 @@ class Connection:
             self._session = self._client.connect(user, password, dbname)
         except TMapDException as e:
             raise _translate_exception(e) from e
+        except TTransportException:
+            raise ValueError(f"Connection failed with port {port} and "
+                             f"protocol '{protocol}'. Try port 6274 for "
+                             "protocol == binary or 6273, 6278 or 443 for "
+                             "http[s]"
+                             )
 
         # if OmniSci version <4.6, raise RuntimeError, as data import can be
         # incorrect for columnar date loads
@@ -186,14 +189,12 @@ class Connection:
                                "for more details.")
 
     def __repr__(self):
-        # type: () -> str
         tpl = ('Connection(mapd://{user}:***@{host}:{port}/{dbname}?protocol'
                '={protocol})')
         return tpl.format(user=self._user, host=self._host, port=self._port,
                           dbname=self._dbname, protocol=self._protocol)
 
     def __del__(self):
-        # type: () -> None
         self.close()
 
     def __enter__(self):
@@ -207,7 +208,6 @@ class Connection:
         return self._closed
 
     def close(self):
-        # type: () -> None
         """Disconnect from the database"""
         try:
             self._client.disconnect(self._session)
@@ -217,7 +217,6 @@ class Connection:
             self._closed = 1
 
     def commit(self):
-        # type: () -> None
         """This is a noop, as OmniSci does not provide transactions.
 
         Implementing to comply with the specification.
@@ -225,7 +224,6 @@ class Connection:
         return None
 
     def execute(self, operation, parameters=None):
-        # type: (str, Optional[Tuple]) -> Cursor
         """Execute a SQL statement
 
         Parameters
@@ -241,7 +239,6 @@ class Connection:
         return c.execute(operation.strip(), parameters=parameters)
 
     def cursor(self):
-        # type: () -> Cursor
         """Create a new :class:`Cursor` object attached to this connection."""
         return Cursor(self)
 
@@ -346,7 +343,6 @@ class Connection:
         return df
 
     def deallocate_ipc_gpu(self, df, device_id=0):
-        # type: () -> None
         """Deallocate a DataFrame using GPU memory.
 
         Parameters
@@ -364,7 +360,6 @@ class Connection:
         return result
 
     def deallocate_ipc(self, df, device_id=0):
-        # type: () -> None
         """Deallocate a DataFrame using CPU shared memory.
 
         Parameters
@@ -430,7 +425,7 @@ class Connection:
 
         row_desc = build_row_desc(data, preserve_index=preserve_index)
         self._client.create_table(self._session, table_name, row_desc,
-                                  TTableType.DELIMITED, TCreateParams(False))
+                                  TFileType.DELIMITED, TCreateParams(False))
 
     def load_table(self, table_name, data, method='infer',
                    preserve_index=False,
@@ -659,6 +654,66 @@ class Connection:
         )
         rendered_vega = RenderedVega(result)
         return rendered_vega
+
+    def get_dashboards(self):
+        """List all the dashboards in the database
+
+        Example
+        --------
+        >>> con.get_dashboards()
+        """
+        dashboards = self._client.get_dashboards(
+            session=self._session
+        )
+        return dashboards
+
+    def duplicate_dashboard(self, dashboard_id, new_name=None,
+                            source_remap=None):
+        """
+        Duplicate an existing dashboard, returning the new dashboard id.
+
+        Parameters
+        ----------
+
+        dashboard_id : int
+            The id of the dashboard to duplicate
+        new_name : str
+            The name for the new dashboard
+        source_remap: dict
+            EXPERIMENTAL
+            A dictionary remapping table names. The old table name(s)
+            should be keys of the dict, with each value being another
+            dict with a 'name' key holding the new table value. This
+            structure can be used later to support changing column
+            names.
+            Example of source_remap format:
+            {
+                'oldtablename1': {
+                    'name': 'newtablename1'
+                },
+                'oldtablename2': {
+                    'name': 'newtablename2'
+                }
+            }
+        """
+        source_remap = source_remap or {}
+        d = self._client.get_dashboard(
+            session=self._session,
+            dashboard_id=dashboard_id
+        )
+
+        newdashname = new_name or '{0} (Copy)'.format(d.dashboard_name)
+        d = change_dashboard_sources(d, source_remap) if source_remap else d
+
+        new_dashboard_id = self._client.create_dashboard(
+            session=self._session,
+            dashboard_name=newdashname,
+            dashboard_state=d.dashboard_state,
+            image_hash='',
+            dashboard_metadata=d.dashboard_metadata,
+        )
+
+        return new_dashboard_id
 
 
 class RenderedVega:

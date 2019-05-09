@@ -7,85 +7,26 @@ presence of the other data types as well in the same dataframe/database table
 import pytest
 import pandas as pd
 import numpy as np
-from datetime import date, time, datetime, timedelta
-import random
-import string
+from shapely import wkt
 
-
-def gen_string():
-    return ''.join([random.choice(string.ascii_letters + string.digits)
-                   for n in range(10)])
-
-
-def _tests_table_no_nulls(n_samples):
-
-    np.random.seed(12345)
-
-    tinyint_ = np.random.randint(low=-127,
-                                 high=127,
-                                 size=n_samples,
-                                 dtype='int8')
-
-    smallint_ = np.random.randint(low=-32767,
-                                  high=32767,
-                                  size=n_samples,
-                                  dtype='int16')
-
-    int_ = np.random.randint(low=-2147483647,
-                             high=2147483647,
-                             size=n_samples,
-                             dtype='int32')
-
-    bigint_ = np.random.randint(low=-9223372036854775807,
-                                high=9223372036854775807,
-                                size=n_samples,
-                                dtype='int64')
-
-    # float and double ranges slightly lower than we support, full width
-    # causes an error in np.linspace that's not worth tracking down
-    float_ = np.linspace(-3.4e37, 3.4e37, n_samples, dtype='float32')
-    double_ = np.linspace(-1.79e307, 1.79e307, n_samples, dtype='float64')
-
-    bool_ = np.random.randint(low=0, high=2, size=n_samples, dtype='bool')
-
-    # effective date range of 1904 to 2035
-    # TODO: validate if this is an Arrow limitation, outside this range fails
-    date_ = [date(1970, 1, 1) + timedelta(days=int(x))
-             for x in np.random.randint(-24000, 24000, size=n_samples)]
-
-    datetime_ = [datetime(1970, 1, 1) + timedelta(days=int(x), minutes=int(x))
-                 for x in np.random.randint(-24000, 24000, size=n_samples)]
-
-    time_h = np.random.randint(0, 24, size=n_samples)
-    time_m = np.random.randint(0, 60, size=n_samples)
-    time_s = np.random.randint(0, 60, size=n_samples)
-    time_ = [time(h, m, s) for h, m, s in zip(time_h, time_m, time_s)]
-
-    text_ = [gen_string() for x in range(n_samples)]
-
-    d = {'tinyint_': tinyint_,
-         'smallint_': smallint_,
-         'int_': int_,
-         'bigint_': bigint_,
-         'float_': float_,
-         'double_': double_,
-         'bool_': bool_,
-         'date_': date_,
-         'datetime_': datetime_,
-         'time_': time_,
-         'text_': text_
-         }
-
-    return pd.DataFrame(d)
+from .conftest import _tests_table_no_nulls
 
 
 @pytest.mark.usefixtures("mapd_server")
-class TestDataNoNulls:
+class TestCPUDataNoNulls:
 
     @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
     def test_create_load_table_no_nulls_sql_execute(self, con, method):
-
+        """
+        Demonstrate that regardless of how data loaded, roundtrip answers
+        are the same when con.execute()/pd.read_sql called for row-wise
+        data retrieval
+        """
         df_in = _tests_table_no_nulls(10000)
+        df_in.drop(columns=["point_",
+                            "line_",
+                            "mpoly_",
+                            "poly_"], inplace=True)
         con.execute("drop table if exists test_data_no_nulls;")
         con.load_table("test_data_no_nulls", df_in, method=method)
 
@@ -136,34 +77,35 @@ class TestDataNoNulls:
                                    df_out["int_"].astype('int32'))
 
         assert pd.DataFrame.equals(df_in["bigint_"], df_out["bigint_"])
-
         assert all(np.isclose(df_in["float_"], df_out["float_"]))
-
         assert all(np.isclose(df_in["double_"], df_out["double_"]))
-
         assert pd.DataFrame.equals(df_in["bool_"], df_out["bool_"].astype('bool'))  # noqa
-
         assert pd.DataFrame.equals(df_in["date_"], df_out["date_"])
-
         assert pd.DataFrame.equals(df_in["datetime_"], df_out["datetime_"])
-
         assert pd.DataFrame.equals(df_in["time_"], df_out["time_"])
-
         assert pd.DataFrame.equals(df_in["text_"], df_out["text_"])
 
         con.execute("drop table if exists test_data_no_nulls;")
 
     @pytest.mark.parametrize('method', ["rows", "columnar", "arrow", "infer"])
     def test_create_load_table_no_nulls_select_ipc(self, con, method):
-
-        df_in = _tests_table_no_nulls(10000)
-        con.execute("drop table if exists test_data_no_nulls_ipc;")
-        con.load_table("test_data_no_nulls_ipc", df_in, method=method)
-
+        """
+        Demonstrate that regardless of how data loaded, roundtrip answer
+        is same when con.select_ipc() called to retrieve data using Arrow
+        """
         # need to manually specify columns since some don't currently work
         # need to drop unsupported columns from df_in
         # (BOOL) https://github.com/omnisci/pymapd/issues/211
-        df_in.drop(columns=["bool_"], inplace=True)
+        df_in = _tests_table_no_nulls(10000)
+        df_in.drop(columns=["bool_",
+                            "point_",
+                            "line_",
+                            "mpoly_",
+                            "poly_"], inplace=True)
+
+        con.execute("drop table if exists test_data_no_nulls_ipc;")
+        con.load_table("test_data_no_nulls_ipc", df_in, method=method)
+
         df_out = con.select_ipc("""select
                                 tinyint_,
                                 smallint_,
@@ -202,3 +144,130 @@ class TestDataNoNulls:
         assert pd.DataFrame.equals(df_in, df_out)
 
         con.execute("drop table if exists test_data_no_nulls_ipc;")
+
+    @pytest.mark.parametrize('method', ["rows", "columnar"])
+    def test_load_table_text_no_encoding_no_nulls(self, con, method):
+        """
+        Demonstrate that data can be loaded as text encoding none,
+        assuming that user creates the table beforehand/inserting to
+        pre-existing table
+        """
+
+        con.execute("drop table if exists test_text_no_encoding")
+
+        con.execute("""create table test_text_no_encoding (
+                       idx integer,
+                       text_ text encoding none
+                       )""")
+
+        # reset_index adds a column to sort by, since results not guaranteed
+        # to return in sorted order from OmniSci
+        df_in = _tests_table_no_nulls(10000)
+        df_test = df_in["text_"].reset_index()
+        df_test.columns = ["idx", "text_"]
+
+        con.load_table("test_text_no_encoding", df_test, method=method)
+
+        df_out = pd.read_sql("""select
+                                *
+                                from test_text_no_encoding
+                                order by idx""",
+                             con)
+
+        assert pd.DataFrame.equals(df_test, df_out)
+
+        con.execute("drop table if exists test_text_no_encoding")
+
+    @pytest.mark.parametrize('method', ["rows"])
+    def test_load_table_geospatial_no_nulls(self, con, method):
+        """
+        Demonstrate that geospatial data can be loaded,
+        assuming that user creates the table beforehand/inserting to
+        pre-existing table
+        """
+        con.execute("drop table if exists test_geospatial_no_nulls")
+
+        con.execute("""create table test_geospatial_no_nulls (
+                       tinyint_ tinyint,
+                       smallint_ smallint,
+                       int_ integer,
+                       bigint_ bigint,
+                       float_ float,
+                       double_ double,
+                       bool_ boolean,
+                       date_ date,
+                       datetime_ timestamp,
+                       time_ time,
+                       text_ text encoding dict(32),
+                       point_ point,
+                       line_ linestring,
+                       mpoly_ multipolygon,
+                       poly_ polygon
+                       )""")
+
+        df_in = _tests_table_no_nulls(10000)
+        con.load_table("test_geospatial_no_nulls", df_in, method='rows')
+
+        df_out = pd.read_sql("""select
+                             *
+                             from test_geospatial_no_nulls""", con)
+
+        # sort tables to ensure data in same order before compare
+        # need to sort by all the columns in case of ties
+        df_in.sort_values(by=['tinyint_',
+                              'smallint_',
+                              'int_',
+                              'bigint_'], inplace=True)
+        df_in.reset_index(drop=True, inplace=True)
+
+        df_out.sort_values(by=['tinyint_',
+                               'smallint_',
+                               'int_',
+                               'bigint_'], inplace=True)
+        df_out.reset_index(drop=True, inplace=True)
+
+        # pymapd won't necessarily return exact dtype as input using execute()
+        # and pd.read_sql() since transport is rows of tuples
+        # test that results are the same when dtypes aligned
+        assert pd.DataFrame.equals(df_in["tinyint_"],
+                                   df_out["tinyint_"].astype('int8'))
+
+        assert pd.DataFrame.equals(df_in["smallint_"],
+                                   df_out["smallint_"].astype('int16'))
+
+        assert pd.DataFrame.equals(df_in["int_"],
+                                   df_out["int_"].astype('int32'))
+
+        assert pd.DataFrame.equals(df_in["bigint_"], df_out["bigint_"])
+        assert all(np.isclose(df_in["float_"], df_out["float_"]))
+        assert all(np.isclose(df_in["double_"], df_out["double_"]))
+        assert pd.DataFrame.equals(df_in["bool_"], df_out["bool_"].astype('bool'))  # noqa
+        assert pd.DataFrame.equals(df_in["date_"], df_out["date_"])
+        assert pd.DataFrame.equals(df_in["datetime_"], df_out["datetime_"])
+        assert pd.DataFrame.equals(df_in["time_"], df_out["time_"])
+        assert pd.DataFrame.equals(df_in["text_"], df_out["text_"])
+
+        # convert geospatial data to Shapely objects to prove their equality
+        point_in = [wkt.loads(x) for x in df_in["point_"]]
+        point_out = [wkt.loads(x) for x in df_out["point_"]]
+        assert all([x.equals_exact(y, 0.000001) for x, y
+                    in zip(point_in, point_out)])
+
+        line_in = [wkt.loads(x) for x in df_in["line_"]]
+        line_out = [wkt.loads(x) for x in df_out["line_"]]
+        assert all([x.equals_exact(y, 0.000001) for x, y
+                    in zip(line_in, line_out)])
+
+        mpoly_in = [wkt.loads(x) for x in df_in["mpoly_"]]
+        mpoly_out = [wkt.loads(x) for x in df_out["mpoly_"]]
+        assert all([x.equals_exact(y, 0.000001) for x, y
+                    in zip(mpoly_in, mpoly_out)])
+
+        # TODO: tol only passes at 0.011, whereas others pass at much tighter
+        # Figure out why
+        poly_in = [wkt.loads(x) for x in df_in["poly_"]]
+        poly_out = [wkt.loads(x) for x in df_out["poly_"]]
+        assert all([x.equals_exact(y, 0.011) for x, y
+                    in zip(poly_in, poly_out)])
+
+        con.execute("drop table if exists test_geospatial_no_nulls")

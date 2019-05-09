@@ -5,14 +5,13 @@ import datetime
 import pyarrow as pa
 from collections import namedtuple
 from sqlalchemy import text
-import mapd.ttypes as T
+import common.ttypes as T
 import ctypes
 from types import MethodType
 from ._mutators import set_tdf, get_tdf
 from ._utils import seconds_to_time, datetime_in_precisions
 import numpy as np
 from .ipc import load_buffer, shmdt
-from typing import Any, List
 
 
 Description = namedtuple("Description", ["name", "type_code", "display_size",
@@ -69,7 +68,6 @@ def _format_result_time(arr):
 
 
 def _extract_col_vals(desc, val):
-    # type: (T.TColumnType, T.TColumn) -> Any
 
     typename = T.TDatumType._VALUES_TO_NAMES[desc.col_type.type]
     nulls = val.nulls
@@ -103,7 +101,6 @@ def _extract_col_vals(desc, val):
 
 
 def _extract_description(row_desc):
-    # type: (List[T.TColumnType]) -> List[Description]
     """
     Return a tuple of (name, type_code, display_size, internal_size,
                        precision, scale, null_ok)

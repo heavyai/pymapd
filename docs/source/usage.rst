@@ -2,16 +2,59 @@
 
 .. currentmodule:: pymapd
 
-Usage
-=====
+5-Minute Quickstart
+===================
 
-``pymapd`` follows the python DB API 2.0, so this may already be familiar to you.
+``pymapd`` follows the python DB API 2.0, so experience with other Python database
+clients will feel similar to pymapd.
 
 .. note::
 
-   This assumes you have an OmniSci server running on ``localhost:6274`` with the
+   This tutorial assumes you have an OmniSci server running on ``localhost:6274`` with the
    default logins and databases, and have loaded the example "flights_2008_10k"
    dataset.
+
+Installing pymapd
+-----------------
+
+pymapd
+******
+
+``pymapd`` can be installed with conda using `conda-forge`_ or pip.
+
+.. code-block:: console
+
+   # conda
+   conda install -c conda-forge pymapd
+
+   # pip
+   pip install pymapd
+
+If you have an NVIDIA GPU in the same machine where your pymapd code will be running, you'll want to `install
+cudf`_ as well if you want to return results sets into GPU memory as a cudf GPU DataFrame:
+
+cudf via conda
+**************
+
+.. code-block:: console
+
+   # CUDA 9.2
+   conda install -c nvidia -c rapidsai -c numba -c conda-forge -c defaults cudf
+
+   # CUDA 10.0
+   conda install -c nvidia/label/cuda10.0 -c rapidsai/label/cuda10.0 -c numba \
+       -c conda-forge -c defaults cudf
+
+cudf via PyPI/pip
+*****************
+
+.. code-block:: console
+
+   # CUDA 9.2
+   pip install cudf-cuda92
+
+   # CUDA 10.0
+   pip install cudf-cuda100
 
 Connecting
 ----------
@@ -56,7 +99,7 @@ process.
 
 The best option depends on the hardware you have available, your connection to
 the database, and what you plan to do with the returned data. In general, the
-third method, using Thrift to serialize and deserialize the data, will slower
+third method, using Thrift to serialize and deserialize the data, will be slower
 than the GPU or CPU shared memory methods. The shared memory methods require
 that your OmniSci database is running on the same machine.
 
@@ -64,7 +107,7 @@ that your OmniSci database is running on the same machine.
 
    We currently support ``Timestamp(0|3|6)`` data types i.e. seconds, milliseconds,
    and microseconds granularity. Support for nanoseconds, ``Timestamp(9)`` is in
-   progress. 
+   progress.
 
 GPU Select
 ^^^^^^^^^^
@@ -213,5 +256,7 @@ Some helpful metadata are available on the ``Connection`` object.
     ...
 
 .. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
-.. _cudf: http://cudf.readthedocs.io/en/latest/
+.. _cudf: https://rapidsai.github.io/projects/cudf/en/latest/
 .. _Apache Arrow: http://arrow.apache.org/
+.. _conda-forge: http://conda-forge.github.io/
+.. _install cudf: https://github.com/rapidsai/cudf#installation

@@ -1,6 +1,4 @@
 import mapd.ttypes as T
-from typing import Any, Optional, List, Iterator, Union, Tuple, Iterable
-
 from .exceptions import _translate_exception
 from ._parsers import (_extract_col_vals,
                        _extract_description,
@@ -12,17 +10,15 @@ class Cursor:
     """A database cursor."""
 
     def __init__(self, connection):
-        # type: (Any, bool) -> None
         # XXX: supposed to share state between cursors of the same connection
         self.connection = connection
         self.rowcount = -1
-        self._description = None  # type: Optional[List[str]]
+        self._description = None
         self._arraysize = 1
         self._result = None
-        self._result_set = None  # type: Optional[Iterator[Any]]
+        self._result_set = None
 
     def __iter__(self):
-        # type: () -> Union[List, Iterator]
         if self.result_set is None:
             return iter([])
         return self.result_set
@@ -35,7 +31,6 @@ class Cursor:
 
     @property
     def description(self):
-        # type: () -> Optional[List[str]]
         """
         Read-only sequence describing columns of the result set.
         Each column is an instance of `Description` describing
@@ -54,12 +49,10 @@ class Cursor:
 
     @property
     def result_set(self):
-        # type: () -> Optional[Iterator]
         return self._result_set
 
     @property
     def arraysize(self):
-        # type: () -> int
         """The number of rows to fetch at a time with `fetchmany`. Default 1.
 
         See Also
@@ -70,7 +63,6 @@ class Cursor:
 
     @arraysize.setter
     def arraysize(self, value):
-        # type: (int) -> None
         """Number of items to fetch with :func:`fetchmany`."""
         if not isinstance(value, int):
             raise TypeError("Value must be an integer, got {} instead".format(
@@ -78,13 +70,11 @@ class Cursor:
         self._arraysize = value
 
     def close(self):
-        # type: () -> None
         """Close this cursor."""
         # TODO
         pass
 
     def execute(self, operation, parameters=None):
-        # type: (str, tuple) -> Cursor
         """Execute a SQL statement.
 
         Parameters
@@ -144,13 +134,11 @@ class Cursor:
         -------
         results : list of lists
         """
-        # type: (str, Iterable) -> None
         results = [list(self.execute(operation, params)) for params
                    in parameters]
         return results
 
     def fetchone(self):
-        # type: () -> Optional[Any]
         """Fetch a single row from the results set"""
         try:
             return next(self.result_set)
@@ -158,7 +146,6 @@ class Cursor:
             return None
 
     def fetchmany(self, size=None):
-        # type: (Optional[int]) -> Iterable[Any]
         """Fetch ``size`` rows from the results set."""
         if size is None:
             size = self.arraysize
@@ -166,15 +153,12 @@ class Cursor:
         return [x for x in results if x is not None]
 
     def fetchall(self):
-        # type: () -> Any
         return list(self)
 
     def setinputsizes(self, sizes):
-        # type: (int) -> None
         pass
 
     def setoutputsizes(self, size, column=None):
-        # type: (int, Optional[Any]) -> None
         pass
 
 
@@ -183,7 +167,6 @@ class Cursor:
 # -----------------------------------------------------------------------------
 
 def make_row_results_set(data):
-    # type: (T.QueryResultSet) -> Iterator[Tuple]
     """
     Build a results set of python objects.
 
