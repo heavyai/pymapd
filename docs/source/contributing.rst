@@ -118,17 +118,19 @@ Updating Apache Thrift Bindings
 -------------------------------
 
 When the upstream `mapd-core`_ project updates its Apache Thrift definition file, the bindings shipped with
-``pymapd`` need to be regenerated. From the root of the ``pymapd`` repository, run
+``pymapd`` need to be regenerated.
 
 .. code-block:: shell
 
-   python scripts/generate_accelerated_bindings.py </path/to/mapd-core>/mapd.thrift
+   # generate python bindings with Thrift
+   thrift -gen py mapd.thrift
+   thrift -gen py completion_hints.thrift
+   thrift -gen py common.thrift
+   thrift -gen py serialized_result_set.thrift
 
-
-The python script above requires Apache Thrift is installed and on the PATH. Running the script will update
-two files, ``mapd/MapD.py`` and ``mapd/ttypes.py``, which can be committed to the repository. When the bindings are
-updated, take note to remove unneeded imports as shown in this `commit`_, as the unneeded imports can be problematic,
-especially when calling pymapd from other languages (specifically, R).
+After the bindings are generated, copy them to their respective folders in the pymapd repo. Each set of Thrift files
+are their own package within the overall pymapd package. Also, take note to remove unneeded imports as shown in this `commit`_, as the unneeded imports
+can be problematic, especially when calling pymapd from other languages (specifically, R).
 
 --------------------------------
 Publishing a new package version

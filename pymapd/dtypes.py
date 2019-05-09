@@ -3,10 +3,9 @@ https://www.python.org/dev/peps/pep-0249/#type-objects
 """
 import datetime
 import time
-from mapd import MapD
+from common.ttypes import TDatumType
 
-
-T = MapD.TDatumType
+T = TDatumType
 
 
 class DataType:

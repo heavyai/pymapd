@@ -10,8 +10,9 @@ from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
-from mapd.MapD import Client, TDeviceType, TCreateParams
-from mapd.ttypes import TMapDException, TTableType
+from mapd.MapD import Client, TCreateParams
+from common.ttypes import TDeviceType
+from mapd.ttypes import TMapDException, TFileType
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
@@ -418,7 +419,7 @@ class Connection:
 
         row_desc = build_row_desc(data, preserve_index=preserve_index)
         self._client.create_table(self._session, table_name, row_desc,
-                                  TTableType.DELIMITED, TCreateParams(False))
+                                  TFileType.DELIMITED, TCreateParams(False))
 
     def load_table(self, table_name, data, method='infer',
                    preserve_index=False,
