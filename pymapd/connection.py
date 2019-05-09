@@ -132,7 +132,6 @@ class Connection:
                  sessionid=None,
                  ):
         if sessionid is not None:
-            self._session = sessionid
             if any([user, password, uri, dbname]):
                 raise TypeError("Cannot specify sessionid with user, password,"
                                 " dbname, or uri")
@@ -183,7 +182,8 @@ class Connection:
         self._client = Client(proto)
         try:
             # If a sessionid was passed, we should validate it
-            if self._session:
+            if sessionid:
+                self._session = sessionid
                 self.get_tables()
             else:
                 self._session = self._client.connect(user, password, dbname)
