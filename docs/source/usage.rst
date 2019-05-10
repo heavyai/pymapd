@@ -60,7 +60,15 @@ cudf via PyPI/pip
 Connecting
 ----------
 
-Create a :class:`Connection` with
+Self-Hosted Install
+*******************
+
+For self-hosted OmniSci installs, use ``protocol='binary'`` (this is the default)
+to connect with OmniSci, as this will have better performance than using
+``protocol='http'`` or ``protocol='https'``.
+
+To create a :class:`Connection` using the ``connect()`` method along with ``user``,
+``password``, ``host`` and ``dbname``:
 
 .. code-block:: python
 
@@ -70,7 +78,8 @@ Create a :class:`Connection` with
    >>> con
    Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
 
-or by passing in a connection string
+Alternatively, you can pass in a `SQLAlchemy`_-compliant connection string to
+the ``connect()`` method:
 
 .. code-block:: python
 
@@ -78,14 +87,13 @@ or by passing in a connection string
    >>> con = connect(uri=uri)
    Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
 
-See the `SQLAlchemy`_ documentation on what makes up a connection string. The
-components are::
+OmniSci Cloud
+*************
 
-   dialect+driver://username:password@host:port/database
+When connecting to OmniSci Cloud, the two methods are the same as above,
+however you can only use ``protocol='https'``. For a step-by-step walk-through with
+screenshots, please see this `blog post`_.
 
-For ``pymapd``, the ``dialect+driver`` will always be ``mapd``, and we look for
-a ``protocol`` argument in the optional query parameters (everything following
-the ``?`` after ``database``).
 
 Querying
 --------
@@ -110,11 +118,13 @@ that your OmniSci database is running on the same machine.
    and microseconds granularity. Support for nanoseconds, ``Timestamp(9)`` is in
    progress.
 
-GPU Select
-**********
+GPU Shared Memory Select
+************************
 
 Use :meth:`Connection.select_ipc_gpu` to select data into a ``GpuDataFrame``,
-provided by `cudf`_
+provided by `cudf`_. To use this method, **the Python code must be running
+on the same machine as the OmniSci installation AND you must have an NVIDIA GPU
+installed.**
 
 .. code-block:: python
 
@@ -132,7 +142,9 @@ CPU Shared Memory Select
 ************************
 
 Use :meth:`Connection.select_ipc` to select data into a pandas ``DataFrame``
-using CPU shared memory to avoid unnecessary intermediate copies.
+using CPU shared memory to avoid unnecessary intermediate copies. To use this
+method, **the Python code must be running on the same machine as the OmniSci
+installation.**
 
 .. code-block:: python
 
@@ -259,3 +271,4 @@ Some helpful metadata are available on the ``Connection`` object.
 .. _Apache Arrow: http://arrow.apache.org/
 .. _conda-forge: http://conda-forge.github.io/
 .. _install cudf: https://github.com/rapidsai/cudf#installation
+.. _blog post: https://www.omnisci.com/blog/using-pymapd-to-load-data-to-omnisci-cloud
