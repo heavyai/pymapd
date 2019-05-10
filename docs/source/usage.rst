@@ -11,8 +11,9 @@ clients will feel similar to pymapd.
 .. note::
 
    This tutorial assumes you have an OmniSci server running on ``localhost:6274`` with the
-   default logins and databases, and have loaded the example "flights_2008_10k"
-   dataset.
+   default logins and databases, and have loaded the example ``flights_2008_10k``
+   dataset. This dataset can be obtained from the ``insert_sample_data`` script included
+   in the OmniSci install directory.
 
 Installing pymapd
 -----------------
@@ -110,7 +111,7 @@ that your OmniSci database is running on the same machine.
    progress.
 
 GPU Select
-^^^^^^^^^^
+**********
 
 Use :meth:`Connection.select_ipc_gpu` to select data into a ``GpuDataFrame``,
 provided by `cudf`_
@@ -128,7 +129,7 @@ provided by `cudf`_
    4       12        7
 
 CPU Shared Memory Select
-^^^^^^^^^^^^^^^^^^^^^^^^
+************************
 
 Use :meth:`Connection.select_ipc` to select data into a pandas ``DataFrame``
 using CPU shared memory to avoid unnecessary intermediate copies.
@@ -145,7 +146,7 @@ using CPU shared memory to avoid unnecessary intermediate copies.
    4       12        7
 
 Cursors
--------
+*******
 
 A cursor can be created with :meth:`Connection.cursor`
 
@@ -225,13 +226,11 @@ If you aren't using arrow or pandas you can pass list of tuples to
 
 
 The high-level :meth:`Connection.load_table` method will choose the fastest
-method available based on the type of ``data`` and whether or not ``pyarrow`` is
-installed.
+method available based on the type of ``data``.
 
 * lists of tuples are always loaded with :meth:`Connection.load_table_rowwise`
-* If ``pyarrow`` is installed, a ``pandas.DataFrame`` or ``pyarrow.Table`` will
-  be loaded using :meth:`Connection.load_table_arrow`
-* If ``pyarrow`` is not installed, a ``pandas.DataFrame`` will be loaded using
+* A ``pandas.DataFrame`` or ``pyarrow.Table`` will be loaded using :meth:`Connection.load_table_arrow`
+* If upload fails using the arrow method, a ``pandas.DataFrame`` can be loaded using
   :meth:`Connection.load_table_columnar`
 
 Database Metadata
