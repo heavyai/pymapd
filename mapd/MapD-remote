@@ -26,6 +26,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Functions:')
     print('  TSessionId connect(string user, string passwd, string dbname)')
     print('  void disconnect(TSessionId session)')
+    print('  void switch_database(TSessionId session, string dbname)')
     print('  TServerStatus get_server_status(TSessionId session)')
     print('   get_status(TSessionId session)')
     print('  TClusterHardwareInfo get_hardware_info(TSessionId session)')
@@ -55,6 +56,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  void deallocate_df(TSessionId session, TDataFrame df, TDeviceType device_type, i32 device_id)')
     print('  void interrupt(TSessionId session)')
     print('  TTableDescriptor sql_validate(TSessionId session, string query)')
+    print('   get_completion_hints(TSessionId session, string sql, i32 cursor)')
     print('  void set_execution_mode(TSessionId session, TExecuteMode mode)')
     print('  TRenderResult render_vega(TSessionId session, i64 widget_id, string vega_json, i32 compression_level, string nonce)')
     print('  TPixelTableRowResult get_result_row_for_pixel(TSessionId session, i64 widget_id, TPixel pixel,  table_col_names, bool column_format, i32 pixelRadius, string nonce)')
@@ -67,7 +69,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  i32 create_dashboard(TSessionId session, string dashboard_name, string dashboard_state, string image_hash, string dashboard_metadata)')
     print('  void replace_dashboard(TSessionId session, i32 dashboard_id, string dashboard_name, string dashboard_owner, string dashboard_state, string image_hash, string dashboard_metadata)')
     print('  void delete_dashboard(TSessionId session, i32 dashboard_id)')
-    print('  void share_dashboard(TSessionId session, i32 dashboard_id,  groups,  objects, TDashboardPermissions permissions)')
+    print('  void share_dashboard(TSessionId session, i32 dashboard_id,  groups,  objects, TDashboardPermissions permissions, bool grant_role)')
     print('  void unshare_dashboard(TSessionId session, i32 dashboard_id,  groups,  objects, TDashboardPermissions permissions)')
     print('   get_dashboard_grantees(TSessionId session, i32 dashboard_id)')
     print('  TFrontendView get_link_view(TSessionId session, string link)')
@@ -77,16 +79,17 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  void load_table_binary_arrow(TSessionId session, string table_name, string arrow_stream)')
     print('  void load_table(TSessionId session, string table_name,  rows)')
     print('  TDetectResult detect_column_types(TSessionId session, string file_name, TCopyParams copy_params)')
-    print('  void create_table(TSessionId session, string table_name, TRowDescriptor row_desc, TTableType table_type, TCreateParams create_params)')
+    print('  void create_table(TSessionId session, string table_name, TRowDescriptor row_desc, TFileType file_type, TCreateParams create_params)')
     print('  void import_table(TSessionId session, string table_name, string file_name, TCopyParams copy_params)')
-    print('  void import_geo_table(TSessionId session, string table_name, string file_name, TCopyParams copy_params, TRowDescriptor row_desc)')
+    print('  void import_geo_table(TSessionId session, string table_name, string file_name, TCopyParams copy_params, TRowDescriptor row_desc, TCreateParams create_params)')
     print('  TImportStatus import_table_status(TSessionId session, string import_id)')
     print('  string get_first_geo_file_in_archive(TSessionId session, string archive_path, TCopyParams copy_params)')
     print('   get_all_files_in_archive(TSessionId session, string archive_path, TCopyParams copy_params)')
+    print('   get_layers_in_geo_file(TSessionId session, string file_name, TCopyParams copy_params)')
     print('  TTableMeta check_table_consistency(TSessionId session, i32 table_id)')
     print('  TPendingQuery start_query(TSessionId session, string query_ra, bool just_explain)')
     print('  TStepResult execute_first_step(TPendingQuery pending_query)')
-    print('  void broadcast_serialized_rows(string serialized_rows, TRowDescriptor row_desc, i64 uncompressed_size, TQueryId query_id)')
+    print('  void broadcast_serialized_rows(TSerializedRows serialized_rows, TRowDescriptor row_desc, TQueryId query_id)')
     print('  TPendingRenderQuery start_render_query(TSessionId session, i64 widget_id, i16 node_idx, string vega_json)')
     print('  TRenderStepResult execute_next_render_step(TPendingRenderQuery pending_render, TRenderAggDataMap merged_data)')
     print('  void insert_data(TSessionId session, TInsertData insert_data)')
@@ -190,6 +193,12 @@ elif cmd == 'disconnect':
         print('disconnect requires 1 args')
         sys.exit(1)
     pp.pprint(client.disconnect(eval(args[0]),))
+
+elif cmd == 'switch_database':
+    if len(args) != 2:
+        print('switch_database requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.switch_database(eval(args[0]), args[1],))
 
 elif cmd == 'get_server_status':
     if len(args) != 1:
@@ -365,6 +374,12 @@ elif cmd == 'sql_validate':
         sys.exit(1)
     pp.pprint(client.sql_validate(eval(args[0]), args[1],))
 
+elif cmd == 'get_completion_hints':
+    if len(args) != 3:
+        print('get_completion_hints requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.get_completion_hints(eval(args[0]), args[1], eval(args[2]),))
+
 elif cmd == 'set_execution_mode':
     if len(args) != 2:
         print('set_execution_mode requires 2 args')
@@ -438,10 +453,10 @@ elif cmd == 'delete_dashboard':
     pp.pprint(client.delete_dashboard(eval(args[0]), eval(args[1]),))
 
 elif cmd == 'share_dashboard':
-    if len(args) != 5:
-        print('share_dashboard requires 5 args')
+    if len(args) != 6:
+        print('share_dashboard requires 6 args')
         sys.exit(1)
-    pp.pprint(client.share_dashboard(eval(args[0]), eval(args[1]), eval(args[2]), eval(args[3]), eval(args[4]),))
+    pp.pprint(client.share_dashboard(eval(args[0]), eval(args[1]), eval(args[2]), eval(args[3]), eval(args[4]), eval(args[5]),))
 
 elif cmd == 'unshare_dashboard':
     if len(args) != 5:
@@ -510,10 +525,10 @@ elif cmd == 'import_table':
     pp.pprint(client.import_table(eval(args[0]), args[1], args[2], eval(args[3]),))
 
 elif cmd == 'import_geo_table':
-    if len(args) != 5:
-        print('import_geo_table requires 5 args')
+    if len(args) != 6:
+        print('import_geo_table requires 6 args')
         sys.exit(1)
-    pp.pprint(client.import_geo_table(eval(args[0]), args[1], args[2], eval(args[3]), eval(args[4]),))
+    pp.pprint(client.import_geo_table(eval(args[0]), args[1], args[2], eval(args[3]), eval(args[4]), eval(args[5]),))
 
 elif cmd == 'import_table_status':
     if len(args) != 2:
@@ -532,6 +547,12 @@ elif cmd == 'get_all_files_in_archive':
         print('get_all_files_in_archive requires 3 args')
         sys.exit(1)
     pp.pprint(client.get_all_files_in_archive(eval(args[0]), args[1], eval(args[2]),))
+
+elif cmd == 'get_layers_in_geo_file':
+    if len(args) != 3:
+        print('get_layers_in_geo_file requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.get_layers_in_geo_file(eval(args[0]), args[1], eval(args[2]),))
 
 elif cmd == 'check_table_consistency':
     if len(args) != 2:
@@ -552,10 +573,10 @@ elif cmd == 'execute_first_step':
     pp.pprint(client.execute_first_step(eval(args[0]),))
 
 elif cmd == 'broadcast_serialized_rows':
-    if len(args) != 4:
-        print('broadcast_serialized_rows requires 4 args')
+    if len(args) != 3:
+        print('broadcast_serialized_rows requires 3 args')
         sys.exit(1)
-    pp.pprint(client.broadcast_serialized_rows(args[0], eval(args[1]), eval(args[2]), eval(args[3]),))
+    pp.pprint(client.broadcast_serialized_rows(eval(args[0]), eval(args[1]), eval(args[2]),))
 
 elif cmd == 'start_render_query':
     if len(args) != 4:

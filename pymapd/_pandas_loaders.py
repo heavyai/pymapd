@@ -13,8 +13,11 @@ from pandas.api.types import (
 )
 
 from mapd.ttypes import (
-    TColumn, TColumnData, TColumnType, TTypeInfo, TDatumType
+    TColumn, TColumnData, TColumnType
 )
+
+from common.ttypes import TTypeInfo, TDatumType
+
 from ._utils import (
     date_to_seconds, time_to_seconds, datetime_to_seconds,
     mapd_to_na, mapd_to_slot
