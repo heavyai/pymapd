@@ -42,6 +42,7 @@ def connect(uri=None,
             port=6274,
             dbname=None,
             protocol='binary',
+            sessionid=None,
             ):
     """
     Crate a new Connection.
@@ -55,6 +56,7 @@ def connect(uri=None,
     port : int
     dbname : str
     protocol : {'binary', 'http', 'https'}
+    sessionid : str
 
     Returns
     -------
@@ -62,7 +64,8 @@ def connect(uri=None,
 
     Examples
     --------
-    You can either pass a string ``uri`` or all the individual components
+    You can either pass a string ``uri``, all the individual components,
+    or an existing sessionid excluding user, password, and database
 
     >>> connect('mapd://mapd:HyperInteractive@localhost:6274/mapd?'
     ...         'protocol=binary')
@@ -71,9 +74,13 @@ def connect(uri=None,
     >>> connect(user='mapd', password='HyperInteractive', host='localhost',
     ...         port=6274, dbname='mapd')
 
+    >>> connect(sessionid='XihlkjhdasfsadSDoasdllMweieisdpo', host='localhost',
+    ...         port=6273, protocol='http')
+
     """
     return Connection(uri=uri, user=user, password=password, host=host,
-                      port=port, dbname=dbname, protocol=protocol)
+                      port=port, dbname=dbname, protocol=protocol,
+                      sessionid=sessionid)
 
 
 def _parse_uri(uri):
@@ -122,7 +129,12 @@ class Connection:
                  port=6274,
                  dbname=None,
                  protocol='binary',
+                 sessionid=None,
                  ):
+        if sessionid is not None:
+            if any([user, password, uri, dbname]):
+                raise TypeError("Cannot specify sessionid with user, password,"
+                                " dbname, or uri")
         if uri is not None:
             if not all([user is None,
                         password is None,
@@ -169,7 +181,12 @@ class Connection:
                 raise
         self._client = Client(proto)
         try:
-            self._session = self._client.connect(user, password, dbname)
+            # If a sessionid was passed, we should validate it
+            if sessionid:
+                self._session = sessionid
+                self.get_tables()
+            else:
+                self._session = self._client.connect(user, password, dbname)
         except TMapDException as e:
             raise _translate_exception(e) from e
         except TTransportException:
