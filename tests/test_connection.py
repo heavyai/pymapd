@@ -47,7 +47,7 @@ class TestConnect:
                        host='localhost', dbname='mapd')
         sessionid = conn._session
         connnew = connect(sessionid=sessionid, host='localhost')
-        assert connnew._session == sessionid 
+        assert connnew._session == sessionid
 
     def test_session_logon_failure(self):
         sessionid = 'ILoveDancingOnTables'
