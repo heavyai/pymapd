@@ -1,6 +1,6 @@
 import pytest
 from mapd.ttypes import TColumnType
-from common.ttypes import TTypeInfo
+from common.ttypes import TTypeInfo, TMapDException
 from pymapd import OperationalError, connect
 from pymapd.cursor import Cursor
 from pymapd.connection import _parse_uri, ConnectionInfo
@@ -51,7 +51,7 @@ class TestConnect:
 
     def test_session_logon_failure(self):
         sessionid = 'ILoveDancingOnTables'
-        with pytest.raises(ValueError):
+        with pytest.raises(TMapDException):
             connect(sessionid=sessionid, host='localhost')
 
 
