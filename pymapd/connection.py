@@ -45,22 +45,22 @@ def connect(uri=None,
             sessionid=None,
             ):
     """
-    Crate a new Connection.
+    Create a new Connection.
 
     Parameters
     ----------
-    uri : str
-    user : str
-    password : str
-    host : str
-    port : int
-    dbname : str
-    protocol : {'binary', 'http', 'https'}
-    sessionid : str
+    uri: str
+    user: str
+    password: str
+    host: str
+    port: int
+    dbname: str
+    protocol: {'binary', 'http', 'https'}
+    sessionid: str
 
     Returns
     -------
-    conn : Connection
+    conn: Connection
 
     Examples
     --------
@@ -89,12 +89,12 @@ def _parse_uri(uri):
 
     Parameters
     ----------
-    uri : str
+    uri: str
         a URI containing connection information
 
     Returns
     -------
-    info : ConnectionInfo
+    info: ConnectionInfo
 
     Notes
     ------
@@ -236,7 +236,7 @@ class Connection:
     def commit(self):
         """This is a noop, as OmniSci does not provide transactions.
 
-        Implementing to comply with the specification.
+        Implemented to comply with the DBI specification.
         """
         return None
 
@@ -245,12 +245,12 @@ class Connection:
 
         Parameters
         ----------
-        operation : str
+        operation: str
             A SQL statement to exucute
 
         Returns
         -------
-        c : Cursor
+        c: Cursor
         """
         c = Cursor(self)
         return c.execute(operation.strip(), parameters=parameters)
@@ -265,25 +265,28 @@ class Connection:
 
         Parameters
         ----------
-        operation : str
+        operation: str
             A SQL statement
-        parameters : dict, optional
+        parameters: dict, optional
             Parameters to insert into a parametrized query
-        device_id : int
+        device_id: int
             GPU to return results to
-        first_n : int, optional
+        first_n: int, optional
             Number of records to return
         release_memory: bool, optional
             Call ``self.deallocate_ipc_gpu(df)`` after DataFrame created
 
         Returns
         -------
-        gdf : cudf.GpuDataFrame
+        gdf: cudf.GpuDataFrame
 
         Notes
         -----
         This method requires ``cudf`` and ``libcudf`` to be installed.
         An ``ImportError`` is raised if those aren't available.
+
+        This method requires the Python code to be executed on the same machine
+        where OmniSci running.
         """
         try:
             from cudf.comm.gpuarrow import GpuArrowReader  # noqa
@@ -314,22 +317,23 @@ class Connection:
 
         Parameters
         ----------
-        operation : str
+        operation: str
             A SQL select statement
-        parameters : dict, optional
+        parameters: dict, optional
             Parameters to insert for a parametrized query
-        first_n : int, optional
+        first_n: int, optional
             Number of records to return
         release_memory: bool, optional
             Call ``self.deallocate_ipc(df)`` after DataFrame created
 
         Returns
         -------
-        df : pandas.DataFrame
+        df: pandas.DataFrame
 
         Notes
         -----
-        This method requires pyarrow to be installed.
+        This method requires the Python code to be executed on the same machine
+        where OmniSci running.
         """
 
         if parameters is not None:
@@ -364,7 +368,7 @@ class Connection:
 
         Parameters
         ----------
-        device_id : int
+        device_ids: int
             GPU which contains TDataFrame
         """
 
@@ -381,7 +385,7 @@ class Connection:
 
         Parameters
         ----------
-        device_id : int
+        device_id: int
             GPU which contains TDataFrame
         """
         tdf = df.get_tdf()
@@ -410,11 +414,11 @@ class Connection:
 
         Parameters
         ----------
-        table_name : str
+        table_name: str
 
         Returns
         -------
-        details : List[tuples]
+        details: List[tuples]
 
         Examples
         --------
@@ -434,9 +438,9 @@ class Connection:
 
         Parameters
         ----------
-        table_name : str
-        data : DataFrame
-        preserve_index : bool, default False
+        table_name: str
+        data: DataFrame
+        preserve_index: bool, default False
             Whether to create a column in the table for the DataFrame index
         """
 
@@ -451,9 +455,9 @@ class Connection:
 
         Parameters
         ----------
-        table_name : str
-        data : pyarrow.Table, pandas.DataFrame, or iterable of tuples
-        method : {'infer', 'columnar', 'rows', 'arrow'}
+        table_name: str
+        data: pyarrow.Table, pandas.DataFrame, or iterable of tuples
+        method: {'infer', 'columnar', 'rows', 'arrow'}
             Method to use for loading the data. Three options are available
 
             1. ``pyarrow`` and Apache Arrow loader
@@ -467,16 +471,16 @@ class Connection:
             columnar loader is used. Finally, ``data`` is an iterable of tuples
             the row-wise loader is used.
 
-        preserve_index : bool, default False
+        preserve_index: bool, default False
             Whether to keep the index when loading a pandas DataFrame
 
-        create : {"infer", True, False}
+        create: {"infer", True, False}
             Whether to issue a CREATE TABLE before inserting the data.
 
-            * infer : check to see if the table already exists, and create
+            * infer: check to see if the table already exists, and create
               a table if it does not
-            * True : attempt to create the table, without checking if it exists
-            * False : do not attempt to create the table
+            * True: attempt to create the table, without checking if it exists
+            * False: do not attempt to create the table
 
         See Also
         --------
@@ -528,8 +532,8 @@ class Connection:
 
         Parameters
         ----------
-        table_name : str
-        data : Iterable of tuples
+        table_name: str
+        data: Iterable of tuples
             Each element of `data` should be a row to be inserted
 
         See Also
@@ -559,15 +563,15 @@ class Connection:
 
         Parameters
         ----------
-        table_name : str
-        data : DataFrame
-        preserve_index : bool, default False
+        table_name: str
+        data: DataFrame
+        preserve_index: bool, default False
             Whether to include the index of a pandas DataFrame when writing.
-        chunk_size_bytes : integer, default 0
+        chunk_size_bytes: integer, default 0
             Chunk the loading of columns to prevent large Thrift requests. A
             value of 0 means do not chunk and send the dataframe as a single
             request
-        col_names_from_schema : bool, default False
+        col_names_from_schema: bool, default False
             Read the existing table schema to determine the column names. This
             will read the schema of an existing table in OmniSci and match
             those names to the column names of the dataframe. This is for
@@ -585,8 +589,8 @@ class Connection:
         load_table_arrow
         load_table_rowwise
 
-        Note
-        ----
+        Notes
+        -----
         Use ``pymapd >= 0.11.0`` while running with ``omnisci >= 4.6.0`` in
         order to avoid loading inconsistent values into DATE column.
         """
@@ -627,9 +631,9 @@ class Connection:
 
         Parameters
         ----------
-        table_name : str
-        data : pandas.DataFrame, pyarrow.RecordBatch, pyarrow.Table
-        preserve_index : bool, default False
+        table_name: str
+        data: pandas.DataFrame, pyarrow.RecordBatch, pyarrow.Table
+        preserve_index: bool, default False
             Whether to include the index of a pandas DataFrame when writing.
 
         Examples
@@ -656,7 +660,7 @@ class Connection:
         Parameters
         ----------
 
-        vega : dict
+        vega: dict
             The vega specification to render.
         compression_level: int
             The level of compression for the rendered PNG. Ranges from
@@ -675,7 +679,7 @@ class Connection:
     def get_dashboards(self):
         """List all the dashboards in the database
 
-        Example
+        Examples
         --------
         >>> con.get_dashboards()
         """
@@ -692,9 +696,9 @@ class Connection:
         Parameters
         ----------
 
-        dashboard_id : int
+        dashboard_id: int
             The id of the dashboard to duplicate
-        new_name : str
+        new_name: str
             The name for the new dashboard
         source_remap: dict
             EXPERIMENTAL
@@ -703,15 +707,12 @@ class Connection:
             dict with a 'name' key holding the new table value. This
             structure can be used later to support changing column
             names.
-            Example of source_remap format:
-            {
-                'oldtablename1': {
-                    'name': 'newtablename1'
-                },
-                'oldtablename2': {
-                    'name': 'newtablename2'
-                }
-            }
+
+        Examples
+        --------
+        >>> source_remap = {'oldtablename1': {'name': 'newtablename1'}, \
+'oldtablename2': {'name': 'newtablename2'}}
+        >>> newdash = con.duplicate_dashboard(12345, "new dash", source_remap)
         """
         source_remap = source_remap or {}
         d = self._client.get_dashboard(

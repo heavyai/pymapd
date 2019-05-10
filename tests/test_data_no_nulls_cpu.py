@@ -95,10 +95,8 @@ class TestCPUDataNoNulls:
         """
         # need to manually specify columns since some don't currently work
         # need to drop unsupported columns from df_in
-        # (BOOL) https://github.com/omnisci/pymapd/issues/211
         df_in = _tests_table_no_nulls(10000)
-        df_in.drop(columns=["bool_",
-                            "point_",
+        df_in.drop(columns=["point_",
                             "line_",
                             "mpoly_",
                             "poly_"], inplace=True)
@@ -113,6 +111,7 @@ class TestCPUDataNoNulls:
                                 bigint_,
                                 float_,
                                 double_,
+                                bool_,
                                 date_,
                                 datetime_,
                                 time_,
