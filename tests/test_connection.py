@@ -42,6 +42,18 @@ class TestConnect:
                     protocol='fake-proto')
         assert m.match('fake-proto')
 
+    def test_session_logon_success(self):
+        conn = connect(user='mapd', password='HyperInteractive',
+                       host='localhost', dbname='mapd')
+        sessionid = conn._session
+        connnew = connect(sessionid=sessionid, host='localhost')
+        assert connnew._session == sessionid 
+
+    def test_session_logon_failure(self):
+        sessionid = 'ILoveDancingOnTables'
+        with pytest.raises(ValueError):
+            connect(sessionid=sessionid, host='localhost')
+
 
 class TestURI:
 
