@@ -4,6 +4,7 @@ from common.ttypes import TTypeInfo
 from pymapd import OperationalError, connect
 from pymapd.cursor import Cursor
 from pymapd.connection import _parse_uri, ConnectionInfo
+from pymapd.exceptions import Error
 from pymapd._parsers import ColumnDetails, _extract_column_details
 
 
@@ -41,6 +42,18 @@ class TestConnect:
             connect(user='user', host='localhost', dbname='dbname',
                     protocol='fake-proto')
         assert m.match('fake-proto')
+
+    def test_session_logon_success(self):
+        conn = connect(user='mapd', password='HyperInteractive',
+                       host='localhost', dbname='mapd')
+        sessionid = conn._session
+        connnew = connect(sessionid=sessionid, host='localhost')
+        assert connnew._session == sessionid
+
+    def test_session_logon_failure(self):
+        sessionid = 'ILoveDancingOnTables'
+        with pytest.raises(Error):
+            connect(sessionid=sessionid, host='localhost')
 
 
 class TestURI:
