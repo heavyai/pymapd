@@ -687,7 +687,8 @@ class Connection:
 
         Examples
         --------
-        >>> source_remap = {'oldtablename1': {'name': 'newtablename1'}, 'oldtablename2': {'name': 'newtablename2'}}
+        >>> source_remap = {'oldtablename1': {'name': 'newtablename1'}, \
+'oldtablename2': {'name': 'newtablename2'}}
         >>> newdash = con.duplicate_dashboard(12345, "new dash", source_remap)
         """
         source_remap = source_remap or {}
