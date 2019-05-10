@@ -32,7 +32,7 @@ pymapd
    pip install pymapd
 
 If you have an NVIDIA GPU in the same machine where your pymapd code will be running, you'll want to `install
-cudf`_ as well if you want to return results sets into GPU memory as a cudf GPU DataFrame:
+cudf`_ as well to return results sets into GPU memory as a cudf GPU DataFrame:
 
 cudf via conda
 **************
@@ -118,8 +118,8 @@ that your OmniSci database is running on the same machine.
    and microseconds granularity. Support for nanoseconds, ``Timestamp(9)`` is in
    progress.
 
-GPU Shared Memory Select
-************************
+GPU Shared Memory
+*****************
 
 Use :meth:`Connection.select_ipc_gpu` to select data into a ``GpuDataFrame``,
 provided by `cudf`_. To use this method, **the Python code must be running
@@ -138,8 +138,8 @@ installed.**
    3        4       -3
    4       12        7
 
-CPU Shared Memory Select
-************************
+CPU Shared Memory
+*****************
 
 Use :meth:`Connection.select_ipc` to select data into a pandas ``DataFrame``
 using CPU shared memory to avoid unnecessary intermediate copies. To use this
@@ -157,10 +157,28 @@ installation.**
    3        4       -3
    4       12        7
 
+pandas.read_sql()
+*****************
+
+With a :class:`Connection` defined, you can use ``pandass.read_sql()`` to
+read your data in a pandas ``DataFrame``. This will be slower than using
+:meth:`Connection.select_ipc`, but works regardless of where the Python code
+is running (i.e. ``select_ipc()`` must be on the same machine as the OmniSci
+install, ``pandas.read_sql()`` works everywhere):
+
+.. code-block:: python
+
+   >>> from pymapd import connect
+   >>> import pandas as pd
+   >>> con = connect(user="mapd", password="HyperInteractive", host="localhost",
+   ...               dbname="mapd")
+   >>> df = pd.read_sql("SELECT depdelay, arrdelay FROM flights_2008_10k limit 100", con)
+
+
 Cursors
 *******
 
-A cursor can be created with :meth:`Connection.cursor`
+After connecting to OmniSci, a cursor can be created with :meth:`Connection.cursor`:
 
 .. code-block:: python
 
