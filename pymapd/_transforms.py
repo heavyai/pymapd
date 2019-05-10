@@ -8,12 +8,12 @@ def change_dashboard_sources(dashboard, remap):
 
     Parameters
     ----------
-    dashboard : A dictionary containing the old dashboard state
+    dashboard: A dictionary containing the old dashboard state
     remap: A dictionary containing the new dashboard state to be mapped
 
     Returns
     -------
-    dashboard : A base64 encoded json object containing the new dashboard state
+    dashboard: A base64 encoded json object containing the new dashboard state
     """
     dm = json.loads(dashboard.dashboard_metadata)
     tlst = map(str.strip, dm.get('table', '').split(','))

@@ -8,7 +8,7 @@ def set_tdf(self, tdf):
 
         Parameters
         ----------
-        tdf : TDataFrame
+        tdf: TDataFrame
             A SQL select statement
 
         Example
