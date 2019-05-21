@@ -95,6 +95,15 @@ class TestCPUDataNoNulls:
         """
         # need to manually specify columns since some don't currently work
         # need to drop unsupported columns from df_in
+<<<<<<< Updated upstream
+=======
+        df_in = _tests_table_no_nulls(10000)
+        df_in.drop(columns=["point_",
+                            "line_",
+                            "mpoly_",
+                            "poly_"], inplace=True)
+
+>>>>>>> Stashed changes
         df_in = _tests_table_no_nulls(10000)
         df_in.drop(columns=["point_",
                             "line_",
