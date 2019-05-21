@@ -18,7 +18,8 @@ class TestGPUDataNoNulls:
 
         df_in = _tests_table_no_nulls(10000)
         # keep columns that pass, make issues for ones that don't
-        df_in_limited = df_in[["smallint_",
+        df_in_limited = df_in[["tinyint_",
+                               "smallint_",
                                "int_",
                                "bigint_",
                                "float_",
@@ -34,12 +35,14 @@ class TestGPUDataNoNulls:
         # bring gdf local to CPU, do comparison
         df_gdf_cpu_copy = df_gdf.to_pandas()
 
-        df_in_limited.sort_values(by=['smallint_',
+        df_in_limited.sort_values(by=['tinyint_',
+                                      'smallint_',
                                       'int_',
                                       'bigint_'], inplace=True)
         df_in_limited.reset_index(drop=True, inplace=True)
 
-        df_gdf_cpu_copy.sort_values(by=['smallint_',
+        df_gdf_cpu_copy.sort_values(by=['tinyint_',
+                                        'smallint_',
                                         'int_',
                                         'bigint_'], inplace=True)
         df_gdf_cpu_copy.reset_index(drop=True, inplace=True)
