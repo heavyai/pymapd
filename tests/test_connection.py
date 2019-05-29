@@ -2,7 +2,6 @@ import pytest
 from mapd.ttypes import TColumnType
 from common.ttypes import TTypeInfo
 from pymapd import OperationalError, connect
-from pymapd.cursor import Cursor
 from pymapd.connection import _parse_uri, ConnectionInfo
 from pymapd.exceptions import Error
 from pymapd._parsers import ColumnDetails, _extract_column_details
@@ -25,13 +24,6 @@ class TestConnect:
         assert conn.closed == 0
         conn.close()
         assert conn.closed == 1
-
-    def test_context_manager(self, con):
-        with con as cur:
-            pass
-
-        assert isinstance(cur, Cursor)
-        assert con.closed == 0
 
     def test_commit_noop(self, con):
         result = con.commit()  # it worked
