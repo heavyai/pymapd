@@ -339,6 +339,13 @@ class TestIntegration:
                 }
         dashboard_id = ""
 
+        # check and remove existing dashboards
+        dashboards = con._client.get_dashboards(con._session)
+        for dash in dashboards:
+            if dash.dashboard_name == old_dashboard_name or dash.dashboard_name == new_dashboard_name:
+                con._client.delete_dashboard(con._session, dash.dashboard_id)
+                break
+
         # Create testing dashboard
         con._client.create_dashboard(
             session=con._session,
