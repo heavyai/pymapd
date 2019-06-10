@@ -73,19 +73,19 @@ To create a :class:`Connection` using the ``connect()`` method along with ``user
 .. code-block:: python
 
    >>> from pymapd import connect
-   >>> con = connect(user="mapd", password="HyperInteractive", host="localhost",
-   ...               dbname="mapd")
+   >>> con = connect(user="admin", password="HyperInteractive", host="localhost",
+   ...               dbname="omnisci")
    >>> con
-   Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
+   Connection(mapd://admin:***@localhost:6274/omnisci?protocol=binary)
 
 Alternatively, you can pass in a `SQLAlchemy`_-compliant connection string to
 the ``connect()`` method:
 
 .. code-block:: python
 
-   >>> uri = "mapd://mapd:HyperInteractive@localhost:6274/mapd?protocol=binary"
+   >>> uri = "mapd://admin:HyperInteractive@localhost:6274/omnisci?protocol=binary"
    >>> con = connect(uri=uri)
-   Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
+   Connection(mapd://admin:***@localhost:6274/omnisci?protocol=binary)
 
 OmniSci Cloud
 *************
@@ -170,8 +170,8 @@ install, ``pandas.read_sql()`` works everywhere):
 
    >>> from pymapd import connect
    >>> import pandas as pd
-   >>> con = connect(user="mapd", password="HyperInteractive", host="localhost",
-   ...               dbname="mapd")
+   >>> con = connect(user="admin", password="HyperInteractive", host="localhost",
+   ...               dbname="omnisci")
    >>> df = pd.read_sql("SELECT depdelay, arrdelay FROM flights_2008_10k limit 100", con)
 
 

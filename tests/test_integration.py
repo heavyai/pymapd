@@ -29,33 +29,33 @@ TMapDException.__hash__ = lambda x: id(x)
 class TestIntegration:
 
     def test_connect_binary(self):
-        con = connect(user="mapd", password='HyperInteractive',
+        con = connect(user="admin", password='HyperInteractive',
                       host='localhost', port=6274, protocol='binary',
-                      dbname='mapd')
+                      dbname='omnisci')
         assert con is not None
 
     def test_connect_http(self):
-        con = connect(user="mapd", password='HyperInteractive',
+        con = connect(user="admin", password='HyperInteractive',
                       host='localhost', port=6278, protocol='http',
-                      dbname='mapd')
+                      dbname='omnisci')
         assert con is not None
 
     def test_connect_uri(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?protocol='
+        uri = ('mapd://admin:HyperInteractive@localhost:6274/omnisci?protocol='
                'binary')
         con = connect(uri=uri)
-        assert con._user == 'mapd'
+        assert con._user == 'admin'
         assert con._password == 'HyperInteractive'
         assert con._host == 'localhost'
         assert con._port == 6274
-        assert con._dbname == 'mapd'
+        assert con._dbname == 'omnisci'
         assert con._protocol == 'binary'
 
     def test_connect_uri_and_others_raises(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?protocol='
+        uri = ('mapd://admin:HyperInteractive@localhost:6274/omnisci?protocol='
                'binary')
         with pytest.raises(TypeError):
-            connect(username='mapd', uri=uri)
+            connect(username='omnisci', uri=uri)
 
     def test_invalid_sql(self, con):
         with pytest.raises(ProgrammingError) as r:
