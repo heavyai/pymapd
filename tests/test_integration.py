@@ -337,42 +337,53 @@ class TestIntegration:
                         "title": new_dashboard_name
                         }
                 }
-        dashboard_id = ""
-
-        # check and remove existing dashboards
-        dashboards = con._client.get_dashboards(con._session)
-        for dash in dashboards:
-            if dash.dashboard_name == old_dashboard_name or dash.dashboard_name == new_dashboard_name:
-                con._client.delete_dashboard(con._session, dash.dashboard_id)
-                break
+        dashboards = []
 
         # Create testing dashboard
-        con._client.create_dashboard(
-            session=con._session,
-            dashboard_name=old_dashboard_name,
-            dashboard_state=(
-                base64.b64encode(json.dumps(old_dashboard_state).encode(
-                    "utf-8"))),
-            image_hash="",
-            dashboard_metadata=json.dumps(meta_data),
-        )
-
-        # Grab our testing dashboard id from the database
-        dashboards = con._client.get_dashboards(session=con._session)
-        for dashboard in dashboards:
-            if dashboard.dashboard_name == old_dashboard_name:
-                dashboard_id = dashboard.dashboard_id
+        try:
+            dashboard_id = con._client.create_dashboard(
+                session=con._session,
+                dashboard_name=old_dashboard_name,
+                dashboard_state=(
+                    base64.b64encode(json.dumps(old_dashboard_state).encode(
+                        "utf-8"))),
+                image_hash="",
+                dashboard_metadata=json.dumps(meta_data),
+            )
+        except TMapDException:
+            dashboards = con._client.get_dashboards(con._session)
+            for dash in dashboards:
+                if dash.dashboard_name == old_dashboard_name:
+                    con._client.delete_dashboard(con._session,
+                                                 dash.dashboard_id)
+                    break
+            dashboard_id = con._client.create_dashboard(
+                session=con._session,
+                dashboard_name=old_dashboard_name,
+                dashboard_state=(
+                    base64.b64encode(json.dumps(old_dashboard_state).encode(
+                        "utf-8"))),
+                image_hash="",
+                dashboard_metadata=json.dumps(meta_data),
+            )
 
         # Duplicate and remap our dashboard
-        con.duplicate_dashboard(
+        try:
+            dashboard_id = con.duplicate_dashboard(
+                    dashboard_id, new_dashboard_name, remap
+                )
+        except TMapDException:
+            dashboards = con._client.get_dashboards(con._session)
+            for dash in dashboards:
+                if dash.dashboard_name == new_dashboard_name:
+                    con._client.delete_dashboard(con._session,
+                                                 dash.dashboard_id)
+                    break
+            dashboard_id = con.duplicate_dashboard(
                     dashboard_id, new_dashboard_name, remap
                 )
 
         # Get our new dashboard from the database
-        dashboards = con._client.get_dashboards(session=con._session)
-        for dashboard in dashboards:
-            if dashboard.dashboard_name == new_dashboard_name:
-                dashboard_id = dashboard.dashboard_id
         d = con._client.get_dashboard(
                                         session=con._session,
                                         dashboard_id=dashboard_id
