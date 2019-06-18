@@ -51,7 +51,7 @@ class TestConnect:
 class TestURI:
 
     def test_parse_uri(self):
-        uri = ('mapd://admin:HyperInteractive@localhost:6274/omnisci?'
+        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
                'protocol=binary')
         result = _parse_uri(uri)
         expected = ConnectionInfo("admin", "HyperInteractive", "localhost",
@@ -59,7 +59,7 @@ class TestURI:
         assert result == expected
 
     def test_both_raises(self):
-        uri = ('mapd://admin:HyperInteractive@localhost:6274/omnisci?'
+        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
                'protocol=binary')
         with pytest.raises(TypeError):
             connect(uri=uri, user='my user')

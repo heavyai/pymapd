@@ -206,7 +206,7 @@ class Connection:
                                "for more details.")
 
     def __repr__(self):
-        tpl = ('Connection(mapd://{user}:***@{host}:{port}/{dbname}?protocol'
+        tpl = ('Connection(omnisci://{user}:***@{host}:{port}/{dbname}?protocol'
                '={protocol})')
         return tpl.format(user=self._user, host=self._host, port=self._port,
                           dbname=self._dbname, protocol=self._protocol)

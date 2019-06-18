@@ -41,7 +41,7 @@ class TestIntegration:
         assert con is not None
 
     def test_connect_uri(self):
-        uri = ('mapd://admin:HyperInteractive@localhost:6274/omnisci?protocol='
+        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?protocol='
                'binary')
         con = connect(uri=uri)
         assert con._user == 'admin'
@@ -52,7 +52,7 @@ class TestIntegration:
         assert con._protocol == 'binary'
 
     def test_connect_uri_and_others_raises(self):
-        uri = ('mapd://admin:HyperInteractive@localhost:6274/omnisci?protocol='
+        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?protocol='
                'binary')
         with pytest.raises(TypeError):
             connect(username='omnisci', uri=uri)
