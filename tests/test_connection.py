@@ -19,8 +19,8 @@ class TestConnect:
             connect(host='localhost', protocol='binary', port=1234)
 
     def test_close(self):
-        conn = connect(user='mapd', password='HyperInteractive',
-                       host='localhost', dbname='mapd')
+        conn = connect(user='admin', password='HyperInteractive',
+                       host='localhost', dbname='omnisci')
         assert conn.closed == 0
         conn.close()
         assert conn.closed == 1
@@ -36,8 +36,8 @@ class TestConnect:
         assert m.match('fake-proto')
 
     def test_session_logon_success(self):
-        conn = connect(user='mapd', password='HyperInteractive',
-                       host='localhost', dbname='mapd')
+        conn = connect(user='admin', password='HyperInteractive',
+                       host='localhost', dbname='omnisci')
         sessionid = conn._session
         connnew = connect(sessionid=sessionid, host='localhost')
         assert connnew._session == sessionid
@@ -51,15 +51,15 @@ class TestConnect:
 class TestURI:
 
     def test_parse_uri(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?'
+        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
                'protocol=binary')
         result = _parse_uri(uri)
-        expected = ConnectionInfo("mapd", "HyperInteractive", "localhost",
-                                  6274, "mapd", "binary")
+        expected = ConnectionInfo("admin", "HyperInteractive", "localhost",
+                                  6274, "omnisci", "binary")
         assert result == expected
 
     def test_both_raises(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?'
+        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
                'protocol=binary')
         with pytest.raises(TypeError):
             connect(uri=uri, user='my user')

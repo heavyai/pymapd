@@ -67,12 +67,12 @@ def connect(uri=None,
     You can either pass a string ``uri``, all the individual components,
     or an existing sessionid excluding user, password, and database
 
-    >>> connect('mapd://mapd:HyperInteractive@localhost:6274/mapd?'
+    >>> connect('mapd://admin:HyperInteractive@localhost:6274/omnisci?'
     ...         'protocol=binary')
     Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
 
-    >>> connect(user='mapd', password='HyperInteractive', host='localhost',
-    ...         port=6274, dbname='mapd')
+    >>> connect(user='admin', password='HyperInteractive', host='localhost',
+    ...         port=6274, dbname='omnisci')
 
     >>> connect(sessionid='XihlkjhdasfsadSDoasdllMweieisdpo', host='localhost',
     ...         port=6273, protocol='http')
@@ -206,8 +206,8 @@ class Connection:
                                "for more details.")
 
     def __repr__(self):
-        tpl = ('Connection(mapd://{user}:***@{host}:{port}/{dbname}?protocol'
-               '={protocol})')
+        tpl = ('Connection(omnisci://{user}:***@{host}:{port}/{dbname}?'
+               'protocol={protocol})')
         return tpl.format(user=self._user, host=self._host, port=self._port,
                           dbname=self._dbname, protocol=self._protocol)
 

@@ -218,9 +218,9 @@ def main(args=None):
     logger.addHandler(fh)
 
     con = pymapd.connect(
-        user='mapd',
+        user='admin',
         password='HyperInteractive',
-        dbname='mapd',
+        dbname='omnisci',
         host='localhost')
 
     grid = product(selects.keys(), _benchmarks)
