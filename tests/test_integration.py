@@ -29,33 +29,33 @@ TMapDException.__hash__ = lambda x: id(x)
 class TestIntegration:
 
     def test_connect_binary(self):
-        con = connect(user="mapd", password='HyperInteractive',
+        con = connect(user="admin", password='HyperInteractive',
                       host='localhost', port=6274, protocol='binary',
-                      dbname='mapd')
+                      dbname='omnisci')
         assert con is not None
 
     def test_connect_http(self):
-        con = connect(user="mapd", password='HyperInteractive',
+        con = connect(user="admin", password='HyperInteractive',
                       host='localhost', port=6278, protocol='http',
-                      dbname='mapd')
+                      dbname='omnisci')
         assert con is not None
 
     def test_connect_uri(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?protocol='
-               'binary')
+        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
+               'protocol=binary')
         con = connect(uri=uri)
-        assert con._user == 'mapd'
+        assert con._user == 'admin'
         assert con._password == 'HyperInteractive'
         assert con._host == 'localhost'
         assert con._port == 6274
-        assert con._dbname == 'mapd'
+        assert con._dbname == 'omnisci'
         assert con._protocol == 'binary'
 
     def test_connect_uri_and_others_raises(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?protocol='
-               'binary')
+        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
+               'protocol=binary')
         with pytest.raises(TypeError):
-            connect(username='mapd', uri=uri)
+            connect(username='omnisci', uri=uri)
 
     def test_invalid_sql(self, con):
         with pytest.raises(ProgrammingError) as r:
@@ -337,35 +337,53 @@ class TestIntegration:
                         "title": new_dashboard_name
                         }
                 }
-        dashboard_id = ""
+        dashboards = []
 
         # Create testing dashboard
-        con._client.create_dashboard(
-            session=con._session,
-            dashboard_name=old_dashboard_name,
-            dashboard_state=(
-                base64.b64encode(json.dumps(old_dashboard_state).encode(
-                    "utf-8"))),
-            image_hash="",
-            dashboard_metadata=json.dumps(meta_data),
-        )
-
-        # Grab our testing dashboard id from the database
-        dashboards = con._client.get_dashboards(session=con._session)
-        for dashboard in dashboards:
-            if dashboard.dashboard_name == old_dashboard_name:
-                dashboard_id = dashboard.dashboard_id
+        try:
+            dashboard_id = con._client.create_dashboard(
+                session=con._session,
+                dashboard_name=old_dashboard_name,
+                dashboard_state=(
+                    base64.b64encode(json.dumps(old_dashboard_state).encode(
+                        "utf-8"))),
+                image_hash="",
+                dashboard_metadata=json.dumps(meta_data),
+            )
+        except TMapDException:
+            dashboards = con._client.get_dashboards(con._session)
+            for dash in dashboards:
+                if dash.dashboard_name == old_dashboard_name:
+                    con._client.delete_dashboard(con._session,
+                                                 dash.dashboard_id)
+                    break
+            dashboard_id = con._client.create_dashboard(
+                session=con._session,
+                dashboard_name=old_dashboard_name,
+                dashboard_state=(
+                    base64.b64encode(json.dumps(old_dashboard_state).encode(
+                        "utf-8"))),
+                image_hash="",
+                dashboard_metadata=json.dumps(meta_data),
+            )
 
         # Duplicate and remap our dashboard
-        con.duplicate_dashboard(
+        try:
+            dashboard_id = con.duplicate_dashboard(
+                    dashboard_id, new_dashboard_name, remap
+                )
+        except TMapDException:
+            dashboards = con._client.get_dashboards(con._session)
+            for dash in dashboards:
+                if dash.dashboard_name == new_dashboard_name:
+                    con._client.delete_dashboard(con._session,
+                                                 dash.dashboard_id)
+                    break
+            dashboard_id = con.duplicate_dashboard(
                     dashboard_id, new_dashboard_name, remap
                 )
 
         # Get our new dashboard from the database
-        dashboards = con._client.get_dashboards(session=con._session)
-        for dashboard in dashboards:
-            if dashboard.dashboard_name == new_dashboard_name:
-                dashboard_id = dashboard.dashboard_id
         d = con._client.get_dashboard(
                                         session=con._session,
                                         dashboard_id=dashboard_id

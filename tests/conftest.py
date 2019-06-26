@@ -51,8 +51,8 @@ def con(mapd_server):
     """
     Fixture to provide Connection for tests run against live OmniSci instance
     """
-    return connect(user="mapd", password='HyperInteractive', host='localhost',
-                   port=6274, protocol='binary', dbname='mapd')
+    return connect(user="admin", password='HyperInteractive', host='localhost',
+                   port=6274, protocol='binary', dbname='omnisci')
 
 
 @pytest.fixture

@@ -11,8 +11,9 @@ clients will feel similar to pymapd.
 .. note::
 
    This tutorial assumes you have an OmniSci server running on ``localhost:6274`` with the
-   default logins and databases, and have loaded the example "flights_2008_10k"
-   dataset.
+   default logins and databases, and have loaded the example ``flights_2008_10k``
+   dataset. This dataset can be obtained from the ``insert_sample_data`` script included
+   in the OmniSci install directory.
 
 Installing pymapd
 -----------------
@@ -31,7 +32,7 @@ pymapd
    pip install pymapd
 
 If you have an NVIDIA GPU in the same machine where your pymapd code will be running, you'll want to `install
-cudf`_ as well if you want to return results sets into GPU memory as a cudf GPU DataFrame:
+cudf`_ as well to return results sets into GPU memory as a cudf GPU DataFrame:
 
 cudf via conda
 **************
@@ -59,32 +60,40 @@ cudf via PyPI/pip
 Connecting
 ----------
 
-Create a :class:`Connection` with
+Self-Hosted Install
+*******************
+
+For self-hosted OmniSci installs, use ``protocol='binary'`` (this is the default)
+to connect with OmniSci, as this will have better performance than using
+``protocol='http'`` or ``protocol='https'``.
+
+To create a :class:`Connection` using the ``connect()`` method along with ``user``,
+``password``, ``host`` and ``dbname``:
 
 .. code-block:: python
 
    >>> from pymapd import connect
-   >>> con = connect(user="mapd", password="HyperInteractive", host="localhost",
-   ...               dbname="mapd")
+   >>> con = connect(user="admin", password="HyperInteractive", host="localhost",
+   ...               dbname="omnisci")
    >>> con
-   Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
+   Connection(mapd://admin:***@localhost:6274/omnisci?protocol=binary)
 
-or by passing in a connection string
+Alternatively, you can pass in a `SQLAlchemy`_-compliant connection string to
+the ``connect()`` method:
 
 .. code-block:: python
 
-   >>> uri = "mapd://mapd:HyperInteractive@localhost:6274/mapd?protocol=binary"
+   >>> uri = "mapd://admin:HyperInteractive@localhost:6274/omnisci?protocol=binary"
    >>> con = connect(uri=uri)
-   Connection(mapd://mapd:***@localhost:6274/mapd?protocol=binary)
+   Connection(mapd://admin:***@localhost:6274/omnisci?protocol=binary)
 
-See the `SQLAlchemy`_ documentation on what makes up a connection string. The
-components are::
+OmniSci Cloud
+*************
 
-   dialect+driver://username:password@host:port/database
+When connecting to OmniSci Cloud, the two methods are the same as above,
+however you can only use ``protocol='https'``. For a step-by-step walk-through with
+screenshots, please see this `blog post`_.
 
-For ``pymapd``, the ``dialect+driver`` will always be ``mapd``, and we look for
-a ``protocol`` argument in the optional query parameters (everything following
-the ``?`` after ``database``).
 
 Querying
 --------
@@ -109,11 +118,13 @@ that your OmniSci database is running on the same machine.
    and microseconds granularity. Support for nanoseconds, ``Timestamp(9)`` is in
    progress.
 
-GPU Select
-^^^^^^^^^^
+GPU Shared Memory
+*****************
 
 Use :meth:`Connection.select_ipc_gpu` to select data into a ``GpuDataFrame``,
-provided by `cudf`_
+provided by `cudf`_. To use this method, **the Python code must be running
+on the same machine as the OmniSci installation AND you must have an NVIDIA GPU
+installed.**
 
 .. code-block:: python
 
@@ -127,11 +138,13 @@ provided by `cudf`_
    3        4       -3
    4       12        7
 
-CPU Shared Memory Select
-^^^^^^^^^^^^^^^^^^^^^^^^
+CPU Shared Memory
+*****************
 
 Use :meth:`Connection.select_ipc` to select data into a pandas ``DataFrame``
-using CPU shared memory to avoid unnecessary intermediate copies.
+using CPU shared memory to avoid unnecessary intermediate copies. To use this
+method, **the Python code must be running on the same machine as the OmniSci
+installation.**
 
 .. code-block:: python
 
@@ -144,10 +157,28 @@ using CPU shared memory to avoid unnecessary intermediate copies.
    3        4       -3
    4       12        7
 
-Cursors
--------
+pandas.read_sql()
+*****************
 
-A cursor can be created with :meth:`Connection.cursor`
+With a :class:`Connection` defined, you can use ``pandass.read_sql()`` to
+read your data in a pandas ``DataFrame``. This will be slower than using
+:meth:`Connection.select_ipc`, but works regardless of where the Python code
+is running (i.e. ``select_ipc()`` must be on the same machine as the OmniSci
+install, ``pandas.read_sql()`` works everywhere):
+
+.. code-block:: python
+
+   >>> from pymapd import connect
+   >>> import pandas as pd
+   >>> con = connect(user="admin", password="HyperInteractive", host="localhost",
+   ...               dbname="omnisci")
+   >>> df = pd.read_sql("SELECT depdelay, arrdelay FROM flights_2008_10k limit 100", con)
+
+
+Cursors
+*******
+
+After connecting to OmniSci, a cursor can be created with :meth:`Connection.cursor`:
 
 .. code-block:: python
 
@@ -225,13 +256,11 @@ If you aren't using arrow or pandas you can pass list of tuples to
 
 
 The high-level :meth:`Connection.load_table` method will choose the fastest
-method available based on the type of ``data`` and whether or not ``pyarrow`` is
-installed.
+method available based on the type of ``data``.
 
 * lists of tuples are always loaded with :meth:`Connection.load_table_rowwise`
-* If ``pyarrow`` is installed, a ``pandas.DataFrame`` or ``pyarrow.Table`` will
-  be loaded using :meth:`Connection.load_table_arrow`
-* If ``pyarrow`` is not installed, a ``pandas.DataFrame`` will be loaded using
+* A ``pandas.DataFrame`` or ``pyarrow.Table`` will be loaded using :meth:`Connection.load_table_arrow`
+* If upload fails using the arrow method, a ``pandas.DataFrame`` can be loaded using
   :meth:`Connection.load_table_columnar`
 
 Database Metadata
@@ -260,3 +289,4 @@ Some helpful metadata are available on the ``Connection`` object.
 .. _Apache Arrow: http://arrow.apache.org/
 .. _conda-forge: http://conda-forge.github.io/
 .. _install cudf: https://github.com/rapidsai/cudf#installation
+.. _blog post: https://www.omnisci.com/blog/using-pymapd-to-load-data-to-omnisci-cloud

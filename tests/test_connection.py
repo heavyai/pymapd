@@ -2,8 +2,8 @@ import pytest
 from mapd.ttypes import TColumnType
 from common.ttypes import TTypeInfo
 from pymapd import OperationalError, connect
-from pymapd.cursor import Cursor
 from pymapd.connection import _parse_uri, ConnectionInfo
+from pymapd.exceptions import Error
 from pymapd._parsers import ColumnDetails, _extract_column_details
 
 
@@ -19,18 +19,11 @@ class TestConnect:
             connect(host='localhost', protocol='binary', port=1234)
 
     def test_close(self):
-        conn = connect(user='mapd', password='HyperInteractive',
-                       host='localhost', dbname='mapd')
+        conn = connect(user='admin', password='HyperInteractive',
+                       host='localhost', dbname='omnisci')
         assert conn.closed == 0
         conn.close()
         assert conn.closed == 1
-
-    def test_context_manager(self, con):
-        with con as cur:
-            pass
-
-        assert isinstance(cur, Cursor)
-        assert con.closed == 0
 
     def test_commit_noop(self, con):
         result = con.commit()  # it worked
@@ -42,19 +35,31 @@ class TestConnect:
                     protocol='fake-proto')
         assert m.match('fake-proto')
 
+    def test_session_logon_success(self):
+        conn = connect(user='admin', password='HyperInteractive',
+                       host='localhost', dbname='omnisci')
+        sessionid = conn._session
+        connnew = connect(sessionid=sessionid, host='localhost')
+        assert connnew._session == sessionid
+
+    def test_session_logon_failure(self):
+        sessionid = 'ILoveDancingOnTables'
+        with pytest.raises(Error):
+            connect(sessionid=sessionid, host='localhost')
+
 
 class TestURI:
 
     def test_parse_uri(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?'
+        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
                'protocol=binary')
         result = _parse_uri(uri)
-        expected = ConnectionInfo("mapd", "HyperInteractive", "localhost",
-                                  6274, "mapd", "binary")
+        expected = ConnectionInfo("admin", "HyperInteractive", "localhost",
+                                  6274, "omnisci", "binary")
         assert result == expected
 
     def test_both_raises(self):
-        uri = ('mapd://mapd:HyperInteractive@localhost:6274/mapd?'
+        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
                'protocol=binary')
         with pytest.raises(TypeError):
             connect(uri=uri, user='my user')

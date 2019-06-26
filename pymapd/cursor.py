@@ -24,7 +24,7 @@ class Cursor:
         return self.result_set
 
     def __enter__(self):
-        pass
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
@@ -79,9 +79,9 @@ class Cursor:
 
         Parameters
         ----------
-        operation : str
+        operation: str
             A SQL query
-        parameters : dict
+        parameters: dict
             Parameters to substitute into ``operation``.
 
         Returns
@@ -127,12 +127,12 @@ class Cursor:
 
         Parameters
         ----------
-        operation : str
-        parameters : list of dict
+        operation: str
+        parameters: list of dict
 
         Returns
         -------
-        results : list of lists
+        results: list of lists
         """
         results = [list(self.execute(operation, params)) for params
                    in parameters]
@@ -172,11 +172,11 @@ def make_row_results_set(data):
 
     Parameters
     ----------
-    data : QueryResultSet
+    data: QueryResultSet
 
     Returns
     -------
-    results : Iterator[tuple]
+    results: Iterator[tuple]
     """
 
     if data.row_set.columns:

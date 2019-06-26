@@ -13,8 +13,8 @@ the `Apache Arrow`_-based `cudf GPU DataFrame`_ format for efficient data interc
 .. code-block:: python
 
    >>> from pymapd import connect
-   >>> con = connect(user="mapd", password="HyperInteractive", host="localhost",
-   ...               dbname="mapd")
+   >>> con = connect(user="admin", password="HyperInteractive", host="localhost",
+   ...               dbname="omnisci")
    >>> df = con.select_ipc_gpu("SELECT depdelay, arrdelay"
    ...                         "FROM flights_2008_10k"
    ...                         "LIMIT 100")
@@ -34,6 +34,7 @@ the `Apache Arrow`_-based `cudf GPU DataFrame`_ format for efficient data interc
    api
    contributing
    releasenotes
+   faq
 
 
 .. _DB-API-2.0: https://www.python.org/dev/peps/pep-0249/
