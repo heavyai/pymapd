@@ -153,40 +153,40 @@ pipeline {
                 """
             }
         }
-        stage('Pip python3.7') {
-            steps {
-                sh """
-                    docker run \
-                      -d \
-                      --rm \
-                      --runtime=nvidia \
-                      --ipc="shareable" \
-                      --network="pytest" \
-                      -p 6273 \
-                      --name $db_container_name \
-                      $db_container_image
-                    sleep 3
+        // stage('Pip python3.7') {
+        //     steps {
+        //         sh """
+        //             docker run \
+        //               -d \
+        //               --rm \
+        //               --runtime=nvidia \
+        //               --ipc="shareable" \
+        //               --network="pytest" \
+        //               -p 6273 \
+        //               --name $db_container_name \
+        //               $db_container_image
+        //             sleep 3
 
-                    docker run \
-                      --rm \
-                      --runtime=nvidia \
-                      --ipc="container:${db_container_name}" \
-                      --network="pytest" \
-                      -v $WORKSPACE:/pymapd \
-                      --workdir="/pymapd" \
-                      --name $testscript_container_name \
-                      $testscript_container_image \
-                      bash -c '\
-                        . ~/.bashrc && \
-                        conda install python=3.7 -y && \
-                        ./ci/install-test-deps-pip.sh && \
-                        pytest tests'
+        //             docker run \
+        //               --rm \
+        //               --runtime=nvidia \
+        //               --ipc="container:${db_container_name}" \
+        //               --network="pytest" \
+        //               -v $WORKSPACE:/pymapd \
+        //               --workdir="/pymapd" \
+        //               --name $testscript_container_name \
+        //               $testscript_container_image \
+        //               bash -c '\
+        //                 . ~/.bashrc && \
+        //                 conda install python=3.7 -y && \
+        //                 ./ci/install-test-deps-pip.sh && \
+        //                 pytest tests'
 
-                    docker rm -f $testscript_container_name || true
-                    docker rm -f $db_container_name || true
-                """
-            }
-        }
+        //             docker rm -f $testscript_container_name || true
+        //             docker rm -f $db_container_name || true
+        //         """
+        //     }
+        // }
     }
     post {
         always {
