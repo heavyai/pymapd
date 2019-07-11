@@ -198,5 +198,22 @@ pipeline {
             """
             cleanWs()
         }
+        success {
+            script {
+                pullRequest.createStatus(
+                    status: 'success',
+                    description: 'All tests are passing',
+                    targetUrl: "${env.JOB_URL}/testResults"
+                )
+            }
+        }
+        failure {
+            script {
+                pullRequest.createStatus(
+                    status: 'failure',
+                    targetUrl: "${env.JOB_URL}/testResults"
+                )
+            }
+        }
     }
 }
