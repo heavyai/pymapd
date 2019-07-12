@@ -184,7 +184,7 @@ pipeline {
                 failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
             }
         }
-        // stage('Pip python3.7') {
+        // stage('Pytest - pip python3.7') {
         //     steps {
         //         setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
         //         sh """
