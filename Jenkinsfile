@@ -4,6 +4,14 @@ def db_container_image = "omnisci/core-os-cuda-dev:master"
 def db_container_name = "pymapd-db-$BUILD_NUMBER"
 def testscript_container_image = "rapidsai/rapidsai:cuda10.0-runtime-ubuntu18.04"
 def testscript_container_name = "pymapd-pytest-$BUILD_NUMBER"
+void setBuildStatus(String message, String state) {
+  step([
+      $class: "GitHubCommitStatusSetter",
+      reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/omnisci/pymapd"],
+      errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+      statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
+  ]);
+}
 
 pipeline {
     agent { label 'centos7-p4-x86_64 && tools-docker' }
@@ -199,21 +207,10 @@ pipeline {
             cleanWs()
         }
         success {
-            script {
-                pullRequest.createStatus(
-                    status: 'success',
-                    description: 'All tests are passing',
-                    targetUrl: "${env.JOB_URL}/testResults"
-                )
-            }
+            setBuildStatus("Build succeeded", "SUCCESS");
         }
         failure {
-            script {
-                pullRequest.createStatus(
-                    status: 'failure',
-                    targetUrl: "${env.JOB_URL}/testResults"
-                )
-            }
+            setBuildStatus("Build failed", "FAILURE");
         }
     }
 }
