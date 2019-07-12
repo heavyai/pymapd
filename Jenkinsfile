@@ -4,12 +4,12 @@ def db_container_image = "omnisci/core-os-cuda-dev:master"
 def db_container_name = "pymapd-db-$BUILD_NUMBER"
 def testscript_container_image = "rapidsai/rapidsai:cuda10.0-runtime-ubuntu18.04"
 def testscript_container_name = "pymapd-pytest-$BUILD_NUMBER"
-def sha = "$GITHUB_PR_HEAD_SHA"
+
 void setBuildStatus(String message, String state) {
   step([
       $class: "GitHubCommitStatusSetter",
       reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/omnisci/pymapd"],
-      commitShaSource: [$class: "ManuallyEnteredShaSource", sha: sha ],
+      commitShaSource: [$class: "ManuallyEnteredShaSource", sha: "$GITHUB_PR_HEAD_SHA" ],
       errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
       statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
   ]);
