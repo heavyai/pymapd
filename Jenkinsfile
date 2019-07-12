@@ -69,7 +69,7 @@ pipeline {
                 """
             }
         }
-        stage('Conda python3.6') {
+        stage('Pytest - conda python3.6') {
             steps {
                 setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
                 sh """
@@ -107,7 +107,7 @@ pipeline {
                 failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
             }
         }
-        stage('Conda python3.7') {
+        stage('Pytest - conda python3.7') {
             steps {
                 setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
                 sh """
@@ -145,7 +145,7 @@ pipeline {
                 failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
             }
         }
-        stage('Pip python3.6') {
+        stage('Pytest - pip python3.6') {
             steps {
                 setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
                 sh """
