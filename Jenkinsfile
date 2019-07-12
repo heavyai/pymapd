@@ -5,10 +5,11 @@ def db_container_name = "pymapd-db-$BUILD_NUMBER"
 def testscript_container_image = "rapidsai/rapidsai:cuda10.0-runtime-ubuntu18.04"
 def testscript_container_name = "pymapd-pytest-$BUILD_NUMBER"
 
-void setBuildStatus(String message, String state) {
+void setBuildStatus(String message, String state, String context) {
   step([
       $class: "GitHubCommitStatusSetter",
       reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/omnisci/pymapd"],
+      contextSource: [$class: "ManuallyEnteredCommitContextSource", context: context],
       commitShaSource: [$class: "ManuallyEnteredShaSource", sha: "$GITHUB_PR_HEAD_SHA" ],
       errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
       statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
@@ -25,6 +26,7 @@ pipeline {
         }
         stage('Flake8') {
             steps {
+                setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
                 sh """
                     docker pull $flake8_container_image
                     docker run \
@@ -36,6 +38,10 @@ pipeline {
                         flake8
                     docker rm -f $flake8_container_name || true
                 """
+            }
+            post {
+                success { setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME"); }
+                failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
             }
         }
         stage('Prepare Workspace') {
@@ -65,6 +71,7 @@ pipeline {
         }
         stage('Conda python3.6') {
             steps {
+                setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
                 sh """
                     docker run \
                       -d \
@@ -95,9 +102,14 @@ pipeline {
                     docker rm -f $db_container_name || true
                 """
             }
+            post {
+                success { setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME"); }
+                failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
+            }
         }
         stage('Conda python3.7') {
             steps {
+                setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
                 sh """
                     docker run \
                       -d \
@@ -128,9 +140,14 @@ pipeline {
                     docker rm -f $db_container_name || true
                 """
             }
+            post {
+                success { setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME"); }
+                failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
+            }
         }
         stage('Pip python3.6') {
             steps {
+                setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
                 sh """
                     docker run \
                       -d \
@@ -162,9 +179,14 @@ pipeline {
                     docker rm -f $db_container_name || true
                 """
             }
+            post {
+                success { setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME"); }
+                failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
+            }
         }
         // stage('Pip python3.7') {
         //     steps {
+        //         setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
         //         sh """
         //             docker run \
         //               -d \
@@ -196,6 +218,10 @@ pipeline {
         //             docker rm -f $db_container_name || true
         //         """
         //     }
+        //     post {
+        //         success { setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME"); }
+        //         failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
+        //     }
         // }
     }
     post {
@@ -207,12 +233,6 @@ pipeline {
                 sudo chown -R jenkins-slave:jenkins-slave $WORKSPACE
             """
             cleanWs()
-        }
-        success {
-            setBuildStatus("Build succeeded", "SUCCESS");
-        }
-        failure {
-            setBuildStatus("Build failed", "FAILURE");
         }
     }
 }
