@@ -4,6 +4,7 @@ def db_container_image = "omnisci/core-os-cuda-dev:master"
 def db_container_name = "pymapd-db-$BUILD_NUMBER"
 def testscript_container_image = "rapidsai/rapidsai:cuda10.0-runtime-ubuntu18.04"
 def testscript_container_name = "pymapd-pytest-$BUILD_NUMBER"
+def stage_succeeded
 
 void setBuildStatus(String message, String state, String context) {
   step([
@@ -17,34 +18,61 @@ void setBuildStatus(String message, String state, String context) {
 }
 
 pipeline {
-    agent { label 'centos7-p4-x86_64 && tools-docker' }
+    agent none
     stages {
+        stage('Set pending status') {
+            agent any
+            steps {
+                // Set pending status manually for all jobs before node is started
+                setBuildStatus("Build queued", "PENDING", "Flake8");
+                setBuildStatus("Build queued", "PENDING", "Pytest - conda python3.6");
+                setBuildStatus("Build queued", "PENDING", "Pytest - conda python3.7");
+                setBuildStatus("Build queued", "PENDING", "Pytest - pip python3.6");
+            }
+        }
         stage('Checkout') {
+            agent { label 'centos7-p4-x86_64 && tools-docker' }
             steps {
                 checkout scm
             }
         }
         stage('Flake8') {
+            agent { label 'centos7-p4-x86_64 && tools-docker' }
             steps {
-                setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
-                sh """
-                    docker pull $flake8_container_image
-                    docker run \
-                      --rm \
-                      --entrypoint= \
-                      --name $flake8_container_name \
-                      -v $WORKSPACE:/apps \
-                      $flake8_container_image \
-                        flake8
-                    docker rm -f $flake8_container_name || true
-                """
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    script { stage_succeeded = false }
+                    setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+                    sh """
+                        docker pull $flake8_container_image
+                        docker run \
+                          --rm \
+                          --entrypoint= \
+                          --name $flake8_container_name \
+                          -v $WORKSPACE:/apps \
+                          $flake8_container_image \
+                            flake8
+                        docker rm -f $flake8_container_name || true
+                    """
+                    script { stage_succeeded = true }
+                }
             }
             post {
-                success { setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME"); }
-                failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
+                always {
+                    script {
+                        if (stage_succeeded == true) {
+                            setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+                        } else {
+                            sh """
+                                docker rm -f $flake8_container_name || true
+                            """
+                            setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+                        }
+                    }
+                }
             }
         }
         stage('Prepare Workspace') {
+            agent { label 'centos7-p4-x86_64 && tools-docker' }
             steps {
                 sh """
                     # Pull required test docker container images
@@ -70,169 +98,235 @@ pipeline {
             }
         }
         stage('Pytest - conda python3.6') {
+            agent { label 'centos7-p4-x86_64 && tools-docker' }
             steps {
-                setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
-                sh """
-                    docker run \
-                      -d \
-                      --rm \
-                      --runtime=nvidia \
-                      --ipc="shareable" \
-                      --network="pytest" \
-                      -p 6273 \
-                      --name $db_container_name \
-                      $db_container_image
-                    sleep 3
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    script { stage_succeeded = false }
+                    setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+                    sh """
+                        docker run \
+                          -d \
+                          --rm \
+                          --runtime=nvidia \
+                          --ipc="shareable" \
+                          --network="pytest" \
+                          -p 6273 \
+                          --name $db_container_name \
+                          $db_container_image
+                        sleep 3
 
-                    docker run \
-                      --rm \
-                      --runtime=nvidia \
-                      --ipc="container:${db_container_name}" \
-                      --network="pytest" \
-                      -v $WORKSPACE:/pymapd \
-                      --workdir="/pymapd" \
-                      --name $testscript_container_name \
-                      $testscript_container_image \
-                      bash -c '\
-                        PYTHON=3.6 ./ci/install-test-deps-conda.sh && \
-                        source activate /conda/envs/omnisci-dev && \
-                        pytest tests'
+                        docker run \
+                          --rm \
+                          --runtime=nvidia \
+                          --ipc="container:${db_container_name}" \
+                          --network="pytest" \
+                          -v $WORKSPACE:/pymapd \
+                          --workdir="/pymapd" \
+                          --name $testscript_container_name \
+                          $testscript_container_image \
+                          bash -c '\
+                            PYTHON=3.6 ./ci/install-test-deps-conda.sh && \
+                            source activate /conda/envs/omnisci-dev && \
+                            pytest tests'
 
-                    docker rm -f $testscript_container_name || true
-                    docker rm -f $db_container_name || true
-                """
+                        docker rm -f $testscript_container_name || true
+                        docker rm -f $db_container_name || true
+                    """
+                    script { stage_succeeded = true }
+                }
             }
             post {
-                success { setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME"); }
-                failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
+                always {
+                    script {
+                        if (stage_succeeded == true) {
+                            setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+                        } else {
+                            sh """
+                                docker rm -f $testscript_container_name || true
+                                docker rm -f $db_container_name || true
+                            """
+                            setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+                        }
+                    }
+                }
             }
         }
         stage('Pytest - conda python3.7') {
+            agent { label 'centos7-p4-x86_64 && tools-docker' }
             steps {
-                setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
-                sh """
-                    docker run \
-                      -d \
-                      --rm \
-                      --runtime=nvidia \
-                      --ipc="shareable" \
-                      --network="pytest" \
-                      -p 6273 \
-                      --name $db_container_name \
-                      $db_container_image
-                    sleep 3
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    script { stage_succeeded = false }
+                    setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+                    sh """
+                        docker run \
+                          -d \
+                          --rm \
+                          --runtime=nvidia \
+                          --ipc="shareable" \
+                          --network="pytest" \
+                          -p 6273 \
+                          --name $db_container_name \
+                          $db_container_image
+                        sleep 3
 
-                    docker run \
-                      --rm \
-                      --runtime=nvidia \
-                      --ipc="container:${db_container_name}" \
-                      --network="pytest" \
-                      -v $WORKSPACE:/pymapd \
-                      --workdir="/pymapd" \
-                      --name $testscript_container_name \
-                      $testscript_container_image \
-                      bash -c '\
-                        PYTHON=3.7 ./ci/install-test-deps-conda.sh && \
-                        source activate /conda/envs/omnisci-dev && \
-                        pytest tests'
+                        docker run \
+                          --rm \
+                          --runtime=nvidia \
+                          --ipc="container:${db_container_name}" \
+                          --network="pytest" \
+                          -v $WORKSPACE:/pymapd \
+                          --workdir="/pymapd" \
+                          --name $testscript_container_name \
+                          $testscript_container_image \
+                          bash -c '\
+                            PYTHON=3.7 ./ci/install-test-deps-conda.sh && \
+                            source activate /conda/envs/omnisci-dev && \
+                            pytest tests'
 
-                    docker rm -f $testscript_container_name || true
-                    docker rm -f $db_container_name || true
-                """
+                        docker rm -f $testscript_container_name || true
+                        docker rm -f $db_container_name || true
+                    """
+                    script { stage_succeeded = true }
+                }
             }
             post {
-                success { setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME"); }
-                failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
+                always {
+                    script {
+                        if (stage_succeeded == true) {
+                            setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+                        } else {
+                            sh """
+                                docker rm -f $testscript_container_name || true
+                                docker rm -f $db_container_name || true
+                            """
+                            setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+                        }
+                    }
+                }
             }
         }
         stage('Pytest - pip python3.6') {
+            agent { label 'centos7-p4-x86_64 && tools-docker' }
             steps {
-                setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
-                sh """
-                    docker run \
-                      -d \
-                      --rm \
-                      --runtime=nvidia \
-                      --ipc="shareable" \
-                      --network="pytest" \
-                      -p 6273 \
-                      --name $db_container_name \
-                      $db_container_image
-                    sleep 3
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    script { stage_succeeded = false }
+                    setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+                    sh """
+                        docker run \
+                          -d \
+                          --rm \
+                          --runtime=nvidia \
+                          --ipc="shareable" \
+                          --network="pytest" \
+                          -p 6273 \
+                          --name $db_container_name \
+                          $db_container_image
+                        sleep 3
 
-                    docker run \
-                      --rm \
-                      --runtime=nvidia \
-                      --ipc="container:${db_container_name}" \
-                      --network="pytest" \
-                      -v $WORKSPACE:/pymapd \
-                      --workdir="/pymapd" \
-                      --name $testscript_container_name \
-                      $testscript_container_image \
-                      bash -c '\
-                        . ~/.bashrc && \
-                        conda install python=3.6 -y && \
-                        ./ci/install-test-deps-pip.sh && \
-                        pytest tests'
+                        docker run \
+                          --rm \
+                          --runtime=nvidia \
+                          --ipc="container:${db_container_name}" \
+                          --network="pytest" \
+                          -v $WORKSPACE:/pymapd \
+                          --workdir="/pymapd" \
+                          --name $testscript_container_name \
+                          $testscript_container_image \
+                          bash -c '\
+                            . ~/.bashrc && \
+                            conda install python=3.6 -y && \
+                            ./ci/install-test-deps-pip.sh && \
+                            pytest tests'
 
-                    docker rm -f $testscript_container_name || true
-                    docker rm -f $db_container_name || true
-                """
+                        docker rm -f $testscript_container_name || true
+                        docker rm -f $db_container_name || true
+                    """
+                    script { stage_succeeded = true }
+                }
             }
             post {
-                success { setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME"); }
-                failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
+                always {
+                    script {
+                        if (stage_succeeded == true) {
+                            setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+                        } else {
+                            sh """
+                                docker rm -f $testscript_container_name || true
+                                docker rm -f $db_container_name || true
+                            """
+                            setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+                        }
+                    }
+                }
             }
         }
         // stage('Pytest - pip python3.7') {
+        //     agent { label 'centos7-p4-x86_64 && tools-docker' }
         //     steps {
-        //         setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
-        //         sh """
-        //             docker run \
-        //               -d \
-        //               --rm \
-        //               --runtime=nvidia \
-        //               --ipc="shareable" \
-        //               --network="pytest" \
-        //               -p 6273 \
-        //               --name $db_container_name \
-        //               $db_container_image
-        //             sleep 3
+        //         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+        //             script { stage_succeeded = false }
+        //             setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+        //             sh """
+        //                 docker run \
+        //                   -d \
+        //                   --rm \
+        //                   --runtime=nvidia \
+        //                   --ipc="shareable" \
+        //                   --network="pytest" \
+        //                   -p 6273 \
+        //                   --name $db_container_name \
+        //                   $db_container_image
+        //                 sleep 3
 
-        //             docker run \
-        //               --rm \
-        //               --runtime=nvidia \
-        //               --ipc="container:${db_container_name}" \
-        //               --network="pytest" \
-        //               -v $WORKSPACE:/pymapd \
-        //               --workdir="/pymapd" \
-        //               --name $testscript_container_name \
-        //               $testscript_container_image \
-        //               bash -c '\
-        //                 . ~/.bashrc && \
-        //                 conda install python=3.7 -y && \
-        //                 ./ci/install-test-deps-pip.sh && \
-        //                 pytest tests'
+        //                 docker run \
+        //                   --rm \
+        //                   --runtime=nvidia \
+        //                   --ipc="container:${db_container_name}" \
+        //                   --network="pytest" \
+        //                   -v $WORKSPACE:/pymapd \
+        //                   --workdir="/pymapd" \
+        //                   --name $testscript_container_name \
+        //                   $testscript_container_image \
+        //                   bash -c '\
+        //                     . ~/.bashrc && \
+        //                     conda install python=3.7 -y && \
+        //                     ./ci/install-test-deps-pip.sh && \
+        //                     pytest tests'
 
-        //             docker rm -f $testscript_container_name || true
-        //             docker rm -f $db_container_name || true
-        //         """
+        //                 docker rm -f $testscript_container_name || true
+        //                 docker rm -f $db_container_name || true
+        //             """
+        //             script { stage_succeeded = true }
+        //         }
         //     }
         //     post {
-        //         success { setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME"); }
-        //         failure { setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME"); }
+        //         always {
+        //             script {
+        //                 if (stage_succeeded == true) {
+        //                     setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+        //                 } else {
+        //                     sh """
+        //                         docker rm -f $testscript_container_name || true
+        //                         docker rm -f $db_container_name || true
+        //                     """
+        //                     setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+        //                 }
+        //             }
+        //         }
         //     }
         // }
     }
     post {
         always {
-            sh """
-                docker rm -f $flake8_container_name || true
-                docker rm -f $testscript_container_name || true
-                docker rm -f $db_container_name || true
-                sudo chown -R jenkins-slave:jenkins-slave $WORKSPACE
-            """
-            cleanWs()
+            node( 'centos7-p4-x86_64 && tools-docker' ) {
+                sh """
+                    docker rm -f $flake8_container_name || true
+                    docker rm -f $testscript_container_name || true
+                    docker rm -f $db_container_name || true
+                    sudo chown -R jenkins-slave:jenkins-slave $WORKSPACE
+                """
+                cleanWs()
+            }
         }
     }
 }
