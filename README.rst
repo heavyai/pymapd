@@ -2,10 +2,6 @@
 pymapd
 ======
 
-.. image:: https://travis-ci.org/omnisci/pymapd.svg?branch=master
-   :target: https://travis-ci.org/omnisci/pymapd
-
-
 .. image:: https://readthedocs.org/projects/pymapd/badge/?version=latest
    :target: http://pymapd.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
