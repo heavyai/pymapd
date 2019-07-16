@@ -819,7 +819,7 @@ class TestLoaders:
         ans = con.execute("select * from test_categorical").fetchall()
 
         assert ans == [('a', 'a'), ('b', 'b'), ('c', 'c'), ('a', 'a')]
-        
+
         assert con.get_table_details("test_categorical") == \
             [ColumnDetails(name='A', type='STR', nullable=True, precision=0,
                            scale=0, comp_param=32, encoding='DICT',is_array=False),
