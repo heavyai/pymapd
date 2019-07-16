@@ -822,9 +822,9 @@ class TestLoaders:
         
         assert con.get_table_details("test_categorical") == \
             [ColumnDetails(name='A', type='STR', nullable=True, precision=0,
-                           scale=0, comp_param=32, encoding='DICT', is_array=False),
+                           scale=0, comp_param=32, encoding='DICT',is_array=False),
              ColumnDetails(name='B', type='STR', nullable=True, precision=0,
-                           scale=0, comp_param=32, encoding='DICT', is_array=False)]
+                           scale=0, comp_param=32, encoding='DICT',is_array=False)]
 
         # load row-wise
         con.load_table("test_categorical", df, method="rows")
