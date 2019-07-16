@@ -102,17 +102,23 @@ class TestExtras:
 
         expected = [
             ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
-                          scale=0, comp_param=32, encoding='DICT'),
+                          scale=0, comp_param=32, encoding='DICT',
+                          is_array=False),
             ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
-                          scale=0, comp_param=32, encoding='DICT'),
+                          scale=0, comp_param=32, encoding='DICT',
+                          is_array=False),
             ColumnDetails(name='symbol', type='STR', nullable=True,
                           precision=0, scale=0, comp_param=32,
-                          encoding='DICT'),
+                          encoding='DICT',
+                          is_array=False),
             ColumnDetails(name='qty', type='INT', nullable=True, precision=0,
-                          scale=0, comp_param=0, encoding='NONE'),
+                          scale=0, comp_param=0, encoding='NONE',
+                          is_array=False),
             ColumnDetails(name='price', type='FLOAT', nullable=True,
-                          precision=0, scale=0, comp_param=0, encoding='NONE'),
+                          precision=0, scale=0, comp_param=0, encoding='NONE',
+                          is_array=False),
             ColumnDetails(name='vol', type='FLOAT', nullable=True, precision=0,
-                          scale=0, comp_param=0, encoding='NONE')
+                          scale=0, comp_param=0, encoding='NONE',
+                          is_array=False)
         ]
         assert result == expected
