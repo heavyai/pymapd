@@ -185,8 +185,10 @@ class Connection:
             if sessionid:
                 self._session = sessionid
                 self.get_tables()
+                self.sessionid = sessionid
             else:
                 self._session = self._client.connect(user, password, dbname)
+                self.sessionid = None
         except TMapDException as e:
             raise _translate_exception(e) from e
         except TTransportException:
@@ -225,13 +227,13 @@ class Connection:
         return self._closed
 
     def close(self):
-        """Disconnect from the database"""
-        try:
-            self._client.disconnect(self._session)
-        except (TMapDException, AttributeError, TypeError):
-            pass
-        finally:
-            self._closed = 1
+        """Disconnect from the database unless created with sessionid"""
+        if not self.sessionid:
+            try:
+                self._client.disconnect(self._session)
+            except (TMapDException, AttributeError, TypeError):
+                pass
+        self._closed = 1
 
     def commit(self):
         """This is a noop, as OmniSci does not provide transactions.
