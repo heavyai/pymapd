@@ -19,7 +19,8 @@ Description = namedtuple("Description", ["name", "type_code", "display_size",
                                          "null_ok"])
 ColumnDetails = namedtuple("ColumnDetails", ["name", "type", "nullable",
                                              "precision", "scale",
-                                             "comp_param", "encoding"])
+                                             "comp_param", "encoding",
+                                             "is_array"])
 
 _typeattr = {
     'SMALLINT': 'int',
@@ -119,7 +120,8 @@ def _extract_column_details(row_desc):
         ColumnDetails(x.col_name, _thrift_values_to_types[x.col_type.type],
                       x.col_type.nullable, x.col_type.precision,
                       x.col_type.scale, x.col_type.comp_param,
-                      _thrift_values_to_encodings[x.col_type.encoding])
+                      _thrift_values_to_encodings[x.col_type.encoding],
+                      x.col_type.is_array)
         for x in row_desc
     ]
 
