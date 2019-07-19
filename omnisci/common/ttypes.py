@@ -6,7 +6,8 @@
 #  options string: py
 #
 
-from thrift.Thrift import TType
+from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplicationException
+from thrift.protocol.TProtocol import TProtocolException
 from thrift.TRecursive import fix_spec
 
 import sys

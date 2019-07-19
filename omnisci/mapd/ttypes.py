@@ -6,13 +6,14 @@
 #  options string: py
 #
 
-from thrift.Thrift import TType, TApplicationException, TMessageType, TException
+from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplicationException
+from thrift.protocol.TProtocol import TProtocolException
 from thrift.TRecursive import fix_spec
 
 import sys
-import common.ttypes
-import completion_hints.ttypes
-import serialized_result_set.ttypes
+import omnisci.common.ttypes
+import omnisci.completion_hints.ttypes
+import omnisci.serialized_result_set.ttypes
 
 from thrift.transport import TTransport
 all_structs = []
@@ -463,7 +464,7 @@ class TColumnType(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.col_type = common.ttypes.TTypeInfo()
+                    self.col_type = omnisci.common.ttypes.TTypeInfo()
                     self.col_type.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -880,7 +881,6 @@ class TStepResult(object):
     """
     Attributes:
      - serialized_rows
-     - uncompressed_size
      - execution_finished
      - merge_type
      - sharded
@@ -889,9 +889,8 @@ class TStepResult(object):
     """
 
 
-    def __init__(self, serialized_rows=None, uncompressed_size=None, execution_finished=None, merge_type=None, sharded=None, row_desc=None, node_id=None,):
+    def __init__(self, serialized_rows=None, execution_finished=None, merge_type=None, sharded=None, row_desc=None, node_id=None,):
         self.serialized_rows = serialized_rows
-        self.uncompressed_size = uncompressed_size
         self.execution_finished = execution_finished
         self.merge_type = merge_type
         self.sharded = sharded
@@ -909,31 +908,26 @@ class TStepResult(object):
                 break
             if fid == 1:
                 if ftype == TType.STRUCT:
-                    self.serialized_rows = serialized_result_set.ttypes.TSerializedRows()
+                    self.serialized_rows = omnisci.serialized_result_set.ttypes.TSerializedRows()
                     self.serialized_rows.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
-                if ftype == TType.I64:
-                    self.uncompressed_size = iprot.readI64()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
                 if ftype == TType.BOOL:
                     self.execution_finished = iprot.readBool()
                 else:
                     iprot.skip(ftype)
-            elif fid == 4:
+            elif fid == 3:
                 if ftype == TType.I32:
                     self.merge_type = iprot.readI32()
                 else:
                     iprot.skip(ftype)
-            elif fid == 5:
+            elif fid == 4:
                 if ftype == TType.BOOL:
                     self.sharded = iprot.readBool()
                 else:
                     iprot.skip(ftype)
-            elif fid == 6:
+            elif fid == 5:
                 if ftype == TType.LIST:
                     self.row_desc = []
                     (_etype59, _size56) = iprot.readListBegin()
@@ -944,7 +938,7 @@ class TStepResult(object):
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
-            elif fid == 7:
+            elif fid == 6:
                 if ftype == TType.I32:
                     self.node_id = iprot.readI32()
                 else:
@@ -963,31 +957,27 @@ class TStepResult(object):
             oprot.writeFieldBegin('serialized_rows', TType.STRUCT, 1)
             self.serialized_rows.write(oprot)
             oprot.writeFieldEnd()
-        if self.uncompressed_size is not None:
-            oprot.writeFieldBegin('uncompressed_size', TType.I64, 2)
-            oprot.writeI64(self.uncompressed_size)
-            oprot.writeFieldEnd()
         if self.execution_finished is not None:
-            oprot.writeFieldBegin('execution_finished', TType.BOOL, 3)
+            oprot.writeFieldBegin('execution_finished', TType.BOOL, 2)
             oprot.writeBool(self.execution_finished)
             oprot.writeFieldEnd()
         if self.merge_type is not None:
-            oprot.writeFieldBegin('merge_type', TType.I32, 4)
+            oprot.writeFieldBegin('merge_type', TType.I32, 3)
             oprot.writeI32(self.merge_type)
             oprot.writeFieldEnd()
         if self.sharded is not None:
-            oprot.writeFieldBegin('sharded', TType.BOOL, 5)
+            oprot.writeFieldBegin('sharded', TType.BOOL, 4)
             oprot.writeBool(self.sharded)
             oprot.writeFieldEnd()
         if self.row_desc is not None:
-            oprot.writeFieldBegin('row_desc', TType.LIST, 6)
+            oprot.writeFieldBegin('row_desc', TType.LIST, 5)
             oprot.writeListBegin(TType.STRUCT, len(self.row_desc))
             for iter62 in self.row_desc:
                 iter62.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.node_id is not None:
-            oprot.writeFieldBegin('node_id', TType.I32, 7)
+            oprot.writeFieldBegin('node_id', TType.I32, 6)
             oprot.writeI32(self.node_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3143,26 +3133,28 @@ class TTableMeta(object):
     Attributes:
      - table_name
      - num_cols
-     - col_datum_types
      - is_view
      - is_replicated
      - shard_count
      - max_rows
      - table_id
      - max_table_id
+     - col_types
+     - col_names
     """
 
 
-    def __init__(self, table_name=None, num_cols=None, col_datum_types=None, is_view=None, is_replicated=None, shard_count=None, max_rows=None, table_id=None, max_table_id=None,):
+    def __init__(self, table_name=None, num_cols=None, is_view=None, is_replicated=None, shard_count=None, max_rows=None, table_id=None, max_table_id=None, col_types=None, col_names=None,):
         self.table_name = table_name
         self.num_cols = num_cols
-        self.col_datum_types = col_datum_types
         self.is_view = is_view
         self.is_replicated = is_replicated
         self.shard_count = shard_count
         self.max_rows = max_rows
         self.table_id = table_id
         self.max_table_id = max_table_id
+        self.col_types = col_types
+        self.col_names = col_names
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3181,16 +3173,6 @@ class TTableMeta(object):
             elif fid == 2:
                 if ftype == TType.I64:
                     self.num_cols = iprot.readI64()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.LIST:
-                    self.col_datum_types = []
-                    (_etype129, _size126) = iprot.readListBegin()
-                    for _i130 in range(_size126):
-                        _elem131 = iprot.readI32()
-                        self.col_datum_types.append(_elem131)
-                    iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
@@ -3223,6 +3205,27 @@ class TTableMeta(object):
                     self.max_table_id = iprot.readI64()
                 else:
                     iprot.skip(ftype)
+            elif fid == 10:
+                if ftype == TType.LIST:
+                    self.col_types = []
+                    (_etype129, _size126) = iprot.readListBegin()
+                    for _i130 in range(_size126):
+                        _elem131 = omnisci.common.ttypes.TTypeInfo()
+                        _elem131.read(iprot)
+                        self.col_types.append(_elem131)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 11:
+                if ftype == TType.LIST:
+                    self.col_names = []
+                    (_etype135, _size132) = iprot.readListBegin()
+                    for _i136 in range(_size132):
+                        _elem137 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.col_names.append(_elem137)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3240,13 +3243,6 @@ class TTableMeta(object):
         if self.num_cols is not None:
             oprot.writeFieldBegin('num_cols', TType.I64, 2)
             oprot.writeI64(self.num_cols)
-            oprot.writeFieldEnd()
-        if self.col_datum_types is not None:
-            oprot.writeFieldBegin('col_datum_types', TType.LIST, 3)
-            oprot.writeListBegin(TType.I32, len(self.col_datum_types))
-            for iter132 in self.col_datum_types:
-                oprot.writeI32(iter132)
-            oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.is_view is not None:
             oprot.writeFieldBegin('is_view', TType.BOOL, 4)
@@ -3271,6 +3267,20 @@ class TTableMeta(object):
         if self.max_table_id is not None:
             oprot.writeFieldBegin('max_table_id', TType.I64, 9)
             oprot.writeI64(self.max_table_id)
+            oprot.writeFieldEnd()
+        if self.col_types is not None:
+            oprot.writeFieldBegin('col_types', TType.LIST, 10)
+            oprot.writeListBegin(TType.STRUCT, len(self.col_types))
+            for iter138 in self.col_types:
+                iter138.write(oprot)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.col_names is not None:
+            oprot.writeFieldBegin('col_names', TType.LIST, 11)
+            oprot.writeListBegin(TType.STRING, len(self.col_names))
+            for iter139 in self.col_names:
+                oprot.writeString(iter139.encode('utf-8') if sys.version_info[0] == 2 else iter139)
+            oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -3328,11 +3338,11 @@ class TTableDetails(object):
             if fid == 1:
                 if ftype == TType.LIST:
                     self.row_desc = []
-                    (_etype136, _size133) = iprot.readListBegin()
-                    for _i137 in range(_size133):
-                        _elem138 = TColumnType()
-                        _elem138.read(iprot)
-                        self.row_desc.append(_elem138)
+                    (_etype143, _size140) = iprot.readListBegin()
+                    for _i144 in range(_size140):
+                        _elem145 = TColumnType()
+                        _elem145.read(iprot)
+                        self.row_desc.append(_elem145)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -3389,8 +3399,8 @@ class TTableDetails(object):
         if self.row_desc is not None:
             oprot.writeFieldBegin('row_desc', TType.LIST, 1)
             oprot.writeListBegin(TType.STRUCT, len(self.row_desc))
-            for iter139 in self.row_desc:
-                iter139.write(oprot)
+            for iter146 in self.row_desc:
+                iter146.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.fragment_size is not None:
@@ -3765,33 +3775,33 @@ class TPendingQuery(object):
             elif fid == 2:
                 if ftype == TType.LIST:
                     self.column_ranges = []
-                    (_etype143, _size140) = iprot.readListBegin()
-                    for _i144 in range(_size140):
-                        _elem145 = TColumnRange()
-                        _elem145.read(iprot)
-                        self.column_ranges.append(_elem145)
+                    (_etype150, _size147) = iprot.readListBegin()
+                    for _i151 in range(_size147):
+                        _elem152 = TColumnRange()
+                        _elem152.read(iprot)
+                        self.column_ranges.append(_elem152)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.LIST:
                     self.dictionary_generations = []
-                    (_etype149, _size146) = iprot.readListBegin()
-                    for _i150 in range(_size146):
-                        _elem151 = TDictionaryGeneration()
-                        _elem151.read(iprot)
-                        self.dictionary_generations.append(_elem151)
+                    (_etype156, _size153) = iprot.readListBegin()
+                    for _i157 in range(_size153):
+                        _elem158 = TDictionaryGeneration()
+                        _elem158.read(iprot)
+                        self.dictionary_generations.append(_elem158)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.LIST:
                     self.table_generations = []
-                    (_etype155, _size152) = iprot.readListBegin()
-                    for _i156 in range(_size152):
-                        _elem157 = TTableGeneration()
-                        _elem157.read(iprot)
-                        self.table_generations.append(_elem157)
+                    (_etype162, _size159) = iprot.readListBegin()
+                    for _i163 in range(_size159):
+                        _elem164 = TTableGeneration()
+                        _elem164.read(iprot)
+                        self.table_generations.append(_elem164)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -3812,22 +3822,22 @@ class TPendingQuery(object):
         if self.column_ranges is not None:
             oprot.writeFieldBegin('column_ranges', TType.LIST, 2)
             oprot.writeListBegin(TType.STRUCT, len(self.column_ranges))
-            for iter158 in self.column_ranges:
-                iter158.write(oprot)
+            for iter165 in self.column_ranges:
+                iter165.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.dictionary_generations is not None:
             oprot.writeFieldBegin('dictionary_generations', TType.LIST, 3)
             oprot.writeListBegin(TType.STRUCT, len(self.dictionary_generations))
-            for iter159 in self.dictionary_generations:
-                iter159.write(oprot)
+            for iter166 in self.dictionary_generations:
+                iter166.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.table_generations is not None:
             oprot.writeFieldBegin('table_generations', TType.LIST, 4)
             oprot.writeListBegin(TType.STRUCT, len(self.table_generations))
-            for iter160 in self.table_generations:
-                iter160.write(oprot)
+            for iter167 in self.table_generations:
+                iter167.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3944,11 +3954,11 @@ class TDataBlockPtr(object):
             elif fid == 2:
                 if ftype == TType.LIST:
                     self.var_len_data = []
-                    (_etype164, _size161) = iprot.readListBegin()
-                    for _i165 in range(_size161):
-                        _elem166 = TVarLen()
-                        _elem166.read(iprot)
-                        self.var_len_data.append(_elem166)
+                    (_etype171, _size168) = iprot.readListBegin()
+                    for _i172 in range(_size168):
+                        _elem173 = TVarLen()
+                        _elem173.read(iprot)
+                        self.var_len_data.append(_elem173)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -3969,8 +3979,8 @@ class TDataBlockPtr(object):
         if self.var_len_data is not None:
             oprot.writeFieldBegin('var_len_data', TType.LIST, 2)
             oprot.writeListBegin(TType.STRUCT, len(self.var_len_data))
-            for iter167 in self.var_len_data:
-                iter167.write(oprot)
+            for iter174 in self.var_len_data:
+                iter174.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -4031,21 +4041,21 @@ class TInsertData(object):
             elif fid == 3:
                 if ftype == TType.LIST:
                     self.column_ids = []
-                    (_etype171, _size168) = iprot.readListBegin()
-                    for _i172 in range(_size168):
-                        _elem173 = iprot.readI32()
-                        self.column_ids.append(_elem173)
+                    (_etype178, _size175) = iprot.readListBegin()
+                    for _i179 in range(_size175):
+                        _elem180 = iprot.readI32()
+                        self.column_ids.append(_elem180)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.LIST:
                     self.data = []
-                    (_etype177, _size174) = iprot.readListBegin()
-                    for _i178 in range(_size174):
-                        _elem179 = TDataBlockPtr()
-                        _elem179.read(iprot)
-                        self.data.append(_elem179)
+                    (_etype184, _size181) = iprot.readListBegin()
+                    for _i185 in range(_size181):
+                        _elem186 = TDataBlockPtr()
+                        _elem186.read(iprot)
+                        self.data.append(_elem186)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -4075,15 +4085,15 @@ class TInsertData(object):
         if self.column_ids is not None:
             oprot.writeFieldBegin('column_ids', TType.LIST, 3)
             oprot.writeListBegin(TType.I32, len(self.column_ids))
-            for iter180 in self.column_ids:
-                oprot.writeI32(iter180)
+            for iter187 in self.column_ids:
+                oprot.writeI32(iter187)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.data is not None:
             oprot.writeFieldBegin('data', TType.LIST, 4)
             oprot.writeListBegin(TType.STRUCT, len(self.data))
-            for iter181 in self.data:
-                iter181.write(oprot)
+            for iter188 in self.data:
+                iter188.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.num_rows is not None:
@@ -4267,7 +4277,8 @@ class TRenderParseResult(object):
 class TRawRenderPassDataResult(object):
     """
     Attributes:
-     - num_channels
+     - num_pixel_channels
+     - num_pixel_samples
      - pixels
      - row_ids_A
      - row_ids_B
@@ -4276,8 +4287,9 @@ class TRawRenderPassDataResult(object):
     """
 
 
-    def __init__(self, num_channels=None, pixels=None, row_ids_A=None, row_ids_B=None, table_ids=None, accum_data=None,):
-        self.num_channels = num_channels
+    def __init__(self, num_pixel_channels=None, num_pixel_samples=None, pixels=None, row_ids_A=None, row_ids_B=None, table_ids=None, accum_data=None,):
+        self.num_pixel_channels = num_pixel_channels
+        self.num_pixel_samples = num_pixel_samples
         self.pixels = pixels
         self.row_ids_A = row_ids_A
         self.row_ids_B = row_ids_B
@@ -4295,30 +4307,35 @@ class TRawRenderPassDataResult(object):
                 break
             if fid == 1:
                 if ftype == TType.I32:
-                    self.num_channels = iprot.readI32()
+                    self.num_pixel_channels = iprot.readI32()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
-                if ftype == TType.STRING:
-                    self.pixels = iprot.readBinary()
+                if ftype == TType.I32:
+                    self.num_pixel_samples = iprot.readI32()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.row_ids_A = iprot.readBinary()
+                    self.pixels = iprot.readBinary()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.row_ids_B = iprot.readBinary()
+                    self.row_ids_A = iprot.readBinary()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.table_ids = iprot.readBinary()
+                    self.row_ids_B = iprot.readBinary()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
+                if ftype == TType.STRING:
+                    self.table_ids = iprot.readBinary()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 7:
                 if ftype == TType.STRING:
                     self.accum_data = iprot.readBinary()
                 else:
@@ -4333,28 +4350,32 @@ class TRawRenderPassDataResult(object):
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
         oprot.writeStructBegin('TRawRenderPassDataResult')
-        if self.num_channels is not None:
-            oprot.writeFieldBegin('num_channels', TType.I32, 1)
-            oprot.writeI32(self.num_channels)
+        if self.num_pixel_channels is not None:
+            oprot.writeFieldBegin('num_pixel_channels', TType.I32, 1)
+            oprot.writeI32(self.num_pixel_channels)
+            oprot.writeFieldEnd()
+        if self.num_pixel_samples is not None:
+            oprot.writeFieldBegin('num_pixel_samples', TType.I32, 2)
+            oprot.writeI32(self.num_pixel_samples)
             oprot.writeFieldEnd()
         if self.pixels is not None:
-            oprot.writeFieldBegin('pixels', TType.STRING, 2)
+            oprot.writeFieldBegin('pixels', TType.STRING, 3)
             oprot.writeBinary(self.pixels)
             oprot.writeFieldEnd()
         if self.row_ids_A is not None:
-            oprot.writeFieldBegin('row_ids_A', TType.STRING, 3)
+            oprot.writeFieldBegin('row_ids_A', TType.STRING, 4)
             oprot.writeBinary(self.row_ids_A)
             oprot.writeFieldEnd()
         if self.row_ids_B is not None:
-            oprot.writeFieldBegin('row_ids_B', TType.STRING, 4)
+            oprot.writeFieldBegin('row_ids_B', TType.STRING, 5)
             oprot.writeBinary(self.row_ids_B)
             oprot.writeFieldEnd()
         if self.table_ids is not None:
-            oprot.writeFieldBegin('table_ids', TType.STRING, 5)
+            oprot.writeFieldBegin('table_ids', TType.STRING, 6)
             oprot.writeBinary(self.table_ids)
             oprot.writeFieldEnd()
         if self.accum_data is not None:
-            oprot.writeFieldBegin('accum_data', TType.STRING, 6)
+            oprot.writeFieldBegin('accum_data', TType.STRING, 7)
             oprot.writeBinary(self.accum_data)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -4411,12 +4432,12 @@ class TRawPixelData(object):
             elif fid == 3:
                 if ftype == TType.MAP:
                     self.render_pass_map = {}
-                    (_ktype183, _vtype184, _size182) = iprot.readMapBegin()
-                    for _i186 in range(_size182):
-                        _key187 = iprot.readI32()
-                        _val188 = TRawRenderPassDataResult()
-                        _val188.read(iprot)
-                        self.render_pass_map[_key187] = _val188
+                    (_ktype190, _vtype191, _size189) = iprot.readMapBegin()
+                    for _i193 in range(_size189):
+                        _key194 = iprot.readI32()
+                        _val195 = TRawRenderPassDataResult()
+                        _val195.read(iprot)
+                        self.render_pass_map[_key194] = _val195
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -4441,9 +4462,9 @@ class TRawPixelData(object):
         if self.render_pass_map is not None:
             oprot.writeFieldBegin('render_pass_map', TType.MAP, 3)
             oprot.writeMapBegin(TType.I32, TType.STRUCT, len(self.render_pass_map))
-            for kiter189, viter190 in self.render_pass_map.items():
-                oprot.writeI32(kiter189)
-                viter190.write(oprot)
+            for kiter196, viter197 in self.render_pass_map.items():
+                oprot.writeI32(kiter196)
+                viter197.write(oprot)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -4572,35 +4593,35 @@ class TRenderStepResult(object):
             if fid == 1:
                 if ftype == TType.MAP:
                     self.merge_data = {}
-                    (_ktype192, _vtype193, _size191) = iprot.readMapBegin()
-                    for _i195 in range(_size191):
-                        _key196 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val197 = {}
-                        (_ktype199, _vtype200, _size198) = iprot.readMapBegin()
-                        for _i202 in range(_size198):
-                            _key203 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                            _val204 = {}
-                            (_ktype206, _vtype207, _size205) = iprot.readMapBegin()
-                            for _i209 in range(_size205):
-                                _key210 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                                _val211 = {}
-                                (_ktype213, _vtype214, _size212) = iprot.readMapBegin()
-                                for _i216 in range(_size212):
-                                    _key217 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                                    _val218 = []
-                                    (_etype222, _size219) = iprot.readListBegin()
-                                    for _i223 in range(_size219):
-                                        _elem224 = TRenderDatum()
-                                        _elem224.read(iprot)
-                                        _val218.append(_elem224)
+                    (_ktype199, _vtype200, _size198) = iprot.readMapBegin()
+                    for _i202 in range(_size198):
+                        _key203 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val204 = {}
+                        (_ktype206, _vtype207, _size205) = iprot.readMapBegin()
+                        for _i209 in range(_size205):
+                            _key210 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                            _val211 = {}
+                            (_ktype213, _vtype214, _size212) = iprot.readMapBegin()
+                            for _i216 in range(_size212):
+                                _key217 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                                _val218 = {}
+                                (_ktype220, _vtype221, _size219) = iprot.readMapBegin()
+                                for _i223 in range(_size219):
+                                    _key224 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                                    _val225 = []
+                                    (_etype229, _size226) = iprot.readListBegin()
+                                    for _i230 in range(_size226):
+                                        _elem231 = TRenderDatum()
+                                        _elem231.read(iprot)
+                                        _val225.append(_elem231)
                                     iprot.readListEnd()
-                                    _val211[_key217] = _val218
+                                    _val218[_key224] = _val225
                                 iprot.readMapEnd()
-                                _val204[_key210] = _val211
+                                _val211[_key217] = _val218
                             iprot.readMapEnd()
-                            _val197[_key203] = _val204
+                            _val204[_key210] = _val211
                         iprot.readMapEnd()
-                        self.merge_data[_key196] = _val197
+                        self.merge_data[_key203] = _val204
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -4638,20 +4659,20 @@ class TRenderStepResult(object):
         if self.merge_data is not None:
             oprot.writeFieldBegin('merge_data', TType.MAP, 1)
             oprot.writeMapBegin(TType.STRING, TType.MAP, len(self.merge_data))
-            for kiter225, viter226 in self.merge_data.items():
-                oprot.writeString(kiter225.encode('utf-8') if sys.version_info[0] == 2 else kiter225)
-                oprot.writeMapBegin(TType.STRING, TType.MAP, len(viter226))
-                for kiter227, viter228 in viter226.items():
-                    oprot.writeString(kiter227.encode('utf-8') if sys.version_info[0] == 2 else kiter227)
-                    oprot.writeMapBegin(TType.STRING, TType.MAP, len(viter228))
-                    for kiter229, viter230 in viter228.items():
-                        oprot.writeString(kiter229.encode('utf-8') if sys.version_info[0] == 2 else kiter229)
-                        oprot.writeMapBegin(TType.STRING, TType.LIST, len(viter230))
-                        for kiter231, viter232 in viter230.items():
-                            oprot.writeString(kiter231.encode('utf-8') if sys.version_info[0] == 2 else kiter231)
-                            oprot.writeListBegin(TType.STRUCT, len(viter232))
-                            for iter233 in viter232:
-                                iter233.write(oprot)
+            for kiter232, viter233 in self.merge_data.items():
+                oprot.writeString(kiter232.encode('utf-8') if sys.version_info[0] == 2 else kiter232)
+                oprot.writeMapBegin(TType.STRING, TType.MAP, len(viter233))
+                for kiter234, viter235 in viter233.items():
+                    oprot.writeString(kiter234.encode('utf-8') if sys.version_info[0] == 2 else kiter234)
+                    oprot.writeMapBegin(TType.STRING, TType.MAP, len(viter235))
+                    for kiter236, viter237 in viter235.items():
+                        oprot.writeString(kiter236.encode('utf-8') if sys.version_info[0] == 2 else kiter236)
+                        oprot.writeMapBegin(TType.STRING, TType.LIST, len(viter237))
+                        for kiter238, viter239 in viter237.items():
+                            oprot.writeString(kiter238.encode('utf-8') if sys.version_info[0] == 2 else kiter238)
+                            oprot.writeListBegin(TType.STRUCT, len(viter239))
+                            for iter240 in viter239:
+                                iter240.write(oprot)
                             oprot.writeListEnd()
                         oprot.writeMapEnd()
                     oprot.writeMapEnd()
@@ -5245,10 +5266,10 @@ class TDBObject(object):
             elif fid == 3:
                 if ftype == TType.LIST:
                     self.privs = []
-                    (_etype237, _size234) = iprot.readListBegin()
-                    for _i238 in range(_size234):
-                        _elem239 = iprot.readBool()
-                        self.privs.append(_elem239)
+                    (_etype244, _size241) = iprot.readListBegin()
+                    for _i245 in range(_size241):
+                        _elem246 = iprot.readBool()
+                        self.privs.append(_elem246)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -5278,8 +5299,8 @@ class TDBObject(object):
         if self.privs is not None:
             oprot.writeFieldBegin('privs', TType.LIST, 3)
             oprot.writeListBegin(TType.BOOL, len(self.privs))
-            for iter240 in self.privs:
-                oprot.writeBool(iter240)
+            for iter247 in self.privs:
+                oprot.writeBool(iter247)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.grantee is not None:
@@ -5405,10 +5426,10 @@ class TLicenseInfo(object):
             if fid == 1:
                 if ftype == TType.LIST:
                     self.claims = []
-                    (_etype244, _size241) = iprot.readListBegin()
-                    for _i245 in range(_size241):
-                        _elem246 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.claims.append(_elem246)
+                    (_etype251, _size248) = iprot.readListBegin()
+                    for _i252 in range(_size248):
+                        _elem253 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.claims.append(_elem253)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -5425,8 +5446,8 @@ class TLicenseInfo(object):
         if self.claims is not None:
             oprot.writeFieldBegin('claims', TType.LIST, 1)
             oprot.writeListBegin(TType.STRING, len(self.claims))
-            for iter247 in self.claims:
-                oprot.writeString(iter247.encode('utf-8') if sys.version_info[0] == 2 else iter247)
+            for iter254 in self.claims:
+                oprot.writeString(iter254.encode('utf-8') if sys.version_info[0] == 2 else iter254)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -5453,13 +5474,15 @@ class TSessionInfo(object):
      - user
      - database
      - start_time
+     - is_super
     """
 
 
-    def __init__(self, user=None, database=None, start_time=None,):
+    def __init__(self, user=None, database=None, start_time=None, is_super=None,):
         self.user = user
         self.database = database
         self.start_time = start_time
+        self.is_super = is_super
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -5485,6 +5508,11 @@ class TSessionInfo(object):
                     self.start_time = iprot.readI64()
                 else:
                     iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.BOOL:
+                    self.is_super = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -5506,6 +5534,10 @@ class TSessionInfo(object):
         if self.start_time is not None:
             oprot.writeFieldBegin('start_time', TType.I64, 3)
             oprot.writeI64(self.start_time)
+            oprot.writeFieldEnd()
+        if self.is_super is not None:
+            oprot.writeFieldBegin('is_super', TType.BOOL, 4)
+            oprot.writeBool(self.is_super)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5614,7 +5646,7 @@ all_structs.append(TColumnType)
 TColumnType.thrift_spec = (
     None,  # 0
     (1, TType.STRING, 'col_name', 'UTF8', None, ),  # 1
-    (2, TType.STRUCT, 'col_type', [common.ttypes.TTypeInfo, None], None, ),  # 2
+    (2, TType.STRUCT, 'col_type', [omnisci.common.ttypes.TTypeInfo, None], None, ),  # 2
     (3, TType.BOOL, 'is_reserved_keyword', None, None, ),  # 3
     (4, TType.STRING, 'src_name', 'UTF8', None, ),  # 4
     (5, TType.BOOL, 'is_system', None, None, ),  # 5
@@ -5648,13 +5680,12 @@ TStringRow.thrift_spec = (
 all_structs.append(TStepResult)
 TStepResult.thrift_spec = (
     None,  # 0
-    (1, TType.STRUCT, 'serialized_rows', [serialized_result_set.ttypes.TSerializedRows, None], None, ),  # 1
-    (2, TType.I64, 'uncompressed_size', None, None, ),  # 2
-    (3, TType.BOOL, 'execution_finished', None, None, ),  # 3
-    (4, TType.I32, 'merge_type', None, None, ),  # 4
-    (5, TType.BOOL, 'sharded', None, None, ),  # 5
-    (6, TType.LIST, 'row_desc', (TType.STRUCT, [TColumnType, None], False), None, ),  # 6
-    (7, TType.I32, 'node_id', None, None, ),  # 7
+    (1, TType.STRUCT, 'serialized_rows', [omnisci.serialized_result_set.ttypes.TSerializedRows, None], None, ),  # 1
+    (2, TType.BOOL, 'execution_finished', None, None, ),  # 2
+    (3, TType.I32, 'merge_type', None, None, ),  # 3
+    (4, TType.BOOL, 'sharded', None, None, ),  # 4
+    (5, TType.LIST, 'row_desc', (TType.STRUCT, [TColumnType, None], False), None, ),  # 5
+    (6, TType.I32, 'node_id', None, None, ),  # 6
 )
 all_structs.append(TRowSet)
 TRowSet.thrift_spec = (
@@ -5845,13 +5876,15 @@ TTableMeta.thrift_spec = (
     None,  # 0
     (1, TType.STRING, 'table_name', 'UTF8', None, ),  # 1
     (2, TType.I64, 'num_cols', None, None, ),  # 2
-    (3, TType.LIST, 'col_datum_types', (TType.I32, None, False), None, ),  # 3
+    None,  # 3
     (4, TType.BOOL, 'is_view', None, None, ),  # 4
     (5, TType.BOOL, 'is_replicated', None, None, ),  # 5
     (6, TType.I64, 'shard_count', None, None, ),  # 6
     (7, TType.I64, 'max_rows', None, None, ),  # 7
     (8, TType.I64, 'table_id', None, None, ),  # 8
     (9, TType.I64, 'max_table_id', None, None, ),  # 9
+    (10, TType.LIST, 'col_types', (TType.STRUCT, [omnisci.common.ttypes.TTypeInfo, None], False), None, ),  # 10
+    (11, TType.LIST, 'col_names', (TType.STRING, 'UTF8', False), None, ),  # 11
 )
 all_structs.append(TTableDetails)
 TTableDetails.thrift_spec = (
@@ -5938,12 +5971,13 @@ TRenderParseResult.thrift_spec = (
 all_structs.append(TRawRenderPassDataResult)
 TRawRenderPassDataResult.thrift_spec = (
     None,  # 0
-    (1, TType.I32, 'num_channels', None, None, ),  # 1
-    (2, TType.STRING, 'pixels', 'BINARY', None, ),  # 2
-    (3, TType.STRING, 'row_ids_A', 'BINARY', None, ),  # 3
-    (4, TType.STRING, 'row_ids_B', 'BINARY', None, ),  # 4
-    (5, TType.STRING, 'table_ids', 'BINARY', None, ),  # 5
-    (6, TType.STRING, 'accum_data', 'BINARY', None, ),  # 6
+    (1, TType.I32, 'num_pixel_channels', None, None, ),  # 1
+    (2, TType.I32, 'num_pixel_samples', None, None, ),  # 2
+    (3, TType.STRING, 'pixels', 'BINARY', None, ),  # 3
+    (4, TType.STRING, 'row_ids_A', 'BINARY', None, ),  # 4
+    (5, TType.STRING, 'row_ids_B', 'BINARY', None, ),  # 5
+    (6, TType.STRING, 'table_ids', 'BINARY', None, ),  # 6
+    (7, TType.STRING, 'accum_data', 'BINARY', None, ),  # 7
 )
 all_structs.append(TRawPixelData)
 TRawPixelData.thrift_spec = (
@@ -6040,6 +6074,7 @@ TSessionInfo.thrift_spec = (
     (1, TType.STRING, 'user', 'UTF8', None, ),  # 1
     (2, TType.STRING, 'database', 'UTF8', None, ),  # 2
     (3, TType.I64, 'start_time', None, None, ),  # 3
+    (4, TType.BOOL, 'is_super', None, None, ),  # 4
 )
 all_structs.append(TGeoFileLayerInfo)
 TGeoFileLayerInfo.thrift_spec = (

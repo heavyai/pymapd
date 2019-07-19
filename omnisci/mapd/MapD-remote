@@ -16,8 +16,8 @@ else:
 from thrift.transport import TTransport, TSocket, TSSLSocket, THttpClient
 from thrift.protocol.TBinaryProtocol import TBinaryProtocol
 
-from mapd import MapD
-from mapd.ttypes import *
+from omnisci.mapd import MapD
+from omnisci.mapd.ttypes import *
 
 if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('')
@@ -103,6 +103,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool has_object_privilege(TSessionId session, string granteeName, string ObjectName, TDBObjectType objectType, TDBObjectPermissions permissions)')
     print('  TLicenseInfo set_license_key(TSessionId session, string key, string nonce)')
     print('  TLicenseInfo get_license_claims(TSessionId session, string nonce)')
+    print('   get_device_parameters()')
+    print('  void register_runtime_udf(TSessionId session, string signatures,  device_ir_map)')
     print('')
     sys.exit(0)
 
@@ -655,6 +657,18 @@ elif cmd == 'get_license_claims':
         print('get_license_claims requires 2 args')
         sys.exit(1)
     pp.pprint(client.get_license_claims(eval(args[0]), args[1],))
+
+elif cmd == 'get_device_parameters':
+    if len(args) != 0:
+        print('get_device_parameters requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.get_device_parameters())
+
+elif cmd == 'register_runtime_udf':
+    if len(args) != 3:
+        print('register_runtime_udf requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.register_runtime_udf(eval(args[0]), args[1], eval(args[2]),))
 
 else:
     print('Unrecognized method %s' % cmd)
