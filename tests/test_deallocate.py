@@ -2,7 +2,7 @@ import os
 import subprocess
 import pytest
 from pymapd import connect
-from mapd.ttypes import TMapDException, TApplicationException
+from omnisci.mapd.ttypes import TMapDException, TApplicationException
 from .conftest import no_gpu
 import pandas as pd
 

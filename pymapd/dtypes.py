@@ -3,7 +3,7 @@ https://www.python.org/dev/peps/pep-0249/#type-objects
 """
 import datetime
 import time
-from common.ttypes import TDatumType
+from omnisci.common.ttypes import TDatumType
 
 T = TDatumType
 

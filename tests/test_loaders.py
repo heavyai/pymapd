@@ -2,11 +2,11 @@ import pytest
 import datetime
 from pymapd._loaders import _build_input_rows
 from pymapd import _pandas_loaders
-from mapd.MapD import TStringRow, TStringValue, TColumn, TColumnData
+from omnisci.mapd.MapD import TStringRow, TStringValue, TColumn, TColumnData
 import pandas as pd
 import numpy as np
-from mapd.ttypes import TColumnType
-from common.ttypes import TTypeInfo
+from omnisci.mapd.ttypes import TColumnType
+from omnisci.common.ttypes import TTypeInfo
 
 
 def assert_columnar_equal(result, expected):

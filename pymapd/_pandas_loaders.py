@@ -12,11 +12,11 @@ from pandas.api.types import (
     is_datetime64_any_dtype,
 )
 
-from mapd.ttypes import (
+from omnisci.mapd.ttypes import (
     TColumn, TColumnData, TColumnType
 )
 
-from common.ttypes import TTypeInfo, TDatumType
+from omnisci.common.ttypes import TTypeInfo, TDatumType
 
 from ._utils import (
     date_to_seconds, time_to_seconds, datetime_to_seconds,

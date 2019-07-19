@@ -7,7 +7,7 @@ import pytest
 from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails
-from mapd.ttypes import TMapDException
+from omnisci.mapd.ttypes import TMapDException
 from .data import dashboard_metadata
 import json
 import base64
