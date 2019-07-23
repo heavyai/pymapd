@@ -1,6 +1,6 @@
 from pkg_resources import get_distribution, DistributionNotFound
 
-from mapd import MapD  # noqa
+from omnisci.mapd import MapD  # noqa
 
 # module constants
 try:

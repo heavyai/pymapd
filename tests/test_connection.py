@@ -1,6 +1,6 @@
 import pytest
-from mapd.ttypes import TColumnType
-from common.ttypes import TTypeInfo
+from omnisci.mapd.ttypes import TColumnType
+from omnisci.common.ttypes import TTypeInfo
 from pymapd import OperationalError, connect
 from pymapd.connection import _parse_uri, ConnectionInfo
 from pymapd.exceptions import Error

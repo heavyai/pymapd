@@ -1,4 +1,4 @@
-import mapd.ttypes as T
+import omnisci.mapd.ttypes as T
 from .exceptions import _translate_exception
 from ._parsers import (_extract_col_vals,
                        _extract_description,

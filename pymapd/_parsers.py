@@ -5,7 +5,7 @@ import datetime
 import pyarrow as pa
 from collections import namedtuple
 from sqlalchemy import text
-import common.ttypes as T
+import omnisci.common.ttypes as T
 import ctypes
 from types import MethodType
 from ._mutators import set_tdf, get_tdf

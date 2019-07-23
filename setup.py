@@ -40,8 +40,8 @@ setup(
     long_description=long_description,
     url='https://github.com/omnisci/pymapd',
 
-    author='Tom Augspurger',
-    author_email='taugspurger@continuum.io',
+    author='OmniSci',
+    author_email='community@omnisci.com',
 
     license='Apache Software License',
 
@@ -57,8 +57,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
     ],
-    packages=['pymapd', 'mapd', 'common', 'completion_hints',
-              'serialized_result_set'],
+    packages=['pymapd', 'omnisci'],
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
