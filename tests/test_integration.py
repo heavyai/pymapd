@@ -594,17 +594,24 @@ class TestLoaders:
         c.execute(create)
 
         data = pd.DataFrame({
-            "boolean_": [True, False],
-            "smallint_": np.array([0, 1], dtype=np.int16),
-            "int_": np.array([0, 1], dtype=np.int32),
-            "bigint_": np.array([0, 1], dtype=np.int64),
-            "float_": np.array([0, 1], dtype=np.float32),
-            "double_": np.array([0, 1], dtype=np.float64),
-            "varchar_": ["a", "b"],
-            "text_": ['a', 'b'],
-            "time_": [datetime.time(0, 11, 59), datetime.time(13)],
-            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
-            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
+            "boolean_": [True, False, True, False],
+            "smallint_": np.array([0, 1, 0, 1], dtype=np.int16),
+            "int_": np.array([0, 1, 0, 1], dtype=np.int32),
+            "bigint_": np.array([0, 1, 0, 1], dtype=np.int64),
+            "float_": np.array([0, 1, 0, 1], dtype=np.float32),
+            "double_": np.array([0, 1, 0, 1], dtype=np.float64),
+            "varchar_": ["a", "b", "a", "b"],
+            "text_": ['a', 'b', 'a', 'b'],
+            "time_": [datetime.time(0, 11, 59), datetime.time(13),
+                      datetime.time(22, 58, 59), datetime.time(7, 13, 43)],
+            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017"),
+                           pd.Timestamp('2017-11-28 23:55:59.342380',
+                           tz='US/Eastern'),
+                           pd.Timestamp('2018-11-28 23:55:59.342380',
+                           tz='Asia/Calcutta')],
+            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1),
+                      datetime.date(2017, 11, 28),
+                      datetime.date(2018, 11, 28)],
         }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
                     'date_'])
@@ -618,7 +625,15 @@ class TestLoaders:
                     (0, 1, 1, 1, 1.0, 1.0, 'b', 'b',
                     datetime.time(13, 0),
                     datetime.datetime(2017, 1, 1, 0, 0),
-                    datetime.date(2017, 1, 1))]
+                    datetime.date(2017, 1, 1)),
+                    (1, 0, 0, 0, 0.0, 0.0, 'a', 'a',
+                    datetime.time(22, 58, 59),
+                    datetime.datetime(2017, 11, 29, 4, 55, 59),
+                    datetime.date(2017, 11, 28)),
+                    (0, 1, 1, 1, 1.0, 1.0, 'b', 'b',
+                    datetime.time(7, 13, 43),
+                    datetime.datetime(2018, 11, 28, 18, 25, 59),
+                    datetime.date(2018, 11, 28))]
 
         assert result == expected
         c.execute('drop table if exists all_types;')
