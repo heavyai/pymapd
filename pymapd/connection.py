@@ -213,7 +213,7 @@ class Connection:
                 raise
         self._client = Client(proto)
         try:
-            # If a sessionid was passed, we should bin_cert_validate it
+            # If a sessionid was passed, we should validate it
             if sessionid:
                 self._session = sessionid
                 self.get_tables()
@@ -630,7 +630,7 @@ class Connection:
 
         if isinstance(data, pd.DataFrame):
             table_details = self.get_table_details(table_name)
-            # bin_cert_validate that there are the same number of columns in the table
+            # Validate that there are the same number of columns in the table
             # as there are in the dataframe. No point trying to load the data
             # if this is not the case
             if len(table_details) != len(data.columns):
