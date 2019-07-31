@@ -163,8 +163,8 @@ class Connection:
                         bin_cert_validate is None,
                         bin_ca_certs is None]):
                 raise TypeError("Cannot specify both URI and other arguments")
-            user, password, host, port, dbname, protocol, bin_cert_validate,
-            bin_ca_certs = _parse_uri(uri)
+            user, password, host, port, dbname, protocol, \
+                bin_cert_validate, bin_ca_certs = _parse_uri(uri)
         if host is None:
             raise TypeError("`host` parameter is required.")
         if protocol != 'binary' and not all([bin_cert_validate is None,
