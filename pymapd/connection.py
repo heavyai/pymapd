@@ -33,8 +33,8 @@ from packaging.version import Version
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
                                                'port', 'dbname', 'protocol',
-                                               'validate', 'ca_certs',
-                                               'keyfile', 'certfile'])
+                                               'bin_cert_validate',
+                                               'bin_ca_certs'])
 
 
 def connect(uri=None,
@@ -45,10 +45,8 @@ def connect(uri=None,
             dbname=None,
             protocol='binary',
             sessionid=None,
-            validate=None,
-            ca_certs=None,
-            keyfile=None,
-            certfile=None,
+            bin_cert_validate=None,
+            bin_ca_certs=None,
             ):
     """
     Create a new Connection.
@@ -63,15 +61,10 @@ def connect(uri=None,
     dbname: str
     protocol: {'binary', 'http', 'https'}
     sessionid: str
-    validate: bool, optional, binary encrypted connection only
-        Whether to continue if there is a certificate error
-    ca_certs: str, optional, binary encrypted connection only
+    bin_cert_validate: bool, optional, binary encrypted connection only
+        Whether to continue if there is any certificate error
+    bin_ca_certs: str, optional, binary encrypted connection only
         Path to the CA certificate file
-    keyfile: str, optional, binary encrypted connection only
-        Path to the client's private key
-    certfile: str, optional, binary encrypted connection only
-        Path to the client's public key
-
 
     Returns
     -------
@@ -95,8 +88,8 @@ def connect(uri=None,
     """
     return Connection(uri=uri, user=user, password=password, host=host,
                       port=port, dbname=dbname, protocol=protocol,
-                      sessionid=sessionid, validate=validate,
-                      ca_certs=ca_certs, keyfile=keyfile, certfile=certfile)
+                      sessionid=sessionid, bin_cert_validate=bin_cert_validate,
+                      bin_ca_certs=bin_ca_certs)
 
 
 def _parse_uri(uri):
@@ -122,10 +115,8 @@ def _parse_uri(uri):
     - port
     - dbname
     - protocol
-    - validate
-    - ca_certs
-    - keyfile
-    - certfile
+    - bin_cert_validate
+    - bin_ca_certs
     """
     url = make_url(uri)
     user = url.username
@@ -134,13 +125,11 @@ def _parse_uri(uri):
     port = url.port
     dbname = url.database
     protocol = url.query.get('protocol', 'binary')
-    validate = url.query.get('validate', None)
-    ca_certs = url.query.get('ca_certs', None)
-    keyfile = url.query.get('keyfile', None)
-    certfile = url.query.get('certfile', None)
+    bin_cert_validate = url.query.get('bin_cert_validate', None)
+    bin_ca_certs = url.query.get('bin_ca_certs', None)
 
     return ConnectionInfo(user, password, host, port, dbname, protocol,
-                          validate, ca_certs, keyfile, certfile)
+                          bin_cert_validate, bin_ca_certs)
 
 
 class Connection:
@@ -155,11 +144,11 @@ class Connection:
                  dbname=None,
                  protocol='binary',
                  sessionid=None,
-                 validate=None,
-                 ca_certs=None,
-                 keyfile=None,
-                 certfile=None,
+                 bin_cert_validate=None,
+                 bin_ca_certs=None,
                  ):
+
+        self.sessionid = None
         if sessionid is not None:
             if any([user, password, uri, dbname]):
                 raise TypeError("Cannot specify sessionid with user, password,"
@@ -171,21 +160,17 @@ class Connection:
                         port == 6274,
                         dbname is None,
                         protocol == 'binary',
-                        validate is None,
-                        ca_certs is None,
-                        keyfile is None,
-                        certfile is None]):
+                        bin_cert_validate is None,
+                        bin_ca_certs is None]):
                 raise TypeError("Cannot specify both URI and other arguments")
-            user, password, host, port, dbname, protocol, validate, ca_certs,
-            keyfile, certfile = _parse_uri(uri)
+            user, password, host, port, dbname, protocol, bin_cert_validate,
+            bin_ca_certs = _parse_uri(uri)
         if host is None:
             raise TypeError("`host` parameter is required.")
-        if protocol != 'binary' and not all([validate is None,
-                                             ca_certs is None,
-                                             keyfile is None,
-                                             certfile is None]):
-            raise TypeError("Cannot specify validate, ca_certs, keyfile,"
-                            "or certfile without binary protocol")
+        if protocol != 'binary' and not all([bin_cert_validate is None,
+                                             bin_ca_certs is None]):
+            raise TypeError("Cannot specify bin_cert_validate or bin_ca_certs,"
+                            " without binary protocol")
         if protocol in ("http", "https"):
             if not host.startswith(protocol):
                 # the THttpClient expects http[s]://localhost
@@ -194,13 +179,12 @@ class Connection:
             proto = TJSONProtocol.TJSONProtocol(transport)
             socket = None
         elif protocol == "binary":
-            if any([validate is not None, ca_certs, keyfile, certfile]):
+            if any([bin_cert_validate is not None, bin_ca_certs]):
                 socket = TSSLSocket.TSSLSocket(host,
                                                port,
-                                               validate=validate,
-                                               ca_certs=ca_certs,
-                                               keyfile=keyfile,
-                                               certfile=certfile)
+                                               bin_cert_validate=(
+                                                   bin_cert_validate),
+                                               bin_ca_certs=bin_ca_certs)
             else:
                 socket = TSocket.TSocket(host, port)
             transport = TTransport.TBufferedTransport(socket)
@@ -229,14 +213,13 @@ class Connection:
                 raise
         self._client = Client(proto)
         try:
-            # If a sessionid was passed, we should validate it
+            # If a sessionid was passed, we should bin_cert_validate it
             if sessionid:
                 self._session = sessionid
                 self.get_tables()
                 self.sessionid = sessionid
             else:
                 self._session = self._client.connect(user, password, dbname)
-                self.sessionid = None
         except TMapDException as e:
             raise _translate_exception(e) from e
         except TTransportException:
@@ -647,7 +630,7 @@ class Connection:
 
         if isinstance(data, pd.DataFrame):
             table_details = self.get_table_details(table_name)
-            # Validate that there are the same number of columns in the table
+            # bin_cert_validate that there are the same number of columns in the table
             # as there are in the dataframe. No point trying to load the data
             # if this is not the case
             if len(table_details) != len(data.columns):
