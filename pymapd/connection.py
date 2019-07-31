@@ -182,9 +182,9 @@ class Connection:
             if any([bin_cert_validate is not None, bin_ca_certs]):
                 socket = TSSLSocket.TSSLSocket(host,
                                                port,
-                                               bin_cert_validate=(
+                                               validate=(
                                                    bin_cert_validate),
-                                               bin_ca_certs=bin_ca_certs)
+                                               ca_certs=bin_ca_certs)
             else:
                 socket = TSocket.TSocket(host, port)
             transport = TTransport.TBufferedTransport(socket)
