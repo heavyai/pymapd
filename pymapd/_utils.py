@@ -1,5 +1,6 @@
 import datetime
 import numpy as np
+import pandas as pd
 
 
 def seconds_to_time(seconds):
@@ -23,14 +24,15 @@ def datetime_to_seconds(arr):
         if arr.dtype == 'int64':
             # The user has passed a unix timestamp already
             return arr
-        elif arr.dtype == 'object' or arr.dtype == 'datetime64[ns, UTC]':
+        elif arr.dtype == 'object' or str(arr.dtype).startswith(
+                                                        'datetime64[ns,'):
             # Convert to datetime64[ns] from string
             # Or from datetime with timezone information
-            arr = arr.astype('datetime64[ns]')
+            # Return timestamp in 'UTC'
+            arr = pd.to_datetime(arr, utc=True)
         else:
             raise TypeError(f"Invalid dtype '{arr.dtype}', expected one of: "
-                            "datetime64[ns], datetime64[ns, UTC], "
-                            "int64 (representing seconds since epoch), "
+                            "datetime64[ns], int64 (UNIX epoch), "
                             "or object (string)")
     return arr.view('i8') // 10**9  # ns -> s since epoch
 

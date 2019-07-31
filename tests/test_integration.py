@@ -7,7 +7,7 @@ import pytest
 from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails
-from mapd.ttypes import TMapDException
+from omnisci.mapd.ttypes import TMapDException
 from .data import dashboard_metadata
 import json
 import base64
@@ -435,10 +435,11 @@ class TestExtras:
         c = con.cursor()
         c.execute('drop table if exists stocks;')
         create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+                  'qty int, price float, vol float, '
+                  'exchanges TEXT [] ENCODING DICT(32));')
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1,{'NYSE', 'NASDAQ', 'AMEX'});"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2,{'NYSE', 'NASDAQ'});"  # noqa
 
         c.execute(i1)
         c.execute(i2)
@@ -446,18 +447,26 @@ class TestExtras:
         result = con.get_table_details('stocks')
         expected = [
             ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
-                          scale=0, comp_param=32, encoding='DICT'),
+                          scale=0, comp_param=32, encoding='DICT',
+                          is_array=False),
             ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
-                          scale=0, comp_param=32, encoding='DICT'),
+                          scale=0, comp_param=32, encoding='DICT',
+                          is_array=False),
             ColumnDetails(name='symbol', type='STR', nullable=True,
                           precision=0, scale=0, comp_param=32,
-                          encoding='DICT'),
+                          encoding='DICT', is_array=False),
             ColumnDetails(name='qty', type='INT', nullable=True, precision=0,
-                          scale=0, comp_param=0, encoding='NONE'),
+                          scale=0, comp_param=0, encoding='NONE',
+                          is_array=False),
             ColumnDetails(name='price', type='FLOAT', nullable=True,
-                          precision=0, scale=0, comp_param=0, encoding='NONE'),
+                          precision=0, scale=0, comp_param=0, encoding='NONE',
+                          is_array=False),
             ColumnDetails(name='vol', type='FLOAT', nullable=True, precision=0,
-                          scale=0, comp_param=0, encoding='NONE')
+                          scale=0, comp_param=0, encoding='NONE',
+                          is_array=False),
+            ColumnDetails(name='exchanges', type='STR', nullable=True,
+                          precision=0, scale=0, comp_param=32, encoding='DICT',
+                          is_array=True)
         ]
         assert result == expected
         c.execute('drop table if exists stocks;')
@@ -585,17 +594,24 @@ class TestLoaders:
         c.execute(create)
 
         data = pd.DataFrame({
-            "boolean_": [True, False],
-            "smallint_": np.array([0, 1], dtype=np.int16),
-            "int_": np.array([0, 1], dtype=np.int32),
-            "bigint_": np.array([0, 1], dtype=np.int64),
-            "float_": np.array([0, 1], dtype=np.float32),
-            "double_": np.array([0, 1], dtype=np.float64),
-            "varchar_": ["a", "b"],
-            "text_": ['a', 'b'],
-            "time_": [datetime.time(0, 11, 59), datetime.time(13)],
-            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
-            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
+            "boolean_": [True, False, True, False],
+            "smallint_": np.array([0, 1, 0, 1], dtype=np.int16),
+            "int_": np.array([0, 1, 0, 1], dtype=np.int32),
+            "bigint_": np.array([0, 1, 0, 1], dtype=np.int64),
+            "float_": np.array([0, 1, 0, 1], dtype=np.float32),
+            "double_": np.array([0, 1, 0, 1], dtype=np.float64),
+            "varchar_": ["a", "b", "a", "b"],
+            "text_": ['a', 'b', 'a', 'b'],
+            "time_": [datetime.time(0, 11, 59), datetime.time(13),
+                      datetime.time(22, 58, 59), datetime.time(7, 13, 43)],
+            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017"),
+                           pd.Timestamp('2017-11-28 23:55:59.342380',
+                           tz='US/Eastern'),
+                           pd.Timestamp('2018-11-28 23:55:59.342380',
+                           tz='Asia/Calcutta')],
+            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1),
+                      datetime.date(2017, 11, 28),
+                      datetime.date(2018, 11, 28)],
         }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
                     'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
                     'date_'])
@@ -609,7 +625,15 @@ class TestLoaders:
                     (0, 1, 1, 1, 1.0, 1.0, 'b', 'b',
                     datetime.time(13, 0),
                     datetime.datetime(2017, 1, 1, 0, 0),
-                    datetime.date(2017, 1, 1))]
+                    datetime.date(2017, 1, 1)),
+                    (1, 0, 0, 0, 0.0, 0.0, 'a', 'a',
+                    datetime.time(22, 58, 59),
+                    datetime.datetime(2017, 11, 29, 4, 55, 59),
+                    datetime.date(2017, 11, 28)),
+                    (0, 1, 1, 1, 1.0, 1.0, 'b', 'b',
+                    datetime.time(7, 13, 43),
+                    datetime.datetime(2018, 11, 28, 18, 25, 59),
+                    datetime.date(2018, 11, 28))]
 
         assert result == expected
         c.execute('drop table if exists all_types;')
@@ -817,9 +841,11 @@ class TestLoaders:
 
         assert con.get_table_details("test_categorical") == \
             [ColumnDetails(name='A', type='STR', nullable=True, precision=0,
-                           scale=0, comp_param=32, encoding='DICT'),
+                           scale=0, comp_param=32, encoding='DICT',
+                           is_array=False),
              ColumnDetails(name='B', type='STR', nullable=True, precision=0,
-                           scale=0, comp_param=32, encoding='DICT')]
+                           scale=0, comp_param=32, encoding='DICT',
+                           is_array=False)]
 
         # load row-wise
         con.load_table("test_categorical", df, method="rows")

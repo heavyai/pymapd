@@ -10,9 +10,9 @@ from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
-from mapd.MapD import Client, TCreateParams
-from common.ttypes import TDeviceType
-from mapd.ttypes import TMapDException, TFileType
+from omnisci.mapd.MapD import Client, TCreateParams
+from omnisci.common.ttypes import TDeviceType
+from omnisci.mapd.ttypes import TMapDException, TFileType
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
@@ -185,8 +185,10 @@ class Connection:
             if sessionid:
                 self._session = sessionid
                 self.get_tables()
+                self.sessionid = sessionid
             else:
                 self._session = self._client.connect(user, password, dbname)
+                self.sessionid = None
         except TMapDException as e:
             raise _translate_exception(e) from e
         except TTransportException:
@@ -225,13 +227,13 @@ class Connection:
         return self._closed
 
     def close(self):
-        """Disconnect from the database"""
-        try:
-            self._client.disconnect(self._session)
-        except (TMapDException, AttributeError, TypeError):
-            pass
-        finally:
-            self._closed = 1
+        """Disconnect from the database unless created with sessionid"""
+        if not self.sessionid:
+            try:
+                self._client.disconnect(self._session)
+            except (TMapDException, AttributeError, TypeError):
+                pass
+        self._closed = 1
 
     def commit(self):
         """This is a noop, as OmniSci does not provide transactions.

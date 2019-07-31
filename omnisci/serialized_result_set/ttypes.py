@@ -6,11 +6,12 @@
 #  options string: py
 #
 
-from thrift.Thrift import TType
+from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplicationException
+from thrift.protocol.TProtocol import TProtocolException
 from thrift.TRecursive import fix_spec
 
 import sys
-import common.ttypes
+import omnisci.common.ttypes
 
 from thrift.transport import TTransport
 all_structs = []
@@ -610,13 +611,13 @@ class TTargetInfo(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRUCT:
-                    self.type = common.ttypes.TTypeInfo()
+                    self.type = omnisci.common.ttypes.TTypeInfo()
                     self.type.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRUCT:
-                    self.arg_type = common.ttypes.TTypeInfo()
+                    self.arg_type = omnisci.common.ttypes.TTypeInfo()
                     self.arg_type.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -1084,8 +1085,8 @@ TTargetInfo.thrift_spec = (
     None,  # 0
     (1, TType.BOOL, 'is_agg', None, None, ),  # 1
     (2, TType.I32, 'kind', None, None, ),  # 2
-    (3, TType.STRUCT, 'type', [common.ttypes.TTypeInfo, None], None, ),  # 3
-    (4, TType.STRUCT, 'arg_type', [common.ttypes.TTypeInfo, None], None, ),  # 4
+    (3, TType.STRUCT, 'type', [omnisci.common.ttypes.TTypeInfo, None], None, ),  # 3
+    (4, TType.STRUCT, 'arg_type', [omnisci.common.ttypes.TTypeInfo, None], None, ),  # 4
     (5, TType.BOOL, 'skip_nulls', None, None, ),  # 5
     (6, TType.BOOL, 'is_distinct', None, None, ),  # 6
 )
