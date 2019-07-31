@@ -68,9 +68,9 @@ def connect(uri=None,
     ca_certs: str, optional, binary encrypted connection only
         Path to the CA certificate file
     keyfile: str, optional, binary encrypted connection only
-        Path to the client private key
+        Path to the client's private key
     certfile: str, optional, binary encrypted connection only
-        Path to the client public key
+        Path to the client's public key
 
 
     Returns
@@ -122,6 +122,10 @@ def _parse_uri(uri):
     - port
     - dbname
     - protocol
+    - validate
+    - ca_certs
+    - keyfile
+    - certfile
     """
     url = make_url(uri)
     user = url.username
