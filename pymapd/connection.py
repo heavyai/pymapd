@@ -8,7 +8,7 @@ import pyarrow as pa
 import ctypes
 from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
-from thrift.transport import TSocket, THttpClient, TTransport
+from thrift.transport import TSocket, TSSLSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
 from omnisci.mapd.MapD import Client, TCreateParams
 from omnisci.common.ttypes import TDeviceType
@@ -32,7 +32,9 @@ from packaging.version import Version
 
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
-                                               'port', 'dbname', 'protocol'])
+                                               'port', 'dbname', 'protocol',
+                                               'validate', 'ca_certs',
+                                               'keyfile', 'certfile'])
 
 
 def connect(uri=None,
@@ -43,6 +45,10 @@ def connect(uri=None,
             dbname=None,
             protocol='binary',
             sessionid=None,
+            validate=None,
+            ca_certs=None,
+            keyfile=None,
+            certfile=None,
             ):
     """
     Create a new Connection.
@@ -57,6 +63,15 @@ def connect(uri=None,
     dbname: str
     protocol: {'binary', 'http', 'https'}
     sessionid: str
+    validate: bool, optional, binary encrypted connection only
+        Whether to continue if there is a certificate error
+    ca_certs: str, optional, binary encrypted connection only
+        Path to the CA certificate file
+    keyfile: str, optional, binary encrypted connection only
+        Path to the client private key
+    certfile: str, optional, binary encrypted connection only
+        Path to the client public key
+
 
     Returns
     -------
@@ -80,7 +95,8 @@ def connect(uri=None,
     """
     return Connection(uri=uri, user=user, password=password, host=host,
                       port=port, dbname=dbname, protocol=protocol,
-                      sessionid=sessionid)
+                      sessionid=sessionid, validate=validate,
+                      ca_certs=ca_certs, keyfile=keyfile, certfile=certfile)
 
 
 def _parse_uri(uri):
@@ -114,8 +130,13 @@ def _parse_uri(uri):
     port = url.port
     dbname = url.database
     protocol = url.query.get('protocol', 'binary')
+    validate = url.query.get('validate', None)
+    ca_certs = url.query.get('ca_certs', None)
+    keyfile = url.query.get('keyfile', None)
+    certfile = url.query.get('certfile', None)
 
-    return ConnectionInfo(user, password, host, port, dbname, protocol)
+    return ConnectionInfo(user, password, host, port, dbname, protocol,
+                          validate, ca_certs, keyfile, certfile)
 
 
 class Connection:
@@ -130,6 +151,10 @@ class Connection:
                  dbname=None,
                  protocol='binary',
                  sessionid=None,
+                 validate=None,
+                 ca_certs=None,
+                 keyfile=None,
+                 certfile=None,
                  ):
         if sessionid is not None:
             if any([user, password, uri, dbname]):
@@ -141,20 +166,39 @@ class Connection:
                         host is None,
                         port == 6274,
                         dbname is None,
-                        protocol == 'binary']):
+                        protocol == 'binary',
+                        validate is None,
+                        ca_certs is None,
+                        keyfile is None,
+                        certfile is None]):
                 raise TypeError("Cannot specify both URI and other arguments")
-            user, password, host, port, dbname, protocol = _parse_uri(uri)
+            user, password, host, port, dbname, protocol, validate, ca_certs,
+            keyfile, certfile = _parse_uri(uri)
         if host is None:
             raise TypeError("`host` parameter is required.")
+        if protocol != 'binary' and not all([validate is None,
+                                             ca_certs is None,
+                                             keyfile is None,
+                                             certfile is None]):
+            raise TypeError("Cannot specify validate, ca_certs, keyfile,"
+                            "or certfile without binary protocol")
         if protocol in ("http", "https"):
             if not host.startswith(protocol):
                 # the THttpClient expects http[s]://localhost
-                host = protocol + '://' + host
+                host = '{0}://{1}'.format(protocol, host)
             transport = THttpClient.THttpClient("{}:{}".format(host, port))
             proto = TJSONProtocol.TJSONProtocol(transport)
             socket = None
         elif protocol == "binary":
-            socket = TSocket.TSocket(host, port)
+            if any([validate is not None, ca_certs, keyfile, certfile]):
+                socket = TSSLSocket.TSSLSocket(host,
+                                               port,
+                                               validate=validate,
+                                               ca_certs=ca_certs,
+                                               keyfile=keyfile,
+                                               certfile=certfile)
+            else:
+                socket = TSocket.TSocket(host, port)
             transport = TTransport.TBufferedTransport(socket)
             proto = TBinaryProtocol.TBinaryProtocolAccelerated(transport)
         else:
