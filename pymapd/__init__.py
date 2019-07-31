@@ -1,7 +1,5 @@
 from pkg_resources import get_distribution, DistributionNotFound
 
-from omnisci.mapd import MapD  # noqa
-
 # module constants
 try:
     __version__ = get_distribution(__name__).version
