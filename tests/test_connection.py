@@ -45,7 +45,12 @@ class TestConnect:
     def test_session_logon_failure(self):
         sessionid = 'ILoveDancingOnTables'
         with pytest.raises(Error):
-            connect(sessionid=sessionid, host='localhost')
+            connect(sessionid=sessionid, host='localhost', protocol='binary')
+
+    def test_bad_binary_encryption_params(self):
+        with pytest.raises(TypeError):
+            connect(user='admin', host='localhost', dbname='omnisci',
+                    protocol='http', validate=False)
 
 
 class TestURI:
@@ -55,7 +60,7 @@ class TestURI:
                'protocol=binary')
         result = _parse_uri(uri)
         expected = ConnectionInfo("admin", "HyperInteractive", "localhost",
-                                  6274, "omnisci", "binary")
+                                  6274, "omnisci", "binary", None, None)
         assert result == expected
 
     def test_both_raises(self):
