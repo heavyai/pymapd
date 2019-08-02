@@ -12,7 +12,7 @@ conda config --add channels rapidsai
 conda create -n omnisci-dev python=${PYTHON} \
 thrift=0.11.0 \
 numpydoc \
-"pyarrow>=0.13.0,<0.15" \
+"pyarrow>=0.12.0,<0.15" \
 sqlalchemy>=1.3 \
 numpy>=1.16 \
 pandas>=0.24 \
