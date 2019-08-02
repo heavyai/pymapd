@@ -4,4 +4,5 @@
 
 pip install -r ci/requirements.txt
 
-pip install -e .
+python setup.py sdist
+pip install dist/*.tar.gz

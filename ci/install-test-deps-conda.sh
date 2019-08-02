@@ -29,7 +29,8 @@ cudatoolkit
 
 conda activate omnisci-dev
 
-pip install -e .
+python setup.py sdist
+pip install dist/*.tar.gz
 conda list omnisci-dev
 echo
 exit 0
