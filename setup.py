@@ -57,7 +57,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
     ],
-    packages=find_packages(),
+    packages=[None],
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
