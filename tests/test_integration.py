@@ -810,8 +810,8 @@ class TestLoaders:
         con.execute("CREATE TABLE IF NOT EXISTS test_lists \
                     (col1 TEXT, col2 TIME[]);")
 
-        row = [("row1", "{23:59,23:59,23:59}"),
-               ("row2", "{23:59,23:59,23:59}")]
+        row = [("row1", "{23:59:00,23:59:00,23:59:00}"),
+               ("row2", "{23:59:00,23:59:00,23:59:00}")]
 
         con.load_table_rowwise("test_lists", row)
         ans = con.execute("select * from test_lists").fetchall()
