@@ -286,7 +286,7 @@ class Connection:
         c: Cursor
         """
         c = Cursor(self)
-        return c.execute(operation, parameters=parameters)
+        return c.execute(operation.strip(), parameters=parameters)
 
     def cursor(self):
         """Create a new :class:`Cursor` object attached to this connection."""
