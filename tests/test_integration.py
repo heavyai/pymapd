@@ -306,7 +306,7 @@ class TestIntegration:
         c.execute('create table dates (date_ DATE, datetime_ TIMESTAMP, '
                   'time_ TIME);')
         i1 = ("INSERT INTO dates VALUES ('2006-01-05','2006-01-01T12:00:00',"
-              "'12:00');")
+              "'12:00:00');")
         i2 = ("INSERT INTO dates VALUES ('1901-12-14','1901-12-13T20:45:53',"
               "'23:59:00');")
         c.execute(i1)
