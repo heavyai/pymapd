@@ -889,3 +889,32 @@ class TestLoaders:
         c.execute(i1, parameters=second)
 
         c.execute('drop table if exists text_holder;')
+
+    def test_execute_leading_space_and_params(self, con):
+
+        # https://github.com/omnisci/pymapd/issues/263
+
+        """Ensure that leading/trailing spaces in execute statements
+           don't cause issues
+        """
+
+        c = con.cursor()
+        c.execute('drop table if exists test_leading_spaces;')
+        create = ('create table test_leading_spaces (the_text text);')
+        c.execute(create)
+        first = {"value": "我和我的姐姐吃米饭鸡肉"}
+        second = {"value": "El camina a case en bicicleta es relajante"}
+
+        i1 = """
+
+                    INSERT INTO test_leading_spaces
+
+
+                    VALUES ( :value );
+
+                            """
+
+        c.execute(i1, parameters=first)
+        c.execute(i1, parameters=second)
+
+        c.execute('drop table if exists test_leading_spaces;')

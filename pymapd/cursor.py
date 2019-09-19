@@ -101,6 +101,10 @@ class Cursor:
         ...           parameters={"max_qty": 500})
         [('RHAT', 100.0), ('IBM', 500.0)]
         """
+
+        # https://github.com/omnisci/pymapd/issues/263
+        operation = operation.strip()
+
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
         self.rowcount = -1
