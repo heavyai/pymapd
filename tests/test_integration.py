@@ -909,7 +909,7 @@ class TestLoaders:
 
                     INSERT INTO test_leading_spaces
 
-                    
+
                     VALUES ( :value );
 
                             """
