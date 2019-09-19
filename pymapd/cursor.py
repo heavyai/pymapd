@@ -104,7 +104,7 @@ class Cursor:
 
         # https://github.com/omnisci/pymapd/issues/263
         operation = operation.strip()
-        
+
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
         self.rowcount = -1
