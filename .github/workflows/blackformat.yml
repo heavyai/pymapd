@@ -1,6 +1,10 @@
 name: Black Code Formatter
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - '*.py'
+      - '!omnisci/*'
 
 jobs:
   build:
@@ -9,4 +13,3 @@ jobs:
 
     steps:
     - uses: lgeiger/black-action@v1.0.1
-    - args: . --check
