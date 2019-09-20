@@ -42,20 +42,24 @@ except cuda.cudadrv.error.CudaDriverError:
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(message)s')
-coloredlogs.install(level='DEBUG')
+formatter = logging.Formatter("%(message)s")
+coloredlogs.install(level="DEBUG")
 
 
 def parse_args(args=None):
-    parser = argparse.ArgumentParser(description='Run some benchmarks')
-    parser.add_argument("-c", '--count', type=int, default=3,
-                        help="Number of trials per benchmark")
-    parser.add_argument("-b", "--benchmarks", default=None,
-                        help='Regex to match benchmark names')
-    parser.add_argument("-o", '--output',
-                        default="timing-{:%Y-%m-%d-%H-%M-%S}.csv".format(
-                            datetime.datetime.now()),
-                        help="Output CSV")
+    parser = argparse.ArgumentParser(description="Run some benchmarks")
+    parser.add_argument(
+        "-c", "--count", type=int, default=3, help="Number of trials per benchmark"
+    )
+    parser.add_argument(
+        "-b", "--benchmarks", default=None, help="Regex to match benchmark names"
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        default="timing-{:%Y-%m-%d-%H-%M-%S}.csv".format(datetime.datetime.now()),
+        help="Output CSV",
+    )
     return parser.parse_args(args)
 
 
@@ -64,17 +68,17 @@ def parse_args(args=None):
 # -----------------------------------------------------------------------------
 _benchmarks = []
 selects = {
-    'cpu': lambda con, op: con.select_ipc(op),
-    'thrift': lambda con, op: list(con.execute(op)),
+    "cpu": lambda con, op: con.select_ipc(op),
+    "thrift": lambda con, op: list(con.execute(op)),
 }
 if has_gpu:
-    selects['gpu'] = lambda con, op: con.select_ipc_gpu(op)
+    selects["gpu"] = lambda con, op: con.select_ipc_gpu(op)
 
 
 def benchmark(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        warmup = kwargs.pop('warmup', False)
+        warmup = kwargs.pop("warmup", False)
 
         if warmup:
             func(*args, **kwargs)
@@ -84,8 +88,7 @@ def benchmark(func):
         try:
             result = func(*args, **kwargs)
         except Exception:
-            logger.warning("finished,%s,%s,%s", func.__name__, kind,
-                           float('nan'))
+            logger.warning("finished,%s,%s,%s", func.__name__, kind, float("nan"))
         else:
             t1 = timer()
             logger.info("finished,%s,%s,%s", func.__name__, kind, t1 - t0)
@@ -95,22 +98,24 @@ def benchmark(func):
     return wrapper
 
 
-numeric_cols = ('flight_year, flight_month, flight_dayofmonth, '
-                'flight_dayofweek, deptime, crsdeptime, arrtime, crsarrtime, '
-                'flightnum, actualelapsedtime, crselapsedtime, airtime, '
-                'arrdelay, depdelay, distance, taxiin, taxiout, cancelled, '
-                'diverted, carrierdelay, weatherdelay, nasdelay, '
-                'securitydelay, lateaircraftdelay, plane_year, origin_lat, '
-                'origin_lon, dest_lat, dest_lon, origin_merc_x, origin_merc_y, '
-                'dest_merc_x, dest_merc_y')
-text_cols = (
-    'uniquecarrier, tailnum, origin, dest, cancellationcode, carrier_name, '
-    'plane_type, plane_manufacturer, plane_model, plane_status, '
-    'plane_aircraft_type, plane_engine_type, origin_name, origin_city, '
-    'origin_state, origin_country, dest_name, dest_city, dest_state, '
-    'dest_country'
+numeric_cols = (
+    "flight_year, flight_month, flight_dayofmonth, "
+    "flight_dayofweek, deptime, crsdeptime, arrtime, crsarrtime, "
+    "flightnum, actualelapsedtime, crselapsedtime, airtime, "
+    "arrdelay, depdelay, distance, taxiin, taxiout, cancelled, "
+    "diverted, carrierdelay, weatherdelay, nasdelay, "
+    "securitydelay, lateaircraftdelay, plane_year, origin_lat, "
+    "origin_lon, dest_lat, dest_lon, origin_merc_x, origin_merc_y, "
+    "dest_merc_x, dest_merc_y"
 )
-mixed_cols = numeric_cols + ', ' + text_cols
+text_cols = (
+    "uniquecarrier, tailnum, origin, dest, cancellationcode, carrier_name, "
+    "plane_type, plane_manufacturer, plane_model, plane_status, "
+    "plane_aircraft_type, plane_engine_type, origin_name, origin_city, "
+    "origin_state, origin_country, dest_name, dest_city, dest_state, "
+    "dest_country"
+)
+mixed_cols = numeric_cols + ", " + text_cols
 
 # -----------------------------------------------------------------------------
 
@@ -141,72 +146,74 @@ def select_numeric_large(kind, con):
 
 @benchmark
 def select_wide_numeric(kind, con):
-    q = 'select {} from flights_2008_10k'.format(numeric_cols)
+    q = "select {} from flights_2008_10k".format(numeric_cols)
     selects[kind](con, q)
 
 
 @benchmark
 def select_wide_text(kind, con):
-    q = 'select {} from flights_2008_10k'.format(text_cols)
+    q = "select {} from flights_2008_10k".format(text_cols)
     selects[kind](con, q)
 
 
 @benchmark
 def select_wide_mixed(kind, con):
-    q = 'select {} from flights_2008_10k'.format(mixed_cols)
+    q = "select {} from flights_2008_10k".format(mixed_cols)
     selects[kind](con, q)
 
 
 @benchmark
 def select_reduction(kind, con):
-    q = '''select avg(flight_year), count(*) from flights_2008_10k;'''
+    q = """select avg(flight_year), count(*) from flights_2008_10k;"""
     return selects[kind](con, q)
 
 
 @benchmark
 def select_groupby(kind, con):
-    q = '''\
+    q = """\
     SELECT uniquecarrier, avg(depdelay) as delay
     from flights_2008_10k
     group by uniquecarrier
-    '''
+    """
     return selects[kind](con, q)
 
 
 @benchmark
 def select_distinct_single(kind, con):
-    q = 'select distinct uniquecarrier from flights_2008_10k'
+    q = "select distinct uniquecarrier from flights_2008_10k"
     return selects[kind](con, q)
 
 
 @benchmark
 def select_distinct_multiple(kind, con):
-    q = ('select distinct uniquecarrier, flight_year, flight_month, '
-         'flight_dayofmonth, flight_dayofweek from flights_2008_10k')
+    q = (
+        "select distinct uniquecarrier, flight_year, flight_month, "
+        "flight_dayofmonth, flight_dayofweek from flights_2008_10k"
+    )
     return selects[kind](con, q)
 
 
 @benchmark
 def select_filter(kind, con):
-    q = ('select uniquecarrier, depdelay, arrdelay from flights_2008_10k '
-         'where depdelay > 10')
+    q = (
+        "select uniquecarrier, depdelay, arrdelay from flights_2008_10k "
+        "where depdelay > 10"
+    )
     return selects[kind](con, q)
 
 
 @benchmark
 def select_complex(kind, con):
-    q = '''
+    q = """
     SELECT origin, dest, carrier_name, count(*), avg(depdelay), avg(arrdelay)
     FROM flights_2008_10k
     WHERE arrdelay between -30 and 100
     GROUP BY origin, dest, carrier_name
-    ORDER BY origin, dest, carrier_name'''
+    ORDER BY origin, dest, carrier_name"""
     return selects[kind](con, q)
 
 
-skips = {
-    (),
-}
+skips = {()}
 
 
 def main(args=None):
@@ -218,10 +225,8 @@ def main(args=None):
     logger.addHandler(fh)
 
     con = pymapd.connect(
-        user='admin',
-        password='HyperInteractive',
-        dbname='omnisci',
-        host='localhost')
+        user="admin", password="HyperInteractive", dbname="omnisci", host="localhost"
+    )
 
     grid = product(selects.keys(), _benchmarks)
     if args.benchmarks:
@@ -237,10 +242,9 @@ def main(args=None):
         bench(kind, con, warmup=True)
 
         for i in range(args.count):
-            logger.debug("%s[%s] %d/%d", bench.__name__, kind, i + 1,
-                         args.count)
+            logger.debug("%s[%s] %d/%d", bench.__name__, kind, i + 1, args.count)
             bench(kind, con)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main(None))

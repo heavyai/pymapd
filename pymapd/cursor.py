@@ -1,9 +1,6 @@
 import omnisci.mapd.ttypes as T
 from .exceptions import _translate_exception
-from ._parsers import (_extract_col_vals,
-                       _extract_description,
-                       _bind_parameters
-                       )
+from ._parsers import _extract_col_vals, _extract_description, _bind_parameters
 
 
 class Cursor:
@@ -65,8 +62,9 @@ class Cursor:
     def arraysize(self, value):
         """Number of items to fetch with :func:`fetchmany`."""
         if not isinstance(value, int):
-            raise TypeError("Value must be an integer, got {} instead".format(
-                type(value)))
+            raise TypeError(
+                "Value must be an integer, got {} instead".format(type(value))
+            )
         self._arraysize = value
 
     def close(self):
@@ -110,9 +108,13 @@ class Cursor:
         self.rowcount = -1
         try:
             result = self.connection._client.sql_execute(
-                self.connection._session, operation,
+                self.connection._session,
+                operation,
                 column_format=True,
-                nonce=None, first_n=-1, at_most_n=-1)
+                nonce=None,
+                first_n=-1,
+                at_most_n=-1,
+            )
         except T.TMapDException as e:
             raise _translate_exception(e) from e
         self._description = _extract_description(result.row_set.row_desc)
@@ -138,8 +140,7 @@ class Cursor:
         -------
         results: list of lists
         """
-        results = [list(self.execute(operation, params)) for params
-                   in parameters]
+        results = [list(self.execute(operation, params)) for params in parameters]
         return results
 
     def fetchone(self):
@@ -170,6 +171,7 @@ class Cursor:
 # Result Sets
 # -----------------------------------------------------------------------------
 
+
 def make_row_results_set(data):
     """
     Build a results set of python objects.
@@ -186,8 +188,9 @@ def make_row_results_set(data):
     if data.row_set.columns:
         nrows = len(data.row_set.columns[0].nulls)
         ncols = len(data.row_set.row_desc)
-        columns = [_extract_col_vals(desc, col)
-                   for desc, col in zip(data.row_set.row_desc,
-                                        data.row_set.columns)]
+        columns = [
+            _extract_col_vals(desc, col)
+            for desc, col in zip(data.row_set.row_desc, data.row_set.columns)
+        ]
         for i in range(nrows):
             yield tuple(columns[j][i] for j in range(ncols))

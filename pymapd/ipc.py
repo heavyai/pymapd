@@ -5,7 +5,7 @@ import platform
 from ctypes.util import find_library
 
 # find c in OS, ipc not supported on Windows so return None
-libc_so = find_library('c')
+libc_so = find_library("c")
 if platform.system() == "Windows":
     shmget = None
     shmat = None
@@ -29,17 +29,17 @@ else:
 
 def load_buffer(handle, size):
 
-    if find_library('c') is None:
+    if find_library("c") is None:
         if platform.system() == "Windows":
-            assert("IPC uses POSIX shared memory, which is not supported \
-                   on Windows")
+            assert "IPC uses POSIX shared memory, which is not supported \
+                   on Windows"
         else:
             # libc should be available by default on linux/darwin systems
-            assert("ctypes.find_library('c') did not find libc, which is \
-                   required for IPC")
+            assert "ctypes.find_library('c') did not find libc, which is \
+                   required for IPC"
 
     # OmniSci passes struct as bytes, convert to int
-    shmkey = struct.unpack('<L', handle)[0]
+    shmkey = struct.unpack("<L", handle)[0]
 
     # Take key from OmniSci, get identifier of shared memory segment
     # If shmid is -1, an error has occured
