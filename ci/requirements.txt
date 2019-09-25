@@ -12,3 +12,4 @@ pytest-mock
 shapely
 numba
 cudf
+rbc-project
