@@ -14,7 +14,7 @@ import sys
 import omnisci.common.ttypes
 import omnisci.completion_hints.ttypes
 import omnisci.serialized_result_set.ttypes
-import extension_functions.ttypes
+import omnisci.extension_functions.ttypes
 
 from thrift.transport import TTransport
 all_structs = []

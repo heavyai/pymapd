@@ -17252,7 +17252,7 @@ class register_runtime_extension_functions_args(object):
                     self.udfs = []
                     (_etype524, _size521) = iprot.readListBegin()
                     for _i525 in range(_size521):
-                        _elem526 = extension_functions.ttypes.TUserDefinedFunction()
+                        _elem526 = omnisci.extension_functions.ttypes.TUserDefinedFunction()
                         _elem526.read(iprot)
                         self.udfs.append(_elem526)
                     iprot.readListEnd()
@@ -17263,7 +17263,7 @@ class register_runtime_extension_functions_args(object):
                     self.udtfs = []
                     (_etype530, _size527) = iprot.readListBegin()
                     for _i531 in range(_size527):
-                        _elem532 = extension_functions.ttypes.TUserDefinedTableFunction()
+                        _elem532 = omnisci.extension_functions.ttypes.TUserDefinedTableFunction()
                         _elem532.read(iprot)
                         self.udtfs.append(_elem532)
                     iprot.readListEnd()
@@ -17336,8 +17336,8 @@ all_structs.append(register_runtime_extension_functions_args)
 register_runtime_extension_functions_args.thrift_spec = (
     None,  # 0
     (1, TType.STRING, 'session', 'UTF8', None, ),  # 1
-    (2, TType.LIST, 'udfs', (TType.STRUCT, [extension_functions.ttypes.TUserDefinedFunction, None], False), None, ),  # 2
-    (3, TType.LIST, 'udtfs', (TType.STRUCT, [extension_functions.ttypes.TUserDefinedTableFunction, None], False), None, ),  # 3
+    (2, TType.LIST, 'udfs', (TType.STRUCT, [omnisci.extension_functions.ttypes.TUserDefinedFunction, None], False), None, ),  # 2
+    (3, TType.LIST, 'udtfs', (TType.STRUCT, [omnisci.extension_functions.ttypes.TUserDefinedTableFunction, None], False), None, ),  # 3
     (4, TType.MAP, 'device_ir_map', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 4
 )
 
