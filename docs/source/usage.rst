@@ -311,7 +311,8 @@ Python functions to define these as Runtime UDFs:
 
    Runtime UDFs can be defined if the OmniSci server has enabled its
    support (see ``--enable-runtime-udf`` option of ``omnisci_server``)
-   and `rbc`_ package is installed.
+   and `rbc`_ package is installed. This is still experimental functionality, and
+   currently it does not work on the Windows operating system.
 
 .. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
 .. _cudf: https://rapidsai.github.io/projects/cudf/en/latest/
