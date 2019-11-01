@@ -284,9 +284,39 @@ Some helpful metadata are available on the ``Connection`` object.
                   scale=0, comp_param=32),
     ...
 
+Runtime User-Defined Functions
+------------------------------
+
+Connection instance is callable, it can be used as a decorator to
+Python functions to define these as Runtime UDFs:
+
+.. code-block:: python
+
+   >>> @con('int32(int32, int32)')
+   ... def totaldelay(dep, arr):
+   ...     return dep + arr
+   ...
+   >>> query = ("SELECT depdelay, arrdelay, totaldelay(depdelay, arrdelay)"
+   ...          " FROM flights_2008_10k limit 100")
+   >>> df = con.select_ipc(query)
+   >>> df.head()
+      depdelay  arrdelay  EXPR$2
+   0         8       -14      -6
+   1        19         2      21
+   2         8        14      22
+   3        -4        -6     -10
+   4        34        34      68
+
+.. note::
+
+   Runtime UDFs can be defined if the OmniSci server has enabled its
+   support (see ``--enable-runtime-udf`` option of ``omnisci_server``)
+   and `rbc`_ package is installed.
+
 .. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
 .. _cudf: https://rapidsai.github.io/projects/cudf/en/latest/
 .. _Apache Arrow: http://arrow.apache.org/
 .. _conda-forge: http://conda-forge.github.io/
 .. _install cudf: https://github.com/rapidsai/cudf#installation
 .. _blog post: https://www.omnisci.com/blog/using-pymapd-to-load-data-to-omnisci-cloud
+.. _rbc : https://github.com/xnd-project/rbc

@@ -203,6 +203,7 @@ class Connection:
         self._socket = socket
         self._closed = 0
         self._tdf = None
+        self._rbc = None
         try:
             self._transport.open()
         except TTransportException as e:
@@ -265,6 +266,7 @@ class Connection:
             except (TMapDException, AttributeError, TypeError):
                 pass
         self._closed = 1
+        self._rbc = None
 
     def commit(self):
         """This is a noop, as OmniSci does not provide transactions.
@@ -285,6 +287,7 @@ class Connection:
         -------
         c: Cursor
         """
+        self.register_runtime_udfs()
         c = Cursor(self)
         return c.execute(operation, parameters=parameters)
 
@@ -328,6 +331,7 @@ class Connection:
             raise ImportError("The 'cudf' package is required for "
                               "`select_ipc_gpu`")
 
+        self.register_runtime_udfs()
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
 
@@ -368,6 +372,7 @@ class Connection:
         This method requires the Python code to be executed on the same machine
         where OmniSci running.
         """
+        self.register_runtime_udfs()
 
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
@@ -765,6 +770,35 @@ class Connection:
         )
 
         return new_dashboard_id
+
+    def __call__(self, *args, **kwargs):
+        """Runtime UDF decorator.
+
+        The connection object can be applied to a Python function as
+        decorator that will add the function to bending registration
+        list.
+        """
+        try:
+            from rbc.mapd import RemoteMapD
+        except ImportError:
+            raise ImportError("The 'rbc' package is required for `__call__`")
+        if self._rbc is None:
+            self._rbc = RemoteMapD(
+                user=self._user, password=self._password,
+                host=self._host, port=self._port,
+                dbname=self._dbname
+            )
+            self._rbc._session_id = self.sessionid
+        return self._rbc(*args, **kwargs)
+
+    def register_runtime_udfs(self):
+        """Register any bending Runtime UDF functions in OmniSci server.
+
+        If no Runtime UDFs have been defined, the call to this method
+        is noop.
+        """
+        if self._rbc is not None:
+            self._rbc.register()
 
 
 class RenderedVega:

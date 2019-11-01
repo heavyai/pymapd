@@ -24,8 +24,8 @@ pytest-mock \
 shapely \
 numba \
 cudf \
-cudatoolkit
-
+cudatoolkit \
+rbc
 
 conda activate omnisci-dev
 
