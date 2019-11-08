@@ -13,11 +13,11 @@ install_requires = ['thrift == 0.11.0',
                     'sqlalchemy >= 1.3',
                     'numpy >= 1.16',
                     'pandas >= 0.24',
-                    'pyarrow >= 0.10.0,<0.14',
-                    'packaging >= 19.0']
+                    'pyarrow >= 0.12.0,<0.14',
+                    'packaging >= 19.0',
+                    'rbc-project']
 
 # Optional Requirements
-
 
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
 test_requires = ['coverage', 'pytest', 'pytest-mock', 'shapely']
