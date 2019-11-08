@@ -8,7 +8,7 @@ import pyarrow as pa
 import ctypes
 from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
-from thrift.transport import TSocket, THttpClient, TTransport
+from thrift.transport import TSocket, TSSLSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
 from omnisci.mapd.MapD import Client, TCreateParams
 from omnisci.common.ttypes import TDeviceType
@@ -32,7 +32,9 @@ from packaging.version import Version
 
 
 ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
-                                               'port', 'dbname', 'protocol'])
+                                               'port', 'dbname', 'protocol',
+                                               'bin_cert_validate',
+                                               'bin_ca_certs'])
 
 
 def connect(uri=None,
@@ -43,6 +45,8 @@ def connect(uri=None,
             dbname=None,
             protocol='binary',
             sessionid=None,
+            bin_cert_validate=None,
+            bin_ca_certs=None,
             ):
     """
     Create a new Connection.
@@ -57,6 +61,10 @@ def connect(uri=None,
     dbname: str
     protocol: {'binary', 'http', 'https'}
     sessionid: str
+    bin_cert_validate: bool, optional, binary encrypted connection only
+        Whether to continue if there is any certificate error
+    bin_ca_certs: str, optional, binary encrypted connection only
+        Path to the CA certificate file
 
     Returns
     -------
@@ -80,7 +88,8 @@ def connect(uri=None,
     """
     return Connection(uri=uri, user=user, password=password, host=host,
                       port=port, dbname=dbname, protocol=protocol,
-                      sessionid=sessionid)
+                      sessionid=sessionid, bin_cert_validate=bin_cert_validate,
+                      bin_ca_certs=bin_ca_certs)
 
 
 def _parse_uri(uri):
@@ -106,6 +115,8 @@ def _parse_uri(uri):
     - port
     - dbname
     - protocol
+    - bin_cert_validate
+    - bin_ca_certs
     """
     url = make_url(uri)
     user = url.username
@@ -114,8 +125,11 @@ def _parse_uri(uri):
     port = url.port
     dbname = url.database
     protocol = url.query.get('protocol', 'binary')
+    bin_cert_validate = url.query.get('bin_cert_validate', None)
+    bin_ca_certs = url.query.get('bin_ca_certs', None)
 
-    return ConnectionInfo(user, password, host, port, dbname, protocol)
+    return ConnectionInfo(user, password, host, port, dbname, protocol,
+                          bin_cert_validate, bin_ca_certs)
 
 
 class Connection:
@@ -130,7 +144,11 @@ class Connection:
                  dbname=None,
                  protocol='binary',
                  sessionid=None,
+                 bin_cert_validate=None,
+                 bin_ca_certs=None,
                  ):
+
+        self.sessionid = None
         if sessionid is not None:
             if any([user, password, uri, dbname]):
                 raise TypeError("Cannot specify sessionid with user, password,"
@@ -141,20 +159,34 @@ class Connection:
                         host is None,
                         port == 6274,
                         dbname is None,
-                        protocol == 'binary']):
+                        protocol == 'binary',
+                        bin_cert_validate is None,
+                        bin_ca_certs is None]):
                 raise TypeError("Cannot specify both URI and other arguments")
-            user, password, host, port, dbname, protocol = _parse_uri(uri)
+            user, password, host, port, dbname, protocol, \
+                bin_cert_validate, bin_ca_certs = _parse_uri(uri)
         if host is None:
             raise TypeError("`host` parameter is required.")
+        if protocol != 'binary' and not all([bin_cert_validate is None,
+                                             bin_ca_certs is None]):
+            raise TypeError("Cannot specify bin_cert_validate or bin_ca_certs,"
+                            " without binary protocol")
         if protocol in ("http", "https"):
             if not host.startswith(protocol):
                 # the THttpClient expects http[s]://localhost
-                host = protocol + '://' + host
+                host = '{0}://{1}'.format(protocol, host)
             transport = THttpClient.THttpClient("{}:{}".format(host, port))
             proto = TJSONProtocol.TJSONProtocol(transport)
             socket = None
         elif protocol == "binary":
-            socket = TSocket.TSocket(host, port)
+            if any([bin_cert_validate is not None, bin_ca_certs]):
+                socket = TSSLSocket.TSSLSocket(host,
+                                               port,
+                                               validate=(
+                                                   bin_cert_validate),
+                                               ca_certs=bin_ca_certs)
+            else:
+                socket = TSocket.TSocket(host, port)
             transport = TTransport.TBufferedTransport(socket)
             proto = TBinaryProtocol.TBinaryProtocolAccelerated(transport)
         else:
@@ -171,6 +203,7 @@ class Connection:
         self._socket = socket
         self._closed = 0
         self._tdf = None
+        self._rbc = None
         try:
             self._transport.open()
         except TTransportException as e:
@@ -188,7 +221,6 @@ class Connection:
                 self.sessionid = sessionid
             else:
                 self._session = self._client.connect(user, password, dbname)
-                self.sessionid = None
         except TMapDException as e:
             raise _translate_exception(e) from e
         except TTransportException:
@@ -234,6 +266,7 @@ class Connection:
             except (TMapDException, AttributeError, TypeError):
                 pass
         self._closed = 1
+        self._rbc = None
 
     def commit(self):
         """This is a noop, as OmniSci does not provide transactions.
@@ -254,8 +287,9 @@ class Connection:
         -------
         c: Cursor
         """
+        self.register_runtime_udfs()
         c = Cursor(self)
-        return c.execute(operation.strip(), parameters=parameters)
+        return c.execute(operation, parameters=parameters)
 
     def cursor(self):
         """Create a new :class:`Cursor` object attached to this connection."""
@@ -297,6 +331,7 @@ class Connection:
             raise ImportError("The 'cudf' package is required for "
                               "`select_ipc_gpu`")
 
+        self.register_runtime_udfs()
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
 
@@ -337,6 +372,7 @@ class Connection:
         This method requires the Python code to be executed on the same machine
         where OmniSci running.
         """
+        self.register_runtime_udfs()
 
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
@@ -734,6 +770,35 @@ class Connection:
         )
 
         return new_dashboard_id
+
+    def __call__(self, *args, **kwargs):
+        """Runtime UDF decorator.
+
+        The connection object can be applied to a Python function as
+        decorator that will add the function to bending registration
+        list.
+        """
+        try:
+            from rbc.mapd import RemoteMapD
+        except ImportError:
+            raise ImportError("The 'rbc' package is required for `__call__`")
+        if self._rbc is None:
+            self._rbc = RemoteMapD(
+                user=self._user, password=self._password,
+                host=self._host, port=self._port,
+                dbname=self._dbname
+            )
+            self._rbc._session_id = self.sessionid
+        return self._rbc(*args, **kwargs)
+
+    def register_runtime_udfs(self):
+        """Register any bending Runtime UDF functions in OmniSci server.
+
+        If no Runtime UDFs have been defined, the call to this method
+        is noop.
+        """
+        if self._rbc is not None:
+            self._rbc.register()
 
 
 class RenderedVega:

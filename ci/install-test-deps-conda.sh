@@ -12,7 +12,7 @@ conda config --add channels rapidsai
 conda create -n omnisci-dev python=${PYTHON} \
 thrift=0.11.0 \
 numpydoc \
-"pyarrow>=0.10.0,<0.14" \
+"pyarrow>=0.12.0,<0.14" \
 sqlalchemy>=1.3 \
 numpy>=1.16 \
 pandas>=0.24 \
@@ -24,8 +24,8 @@ pytest-mock \
 shapely \
 numba \
 cudf \
-cudatoolkit
-
+cudatoolkit \
+rbc
 
 conda activate omnisci-dev
 

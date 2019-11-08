@@ -1,7 +1,7 @@
 import os
 from codecs import open
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -13,11 +13,11 @@ install_requires = ['thrift == 0.11.0',
                     'sqlalchemy >= 1.3',
                     'numpy >= 1.16',
                     'pandas >= 0.24',
-                    'pyarrow >= 0.10.0,<0.14',
-                    'packaging >= 19.0']
+                    'pyarrow >= 0.12.0,<0.14',
+                    'packaging >= 19.0',
+                    'rbc-project']
 
 # Optional Requirements
-
 
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
 test_requires = ['coverage', 'pytest', 'pytest-mock', 'shapely']
@@ -57,7 +57,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
     ],
-    packages=['pymapd', 'omnisci'],
+    packages=find_packages(),
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,

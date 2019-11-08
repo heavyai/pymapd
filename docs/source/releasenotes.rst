@@ -17,6 +17,11 @@ Some notable breaking changes include:
    =======    ===============
    Release    Breaking Change
    =======    ===============
+   `0.17`_    Added preliminary support for Runtime User-Defined Functions
+   `0.15`_    Support for binary TLS Thrift connections
+   `0.14`_    Updated Thrift bindings to 4.8
+   `0.13`_    Changed context manager to return ``self``, not next level down
+   `0.12`_    Updated Thrift to 4.6.1 bindings
    `0.11`_    Dropped Python 3.5 support
    `0.11`_    Modified ``load_table_columnar`` to support OmniSci 4.6 backend Dates change
    `0.10`_    ``Int8`` when using Arrow for data upload no longer mutates input DataFrame
@@ -39,3 +44,8 @@ Some notable breaking changes include:
 .. _0.9: https://github.com/omnisci/pymapd/releases/tag/v0.9.0
 .. _0.10: https://github.com/omnisci/pymapd/releases/tag/v0.10.0
 .. _0.11: https://github.com/omnisci/pymapd/releases/tag/v0.11.0
+.. _0.12: https://github.com/omnisci/pymapd/releases/tag/v0.12.0
+.. _0.13: https://github.com/omnisci/pymapd/releases/tag/v0.13.0
+.. _0.14: https://github.com/omnisci/pymapd/releases/tag/v0.14.0
+.. _0.15: https://github.com/omnisci/pymapd/releases/tag/v0.15.0
+.. _0.17: https://github.com/omnisci/pymapd/releases/tag/v0.17.0
