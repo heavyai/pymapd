@@ -25,6 +25,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('')
     print('Functions:')
     print('  TSessionId connect(string user, string passwd, string dbname)')
+    print('  TKrb5Session krb5_connect(string inputToken, string dbname)')
     print('  void disconnect(TSessionId session)')
     print('  void switch_database(TSessionId session, string dbname)')
     print('  TServerStatus get_server_status(TSessionId session)')
@@ -60,10 +61,6 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  void set_execution_mode(TSessionId session, TExecuteMode mode)')
     print('  TRenderResult render_vega(TSessionId session, i64 widget_id, string vega_json, i32 compression_level, string nonce)')
     print('  TPixelTableRowResult get_result_row_for_pixel(TSessionId session, i64 widget_id, TPixel pixel,  table_col_names, bool column_format, i32 pixelRadius, string nonce)')
-    print('  TFrontendView get_frontend_view(TSessionId session, string view_name)')
-    print('   get_frontend_views(TSessionId session)')
-    print('  void create_frontend_view(TSessionId session, string view_name, string view_state, string image_hash, string view_metadata)')
-    print('  void delete_frontend_view(TSessionId session, string view_name)')
     print('  TDashboard get_dashboard(TSessionId session, i32 dashboard_id)')
     print('   get_dashboards(TSessionId session)')
     print('  i32 create_dashboard(TSessionId session, string dashboard_name, string dashboard_state, string image_hash, string dashboard_metadata)')
@@ -88,23 +85,22 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_layers_in_geo_file(TSessionId session, string file_name, TCopyParams copy_params)')
     print('  TTableMeta check_table_consistency(TSessionId session, i32 table_id)')
     print('  TPendingQuery start_query(TSessionId session, string query_ra, bool just_explain)')
-    print('  TStepResult execute_first_step(TPendingQuery pending_query)')
+    print('  TStepResult execute_query_step(TPendingQuery pending_query)')
     print('  void broadcast_serialized_rows(TSerializedRows serialized_rows, TRowDescriptor row_desc, TQueryId query_id)')
     print('  TPendingRenderQuery start_render_query(TSessionId session, i64 widget_id, i16 node_idx, string vega_json)')
     print('  TRenderStepResult execute_next_render_step(TPendingRenderQuery pending_render, TRenderAggDataMap merged_data)')
     print('  void insert_data(TSessionId session, TInsertData insert_data)')
     print('  void checkpoint(TSessionId session, i32 db_id, i32 table_id)')
-    print('  TTableDescriptor get_table_descriptor(TSessionId session, string table_name)')
-    print('  TRowDescriptor get_row_descriptor(TSessionId session, string table_name)')
     print('   get_roles(TSessionId session)')
     print('   get_db_objects_for_grantee(TSessionId session, string roleName)')
     print('   get_db_object_privs(TSessionId session, string objectName, TDBObjectType type)')
     print('   get_all_roles_for_user(TSessionId session, string userName)')
+    print('  bool has_role(TSessionId session, string granteeName, string roleName)')
     print('  bool has_object_privilege(TSessionId session, string granteeName, string ObjectName, TDBObjectType objectType, TDBObjectPermissions permissions)')
     print('  TLicenseInfo set_license_key(TSessionId session, string key, string nonce)')
     print('  TLicenseInfo get_license_claims(TSessionId session, string nonce)')
-    print('   get_device_parameters()')
-    print('  void register_runtime_udf(TSessionId session, string signatures,  device_ir_map)')
+    print('   get_device_parameters(TSessionId session)')
+    print('  void register_runtime_extension_functions(TSessionId session,  udfs,  udtfs,  device_ir_map)')
     print('')
     sys.exit(0)
 
@@ -189,6 +185,12 @@ if cmd == 'connect':
         print('connect requires 3 args')
         sys.exit(1)
     pp.pprint(client.connect(args[0], args[1], args[2],))
+
+elif cmd == 'krb5_connect':
+    if len(args) != 2:
+        print('krb5_connect requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.krb5_connect(args[0], args[1],))
 
 elif cmd == 'disconnect':
     if len(args) != 1:
@@ -400,30 +402,6 @@ elif cmd == 'get_result_row_for_pixel':
         sys.exit(1)
     pp.pprint(client.get_result_row_for_pixel(eval(args[0]), eval(args[1]), eval(args[2]), eval(args[3]), eval(args[4]), eval(args[5]), args[6],))
 
-elif cmd == 'get_frontend_view':
-    if len(args) != 2:
-        print('get_frontend_view requires 2 args')
-        sys.exit(1)
-    pp.pprint(client.get_frontend_view(eval(args[0]), args[1],))
-
-elif cmd == 'get_frontend_views':
-    if len(args) != 1:
-        print('get_frontend_views requires 1 args')
-        sys.exit(1)
-    pp.pprint(client.get_frontend_views(eval(args[0]),))
-
-elif cmd == 'create_frontend_view':
-    if len(args) != 5:
-        print('create_frontend_view requires 5 args')
-        sys.exit(1)
-    pp.pprint(client.create_frontend_view(eval(args[0]), args[1], args[2], args[3], args[4],))
-
-elif cmd == 'delete_frontend_view':
-    if len(args) != 2:
-        print('delete_frontend_view requires 2 args')
-        sys.exit(1)
-    pp.pprint(client.delete_frontend_view(eval(args[0]), args[1],))
-
 elif cmd == 'get_dashboard':
     if len(args) != 2:
         print('get_dashboard requires 2 args')
@@ -568,11 +546,11 @@ elif cmd == 'start_query':
         sys.exit(1)
     pp.pprint(client.start_query(eval(args[0]), args[1], eval(args[2]),))
 
-elif cmd == 'execute_first_step':
+elif cmd == 'execute_query_step':
     if len(args) != 1:
-        print('execute_first_step requires 1 args')
+        print('execute_query_step requires 1 args')
         sys.exit(1)
-    pp.pprint(client.execute_first_step(eval(args[0]),))
+    pp.pprint(client.execute_query_step(eval(args[0]),))
 
 elif cmd == 'broadcast_serialized_rows':
     if len(args) != 3:
@@ -604,18 +582,6 @@ elif cmd == 'checkpoint':
         sys.exit(1)
     pp.pprint(client.checkpoint(eval(args[0]), eval(args[1]), eval(args[2]),))
 
-elif cmd == 'get_table_descriptor':
-    if len(args) != 2:
-        print('get_table_descriptor requires 2 args')
-        sys.exit(1)
-    pp.pprint(client.get_table_descriptor(eval(args[0]), args[1],))
-
-elif cmd == 'get_row_descriptor':
-    if len(args) != 2:
-        print('get_row_descriptor requires 2 args')
-        sys.exit(1)
-    pp.pprint(client.get_row_descriptor(eval(args[0]), args[1],))
-
 elif cmd == 'get_roles':
     if len(args) != 1:
         print('get_roles requires 1 args')
@@ -640,6 +606,12 @@ elif cmd == 'get_all_roles_for_user':
         sys.exit(1)
     pp.pprint(client.get_all_roles_for_user(eval(args[0]), args[1],))
 
+elif cmd == 'has_role':
+    if len(args) != 3:
+        print('has_role requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.has_role(eval(args[0]), args[1], args[2],))
+
 elif cmd == 'has_object_privilege':
     if len(args) != 5:
         print('has_object_privilege requires 5 args')
@@ -659,16 +631,16 @@ elif cmd == 'get_license_claims':
     pp.pprint(client.get_license_claims(eval(args[0]), args[1],))
 
 elif cmd == 'get_device_parameters':
-    if len(args) != 0:
-        print('get_device_parameters requires 0 args')
+    if len(args) != 1:
+        print('get_device_parameters requires 1 args')
         sys.exit(1)
-    pp.pprint(client.get_device_parameters())
+    pp.pprint(client.get_device_parameters(eval(args[0]),))
 
-elif cmd == 'register_runtime_udf':
-    if len(args) != 3:
-        print('register_runtime_udf requires 3 args')
+elif cmd == 'register_runtime_extension_functions':
+    if len(args) != 4:
+        print('register_runtime_extension_functions requires 4 args')
         sys.exit(1)
-    pp.pprint(client.register_runtime_udf(eval(args[0]), args[1], eval(args[2]),))
+    pp.pprint(client.register_runtime_extension_functions(eval(args[0]), eval(args[1]), eval(args[2]), eval(args[3]),))
 
 else:
     print('Unrecognized method %s' % cmd)
