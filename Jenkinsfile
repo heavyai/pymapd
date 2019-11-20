@@ -112,7 +112,14 @@ pipeline {
                                   --network="pytest" \
                                   -p 6273 \
                                   --name $db_container_name \
-                                  $db_container_image
+                                  $db_container_image \
+                                  bash -c "/omnisci/startomnisci \
+                                    --non-interactive \
+                                    --data /omnisci-storage/data \
+                                    --config /omnisci-storage/omnisci.conf \
+                                    --enable-runtime-udf \
+                                    --enable-table-functions \
+                                  "
                                 sleep 3
 
                                 docker run \
@@ -165,7 +172,14 @@ pipeline {
                                   --network="pytest" \
                                   -p 6273 \
                                   --name $db_container_name \
-                                  $db_container_image
+                                  $db_container_image \
+                                  bash -c "/omnisci/startomnisci \
+                                    --non-interactive \
+                                    --data /omnisci-storage/data \
+                                    --config /omnisci-storage/omnisci.conf \
+                                    --enable-runtime-udf \
+                                    --enable-table-functions \
+                                  "
                                 sleep 3
 
                                 docker run \
@@ -218,7 +232,14 @@ pipeline {
                                   --network="pytest" \
                                   -p 6273 \
                                   --name $db_container_name \
-                                  $db_container_image
+                                  $db_container_image \
+                                  bash -c "/omnisci/startomnisci \
+                                    --non-interactive \
+                                    --data /omnisci-storage/data \
+                                    --config /omnisci-storage/omnisci.conf \
+                                    --enable-runtime-udf \
+                                    --enable-table-functions \
+                                  "
                                 sleep 3
 
                                 docker run \
