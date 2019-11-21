@@ -141,7 +141,7 @@ latex_documents = [
         "pymapd Documentation",
         "Tom Augspurger",
         "manual",
-    ),
+    )
 ]
 
 
@@ -166,7 +166,7 @@ texinfo_documents = [
         "pymapd",
         "One line description of project.",
         "Miscellaneous",
-    ),
+    )
 ]
 
 

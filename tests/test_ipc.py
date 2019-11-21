@@ -43,7 +43,7 @@ class TestIPC:
             ]
         )
         result = _load_data(buf, schema)
-        expected = pd.DataFrame({"depdelay": depdelay, "arrdelay": arrdelay,})[
+        expected = pd.DataFrame({"depdelay": depdelay, "arrdelay": arrdelay})[
             ["depdelay", "arrdelay"]
         ]
         tm.assert_frame_equal(result, expected)

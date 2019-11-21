@@ -133,9 +133,7 @@ class TestIntegration:
             {"symbol": "GOOG"},
         )
         result = list(c)
-        expected = [
-            ("GOOG", 100),
-        ]  # noqa
+        expected = [("GOOG", 100)]  # noqa
         assert result == expected
         c.execute("drop table if exists stocks;")
 
@@ -986,13 +984,13 @@ class TestLoaders:
         row = [
             (
                 "row1",
-                "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}",
-            ),  # noqa
+                "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}",  # noqa  # fmt: off
+            ),
             (
                 "row2",
-                "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}",
+                "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}",  # noqa  # fmt: off
             ),
-        ]  # noqa
+        ]
 
         con.load_table_rowwise("test_lists", row)
         ans = con.execute("select * from test_lists").fetchall()

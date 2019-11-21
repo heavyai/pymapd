@@ -224,9 +224,7 @@ def select_complex(kind, con):
     return selects[kind](con, q)
 
 
-skips = {
-    (),
-}
+skips = {()}
 
 
 def main(args=None):

@@ -910,7 +910,8 @@ class RenderedVega:
     def _repr_mimebundle_(self, include=None, exclude=None):
         return {
             "image/png": self.image_data,
-            "text/html": '<img src="data:image/png;base64,{}" alt="OmniSci Vega">'.format(
+            "text/html": '<img src="data:image/png;base64,{}"\
+                 alt="OmniSci Vega">'.format(
                 self.image_data
             ),
         }
