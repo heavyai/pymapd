@@ -12,12 +12,12 @@ def mock_connection(mock_client):
     - host='localhost'
     - dbname='dbname'
     """
-    return connect(user='user', password='password',
-                   host='localhost', dbname='dbname')
+    return connect(
+        user="user", password="password", host="localhost", dbname="dbname"
+    )
 
 
 class TestCursor:
-
     def test_empty_iterable(self):
         c = Cursor(None)
         result = list(c)
@@ -26,12 +26,12 @@ class TestCursor:
     def test_escape_basic(self):
         query = "select * from foo where bar > :baz"
         result = str(_bind_parameters(query, {"baz": 10}))
-        expected = 'select * from foo where bar > 10'
+        expected = "select * from foo where bar > 10"
         assert result == expected
 
     def test_escape_malicious(self):
         query = "select * from foo where bar > :baz"
-        result = str(_bind_parameters(query, {"baz": '1; drop table foo'}))
+        result = str(_bind_parameters(query, {"baz": "1; drop table foo"}))
         # note the inner quotes
         expected = "select * from foo where bar > '1; drop table foo'"
         assert result == expected
@@ -43,4 +43,4 @@ class TestCursor:
         assert c.arraysize == 10
 
         with pytest.raises(TypeError):
-            c.arraysize = 'a'
+            c.arraysize = "a"
