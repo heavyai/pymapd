@@ -13,3 +13,4 @@ shapely
 numba
 cudf
 rbc-project
+black

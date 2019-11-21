@@ -25,7 +25,8 @@ shapely \
 numba \
 cudf \
 cudatoolkit \
-rbc
+rbc \
+black
 
 conda activate omnisci-dev
 

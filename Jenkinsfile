@@ -1,5 +1,7 @@
 def flake8_container_image = "alpine/flake8:3.7.7"
 def flake8_container_name = "pymapd-flake8-$BUILD_NUMBER"
+def black_image_name = "jbbarth/black"
+def black_container_name = "pymapd-black-$BUILD_NUMBER"
 def db_container_image = "omnisci/core-os-cuda-dev:master"
 def db_container_name = "pymapd-db-$BUILD_NUMBER"
 def testscript_container_image = "rapidsai/rapidsai:0.8-cuda10.0-runtime-ubuntu18.04-gcc7-py3.6"
@@ -26,6 +28,7 @@ pipeline {
             steps {
                 // Set pending status manually for all jobs before node is started
                 setBuildStatus("Build queued", "PENDING", "Flake8");
+                setBuildStatus("Build queued", "PENDING", "Black")
                 setBuildStatus("Build queued", "PENDING", "Pytest - conda python3.6");
                 setBuildStatus("Build queued", "PENDING", "Pytest - conda python3.7");
                 setBuildStatus("Build queued", "PENDING", "Pytest - pip python3.6");
@@ -66,6 +69,40 @@ pipeline {
                                 } else {
                                     sh """
                                         docker rm -f $flake8_container_name || true
+                                    """
+                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Black') {
+                    steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            script { stage_succeeded = false }
+                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+                            sh """
+                                docker pull $black_container_image
+                                docker run \
+                                  --rm \
+                                  --entrypoint= \
+                                  --name $black_container_name \
+                                  -v $WORKSPACE:/apps \
+                                  $black_container_image \
+                                    black -l 79
+                                docker rm -f $black_container_name || true
+                            """
+                            script { stage_succeeded = true }
+                        }
+                    }
+                    post {
+                        always { 
+                            script {
+                                if (stage_succeeded == true) {
+                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+                                } else {
+                                    sh """
+                                        docker rm -f $black_container_name || true
                                     """
                                     setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
                                 }
