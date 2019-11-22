@@ -46,7 +46,7 @@ def mapd_server():
                 "-p",
                 "9092:9092",
                 "--name=mapd",
-                "mapd/core-os-cpu:latest",
+                "omnisci/core-os-cpu:latest",
             ]
         )
         # yield and stop afterwards?
