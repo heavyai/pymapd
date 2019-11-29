@@ -295,6 +295,41 @@ class Connection:
         """Create a new :class:`Cursor` object attached to this connection."""
         return Cursor(self)
 
+    def select(self, operation, parameters=None,
+               ipc: bool = None, gpu_device: int = None):
+        """
+        Executes the SQL operation, delegates to ``pandas.read_sql``,
+        ``select_ipc`` or ``select_ipc_gpu``
+        depending on the value of ``ipc`` and ``gpu_device``.
+
+        Parameters
+        ----------
+        operation: str
+            A SQL statement
+        parameters: dict, optional
+            Parameters to insert into a parametrized query
+        ipc: bool, optional, default ``None``
+            Enable Inter Process Communication (IPC) execution type.
+            ``ipc`` default value when ``gpu_device`` is None is False
+            (same as ``select_ipc``),
+            otherwise its default value is True (same as ``select_ipc_gpu``).
+        gpu_device: int, optional, default ``None``
+            GPU device ID.
+
+        Returns
+        -------
+        output: execution type dependent
+            If IPC and with no GPU: ``pandas.DataFrame``
+            If IPC and GPU: ``cudf.DataFrame``
+            If not IPC and with no GPU: ``pandas.DataFrame``
+        """
+        if ipc in (None, False) and gpu_device is None:
+            return pd.read_sql(operation, self, params=parameters)
+        elif ipc and gpu_device is None:
+            return self.select_ipc(operation, parameters)
+        elif gpu_device is not None:
+            return self.select_ipc_gpu(operation, parameters, gpu_device)
+
     def select_ipc_gpu(self, operation, parameters=None, device_id=0,
                        first_n=-1, release_memory=True):
         """Execute a ``SELECT`` operation using GPU memory.

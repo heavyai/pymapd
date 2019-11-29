@@ -207,6 +207,18 @@ class TestIntegration:
         assert len(result) == 1
         c.execute('drop table if exists stocks;')
 
+    def load_stocks_data(self, con):
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
+        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+
+        c.execute(i1)
+        c.execute(i2)
+
     @pytest.mark.parametrize('query, parameters', [
         ('select qty, price from stocks', None),
         ('select qty, price from stocks where qty=:qty', {'qty': 100}),
@@ -214,21 +226,12 @@ class TestIntegration:
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_select_ipc_gpu(self, con, query, parameters):
 
-        from cudf.dataframe import DataFrame
+        import cudf.dataframe as gdf
 
-        c = con.cursor()
-        c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
-        c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
-
-        c.execute(i1)
-        c.execute(i2)
+        self.load_stocks_data(con)
 
         result = con.select_ipc_gpu("select qty, price from stocks")
-        assert isinstance(result, DataFrame)
+        assert isinstance(result, gdf.DataFrame)
 
         dtypes = dict(qty=np.int32, price=np.float32)
         expected = pd.DataFrame([[100, 35.14], [100, 12.14]],
@@ -236,25 +239,38 @@ class TestIntegration:
 
         result = result.to_pandas()[['qty', 'price']]  # column order
         pd.testing.assert_frame_equal(result, expected)
-        c.execute('drop table if exists stocks;')
+        con.execute('drop table if exists stocks;')
 
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_select_gpu_first_n(self, con):
-
-        c = con.cursor()
-        c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
-        c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
-
-        c.execute(i1)
-        c.execute(i2)
+        self.load_stocks_data(con)
 
         result = con.select_ipc_gpu("select * from stocks", first_n=1)
         assert len(result) == 1
-        c.execute('drop table if exists stocks;')
+        con.execute('drop table if exists stocks;')
+
+    def test_select(self, con):
+        self.load_stocks_data(con)
+        result = con.select("select * from stocks")
+        assert len(result) == 2
+        assert isinstance(result, pd.DataFrame)
+        con.execute('drop table if exists stocks;')
+
+    def test_select_ipc(self, con):
+        self.load_stocks_data(con)
+        result = con.select("select * from stocks", ipc=True)
+        assert len(result) == 2
+        assert isinstance(result, pd.DataFrame)
+        con.execute('drop table if exists stocks;')
+
+    @pytest.mark.skipif(no_gpu(), reason="No GPU available")
+    def test_select_gpu0(self, con):
+        import cudf.dataframe as gdf
+        self.load_stocks_data(con)
+        result = con.select("select * from stocks", gpu_device=0)
+        assert len(result) == 2
+        assert isinstance(result, gdf.DataFrame)
+        con.execute('drop table if exists stocks;')
 
     def test_fetchone(self, con):
 
