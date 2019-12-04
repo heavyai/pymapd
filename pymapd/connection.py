@@ -287,7 +287,6 @@ class Connection:
         -------
         c: Cursor
         """
-        self.register_runtime_udfs()
         c = Cursor(self)
         return c.execute(operation, parameters=parameters)
 
