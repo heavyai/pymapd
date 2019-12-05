@@ -384,10 +384,7 @@ class TestIntegration:
                 )
 
         # Get our new dashboard from the database
-        d = con._client.get_dashboard(
-                                        session=con._session,
-                                        dashboard_id=dashboard_id
-                                    )
+        d = con.get_dashboard(dashboard_id=dashboard_id)
         remapped_dashboard = json.loads(base64.b64decode(
             d.dashboard_state).decode())
 
