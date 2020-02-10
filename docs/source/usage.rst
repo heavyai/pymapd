@@ -160,7 +160,7 @@ installation.**
 pandas.read_sql()
 *****************
 
-With a :class:`Connection` defined, you can use ``pandass.read_sql()`` to
+With a :class:`Connection` defined, you can use ``pandas.read_sql()`` to
 read your data in a pandas ``DataFrame``. This will be slower than using
 :meth:`Connection.select_ipc`, but works regardless of where the Python code
 is running (i.e. ``select_ipc()`` must be on the same machine as the OmniSci
