@@ -1189,14 +1189,16 @@ class TQueryResult(object):
      - execution_time_ms
      - total_time_ms
      - nonce
+     - debug
     """
 
 
-    def __init__(self, row_set=None, execution_time_ms=None, total_time_ms=None, nonce=None,):
+    def __init__(self, row_set=None, execution_time_ms=None, total_time_ms=None, nonce=None, debug=None,):
         self.row_set = row_set
         self.execution_time_ms = execution_time_ms
         self.total_time_ms = total_time_ms
         self.nonce = nonce
+        self.debug = debug
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1228,6 +1230,11 @@ class TQueryResult(object):
                     self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRING:
+                    self.debug = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1253,6 +1260,10 @@ class TQueryResult(object):
         if self.nonce is not None:
             oprot.writeFieldBegin('nonce', TType.STRING, 4)
             oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
+            oprot.writeFieldEnd()
+        if self.debug is not None:
+            oprot.writeFieldBegin('debug', TType.STRING, 5)
+            oprot.writeString(self.debug.encode('utf-8') if sys.version_info[0] == 2 else self.debug)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -4396,10 +4407,11 @@ class TRawRenderPassDataResult(object):
      - row_ids_B
      - table_ids
      - accum_data
+     - accum_depth
     """
 
 
-    def __init__(self, num_pixel_channels=None, num_pixel_samples=None, pixels=None, row_ids_A=None, row_ids_B=None, table_ids=None, accum_data=None,):
+    def __init__(self, num_pixel_channels=None, num_pixel_samples=None, pixels=None, row_ids_A=None, row_ids_B=None, table_ids=None, accum_data=None, accum_depth=None,):
         self.num_pixel_channels = num_pixel_channels
         self.num_pixel_samples = num_pixel_samples
         self.pixels = pixels
@@ -4407,6 +4419,7 @@ class TRawRenderPassDataResult(object):
         self.row_ids_B = row_ids_B
         self.table_ids = table_ids
         self.accum_data = accum_data
+        self.accum_depth = accum_depth
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -4452,6 +4465,11 @@ class TRawRenderPassDataResult(object):
                     self.accum_data = iprot.readBinary()
                 else:
                     iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.I32:
+                    self.accum_depth = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -4489,6 +4507,10 @@ class TRawRenderPassDataResult(object):
         if self.accum_data is not None:
             oprot.writeFieldBegin('accum_data', TType.STRING, 7)
             oprot.writeBinary(self.accum_data)
+            oprot.writeFieldEnd()
+        if self.accum_depth is not None:
+            oprot.writeFieldBegin('accum_depth', TType.I32, 8)
+            oprot.writeI32(self.accum_depth)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5831,6 +5853,7 @@ TQueryResult.thrift_spec = (
     (2, TType.I64, 'execution_time_ms', None, None, ),  # 2
     (3, TType.I64, 'total_time_ms', None, None, ),  # 3
     (4, TType.STRING, 'nonce', 'UTF8', None, ),  # 4
+    (5, TType.STRING, 'debug', 'UTF8', None, ),  # 5
 )
 all_structs.append(TDataFrame)
 TDataFrame.thrift_spec = (
@@ -6111,6 +6134,7 @@ TRawRenderPassDataResult.thrift_spec = (
     (5, TType.STRING, 'row_ids_B', 'BINARY', None, ),  # 5
     (6, TType.STRING, 'table_ids', 'BINARY', None, ),  # 6
     (7, TType.STRING, 'accum_data', 'BINARY', None, ),  # 7
+    (8, TType.I32, 'accum_depth', None, None, ),  # 8
 )
 all_structs.append(TRawPixelData)
 TRawPixelData.thrift_spec = (
