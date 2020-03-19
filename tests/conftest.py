@@ -38,7 +38,7 @@ def mapd_server():
                                  '-v', '/dev:/dev',
                                  '-p', '6274:6274',
                                  '-p', '9092:9092',
-                                 '--name=mapd', 'mapd/core-os-cpu:latest'])
+                                 '--name=mapd', 'omnisci/core-os-cpu:latest'])
         # yield and stop afterwards?
         assert _check_open()
         # Takes some time to start up. Unfortunately even trying to connect
