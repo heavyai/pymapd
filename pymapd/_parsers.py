@@ -2,7 +2,7 @@
 Utility methods for parsing data returned from MapD
 """
 import datetime
-import pyarrow as pa
+# import pyarrow as pa
 from collections import namedtuple
 from sqlalchemy import text
 import omnisci.common.ttypes as T
@@ -126,43 +126,43 @@ def _extract_column_details(row_desc):
     ]
 
 
-def _load_schema(buf):
-    """
-    Load a `pyarrow.Schema` from a buffer written to shared memory
+# def _load_schema(buf):
+#     """
+#     Load a `pyarrow.Schema` from a buffer written to shared memory
+#
+#     Parameters
+#     ----------
+#     buf : pyarrow.Buffer
+#
+#     Returns
+#     -------
+#     schema : pyarrow.Schema
+#     """
+#     reader = pa.RecordBatchStreamReader(buf)
+#     return reader.schema
 
-    Parameters
-    ----------
-    buf : pyarrow.Buffer
 
-    Returns
-    -------
-    schema : pyarrow.Schema
-    """
-    reader = pa.RecordBatchStreamReader(buf)
-    return reader.schema
+# def _load_data(buf, schema, tdf=None):
+#     """
+#     Load a `pandas.DataFrame` from a buffer written to shared memory
 
+#     Parameters
+#     ----------
+#     buf : pyarrow.Buffer
+#     shcema : pyarrow.Schema
+#     tdf(optional) : TDataFrame
 
-def _load_data(buf, schema, tdf=None):
-    """
-    Load a `pandas.DataFrame` from a buffer written to shared memory
-
-    Parameters
-    ----------
-    buf : pyarrow.Buffer
-    shcema : pyarrow.Schema
-    tdf(optional) : TDataFrame
-
-    Returns
-    -------
-    df : pandas.DataFrame
-    """
-    message = pa.read_message(buf)
-    rb = pa.read_record_batch(message, schema)
-    df = rb.to_pandas()
-    df.set_tdf = MethodType(set_tdf, df)
-    df.get_tdf = MethodType(get_tdf, df)
-    df.set_tdf(tdf)
-    return df
+#     Returns
+#     -------
+#     df : pandas.DataFrame
+#     """
+#     message = pa.read_message(buf)
+#     rb = pa.read_record_batch(message, schema)
+#     df = rb.to_pandas()
+#     df.set_tdf = MethodType(set_tdf, df)
+#     df.get_tdf = MethodType(get_tdf, df)
+#     df.set_tdf(tdf)
+#     return df
 
 
 def _parse_tdf_gpu(tdf):

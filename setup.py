@@ -13,7 +13,7 @@ install_requires = ['thrift == 0.11.0',
                     'sqlalchemy >= 1.3',
                     'numpy >= 1.16',
                     'pandas >= 1.0,<2.0',
-                    'pyarrow >= 0.12.0,<0.14',
+                    'pyarrow == 0.16',
                     'packaging >= 20.0',
                     'rbc-project']
 

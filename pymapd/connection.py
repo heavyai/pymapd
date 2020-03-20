@@ -18,7 +18,7 @@ from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
 
 from ._parsers import (
-    _load_data, _load_schema, _parse_tdf_gpu, _bind_parameters,
+    _parse_tdf_gpu, _bind_parameters,
     _extract_column_details
 )
 
@@ -27,6 +27,8 @@ from ._transforms import change_dashboard_sources
 from .ipc import load_buffer, shmdt
 from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
 from . import _pandas_loaders
+from ._mutators import set_tdf, get_tdf
+from types import MethodType
 
 from packaging.version import Version
 
@@ -382,16 +384,19 @@ class Connection:
         )
         self._tdf = tdf
 
-        sm_buf = load_buffer(tdf.sm_handle, tdf.sm_size)
         df_buf = load_buffer(tdf.df_handle, tdf.df_size)
 
-        schema = _load_schema(sm_buf[0])
-        df = _load_data(df_buf[0], schema, tdf)
+        reader = pa.ipc.open_stream(df_buf[0])
+        tbl = reader.read_all()
+        df = tbl.to_pandas()
+
+        df.set_tdf = MethodType(set_tdf, df)
+        df.get_tdf = MethodType(get_tdf, df)
+        df.set_tdf(tdf)
 
         # free shared memory from Python
         # https://github.com/omnisci/pymapd/issues/46
         # https://github.com/omnisci/pymapd/issues/31
-        free_sm = shmdt(ctypes.cast(sm_buf[1], ctypes.c_void_p))  # noqa
         free_df = shmdt(ctypes.cast(df_buf[1], ctypes.c_void_p))  # noqa
 
         # Deallocate TDataFrame at OmniSci instance
