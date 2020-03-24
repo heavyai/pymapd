@@ -390,8 +390,12 @@ class Connection:
         tbl = reader.read_all()
         df = tbl.to_pandas()
 
+        #this is needed to modify the df object for deallocate_df to work
         df.set_tdf = MethodType(set_tdf, df)
         df.get_tdf = MethodType(get_tdf, df)
+
+        #Because deallocate_df can be called any time in future, keep tdf
+        #from OmniSciDB so that it can be used whenever deallocate_df called
         df.set_tdf(tdf)
 
         # free shared memory from Python
