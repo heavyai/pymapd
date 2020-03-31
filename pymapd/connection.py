@@ -260,7 +260,7 @@ class Connection:
 
     def close(self):
         """Disconnect from the database unless created with sessionid"""
-        if not self.sessionid:
+        if not self.sessionid and not self._closed:
             try:
                 self._client.disconnect(self._session)
             except (TMapDException, AttributeError, TypeError):
