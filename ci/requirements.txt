@@ -12,4 +12,4 @@ pytest-mock
 shapely
 numba
 cudf
-rbc-project
+rbc-project==0.2.0dev0
