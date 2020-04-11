@@ -1,7 +1,7 @@
 """
 Internal helpers for loading data
 """
-from omnisci.mapd.ttypes import TStringRow, TStringValue
+from omnisci.thrift.ttypes import TStringRow, TStringValue
 import collections
 
 

@@ -1,5 +1,5 @@
 import pytest
-from omnisci.mapd.ttypes import TColumnType
+from omnisci.thrift.ttypes import TColumnType
 from omnisci.common.ttypes import TTypeInfo
 from pymapd import OperationalError, connect
 from pymapd.connection import _parse_uri, ConnectionInfo

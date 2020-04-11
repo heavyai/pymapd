@@ -2,10 +2,10 @@ import pytest
 import datetime
 from pymapd._loaders import _build_input_rows
 from pymapd import _pandas_loaders
-from omnisci.mapd.MapD import TStringRow, TStringValue, TColumn, TColumnData
+from omnisci.thrift.OmniSci import TStringRow, TStringValue, TColumn, TColumnData
 import pandas as pd
 import numpy as np
-from omnisci.mapd.ttypes import TColumnType
+from omnisci.thrift.ttypes import TColumnType
 from omnisci.common.ttypes import TTypeInfo
 
 

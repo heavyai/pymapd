@@ -10,9 +10,9 @@ from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, TSSLSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
-from omnisci.mapd.MapD import Client, TCreateParams
+from omnisci.thrift.OmniSci import Client, TCreateParams
 from omnisci.common.ttypes import TDeviceType
-from omnisci.mapd.ttypes import TMapDException, TFileType
+from omnisci.thrift.ttypes import TOmniSciException, TFileType
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
@@ -262,7 +262,7 @@ class Connection:
                     dbname = self._dbname
 
                 self._session = self._client.connect(user, password, dbname)
-        except TMapDException as e:
+        except TOmniSciException as e:
             raise _translate_exception(e) from e
         except TTransportException:
             raise ValueError(f"Connection failed with port {port} and "
@@ -304,7 +304,7 @@ class Connection:
         if not self.sessionid and not self._closed:
             try:
                 self._client.disconnect(self._session)
-            except (TMapDException, AttributeError, TypeError):
+            except (TOmniSciException, AttributeError, TypeError):
                 pass
         self._closed = 1
         self._rbc = None
@@ -366,7 +366,7 @@ class Connection:
         """
         try:
             from cudf.comm.gpuarrow import GpuArrowReader  # noqa
-            from cudf.dataframe import DataFrame           # noqa
+            from cudf.core.dataframe import DataFrame           # noqa
         except ImportError:
             raise ImportError("The 'cudf' package is required for "
                               "`select_ipc_gpu`")
@@ -839,11 +839,11 @@ class Connection:
         list.
         """
         try:
-            from rbc.mapd import RemoteMapD
+            from rbc.omniscidb import RemoteOmnisci
         except ImportError:
             raise ImportError("The 'rbc' package is required for `__call__`")
         if self._rbc is None:
-            self._rbc = RemoteMapD(
+            self._rbc = RemoteOmnisci(
                 user=self._user, password=self._password,
                 host=self._host, port=self._port,
                 dbname=self._dbname

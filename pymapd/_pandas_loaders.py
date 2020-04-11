@@ -12,7 +12,7 @@ from pandas.api.types import (
     is_datetime64_any_dtype,
 )
 
-from omnisci.mapd.ttypes import (
+from omnisci.thrift.ttypes import (
     TColumn, TColumnData, TColumnType
 )
 
