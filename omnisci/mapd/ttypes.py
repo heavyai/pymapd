@@ -14,6 +14,7 @@ import sys
 import omnisci.common.ttypes
 import omnisci.completion_hints.ttypes
 import omnisci.serialized_result_set.ttypes
+import omnisci.extension_functions.ttypes
 
 from thrift.transport import TTransport
 all_structs = []
@@ -877,6 +878,73 @@ class TStringRow(object):
         return not (self == other)
 
 
+class TKrb5Session(object):
+    """
+    Attributes:
+     - sessionId
+     - krbToken
+    """
+
+
+    def __init__(self, sessionId=None, krbToken=None,):
+        self.sessionId = sessionId
+        self.krbToken = krbToken
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.sessionId = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.krbToken = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('TKrb5Session')
+        if self.sessionId is not None:
+            oprot.writeFieldBegin('sessionId', TType.STRING, 1)
+            oprot.writeString(self.sessionId.encode('utf-8') if sys.version_info[0] == 2 else self.sessionId)
+            oprot.writeFieldEnd()
+        if self.krbToken is not None:
+            oprot.writeFieldBegin('krbToken', TType.STRING, 2)
+            oprot.writeString(self.krbToken.encode('utf-8') if sys.version_info[0] == 2 else self.krbToken)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
 class TStepResult(object):
     """
     Attributes:
@@ -1121,14 +1189,16 @@ class TQueryResult(object):
      - execution_time_ms
      - total_time_ms
      - nonce
+     - debug
     """
 
 
-    def __init__(self, row_set=None, execution_time_ms=None, total_time_ms=None, nonce=None,):
+    def __init__(self, row_set=None, execution_time_ms=None, total_time_ms=None, nonce=None, debug=None,):
         self.row_set = row_set
         self.execution_time_ms = execution_time_ms
         self.total_time_ms = total_time_ms
         self.nonce = nonce
+        self.debug = debug
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1160,6 +1230,11 @@ class TQueryResult(object):
                     self.nonce = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRING:
+                    self.debug = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1186,6 +1261,10 @@ class TQueryResult(object):
             oprot.writeFieldBegin('nonce', TType.STRING, 4)
             oprot.writeString(self.nonce.encode('utf-8') if sys.version_info[0] == 2 else self.nonce)
             oprot.writeFieldEnd()
+        if self.debug is not None:
+            oprot.writeFieldBegin('debug', TType.STRING, 5)
+            oprot.writeString(self.debug.encode('utf-8') if sys.version_info[0] == 2 else self.debug)
+            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -1211,14 +1290,18 @@ class TDataFrame(object):
      - sm_size
      - df_handle
      - df_size
+     - execution_time_ms
+     - arrow_conversion_time_ms
     """
 
 
-    def __init__(self, sm_handle=None, sm_size=None, df_handle=None, df_size=None,):
+    def __init__(self, sm_handle=None, sm_size=None, df_handle=None, df_size=None, execution_time_ms=None, arrow_conversion_time_ms=None,):
         self.sm_handle = sm_handle
         self.sm_size = sm_size
         self.df_handle = df_handle
         self.df_size = df_size
+        self.execution_time_ms = execution_time_ms
+        self.arrow_conversion_time_ms = arrow_conversion_time_ms
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1249,6 +1332,16 @@ class TDataFrame(object):
                     self.df_size = iprot.readI64()
                 else:
                     iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.I64:
+                    self.execution_time_ms = iprot.readI64()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.I64:
+                    self.arrow_conversion_time_ms = iprot.readI64()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1274,6 +1367,14 @@ class TDataFrame(object):
         if self.df_size is not None:
             oprot.writeFieldBegin('df_size', TType.I64, 4)
             oprot.writeI64(self.df_size)
+            oprot.writeFieldEnd()
+        if self.execution_time_ms is not None:
+            oprot.writeFieldBegin('execution_time_ms', TType.I64, 5)
+            oprot.writeI64(self.execution_time_ms)
+            oprot.writeFieldEnd()
+        if self.arrow_conversion_time_ms is not None:
+            oprot.writeFieldBegin('arrow_conversion_time_ms', TType.I64, 6)
+            oprot.writeI64(self.arrow_conversion_time_ms)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1444,10 +1545,12 @@ class TCopyParams(object):
      - sanitize_column_names
      - geo_layer_name
      - s3_endpoint
+     - geo_assign_render_groups
+     - geo_explode_collections
     """
 
 
-    def __init__(self, delimiter=None, null_str=None, has_header=0, quoted=None, quote=None, escape=None, line_delim=None, array_delim=None, array_begin=None, array_end=None, threads=None, file_type=0, s3_access_key=None, s3_secret_key=None, s3_region=None, geo_coords_encoding=6, geo_coords_comp_param=32, geo_coords_type=18, geo_coords_srid=4326, sanitize_column_names=True, geo_layer_name=None, s3_endpoint=None,):
+    def __init__(self, delimiter=None, null_str=None, has_header=0, quoted=None, quote=None, escape=None, line_delim=None, array_delim=None, array_begin=None, array_end=None, threads=None, file_type=0, s3_access_key=None, s3_secret_key=None, s3_region=None, geo_coords_encoding=6, geo_coords_comp_param=32, geo_coords_type=18, geo_coords_srid=4326, sanitize_column_names=True, geo_layer_name=None, s3_endpoint=None, geo_assign_render_groups=True, geo_explode_collections=False,):
         self.delimiter = delimiter
         self.null_str = null_str
         self.has_header = has_header
@@ -1470,6 +1573,8 @@ class TCopyParams(object):
         self.sanitize_column_names = sanitize_column_names
         self.geo_layer_name = geo_layer_name
         self.s3_endpoint = s3_endpoint
+        self.geo_assign_render_groups = geo_assign_render_groups
+        self.geo_explode_collections = geo_explode_collections
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1590,6 +1695,16 @@ class TCopyParams(object):
                     self.s3_endpoint = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 23:
+                if ftype == TType.BOOL:
+                    self.geo_assign_render_groups = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 24:
+                if ftype == TType.BOOL:
+                    self.geo_explode_collections = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1687,6 +1802,14 @@ class TCopyParams(object):
         if self.s3_endpoint is not None:
             oprot.writeFieldBegin('s3_endpoint', TType.STRING, 22)
             oprot.writeString(self.s3_endpoint.encode('utf-8') if sys.version_info[0] == 2 else self.s3_endpoint)
+            oprot.writeFieldEnd()
+        if self.geo_assign_render_groups is not None:
+            oprot.writeFieldBegin('geo_assign_render_groups', TType.BOOL, 23)
+            oprot.writeBool(self.geo_assign_render_groups)
+            oprot.writeFieldEnd()
+        if self.geo_explode_collections is not None:
+            oprot.writeFieldBegin('geo_explode_collections', TType.BOOL, 24)
+            oprot.writeBool(self.geo_explode_collections)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -4284,10 +4407,11 @@ class TRawRenderPassDataResult(object):
      - row_ids_B
      - table_ids
      - accum_data
+     - accum_depth
     """
 
 
-    def __init__(self, num_pixel_channels=None, num_pixel_samples=None, pixels=None, row_ids_A=None, row_ids_B=None, table_ids=None, accum_data=None,):
+    def __init__(self, num_pixel_channels=None, num_pixel_samples=None, pixels=None, row_ids_A=None, row_ids_B=None, table_ids=None, accum_data=None, accum_depth=None,):
         self.num_pixel_channels = num_pixel_channels
         self.num_pixel_samples = num_pixel_samples
         self.pixels = pixels
@@ -4295,6 +4419,7 @@ class TRawRenderPassDataResult(object):
         self.row_ids_B = row_ids_B
         self.table_ids = table_ids
         self.accum_data = accum_data
+        self.accum_depth = accum_depth
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -4340,6 +4465,11 @@ class TRawRenderPassDataResult(object):
                     self.accum_data = iprot.readBinary()
                 else:
                     iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.I32:
+                    self.accum_depth = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -4377,6 +4507,10 @@ class TRawRenderPassDataResult(object):
         if self.accum_data is not None:
             oprot.writeFieldBegin('accum_data', TType.STRING, 7)
             oprot.writeBinary(self.accum_data)
+            oprot.writeFieldEnd()
+        if self.accum_depth is not None:
+            oprot.writeFieldBegin('accum_depth', TType.I32, 8)
+            oprot.writeI32(self.accum_depth)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5235,14 +5369,16 @@ class TDBObject(object):
      - objectType
      - privs
      - grantee
+     - privilegeObjectType
     """
 
 
-    def __init__(self, objectName=None, objectType=None, privs=None, grantee=None,):
+    def __init__(self, objectName=None, objectType=None, privs=None, grantee=None, privilegeObjectType=None,):
         self.objectName = objectName
         self.objectType = objectType
         self.privs = privs
         self.grantee = grantee
+        self.privilegeObjectType = privilegeObjectType
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -5278,6 +5414,11 @@ class TDBObject(object):
                     self.grantee = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.I32:
+                    self.privilegeObjectType = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -5306,6 +5447,10 @@ class TDBObject(object):
         if self.grantee is not None:
             oprot.writeFieldBegin('grantee', TType.STRING, 4)
             oprot.writeString(self.grantee.encode('utf-8') if sys.version_info[0] == 2 else self.grantee)
+            oprot.writeFieldEnd()
+        if self.privilegeObjectType is not None:
+            oprot.writeFieldBegin('privilegeObjectType', TType.I32, 5)
+            oprot.writeI32(self.privilegeObjectType)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5677,6 +5822,12 @@ TStringRow.thrift_spec = (
     None,  # 0
     (1, TType.LIST, 'cols', (TType.STRUCT, [TStringValue, None], False), None, ),  # 1
 )
+all_structs.append(TKrb5Session)
+TKrb5Session.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'sessionId', 'UTF8', None, ),  # 1
+    (2, TType.STRING, 'krbToken', 'UTF8', None, ),  # 2
+)
 all_structs.append(TStepResult)
 TStepResult.thrift_spec = (
     None,  # 0
@@ -5702,6 +5853,7 @@ TQueryResult.thrift_spec = (
     (2, TType.I64, 'execution_time_ms', None, None, ),  # 2
     (3, TType.I64, 'total_time_ms', None, None, ),  # 3
     (4, TType.STRING, 'nonce', 'UTF8', None, ),  # 4
+    (5, TType.STRING, 'debug', 'UTF8', None, ),  # 5
 )
 all_structs.append(TDataFrame)
 TDataFrame.thrift_spec = (
@@ -5710,6 +5862,8 @@ TDataFrame.thrift_spec = (
     (2, TType.I64, 'sm_size', None, None, ),  # 2
     (3, TType.STRING, 'df_handle', 'BINARY', None, ),  # 3
     (4, TType.I64, 'df_size', None, None, ),  # 4
+    (5, TType.I64, 'execution_time_ms', None, None, ),  # 5
+    (6, TType.I64, 'arrow_conversion_time_ms', None, None, ),  # 6
 )
 all_structs.append(TDBInfo)
 TDBInfo.thrift_spec = (
@@ -5747,6 +5901,8 @@ TCopyParams.thrift_spec = (
     (20, TType.BOOL, 'sanitize_column_names', None, True, ),  # 20
     (21, TType.STRING, 'geo_layer_name', 'UTF8', None, ),  # 21
     (22, TType.STRING, 's3_endpoint', 'UTF8', None, ),  # 22
+    (23, TType.BOOL, 'geo_assign_render_groups', None, True, ),  # 23
+    (24, TType.BOOL, 'geo_explode_collections', None, False, ),  # 24
 )
 all_structs.append(TCreateParams)
 TCreateParams.thrift_spec = (
@@ -5978,6 +6134,7 @@ TRawRenderPassDataResult.thrift_spec = (
     (5, TType.STRING, 'row_ids_B', 'BINARY', None, ),  # 5
     (6, TType.STRING, 'table_ids', 'BINARY', None, ),  # 6
     (7, TType.STRING, 'accum_data', 'BINARY', None, ),  # 7
+    (8, TType.I32, 'accum_depth', None, None, ),  # 8
 )
 all_structs.append(TRawPixelData)
 TRawPixelData.thrift_spec = (
@@ -6055,6 +6212,7 @@ TDBObject.thrift_spec = (
     (2, TType.I32, 'objectType', None, None, ),  # 2
     (3, TType.LIST, 'privs', (TType.BOOL, None, False), None, ),  # 3
     (4, TType.STRING, 'grantee', 'UTF8', None, ),  # 4
+    (5, TType.I32, 'privilegeObjectType', None, None, ),  # 5
 )
 all_structs.append(TDashboardGrantees)
 TDashboardGrantees.thrift_spec = (

@@ -12,10 +12,10 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 install_requires = ['thrift == 0.11.0',
                     'sqlalchemy >= 1.3',
                     'numpy >= 1.16',
-                    'pandas >= 0.24',
+                    'pandas >= 1.0,<2.0',
                     'pyarrow >= 0.12.0,<0.14',
-                    'packaging >= 19.0',
-                    'rbc-project']
+                    'packaging >= 20.0',
+                    'rbc-project == 0.2.0dev0']
 
 # Optional Requirements
 

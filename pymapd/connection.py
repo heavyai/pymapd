@@ -260,7 +260,7 @@ class Connection:
 
     def close(self):
         """Disconnect from the database unless created with sessionid"""
-        if not self.sessionid:
+        if not self.sessionid and not self._closed:
             try:
                 self._client.disconnect(self._session)
             except (TMapDException, AttributeError, TypeError):
@@ -287,7 +287,6 @@ class Connection:
         -------
         c: Cursor
         """
-        self.register_runtime_udfs()
         c = Cursor(self)
         return c.execute(operation, parameters=parameters)
 
@@ -713,6 +712,19 @@ class Connection:
         )
         rendered_vega = RenderedVega(result)
         return rendered_vega
+
+    def get_dashboard(self, dashboard_id):
+        """Return the dashboard object of a specific dashboard
+
+        Examples
+        --------
+        >>> con.get_dashboard(123)
+        """
+        dashboard = self._client.get_dashboard(
+            session=self._session,
+            dashboard_id=dashboard_id
+        )
+        return dashboard
 
     def get_dashboards(self):
         """List all the dashboards in the database

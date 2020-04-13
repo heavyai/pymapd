@@ -17,6 +17,8 @@ class Cursor:
         self._arraysize = 1
         self._result = None
         self._result_set = None
+        if connection:
+            connection.register_runtime_udfs()
 
     def __iter__(self):
         if self.result_set is None:

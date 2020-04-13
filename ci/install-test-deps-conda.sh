@@ -13,9 +13,9 @@ conda create -n omnisci-dev python=${PYTHON} \
 thrift=0.11.0 \
 numpydoc \
 "pyarrow>=0.12.0,<0.14" \
-sqlalchemy>=1.3 \
-numpy>=1.16 \
-pandas>=0.24 \
+"sqlalchemy>=1.3" \
+"numpy>=1.16" \
+"pandas>=1.0,<2.0" \
 coverage \
 flake8 \
 pytest \
@@ -25,7 +25,7 @@ shapely \
 numba \
 cudf \
 cudatoolkit \
-rbc
+"rbc=0.2.0dev0"
 
 conda activate omnisci-dev
 
