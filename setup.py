@@ -15,6 +15,7 @@ install_requires = ['thrift == 0.11.0',
                     'pandas >= 1.0,<2.0',
                     'pyarrow >= 0.12.0,<0.14',
                     'packaging >= 20.0',
+                    'requests >= 2.23.0',
                     'rbc-project == 0.2.0dev0']
 
 # Optional Requirements
