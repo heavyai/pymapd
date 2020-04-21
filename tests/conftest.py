@@ -62,9 +62,10 @@ def mock_client(mocker):
 
 
 def no_gpu():
-    """Detect if don't have numba and a GPU available"""
+    """Check for the required GPU dependencies"""
     try:
         from numba import cuda
+        import cudf
 
         try:
             cuda.select_device(0)
