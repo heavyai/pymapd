@@ -9,30 +9,25 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires = ['thrift == 0.13.0',
-                    'sqlalchemy >= 1.3',
-                    'numpy >= 1.16',
-                    'pandas >= 1.0,<2.0',
-                    'pyarrow == 0.15.0',
+install_requires = ['pyarrow == 0.15.0',
+                    'thrift == 0.13.0',
+                    'pandas >= 0.25,<0.26',
                     'packaging >= 20.0',
                     'requests >= 2.23.0',
                     'numba >= 0.48',
-                    'rbc-project == 0.2.0dev0']
+                    'rbc-project == 0.2.2']
 
 # Optional Requirements
-
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
 test_requires = ['coverage', 'pytest', 'pytest-mock', 'shapely']
 dev_requires = doc_requires + test_requires
-gpu_requires = ['cudf', 'libcudf']
-complete_requires = dev_requires + gpu_requires
+complete_requires = dev_requires
 
 
 extra_requires = {
     'docs': doc_requires,
     'test': test_requires,
     'dev': dev_requires,
-    'gpu': gpu_requires,
     'complete': complete_requires,
 }
 
