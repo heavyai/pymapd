@@ -16,6 +16,7 @@ install_requires = ['thrift == 0.11.0',
                     'pyarrow >= 0.12.0,<0.14',
                     'packaging >= 20.0',
                     'requests >= 2.23.0',
+                    'numba >= 0.48',
                     'rbc-project == 0.2.0dev0']
 
 # Optional Requirements
