@@ -120,3 +120,5 @@ mapdql_history.txt
 
 # Folder metadata
 **/.DS_Store
+
+.vscode/

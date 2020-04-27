@@ -65,7 +65,7 @@ def no_gpu():
     """Check for the required GPU dependencies"""
     try:
         from numba import cuda
-        import cudf
+        import cudf # noqa
 
         try:
             cuda.select_device(0)
@@ -79,7 +79,7 @@ def no_gpu():
 def gen_string():
     """Generate a random string sequence for use in _tests_table_no_nulls"""
     return ''.join([random.choice(string.ascii_letters + string.digits)
-                   for n in range(10)])
+                    for n in range(10)])
 
 
 def _tests_table_no_nulls(n_samples):

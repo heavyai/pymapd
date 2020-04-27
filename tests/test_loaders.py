@@ -2,7 +2,10 @@ import pytest
 import datetime
 from pymapd._loaders import _build_input_rows
 from pymapd import _pandas_loaders
-from omnisci.thrift.OmniSci import TStringRow, TStringValue, TColumn, TColumnData
+from omnisci.thrift.OmniSci import (TStringRow,
+                                    TStringValue,
+                                    TColumn,
+                                    TColumnData)
 import pandas as pd
 import numpy as np
 from omnisci.thrift.ttypes import TColumnType

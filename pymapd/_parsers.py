@@ -124,6 +124,7 @@ def _extract_column_details(row_desc):
         for x in row_desc
     ]
 
+
 def _parse_tdf_gpu(tdf):
     """
     Parse the results of a select ipc_gpu into a GpuDataFrame
@@ -140,10 +141,8 @@ def _parse_tdf_gpu(tdf):
     import pyarrow as pa
     from cudf.comm.gpuarrow import GpuArrowReader
     from cudf.core.dataframe import DataFrame
-    from cudf._lib.arrow._cuda import Context, IpcMemHandle, read_message, read_record_batch
-    from cudf.utils.utils import pyarrow_buffer_to_cudf_buffer
+    from cudf._lib.arrow._cuda import Context, IpcMemHandle
     from numba import cuda
-    from numba.cuda.cudadrv import drvapi
 
     ipc_handle = IpcMemHandle.from_buffer(pa.py_buffer(tdf.df_handle))
     ctx = Context()
