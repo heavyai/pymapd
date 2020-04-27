@@ -10,7 +10,7 @@ conda config --add channels conda-forge
 conda config --add channels rapidsai
 
 conda create -n omnisci-dev python=${PYTHON} \
-thrift=0.11.0 \
+thrift=0.13.0 \
 numpydoc \
 "pyarrow>=0.12.0,<0.14" \
 "sqlalchemy>=1.3" \
@@ -25,7 +25,7 @@ shapely \
 numba \
 cudf \
 cudatoolkit \
-"rbc=0.2.0dev0"
+"rbc=0.2.2"
 
 conda activate omnisci-dev
 
