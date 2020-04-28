@@ -141,11 +141,7 @@ When the upstream `mapd-core`_ project updates its Apache Thrift definition file
    cd ./omniscidb
 
    # Use Thrift to generate the Python bindings
-   thrift -gen py omnisci.thrift
-   thrift -gen py completion_hints.thrift
-   thrift -gen py common.thrift
-   thrift -gen py QueryEngine/serialized_result_set.thrift
-   thrift -gen py QueryEngine/extension_functions.thrift
+   thrift -gen py -r omnisci.thrift
 
    # Copy the generated bindings to the pymapd root
    cp -r ./gen-py/omnisci/* ../pymapd/omnisci/
