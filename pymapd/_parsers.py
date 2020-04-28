@@ -151,22 +151,49 @@ def _parse_tdf_gpu(tdf):
 
     schema_buffer, shm_ptr = load_buffer(tdf.sm_handle, tdf.sm_size)
 
-    # TODO: extra copy.
-    schema_buffer = np.frombuffer(schema_buffer[0].to_pybytes(),
-                                  dtype=np.uint8)
+    buffer = pa.BufferReader(schema_buffer)
+    schema = pa.read_schema(buffer)
+
+    # Dictionary Memo functionality used to
+    # deserialize on the C++ side is not
+    # exposed on the pyarrow side, so we need to
+    # handle this on our own.
+    dict_memo = {}
+
+    try:
+        dict_batch_reader = pa.RecordBatchStreamReader(buffer)
+        updated_fields = []
+
+        for f in schema:
+            if (pa.types.is_dictionary(f.type)):
+                msg = dict_batch_reader.read_next_batch()
+                dict_memo[f.name] = msg.column(0)
+                updated_fields.append(pa.field(f.name, f.type.index_type))
+            else:
+                updated_fields.append(pa.field(f.name, f.type))
+
+        schema = pa.schema(updated_fields)
+    except pa.ArrowInvalid:
+        # This message does not have any dictionary encoded
+        # columns
+        pass
 
     dtype = np.dtype(np.byte)
     darr = cuda.devicearray.DeviceNDArray(shape=ipc_buf.size,
                                           strides=dtype.itemsize,
                                           dtype=dtype,
                                           gpu_data=ipc_buf.to_numba())
-    reader = GpuArrowReader(schema_buffer, darr)
+
+    reader = GpuArrowReader(schema, darr)
     df = DataFrame()
     df.set_tdf = MethodType(set_tdf, df)
     df.get_tdf = MethodType(get_tdf, df)
 
     for k, v in reader.to_dict().items():
-        df[k] = v
+        if k in dict_memo:
+            df[k] = pa.DictionaryArray.from_arrays(v, dict_memo[k])
+        else:
+            df[k] = v
 
     df.set_tdf(tdf)
 

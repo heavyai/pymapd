@@ -239,6 +239,34 @@ class TestIntegration:
         c.execute('drop table if exists stocks;')
 
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
+    def test_select_text_ipc_gpu(self, con):
+
+        from cudf.core.dataframe import DataFrame
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+
+        symbols = set(['GOOG', 'RHAT', 'IBM', 'NVDA'])
+        for i, sym in enumerate(symbols):
+            stmt = "INSERT INTO stocks VALUES ('2006-01-05_{}','BUY','{}',{},35.{},{}.1);".format(i,sym,i,i,i)  # noqa
+            # insert twice so we can test
+            # that duplicated text values
+            # are deserialized properly
+            c.execute(stmt)
+            c.execute(stmt)
+
+        result = con.select_ipc_gpu("select trans, symbol, qty, price from stocks") # noqa
+        assert isinstance(result, DataFrame)
+
+        assert len(result) == 8
+        assert set(result['trans']) == set(["BUY"])
+        assert set(result['symbol']) == symbols
+        c.execute('drop table if exists stocks;')
+
+    @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_select_gpu_first_n(self, con):
 
         c = con.cursor()
