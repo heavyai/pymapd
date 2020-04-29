@@ -1,8 +1,11 @@
 """
 Tests that rely on a server running
 """
+import base64
+import json
 import datetime
 from unittest import mock
+
 import pytest
 from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
@@ -10,13 +13,15 @@ from pymapd._parsers import Description, ColumnDetails
 from omnisci.thrift.ttypes import TOmniSciException
 from omnisci.common.ttypes import TDatumType
 from .data import dashboard_metadata
-import json
-import base64
+
+import geopandas as gpd
 import pandas as pd
 import numpy as np
 import pyarrow as pa
 from pandas.api.types import is_object_dtype, is_categorical_dtype
 import pandas.util.testing as tm
+import shapely
+from shapely.geometry import Point, LineString, Polygon, MultiPolygon
 import textwrap
 from .conftest import no_gpu
 
@@ -27,8 +32,26 @@ TOmniSciException.__hash__ = lambda x: id(x)
 
 
 def _cursor2df(cursor):
-    col_names = [c.name for c in cursor.description]
-    return pd.DataFrame(cursor.fetchall(), columns=col_names)
+    col_types = {c.name: c.type_code for c in cursor.description}
+    has_geodata = {
+        k: v
+        in [
+            TDatumType.POINT,
+            TDatumType.LINESTRING,
+            TDatumType.POLYGON,
+            TDatumType.MULTIPOLYGON,
+        ]
+        for k, v in col_types.items()
+    }
+    col_names = list(col_types.keys())
+
+    df_class = gpd.GeoDataFrame if any(has_geodata.values()) else pd.DataFrame
+    df = df_class(cursor.fetchall(), columns=col_names)
+
+    for c, _has_geodata in has_geodata.items():
+        if _has_geodata:
+            df.loc[:, c] = df.loc[:, c].apply(shapely.wkt.loads)
+    return df
 
 
 @pytest.mark.usefixtures("mapd_server")
@@ -675,7 +698,7 @@ class TestLoaders:
     @pytest.mark.parametrize(
         'df, table_fields',
         [
-            (
+            pytest.param(
                 pd.DataFrame(
                     {
                         "a": [1, 2, 3],
@@ -684,8 +707,9 @@ class TestLoaders:
                     },
                 ),
                 'a int, b float, c text',
+                id='scalar_values',
             ),
-            (
+            pytest.param(
                 pd.DataFrame(
                     [
                         {'ary': [2, 3, 4]},
@@ -696,8 +720,9 @@ class TestLoaders:
                     ]
                 ),
                 'ary INT[]',
+                id='array_values',
             ),
-            (
+            pytest.param(
                 pd.DataFrame(
                     [
                         {'ary': [2, 3, 4], 'strtest': 'teststr'},
@@ -708,6 +733,54 @@ class TestLoaders:
                     ]
                 ),
                 'ary INT[], strtest TEXT',
+                id='mix_scalar_array_values_with_none_and_empty_list',
+            ),
+            pytest.param(
+                gpd.GeoDataFrame(
+                    {
+                        'a': [Point(0, 0), Point(1, 1)],
+                        'b': [
+                            LineString([(2, 0), (2, 4), (3, 4)]),
+                            LineString([(0, 0), (1, 1)]),
+                        ],
+                        'c': [
+                            Polygon([(0, 0), (1, 0), (0, 1), (0, 0)]),
+                            Polygon([(0, 0), (4, 0), (4, 4), (0, 4), (0, 0)]),
+                        ],
+                        'd': [
+                            MultiPolygon(
+                                [
+                                    Polygon([(0, 0), (1, 0), (0, 1), (0, 0)]),
+                                    Polygon(
+                                        [
+                                            (0, 0),
+                                            (4, 0),
+                                            (4, 4),
+                                            (0, 4),
+                                            (0, 0),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            MultiPolygon(
+                                [
+                                    Polygon(
+                                        [
+                                            (0, 0),
+                                            (4, 0),
+                                            (4, 4),
+                                            (0, 4),
+                                            (0, 0),
+                                        ]
+                                    ),
+                                    Polygon([(0, 0), (1, 0), (0, 1), (0, 0)]),
+                                ]
+                            ),
+                        ],
+                    }
+                ),
+                'a POINT, b LINESTRING, c POLYGON, d MULTIPOLYGON',
+                id='geo_values',
             ),
         ],
     )
@@ -985,6 +1058,63 @@ class TestLoaders:
                     'c': {'type_code': TDatumType.DOUBLE, 'is_array': True},
                 },
             ),
+            (
+                gpd.GeoDataFrame(
+                    {
+                        'a': [Point(0, 0), Point(1, 1)],
+                        'b': [
+                            LineString([(2, 0), (2, 4), (3, 4)]),
+                            LineString([(0, 0), (1, 1)]),
+                        ],
+                        'c': [
+                            Polygon([(0, 0), (1, 0), (0, 1), (0, 0)]),
+                            Polygon([(0, 0), (4, 0), (4, 4), (0, 4), (0, 0)]),
+                        ],
+                        'd': [
+                            MultiPolygon(
+                                [
+                                    Polygon([(0, 0), (1, 0), (0, 1), (0, 0)]),
+                                    Polygon(
+                                        [
+                                            (0, 0),
+                                            (4, 0),
+                                            (4, 4),
+                                            (0, 4),
+                                            (0, 0),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            MultiPolygon(
+                                [
+                                    Polygon(
+                                        [
+                                            (0, 0),
+                                            (4, 0),
+                                            (4, 4),
+                                            (0, 4),
+                                            (0, 0),
+                                        ]
+                                    ),
+                                    Polygon([(0, 0), (1, 0), (0, 1), (0, 0)]),
+                                ]
+                            ),
+                        ],
+                    }
+                ),
+                {
+                    'a': {'type_code': TDatumType.POINT, 'is_array': True},
+                    'b': {
+                        'type_code': TDatumType.LINESTRING,
+                        'is_array': True,
+                    },
+                    'c': {'type_code': TDatumType.POLYGON, 'is_array': True},
+                    'd': {
+                        'type_code': TDatumType.MULTIPOLYGON,
+                        'is_array': True,
+                    },
+                },
+            ),
         ],
     )
     def test_create_table(self, con, tmp_table, df, expected):
@@ -1187,7 +1317,7 @@ class TestLoaders:
         assert ans == expected
         con.execute("DROP TABLE IF EXISTS test_lists;")
 
-    def test_upload_pandas_categorical(self, con):
+    def test_upload_pandas_categorical_ipc(self, con):
 
         con.execute("DROP TABLE IF EXISTS test_categorical;")
 

@@ -1,6 +1,8 @@
 thrift==0.13.0
 pyarrow==0.15.0
 pandas>=0.25,<0.26
+geopandas
+shapely
 sqlalchemy
 numpy
 numpydoc

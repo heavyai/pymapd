@@ -10,6 +10,8 @@ conda config --add channels conda-forge
 conda config --add channels rapidsai
 conda config --add channels nvidia
 
+# libtiff pinning info:
+# https://github.com/conda-forge/pillow-feedstock/issues/73
 conda create -n omnisci-dev python=${PYTHON} \
 'thrift=0.13.0' \
 'cudf=0.13' \
@@ -17,6 +19,9 @@ conda create -n omnisci-dev python=${PYTHON} \
 'arrow-cpp=0.15.0' \
 'pyarrow==0.15.0' \
 'pandas>=0.25,<0.26' \
+libtiff=4.0.10 \
+geopandas \
+shapely \
 sqlalchemy \
 numpy \
 numpydoc \
