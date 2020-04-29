@@ -70,8 +70,6 @@ def connect(uri=None,
         Whether to continue if there is any certificate error
     bin_ca_certs: str, optional, binary encrypted connection only
         Path to the CA certificate file
-    idpurl: str, optional, binary encrypted connection only
-        Path to the CA certificate file
     idpurl : str
         EXPERIMENTAL Enable SAML authentication by providing
         the logon page of the SAML Identity Provider.
