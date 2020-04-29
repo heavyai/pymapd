@@ -1,8 +1,11 @@
 import datetime
-import numpy as np
 import math
+
+import geopandas as gpd
+import numpy as np
 import pandas as pd
 import pyarrow as pa
+import shapely
 
 from pandas.api.types import (
     is_bool_dtype,
@@ -23,6 +26,12 @@ from ._utils import (
     mapd_to_na,
     mapd_to_slot,
 )
+
+
+GEO_TYPE_NAMES = ['POINT', 'LINESTRING', 'POLYGON', 'MULTIPOLYGON']
+GEO_TYPE_ID = [
+    v[1] for v in TDatumType._NAMES_TO_VALUES.items() if v[0] in GEO_TYPE_NAMES
+]
 
 
 def get_mapd_dtype(data):
@@ -65,6 +74,7 @@ def get_mapd_type_from_object(data):
         val = data.dropna().iloc[0]
     except IndexError:
         raise IndexError("Not any valid values to infer the type")
+
     if isinstance(val, str):
         return 'STR'
     elif isinstance(val, datetime.date):
@@ -77,6 +87,14 @@ def get_mapd_type_from_object(data):
         if data.max() >= 2147483648 or data.min() <= -2147483648:
             return 'BIGINT'
         return 'INT'
+    elif isinstance(val, shapely.geometry.Point):
+        return 'POINT'
+    elif isinstance(val, shapely.geometry.LineString):
+        return 'LINESTRING'
+    elif isinstance(val, shapely.geometry.Polygon):
+        return 'POLYGON'
+    elif isinstance(val, shapely.geometry.MultiPolygon):
+        return 'MULTIPOLYGON'
     elif isinstance(val, list):
         return 'ARRAY/{}'.format(get_mapd_dtype(pd.Series(val)))
     else:
@@ -172,7 +190,10 @@ def build_input_columnar(
                 if has_nulls:
                     data[nulls] = mapd_to_na[mapd_type]
 
-            if mapd_type not in ['FLOAT', 'DOUBLE', 'VARCHAR', 'STR']:
+            if mapd_type in GEO_TYPE_NAMES:
+                for c in data:
+                    data.loc[:, c] = data.loc[:, c].apply(lambda g: g.wkt)
+            elif mapd_type not in ['FLOAT', 'DOUBLE', 'VARCHAR', 'STR']:
                 if is_array:
                     data = data.apply(
                         lambda _array: [int(item) for item in _array]
@@ -234,7 +255,7 @@ def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
 
 def build_row_desc(data, preserve_index=False):
 
-    if not isinstance(data, pd.DataFrame):
+    if not isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
         # Once https://issues.apache.org/jira/browse/ARROW-1576 is complete
         # we can support pa.Table here too
         raise TypeError(
@@ -267,5 +288,6 @@ def build_row_desc(data, preserve_index=False):
     for tct in row_desc:
         if tct.col_type.type == 6:
             tct.col_type.encoding = 4
-
+        elif tct.col_type.type in GEO_TYPE_ID:
+            tct.col_type.precision = 23
     return row_desc

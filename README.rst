@@ -5,7 +5,7 @@ pymapd
 .. image:: https://readthedocs.org/projects/pymapd/badge/?version=latest
    :target: http://pymapd.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
-   
+
 .. image:: https://jenkins-os.mapd.com/buildStatus/icon?job=pymapd-tests
    :target: https://jenkins-os.mapd.com/job/pymapd-tests/
    :alt: Jenkins Build Status
