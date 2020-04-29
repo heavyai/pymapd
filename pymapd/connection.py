@@ -27,6 +27,7 @@ from ._transforms import change_dashboard_sources
 from .ipc import load_buffer, shmdt
 from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
 from . import _pandas_loaders
+from ._samlutils import get_saml_response
 
 from packaging.version import Version
 
@@ -47,6 +48,10 @@ def connect(uri=None,
             sessionid=None,
             bin_cert_validate=None,
             bin_ca_certs=None,
+            idpurl=None,
+            idpformusernamefield='username',
+            idpformpasswordfield='password',
+            idpsslverify=True,
             ):
     """
     Create a new Connection.
@@ -65,6 +70,15 @@ def connect(uri=None,
         Whether to continue if there is any certificate error
     bin_ca_certs: str, optional, binary encrypted connection only
         Path to the CA certificate file
+    idpurl : str
+        EXPERIMENTAL Enable SAML authentication by providing
+        the logon page of the SAML Identity Provider.
+    idpformusernamefield: str
+        The HTML form ID for the username, defaults to 'username'.
+    idpformpasswordfield: str
+        The HTML form ID for the password, defaults to 'password'.
+    idpsslverify: str
+        Enable / disable certificate checking, defaults to True.
 
     Returns
     -------
@@ -82,6 +96,10 @@ def connect(uri=None,
     >>> connect(user='admin', password='HyperInteractive', host='localhost',
     ...         port=6274, dbname='omnisci')
 
+    >>> connect(user='admin', password='HyperInteractive', host='localhost',
+    ...         port=443, idpurl='https://sso.localhost/logon',
+                protocol='https')
+
     >>> connect(sessionid='XihlkjhdasfsadSDoasdllMweieisdpo', host='localhost',
     ...         port=6273, protocol='http')
 
@@ -89,7 +107,10 @@ def connect(uri=None,
     return Connection(uri=uri, user=user, password=password, host=host,
                       port=port, dbname=dbname, protocol=protocol,
                       sessionid=sessionid, bin_cert_validate=bin_cert_validate,
-                      bin_ca_certs=bin_ca_certs)
+                      bin_ca_certs=bin_ca_certs, idpurl=idpurl,
+                      idpformusernamefield=idpformusernamefield,
+                      idpformpasswordfield=idpformpasswordfield,
+                      idpsslverify=idpsslverify)
 
 
 def _parse_uri(uri):
@@ -146,13 +167,17 @@ class Connection:
                  sessionid=None,
                  bin_cert_validate=None,
                  bin_ca_certs=None,
+                 idpurl=None,
+                 idpformusernamefield='username',
+                 idpformpasswordfield='password',
+                 idpsslverify=True,
                  ):
 
         self.sessionid = None
         if sessionid is not None:
-            if any([user, password, uri, dbname]):
+            if any([user, password, uri, dbname, idpurl]):
                 raise TypeError("Cannot specify sessionid with user, password,"
-                                " dbname, or uri")
+                                " dbname, uri, or idpurl")
         if uri is not None:
             if not all([user is None,
                         password is None,
@@ -161,7 +186,8 @@ class Connection:
                         dbname is None,
                         protocol == 'binary',
                         bin_cert_validate is None,
-                        bin_ca_certs is None]):
+                        bin_ca_certs is None,
+                        idpurl is None]):
                 raise TypeError("Cannot specify both URI and other arguments")
             user, password, host, port, dbname, protocol, \
                 bin_cert_validate, bin_ca_certs = _parse_uri(uri)
@@ -220,6 +246,21 @@ class Connection:
                 self.get_tables()
                 self.sessionid = sessionid
             else:
+                if idpurl:
+                    self._user = ''
+                    self._password = get_saml_response(
+                        username=user,
+                        password=password,
+                        idpurl=idpurl,
+                        userformfield=idpformusernamefield,
+                        passwordformfield=idpformpasswordfield,
+                        sslverify=idpsslverify)
+                    self._dbname = ''
+                    self._idpsslverify = idpsslverify
+                    user = self._user
+                    password = self._password
+                    dbname = self._dbname
+
                 self._session = self._client.connect(user, password, dbname)
         except TMapDException as e:
             raise _translate_exception(e) from e
