@@ -21,5 +21,6 @@ dependencies:
 - pytest-mock
 - shapely
 - sphinx 
+- requests
 - sphinx_rtd_theme
 - 'rbc==0.2.2'

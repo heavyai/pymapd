@@ -27,6 +27,8 @@ from ._transforms import change_dashboard_sources
 from .ipc import load_buffer, shmdt
 from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
 from . import _pandas_loaders
+from ._mutators import set_tdf, get_tdf
+from types import MethodType
 from ._samlutils import get_saml_response
 
 from packaging.version import Version
