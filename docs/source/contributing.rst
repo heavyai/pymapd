@@ -16,26 +16,39 @@ Development Environment Setup
 -----------------------------
 
 pymapd is written in plain Python 3 (i.e. no Cython), and as such, doesn't require any specialized development
-environment outside of installing the dependencies. However, we do suggest using a separate conda environment or
-virtualenv to ensure that your changes work without relying on unspecified system-level Python packages.
+environment outside of installing the dependencies. However, we do suggest creating a new conda development enviornment
+with the provided conda `environment.yml` file to ensure that your changes work without relying on unspecified system-level
+Python packages.
 
-To set up a conda environment with python 3.7:
+Two development environment files are provided: one to provide the packages needed to develop on CPU only,
+and the other to provide `GPU` development packages. Only one is required, but you may decide to use both in
+order to run `pytest` against a CPU or GPU environment. 
+
+A `pymapd` development environment can be setup with the following:
+
+*********************
+CPU Environment
+*********************
 
 .. code-block:: shell
+   # clone pymapd repo
+   git clone https://github.com/omnisci/pymapd.git && cd pymapd
 
-   # create a conda environment
-   conda create -n pymapd_dev
-   conda activate pymapd_dev
+   conda env create -f ./environment.yml
 
-   # ipython is optional, other packages required to run test suite
-   conda install python=3.7 ipython pytest pytest-mock shapely
+   # ensure you have activated the environment
+   conda activate omnisci-dev
 
-   # get pymapd repo
-   git clone https://github.com/omnisci/pymapd.git
+*********************
+GPU Environment
+*********************
 
-   # install pymapd using pip...make sure you are in the pymapd folder cloned above
-   # pip will install dependencies needed to run pymapd
-   pip install -e .
+.. code-block:: shell
+   # from the pymapd project root
+   conda env create -f environment_gpu.yml
+
+   # ensure you have activated the environment
+   conda activate omnisci-gpu-dev
 
 At this point, you have everything you need to develop pymapd. However, to run the test suite, you need to be running
 an instance of OmniSci on the same machine you are devloping on. OmniSci provides `Docker`_ images that work great for this purpose.
@@ -118,19 +131,21 @@ Updating Apache Thrift Bindings
 -------------------------------
 
 When the upstream `mapd-core`_ project updates its Apache Thrift definition file, the bindings shipped with
-``pymapd`` need to be regenerated.
+``pymapd`` need to be regenerated. Note that the `omniscidb` repository must be cloned locally.
 
 .. code-block:: shell
+   # Clone the omnisci repository
+   git clone https://github.com/omnisci/omniscidb
 
-   # generate python bindings with Thrift
-   thrift -gen py mapd.thrift
-   thrift -gen py completion_hints.thrift
-   thrift -gen py common.thrift
-   thrift -gen py serialized_result_set.thrift
-   thrift -gen py extension_functions.thrift
+   # Ensure you are at the root of the omnisci directory.
+   cd ./omniscidb
 
-After the bindings are generated, copy them to their respective folders in the pymapd repo. Each set of Thrift files
-are their own package within the overall pymapd package.
+   # Use Thrift to generate the Python bindings
+   thrift -gen py -r omnisci.thrift
+
+   # Copy the generated bindings to the pymapd root
+   cp -r ./gen-py/omnisci/* ../pymapd/omnisci/
+
 
 --------------------------
 Updating the Documentation

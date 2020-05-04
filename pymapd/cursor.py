@@ -1,4 +1,4 @@
-import omnisci.mapd.ttypes as T
+import omnisci.thrift.ttypes as T
 from .exceptions import _translate_exception
 from ._parsers import (_extract_col_vals,
                        _extract_description,
@@ -115,7 +115,7 @@ class Cursor:
                 self.connection._session, operation,
                 column_format=True,
                 nonce=None, first_n=-1, at_most_n=-1)
-        except T.TMapDException as e:
+        except T.TOmniSciException as e:
             raise _translate_exception(e) from e
         self._description = _extract_description(result.row_set.row_desc)
 

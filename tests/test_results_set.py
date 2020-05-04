@@ -1,6 +1,6 @@
 from pymapd.cursor import make_row_results_set
-from omnisci.mapd.ttypes import (TRowSet, TColumnType, TColumn, TColumnData,
-                                 TQueryResult)
+from omnisci.thrift.ttypes import (TRowSet, TColumnType, TColumn, TColumnData,
+                                   TQueryResult)
 from omnisci.common.ttypes import TTypeInfo
 
 

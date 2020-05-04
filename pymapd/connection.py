@@ -10,15 +10,15 @@ from sqlalchemy.engine.url import make_url
 from thrift.protocol import TBinaryProtocol, TJSONProtocol
 from thrift.transport import TSocket, TSSLSocket, THttpClient, TTransport
 from thrift.transport.TSocket import TTransportException
-from omnisci.mapd.MapD import Client, TCreateParams
+from omnisci.thrift.OmniSci import Client, TCreateParams
 from omnisci.common.ttypes import TDeviceType
-from omnisci.mapd.ttypes import TMapDException, TFileType
+from omnisci.thrift.ttypes import TOmniSciException, TFileType
 
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
 
 from ._parsers import (
-    _load_data, _load_schema, _parse_tdf_gpu, _bind_parameters,
+    _parse_tdf_gpu, _bind_parameters,
     _extract_column_details
 )
 
@@ -27,6 +27,8 @@ from ._transforms import change_dashboard_sources
 from .ipc import load_buffer, shmdt
 from ._pandas_loaders import build_row_desc, _serialize_arrow_payload
 from . import _pandas_loaders
+from ._mutators import set_tdf, get_tdf
+from types import MethodType
 from ._samlutils import get_saml_response
 
 from packaging.version import Version
@@ -262,7 +264,7 @@ class Connection:
                     dbname = self._dbname
 
                 self._session = self._client.connect(user, password, dbname)
-        except TMapDException as e:
+        except TOmniSciException as e:
             raise _translate_exception(e) from e
         except TTransportException:
             raise ValueError(f"Connection failed with port {port} and "
@@ -304,7 +306,7 @@ class Connection:
         if not self.sessionid and not self._closed:
             try:
                 self._client.disconnect(self._session)
-            except (TMapDException, AttributeError, TypeError):
+            except (TOmniSciException, AttributeError, TypeError):
                 pass
         self._closed = 1
         self._rbc = None
@@ -366,7 +368,7 @@ class Connection:
         """
         try:
             from cudf.comm.gpuarrow import GpuArrowReader  # noqa
-            from cudf.dataframe import DataFrame           # noqa
+            from cudf.core.dataframe import DataFrame           # noqa
         except ImportError:
             raise ImportError("The 'cudf' package is required for "
                               "`select_ipc_gpu`")
@@ -423,16 +425,23 @@ class Connection:
         )
         self._tdf = tdf
 
-        sm_buf = load_buffer(tdf.sm_handle, tdf.sm_size)
         df_buf = load_buffer(tdf.df_handle, tdf.df_size)
 
-        schema = _load_schema(sm_buf[0])
-        df = _load_data(df_buf[0], schema, tdf)
+        reader = pa.ipc.open_stream(df_buf[0])
+        tbl = reader.read_all()
+        df = tbl.to_pandas()
+
+        # this is needed to modify the df object for deallocate_df to work
+        df.set_tdf = MethodType(set_tdf, df)
+        df.get_tdf = MethodType(get_tdf, df)
+
+        # Because deallocate_df can be called any time in future, keep tdf
+        # from OmniSciDB so that it can be used whenever deallocate_df called
+        df.set_tdf(tdf)
 
         # free shared memory from Python
         # https://github.com/omnisci/pymapd/issues/46
         # https://github.com/omnisci/pymapd/issues/31
-        free_sm = shmdt(ctypes.cast(sm_buf[1], ctypes.c_void_p))  # noqa
         free_df = shmdt(ctypes.cast(df_buf[1], ctypes.c_void_p))  # noqa
 
         # Deallocate TDataFrame at OmniSci instance
@@ -832,11 +841,11 @@ class Connection:
         list.
         """
         try:
-            from rbc.mapd import RemoteMapD
+            from rbc.omniscidb import RemoteOmnisci
         except ImportError:
             raise ImportError("The 'rbc' package is required for `__call__`")
         if self._rbc is None:
-            self._rbc = RemoteMapD(
+            self._rbc = RemoteOmnisci(
                 user=self._user, password=self._password,
                 host=self._host, port=self._port,
                 dbname=self._dbname

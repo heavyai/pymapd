@@ -7,7 +7,7 @@ import pytest
 from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails
-from omnisci.mapd.ttypes import TMapDException
+from omnisci.thrift.ttypes import TOmniSciException
 from .data import dashboard_metadata
 import json
 import base64
@@ -22,7 +22,7 @@ from .conftest import no_gpu
 # XXX: Make it hashable to silence warnings; see if this can be done upstream
 # This isn't a huge deal, but our testing context mangers for asserting
 # exceptions need hashability
-TMapDException.__hash__ = lambda x: id(x)
+TOmniSciException.__hash__ = lambda x: id(x)
 
 
 @pytest.mark.usefixtures("mapd_server")
@@ -214,7 +214,7 @@ class TestIntegration:
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_select_ipc_gpu(self, con, query, parameters):
 
-        from cudf.dataframe import DataFrame
+        from cudf.core.dataframe import DataFrame
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
@@ -236,6 +236,34 @@ class TestIntegration:
 
         result = result.to_pandas()[['qty', 'price']]  # column order
         pd.testing.assert_frame_equal(result, expected)
+        c.execute('drop table if exists stocks;')
+
+    @pytest.mark.skipif(no_gpu(), reason="No GPU available")
+    def test_select_text_ipc_gpu(self, con):
+
+        from cudf.core.dataframe import DataFrame
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = ('create table stocks (date_ text, trans text, symbol text, '
+                  'qty int, price float, vol float);')
+        c.execute(create)
+
+        symbols = set(['GOOG', 'RHAT', 'IBM', 'NVDA'])
+        for i, sym in enumerate(symbols):
+            stmt = "INSERT INTO stocks VALUES ('2006-01-05_{}','BUY','{}',{},35.{},{}.1);".format(i,sym,i,i,i)  # noqa
+            # insert twice so we can test
+            # that duplicated text values
+            # are deserialized properly
+            c.execute(stmt)
+            c.execute(stmt)
+
+        result = con.select_ipc_gpu("select trans, symbol, qty, price from stocks") # noqa
+        assert isinstance(result, DataFrame)
+
+        assert len(result) == 8
+        assert set(result['trans']) == set(["BUY"])
+        assert set(result['symbol']) == symbols
         c.execute('drop table if exists stocks;')
 
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
@@ -350,7 +378,7 @@ class TestIntegration:
                 image_hash="",
                 dashboard_metadata=json.dumps(meta_data),
             )
-        except TMapDException:
+        except TOmniSciException:
             dashboards = con._client.get_dashboards(con._session)
             for dash in dashboards:
                 if dash.dashboard_name == old_dashboard_name:
@@ -372,7 +400,7 @@ class TestIntegration:
             dashboard_id = con.duplicate_dashboard(
                     dashboard_id, new_dashboard_name, remap
                 )
-        except TMapDException:
+        except TOmniSciException:
             dashboards = con._client.get_dashboards(con._session)
             for dash in dashboards:
                 if dash.dashboard_name == new_dashboard_name:
@@ -401,7 +429,7 @@ class TestOptionalImports:
 
     def test_select_gpu(self, con):
         with mock.patch.dict("sys.modules",
-                             {"cudf": None, "cudf.dataframe": None}):
+                             {"cudf": None, "cudf.core.dataframe": None}):
             with pytest.raises(ImportError) as m:
                 con.select_ipc_gpu("select * from foo;")
         assert m.match("The 'cudf' package is required")

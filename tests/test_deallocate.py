@@ -2,7 +2,7 @@ import os
 import subprocess
 import pytest
 from pymapd import connect
-from omnisci.mapd.ttypes import TMapDException, TApplicationException
+from omnisci.thrift.ttypes import TOmniSciException, TApplicationException
 from .conftest import no_gpu
 import pandas as pd
 
@@ -73,7 +73,7 @@ class TestDeallocate:
         df = con.select_ipc_gpu('select species from iris')
         con.deallocate_ipc_gpu(df)
 
-        with pytest.raises(TMapDException) as te:
+        with pytest.raises(TOmniSciException) as te:
             con.deallocate_ipc_gpu(df)
         assert 'Exception: current data frame' in str(te.value.error_msg)
 
@@ -98,7 +98,7 @@ class TestDeallocate:
 
         df = con.select_ipc_gpu('select id from iris')
         con.close()
-        with pytest.raises(TMapDException) as te:
+        with pytest.raises(TOmniSciException) as te:
             con1.deallocate_ipc_gpu(df)
         assert 'Exception: current data frame' in str(te.value.error_msg)
 

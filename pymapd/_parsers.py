@@ -2,7 +2,6 @@
 Utility methods for parsing data returned from MapD
 """
 import datetime
-import pyarrow as pa
 from collections import namedtuple
 from sqlalchemy import text
 import omnisci.common.ttypes as T
@@ -126,45 +125,6 @@ def _extract_column_details(row_desc):
     ]
 
 
-def _load_schema(buf):
-    """
-    Load a `pyarrow.Schema` from a buffer written to shared memory
-
-    Parameters
-    ----------
-    buf : pyarrow.Buffer
-
-    Returns
-    -------
-    schema : pyarrow.Schema
-    """
-    reader = pa.RecordBatchStreamReader(buf)
-    return reader.schema
-
-
-def _load_data(buf, schema, tdf=None):
-    """
-    Load a `pandas.DataFrame` from a buffer written to shared memory
-
-    Parameters
-    ----------
-    buf : pyarrow.Buffer
-    shcema : pyarrow.Schema
-    tdf(optional) : TDataFrame
-
-    Returns
-    -------
-    df : pandas.DataFrame
-    """
-    message = pa.read_message(buf)
-    rb = pa.read_record_batch(message, schema)
-    df = rb.to_pandas()
-    df.set_tdf = MethodType(set_tdf, df)
-    df.get_tdf = MethodType(get_tdf, df)
-    df.set_tdf(tdf)
-    return df
-
-
 def _parse_tdf_gpu(tdf):
     """
     Parse the results of a select ipc_gpu into a GpuDataFrame
@@ -178,44 +138,69 @@ def _parse_tdf_gpu(tdf):
     gdf : GpuDataFrame
     """
 
+    import pyarrow as pa
     from cudf.comm.gpuarrow import GpuArrowReader
-    from cudf.dataframe import DataFrame
+    from cudf.core.dataframe import DataFrame
+    from cudf._lib.arrow._cuda import Context, IpcMemHandle
     from numba import cuda
-    from numba.cuda.cudadrv import drvapi
 
-    ipc_handle = drvapi.cu_ipc_mem_handle(*tdf.df_handle)
-    ipch = cuda.driver.IpcHandle(None, ipc_handle, size=tdf.df_size)
-    ctx = cuda.current_context()
-    dptr = ipch.open(ctx)
+    ipc_handle = IpcMemHandle.from_buffer(pa.py_buffer(tdf.df_handle))
+    ctx = Context()
+    ipc_buf = ctx.open_ipc_buffer(ipc_handle)
+    ipc_buf.context.synchronize()
 
-    schema_buffer = load_buffer(tdf.sm_handle, tdf.sm_size)
+    schema_buffer, shm_ptr = load_buffer(tdf.sm_handle, tdf.sm_size)
 
-    # save ptr value before overwritten below copy with np.frombuffer()
-    ptr = schema_buffer[1]
+    buffer = pa.BufferReader(schema_buffer)
+    schema = pa.read_schema(buffer)
 
-    # TODO: extra copy.
-    schema_buffer = np.frombuffer(schema_buffer[0].to_pybytes(),
-                                  dtype=np.uint8)
+    # Dictionary Memo functionality used to
+    # deserialize on the C++ side is not
+    # exposed on the pyarrow side, so we need to
+    # handle this on our own.
+    dict_memo = {}
+
+    try:
+        dict_batch_reader = pa.RecordBatchStreamReader(buffer)
+        updated_fields = []
+
+        for f in schema:
+            if (pa.types.is_dictionary(f.type)):
+                msg = dict_batch_reader.read_next_batch()
+                dict_memo[f.name] = msg.column(0)
+                updated_fields.append(pa.field(f.name, f.type.index_type))
+            else:
+                updated_fields.append(pa.field(f.name, f.type))
+
+        schema = pa.schema(updated_fields)
+    except pa.ArrowInvalid:
+        # This message does not have any dictionary encoded
+        # columns
+        pass
 
     dtype = np.dtype(np.byte)
-    darr = cuda.devicearray.DeviceNDArray(shape=dptr.size,
+    darr = cuda.devicearray.DeviceNDArray(shape=ipc_buf.size,
                                           strides=dtype.itemsize,
                                           dtype=dtype,
-                                          gpu_data=dptr)
-    reader = GpuArrowReader(schema_buffer, darr)
+                                          gpu_data=ipc_buf.to_numba())
+
+    reader = GpuArrowReader(schema, darr)
     df = DataFrame()
     df.set_tdf = MethodType(set_tdf, df)
     df.get_tdf = MethodType(get_tdf, df)
 
     for k, v in reader.to_dict().items():
-        df[k] = v
+        if k in dict_memo:
+            df[k] = pa.DictionaryArray.from_arrays(v, dict_memo[k])
+        else:
+            df[k] = v
 
     df.set_tdf(tdf)
 
     # free shared memory from Python
     # https://github.com/omnisci/pymapd/issues/46
     # https://github.com/omnisci/pymapd/issues/31
-    free_sm = shmdt(ctypes.cast(ptr, ctypes.c_void_p))  # noqa
+    free_sm = shmdt(ctypes.cast(shm_ptr, ctypes.c_void_p))  # noqa
 
     return df
 

@@ -1,9 +1,13 @@
-name: omnisci-dev
+name: omnisci-gpu-dev
 channels:
 - conda-forge
 - defaults
+- nvidia
+- rapidsai
 dependencies:
 - thrift=0.13.0
+- cudf=0.13
+- cudatoolkit=10.1
 - arrow-cpp=0.15.0
 - pyarrow==0.15.0
 - pandas>=0.25,<0.26
@@ -15,8 +19,8 @@ dependencies:
 - flake8
 - pytest-cov
 - pytest-mock
-- requests
 - shapely
 - sphinx 
+- requests
 - sphinx_rtd_theme
 - 'rbc==0.2.2'

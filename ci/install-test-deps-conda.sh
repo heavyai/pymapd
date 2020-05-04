@@ -8,24 +8,27 @@ echo
 echo "[add channels]"
 conda config --add channels conda-forge
 conda config --add channels rapidsai
+conda config --add channels nvidia
 
 conda create -n omnisci-dev python=${PYTHON} \
-thrift=0.11.0 \
+'thrift=0.13.0' \
+'cudf=0.13' \
+'cudatoolkit=10.1' \
+'arrow-cpp=0.15.0' \
+'pyarrow==0.15.0' \
+'pandas>=0.25,<0.26' \
+sqlalchemy \
+numpy \
 numpydoc \
-"pyarrow>=0.12.0,<0.14" \
-"sqlalchemy>=1.3" \
-"numpy>=1.16" \
-"pandas>=1.0,<2.0" \
 coverage \
 flake8 \
-pytest \
 pytest-cov \
 pytest-mock \
 shapely \
-numba \
-cudf \
-cudatoolkit \
-"rbc=0.2.0dev0"
+sphinx  \
+requests \
+sphinx_rtd_theme \
+'rbc==0.2.2'
 
 conda activate omnisci-dev
 

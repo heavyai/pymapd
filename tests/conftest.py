@@ -62,9 +62,10 @@ def mock_client(mocker):
 
 
 def no_gpu():
-    """Detect if don't have numba and a GPU available"""
+    """Check for the required GPU dependencies"""
     try:
         from numba import cuda
+        import cudf # noqa
 
         try:
             cuda.select_device(0)
@@ -78,7 +79,7 @@ def no_gpu():
 def gen_string():
     """Generate a random string sequence for use in _tests_table_no_nulls"""
     return ''.join([random.choice(string.ascii_letters + string.digits)
-                   for n in range(10)])
+                    for n in range(10)])
 
 
 def _tests_table_no_nulls(n_samples):
