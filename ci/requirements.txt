@@ -11,5 +11,4 @@ pytest-cov
 pytest-mock
 shapely
 numba
-cudf
 rbc-project==0.2.2
