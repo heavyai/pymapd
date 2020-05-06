@@ -14,6 +14,8 @@ from omnisci.common.ttypes import TTypeInfo
 
 def assert_columnar_equal(result, expected):
 
+    assert len(result) == len(expected)
+
     for i, (a, b) in enumerate(zip(result, expected)):
         np.testing.assert_array_equal(a.nulls, b.nulls)
         np.testing.assert_array_equal(a.data.int_col, b.data.int_col)
