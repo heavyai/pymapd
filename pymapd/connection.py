@@ -262,8 +262,8 @@ class Connection:
             proto = TBinaryProtocol.TBinaryProtocolAccelerated(transport)
         else:
             raise ValueError(
-                "`protocol` should be one of",
-                " ['http', 'https', 'binary'],",
+                "`protocol` should be one of"
+                " ['http', 'https', 'binary'],"
                 " got {} instead".format(protocol),
             )
         self._user = user
@@ -433,7 +433,7 @@ class Connection:
             from cudf.core.dataframe import DataFrame  # noqa
         except ImportError:
             raise ImportError(
-                "The 'cudf' package is required for " "`select_ipc_gpu`"
+                "The 'cudf' package is required for `select_ipc_gpu`"
             )
 
         self.register_runtime_udfs()
@@ -772,21 +772,26 @@ class Connection:
         """
 
         if not isinstance(data, pd.DataFrame):
-            raise TypeError("Unknown type {}".format(type(data)))
+            raise TypeError('Unknown type {}'.format(type(data)))
 
         table_details = self.get_table_details(table_name)
         # Validate that there are the same number of columns in the table
         # as there are in the dataframe. No point trying to load the data
         # if this is not the case
         if len(table_details) != len(data.columns):
-            raise ValueError('Number of columns in dataframe ({}) does not \
+            raise ValueError(
+                'Number of columns in dataframe ({}) does not \
                                 match number of columns in OmniSci table \
-                                ({})'.format(len(data.columns),
-                                            len(table_details)))
+                                ({})'.format(
+                    len(data.columns), len(table_details)
+                )
+            )
 
-        col_names = [i.name for i in table_details] if \
-            col_names_from_schema \
+        col_names = (
+            [i.name for i in table_details]
+            if col_names_from_schema
             else list(data)
+        )
 
         col_types = table_details
 
@@ -795,7 +800,7 @@ class Connection:
             preserve_index=preserve_index,
             chunk_size_bytes=chunk_size_bytes,
             col_types=col_types,
-            col_names=col_names
+            col_names=col_names,
         )
 
         for cols in input_cols:

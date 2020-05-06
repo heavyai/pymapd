@@ -2,6 +2,7 @@ import pytest
 import datetime
 from pymapd._loaders import _build_input_rows
 from pymapd import _pandas_loaders
+from pymapd._parsers import ColumnDetails
 from omnisci.thrift.OmniSci import (
     TStringRow,
     TStringValue,
@@ -23,6 +24,49 @@ def assert_columnar_equal(result, expected):
         np.testing.assert_array_equal(a.data.int_col, b.data.int_col)
         np.testing.assert_array_equal(a.data.real_col, b.data.real_col)
         np.testing.assert_array_equal(a.data.str_col, b.data.str_col)
+        np.testing.assert_array_equal(a.data.arr_col, b.data.arr_col)
+
+
+def get_col_types(col_properties: dict):
+    common_col_params = dict(
+        nullable=True,
+        precision=0,
+        scale=0,
+        comp_param=0,
+        encoding='NONE',
+        # is_array=True,
+    )
+
+    return [
+        ColumnDetails(**properties, **common_col_params)
+        for properties in col_properties
+    ]
+
+
+def get_expected(data, col_properties):
+    expected = []
+    _map_col_types = {'INT': 'int_col', 'DOUBLE': 'real_col', 'STR': 'str_col'}
+    isnull = data.isnull()
+    for prop in col_properties:
+        nulls = isnull[prop['name']].tolist()
+        if prop['is_array']:
+            arr_col = []
+            for v in data[prop['name']]:
+                arr_col.append(
+                    TColumn(
+                        data=TColumnData(**{_map_col_types[prop['type']]: v})
+                    ),
+                )
+            col = TColumn(data=TColumnData(arr_col=arr_col), nulls=nulls)
+        else:
+            col = TColumn(
+                data=TColumnData(
+                    **{_map_col_types[prop['type']]: data[prop['name']]}
+                ),
+                nulls=nulls,
+            )
+        expected.append(col)
+    return expected
 
 
 class TestLoaders:
@@ -72,76 +116,172 @@ class TestLoaders:
 
         assert result == expected
 
-    def test_build_table_columnar(self):
+    @pytest.mark.parametrize(
+        'data, col_properties',
+        [
+            pytest.param(
+                pd.DataFrame(
+                    {
+                        'a': [[1, 1], [2, 2], [3, 3]],
+                        'b': [[1.1, 1.1], [2.2, 2.2], [3.3, 3.3]],
+                        'c': [1, 2, 3],
+                    }
+                ),
+                [
+                    {'name': 'a', 'type': 'INT', 'is_array': True},
+                    {'name': 'b', 'type': 'DOUBLE', 'is_array': True},
+                    {'name': 'c', 'type': 'INT', 'is_array': False},
+                ],
+                id='mult-cols-mix-array-not-null',
+            ),
+            pytest.param(
+                pd.DataFrame(
+                    {
+                        'a': [[1, 1], [2, 2], [3, 3]],
+                        'b': [[1.1, 1.1], [2.2, 2.2], [3.3, 3.3]],
+                    }
+                ),
+                [
+                    {'name': 'a', 'type': 'INT', 'is_array': True},
+                    {'name': 'b', 'type': 'DOUBLE', 'is_array': True},
+                ],
+                id='mult-cols-array-not-null',
+            ),
+            pytest.param(
+                pd.DataFrame({'a': [1, 2, 3], 'b': [1.1, 2.2, 3.3]}),
+                [
+                    {'name': 'a', 'type': 'INT', 'is_array': False},
+                    {'name': 'b', 'type': 'DOUBLE', 'is_array': False},
+                ],
+                id='mult-cols-not-null',
+            ),
+            pytest.param(
+                pd.DataFrame(
+                    [
+                        {'a': [2, 3, 4]},
+                        {'a': [4444]},
+                        {'a': []},
+                        {'a': []},
+                        {'a': [2, 3, 4]},
+                    ]
+                ),
+                [{'name': 'a', 'type': 'INT', 'is_array': True}],
+                id='one-col-array-not-null',
+            ),
+            pytest.param(
+                pd.DataFrame(
+                    data=[
+                        {'a': [2, 3, 4], 'b': 'teststr'},
+                        {'a': [2, 3], 'b': 'teststr'},
+                        {'a': [4444], 'b': 'teststr'},
+                        {'a': [], 'b': 'teststr'},
+                        {'a': [2, 3, 4], 'b': 'teststr'},
+                    ]
+                ),
+                [
+                    {'name': 'a', 'type': 'INT', 'is_array': True},
+                    {'name': 'b', 'type': 'STR', 'is_array': False},
+                ],
+                id='mult-cols-mix-array-not-null',
+            ),
+            pytest.param(
+                pd.DataFrame(
+                    data=[
+                        {'a': [2, 3, 4], 'b': 'teststr'},
+                        {'a': [2, 3], 'b': 'teststr'},
+                        {'a': [4444], 'b': 'teststr'},
+                        {'a': None, 'b': 'teststr'},
+                        {'a': [2, 3, 4], 'b': 'teststr'},
+                    ]
+                ),
+                [
+                    {'name': 'a', 'type': 'INT', 'is_array': True},
+                    {'name': 'b', 'type': 'STR', 'is_array': False},
+                ],
+                id='mult-cols-mix-array-nullable',
+            ),
+            pytest.param(
+                pd.DataFrame(
+                    [
+                        {'a': [2, 3, 4]},
+                        {'a': [4444]},
+                        {'a': None},
+                        {'a': []},
+                        {'a': [2, 3, 4]},
+                    ]
+                ),
+                [{'name': 'a', 'type': 'INT', 'is_array': True}],
+                id='one-col-array-nullable',
+            ),
+        ],
+    )
+    def test_build_table_columnar(self, data, col_properties):
 
         from pymapd._pandas_loaders import build_input_columnar
 
-        data = pd.DataFrame({"a": [1, 2, 3], "b": [1.1, 2.2, 3.3]})
-        nulls = [False] * 3
+        col_types = get_col_types(col_properties)
+
         result = build_input_columnar(
             data,
             preserve_index=False,
-            col_names=['a', 'b'],
-            col_types=[['INTEGER', 'int_col'], ['FLOAT', 'real_col']],
+            col_names=data.columns,
+            col_types=col_types,
         )
-        expected = [
-            TColumn(TColumnData(int_col=[1, 2, 3]), nulls=nulls),
-            TColumn(TColumnData(real_col=[1.1, 2.2, 3.3]), nulls=nulls),
-        ]
+        expected = get_expected(data, col_properties)
+
+        assert data.shape[1] == len(expected)
         assert_columnar_equal(result[0], expected)
 
     def test_build_table_columnar_pandas(self):
-        col_names = (
-            'boolean_',
-            'smallint_',
-            'int_',
-            'bigint_',
-            'float_',
-            'double_',
-            'varchar_',
-            'text_',
-            'time_',
-            'timestamp_',
-            'date_',
+        common_col_params = dict(
+            nullable=True,
+            precision=0,
+            scale=0,
+            comp_param=0,
+            encoding='NONE',
+            is_array=False,
         )
 
-        col_types = (
-            ('BOOLEAN', 'int_col'),
-            ('SMALLINT', 'int_col'),
-            ('INT', 'int_col'),
-            ('BIGINT', 'int_col'),
-            ('FLOAT', 'real_col'),
-            ('DOUBLE', 'real_col'),
-            ('STR', 'str_col'),
-            ('STR', 'str_col'),
-            ('TIME', 'int_col'),
-            ('TIMESTAMP', 'int_col'),
-            ('DATE', 'int_col'),
-        )
+        col_types = [
+            ColumnDetails(name='boolean_', type='BOOL', **common_col_params),
+            ColumnDetails(
+                name='smallint_', type='SMALLINT', **common_col_params
+            ),
+            ColumnDetails(name='int_', type='INT', **common_col_params),
+            ColumnDetails(name='bigint_', type='BIGINT', **common_col_params),
+            ColumnDetails(name='float_', type='FLOAT', **common_col_params),
+            ColumnDetails(name='double_', type='DOUBLE', **common_col_params),
+            ColumnDetails(name='varchar_', type='STR', **common_col_params),
+            ColumnDetails(name='text_', type='STR', **common_col_params),
+            ColumnDetails(name='time_', type='TIME', **common_col_params),
+            ColumnDetails(
+                name='timestamp_', type='TIMESTAMP', **common_col_params
+            ),
+            ColumnDetails(name='date_', type='DATE', **common_col_params),
+        ]
 
         data = pd.DataFrame(
             {
-                "boolean_": [True, False],
-                "smallint_": np.array([0, 1], dtype=np.int16),
-                "int_": np.array([0, 1], dtype=np.int32),
-                "bigint_": np.array([0, 1], dtype=np.int64),
-                "float_": np.array([0, 1], dtype=np.float32),
-                "double_": np.array([0, 1], dtype=np.float64),
-                "varchar_": ["a", "b"],
-                "text_": ['a', 'b'],
-                "time_": [datetime.time(0, 11, 59), datetime.time(13)],
-                "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
-                "date_": [
+                'boolean_': [True, False],
+                'smallint_': np.array([0, 1], dtype=np.int16),
+                'int_': np.array([0, 1], dtype=np.int32),
+                'bigint_': np.array([0, 1], dtype=np.int64),
+                'float_': np.array([0, 1], dtype=np.float32),
+                'double_': np.array([0, 1], dtype=np.float64),
+                'varchar_': ['a', 'b'],
+                'text_': ['a', 'b'],
+                'time_': [datetime.time(0, 11, 59), datetime.time(13)],
+                'timestamp_': [pd.Timestamp('2016'), pd.Timestamp('2017')],
+                'date_': [
                     datetime.date(2016, 1, 1),
                     datetime.date(2017, 1, 1),
                 ],
-            },
-            columns=col_names,
+            }
         )
         result = _pandas_loaders.build_input_columnar(
             data,
             preserve_index=False,
-            col_names=col_names,
+            col_names=data.columns,
             col_types=col_types,
         )
 
@@ -181,63 +321,62 @@ class TestLoaders:
         assert_columnar_equal(result[0], expected)
 
     def test_build_table_columnar_nulls(self):
-        col_names = (
-            'boolean_',
-            'int_',
-            'bigint_',
-            'double_',
-            'varchar_',
-            'text_',
-            'time_',
-            'timestamp_',
-            'date_',
+        common_col_params = dict(
+            nullable=True,
+            precision=0,
+            scale=0,
+            comp_param=0,
+            encoding='NONE',
+            is_array=False,
         )
 
-        col_types = (
-            ('BOOLEAN', 'int_col'),
-            ('INT', 'int_col'),
-            ('BIGINT', 'int_col'),
-            ('DOUBLE', 'real_col'),
-            ('STR', 'str_col'),
-            ('STR', 'str_col'),
-            ('TIME', 'int_col'),
-            ('TIMESTAMP', 'int_col'),
-            ('DATE', 'int_col'),
-        )
+        col_types = [
+            ColumnDetails(name='boolean_', type='BOOL', **common_col_params),
+            ColumnDetails(name='int_', type='INT', **common_col_params),
+            ColumnDetails(name='bigint_', type='BIGINT', **common_col_params),
+            ColumnDetails(name='double_', type='DOUBLE', **common_col_params),
+            ColumnDetails(name='varchar_', type='STR', **common_col_params),
+            ColumnDetails(name='text_', type='STR', **common_col_params),
+            ColumnDetails(name='time_', type='TIME', **common_col_params),
+            ColumnDetails(
+                name='timestamp_', type='TIMESTAMP', **common_col_params
+            ),
+            ColumnDetails(name='date_', type='DATE', **common_col_params),
+        ]
 
         data = pd.DataFrame(
             {
-                "boolean_": [True, False, None],
+                'boolean_': [True, False, None],
                 # Currently Pandas does not support storing None or NaN
                 # in integer columns, so int cols with null
                 # need to be objects. This means our type detection will be
                 # unreliable since if there is no number outside the int32
                 # bounds in a column with nulls then we will be assuming int
-                "int_": np.array([0, 1, None], dtype=np.object),
-                "bigint_": np.array(
+                'int_': np.array([0, 1, None], dtype=np.object),
+                'bigint_': np.array(
                     [0, 9223372036854775807, None], dtype=np.object
                 ),
-                "double_": np.array([0, 1, None], dtype=np.float64),
-                "varchar_": ["a", "b", None],
-                "text_": ['a', 'b', None],
-                "time_": [datetime.time(0, 11, 59), datetime.time(13), None],
-                "timestamp_": [
-                    pd.Timestamp("2016"),
-                    pd.Timestamp("2017"),
+                'double_': np.array([0, 1, None], dtype=np.float64),
+                'varchar_': ['a', 'b', None],
+                'text_': ['a', 'b', None],
+                'time_': [datetime.time(0, 11, 59), datetime.time(13), None],
+                'timestamp_': [
+                    pd.Timestamp('2016'),
+                    pd.Timestamp('2017'),
                     None,
                 ],
-                "date_": [
+                'date_': [
                     datetime.date(1001, 1, 1),
                     datetime.date(2017, 1, 1),
                     None,
                 ],
-            },
-            columns=col_names,
+            }
         )
+
         result = _pandas_loaders.build_input_columnar(
             data,
             preserve_index=False,
-            col_names=col_names,
+            col_names=data.columns,
             col_types=col_types,
         )
 
@@ -286,17 +425,17 @@ class TestLoaders:
 
         data = pd.DataFrame(
             {
-                "boolean_": [True, False],
-                "smallint_": np.array([0, 1], dtype=np.int16),
-                "int_": np.array([0, 1], dtype=np.int32),
-                "bigint_": np.array([0, 1], dtype=np.int64),
-                "float_": np.array([0, 1], dtype=np.float32),
-                "double_": np.array([0, 1], dtype=np.float64),
-                "varchar_": ["a", "b"],
-                "text_": ['a', 'b'],
-                "time_": [datetime.time(0, 11, 59), datetime.time(13)],
-                "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
-                "date_": [
+                'boolean_': [True, False],
+                'smallint_': np.array([0, 1], dtype=np.int16),
+                'int_': np.array([0, 1], dtype=np.int32),
+                'bigint_': np.array([0, 1], dtype=np.int64),
+                'float_': np.array([0, 1], dtype=np.float32),
+                'double_': np.array([0, 1], dtype=np.float64),
+                'varchar_': ['a', 'b'],
+                'text_': ['a', 'b'],
+                'time_': [datetime.time(0, 11, 59), datetime.time(13)],
+                'timestamp_': [pd.Timestamp('2016'), pd.Timestamp('2017')],
+                'date_': [
                     datetime.date(2016, 1, 1),
                     datetime.date(2017, 1, 1),
                 ],
