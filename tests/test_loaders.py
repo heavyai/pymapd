@@ -14,6 +14,8 @@ from omnisci.common.ttypes import TTypeInfo
 
 def assert_columnar_equal(result, expected):
 
+    assert len(result) == len(expected)
+
     for i, (a, b) in enumerate(zip(result, expected)):
         np.testing.assert_array_equal(a.nulls, b.nulls)
         np.testing.assert_array_equal(a.data.int_col, b.data.int_col)
@@ -52,7 +54,12 @@ class TestLoaders:
 
         data = pd.DataFrame({"a": [1, 2, 3], "b": [1.1, 2.2, 3.3]})
         nulls = [False] * 3
-        result = build_input_columnar(data, preserve_index=False)
+        result = build_input_columnar(
+            data,
+            preserve_index=False,
+            col_names=['a', 'b'],
+            col_types=[['INTEGER', 'int_col'], ['FLOAT', 'real_col']],
+        )
         expected = [
             TColumn(TColumnData(int_col=[1, 2, 3]), nulls=nulls),
             TColumn(TColumnData(real_col=[1.1, 2.2, 3.3]), nulls=nulls)
@@ -60,6 +67,33 @@ class TestLoaders:
         assert_columnar_equal(result[0], expected)
 
     def test_build_table_columnar_pandas(self):
+        col_names = (
+            'boolean_',
+            'smallint_',
+            'int_',
+            'bigint_',
+            'float_',
+            'double_',
+            'varchar_',
+            'text_',
+            'time_',
+            'timestamp_',
+            'date_'
+        )
+
+        col_types = (
+            ('BOOLEAN', 'int_col'),
+            ('SMALLINT', 'int_col'),
+            ('INT', 'int_col'),
+            ('BIGINT', 'int_col'),
+            ('FLOAT', 'real_col'),
+            ('DOUBLE', 'real_col'),
+            ('STR', 'str_col'),
+            ('STR', 'str_col'),
+            ('TIME', 'int_col'),
+            ('TIMESTAMP', 'int_col'),
+            ('DATE', 'int_col'),
+        )
 
         data = pd.DataFrame({
             "boolean_": [True, False],
@@ -73,11 +107,13 @@ class TestLoaders:
             "time_": [datetime.time(0, 11, 59), datetime.time(13)],
             "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
             "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
-        }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
-                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
-                    'date_'])
-        result = _pandas_loaders.build_input_columnar(data,
-                                                      preserve_index=False)
+        }, columns=col_names)
+        result = _pandas_loaders.build_input_columnar(
+            data,
+            preserve_index=False,
+            col_names=col_names,
+            col_types=col_types,
+        )
 
         nulls = [False, False]
         expected = [
@@ -96,6 +132,29 @@ class TestLoaders:
         assert_columnar_equal(result[0], expected)
 
     def test_build_table_columnar_nulls(self):
+        col_names = (
+            'boolean_',
+            'int_',
+            'bigint_',
+            'double_',
+            'varchar_',
+            'text_',
+            'time_',
+            'timestamp_',
+            'date_'
+        )
+
+        col_types = (
+            ('BOOLEAN', 'int_col'),
+            ('INT', 'int_col'),
+            ('BIGINT', 'int_col'),
+            ('DOUBLE', 'real_col'),
+            ('STR', 'str_col'),
+            ('STR', 'str_col'),
+            ('TIME', 'int_col'),
+            ('TIMESTAMP', 'int_col'),
+            ('DATE', 'int_col'),
+        )
 
         data = pd.DataFrame({
             "boolean_": [True, False, None],
@@ -114,11 +173,13 @@ class TestLoaders:
             "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017"), None],
             "date_": [datetime.date(1001, 1, 1), datetime.date(2017, 1, 1),
                       None],
-        }, columns=['boolean_', 'int_', 'bigint_',
-                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
-                    'date_'])
-        result = _pandas_loaders.build_input_columnar(data,
-                                                      preserve_index=False)
+        }, columns=col_names)
+        result = _pandas_loaders.build_input_columnar(
+            data,
+            preserve_index=False,
+            col_names=col_names,
+            col_types=col_types
+        )
 
         nulls = [False, False, True]
         bool_na = -128
