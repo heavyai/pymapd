@@ -22,7 +22,7 @@ Python packages.
 
 Two development environment files are provided: one to provide the packages needed to develop on CPU only,
 and the other to provide `GPU` development packages. Only one is required, but you may decide to use both in
-order to run `pytest` against a CPU or GPU environment. 
+order to run `pytest` against a CPU or GPU environment.
 
 A `pymapd` development environment can be setup with the following:
 
@@ -39,6 +39,9 @@ CPU Environment
    # ensure you have activated the environment
    conda activate omnisci-dev
 
+   # install pre-commit hooks
+   make develop
+
 *********************
 GPU Environment
 *********************
@@ -49,6 +52,9 @@ GPU Environment
 
    # ensure you have activated the environment
    conda activate omnisci-gpu-dev
+
+   # install pre-commit hooks
+   make develop
 
 At this point, you have everything you need to develop pymapd. However, to run the test suite, you need to be running
 an instance of OmniSci on the same machine you are devloping on. OmniSci provides `Docker`_ images that work great for this purpose.

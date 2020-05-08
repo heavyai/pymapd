@@ -27,22 +27,33 @@ TOmniSciException.__hash__ = lambda x: id(x)
 
 @pytest.mark.usefixtures("mapd_server")
 class TestIntegration:
-
     def test_connect_binary(self):
-        con = connect(user="admin", password='HyperInteractive',
-                      host='localhost', port=6274, protocol='binary',
-                      dbname='omnisci')
+        con = connect(
+            user="admin",
+            password='HyperInteractive',
+            host='localhost',
+            port=6274,
+            protocol='binary',
+            dbname='omnisci',
+        )
         assert con is not None
 
     def test_connect_http(self):
-        con = connect(user="admin", password='HyperInteractive',
-                      host='localhost', port=6278, protocol='http',
-                      dbname='omnisci')
+        con = connect(
+            user="admin",
+            password='HyperInteractive',
+            host='localhost',
+            port=6278,
+            protocol='http',
+            dbname='omnisci',
+        )
         assert con is not None
 
     def test_connect_uri(self):
-        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
-               'protocol=binary')
+        uri = (
+            'omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
+            'protocol=binary'
+        )
         con = connect(uri=uri)
         assert con._user == 'admin'
         assert con._password == 'HyperInteractive'
@@ -52,8 +63,10 @@ class TestIntegration:
         assert con._protocol == 'binary'
 
     def test_connect_uri_and_others_raises(self):
-        uri = ('omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
-               'protocol=binary')
+        uri = (
+            'omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
+            'protocol=binary'
+        )
         with pytest.raises(TypeError):
             connect(username='omnisci', uri=uri)
 
@@ -77,8 +90,10 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -102,8 +117,10 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -111,10 +128,14 @@ class TestIntegration:
         c.execute(i1)
         c.execute(i2)
 
-        c.execute('select symbol, qty from stocks where symbol = :symbol',
-                  {'symbol': 'GOOG'})
+        c.execute(
+            'select symbol, qty from stocks where symbol = :symbol',
+            {'symbol': 'GOOG'},
+        )
         result = list(c)
-        expected = [('GOOG', 100), ]  # noqa
+        expected = [
+            ('GOOG', 100),
+        ]  # noqa
         assert result == expected
         c.execute('drop table if exists stocks;')
 
@@ -122,8 +143,10 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -143,8 +166,10 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -156,24 +181,28 @@ class TestIntegration:
         c.execute("drop table if exists stocks2;")
         # Create table
         c.execute('CREATE TABLE stocks2 (symbol text, qty int);')
-        params = [{"symbol": "GOOG", "qty": 10},
-                  {"symbol": "AAPL", "qty": 20}]
+        params = [{"symbol": "GOOG", "qty": 10}, {"symbol": "AAPL", "qty": 20}]
         query = "INSERT INTO stocks2 VALUES (:symbol, :qty);"
         result = c.executemany(query, params)
         assert result == [[], []]  # TODO: not sure if this is standard
         c.execute("drop table stocks2;")
         c.execute('drop table if exists stocks;')
 
-    @pytest.mark.parametrize('query, parameters', [
-        ('select qty, price from stocks', None),
-        ('select qty, price from stocks where qty=:qty', {'qty': 100}),
-    ])
+    @pytest.mark.parametrize(
+        'query, parameters',
+        [
+            ('select qty, price from stocks', None),
+            ('select qty, price from stocks where qty=:qty', {'qty': 100}),
+        ],
+    )
     def test_select_ipc_parametrized(self, con, query, parameters):
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -182,11 +211,14 @@ class TestIntegration:
         c.execute(i2)
 
         result = con.select_ipc(query, parameters=parameters)
-        expected = pd.DataFrame({
-            "qty": np.array([100, 100], dtype=np.int32),
-            "price": np.array([35.13999938964844, 12.140000343322754],
-                              dtype=np.float32)
-        })[['qty', 'price']]
+        expected = pd.DataFrame(
+            {
+                "qty": np.array([100, 100], dtype=np.int32),
+                "price": np.array(
+                    [35.13999938964844, 12.140000343322754], dtype=np.float32
+                ),
+            }
+        )[['qty', 'price']]
         tm.assert_frame_equal(result, expected)
         c.execute('drop table if exists stocks;')
 
@@ -194,8 +226,10 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -207,10 +241,13 @@ class TestIntegration:
         assert len(result) == 1
         c.execute('drop table if exists stocks;')
 
-    @pytest.mark.parametrize('query, parameters', [
-        ('select qty, price from stocks', None),
-        ('select qty, price from stocks where qty=:qty', {'qty': 100}),
-    ])
+    @pytest.mark.parametrize(
+        'query, parameters',
+        [
+            ('select qty, price from stocks', None),
+            ('select qty, price from stocks where qty=:qty', {'qty': 100}),
+        ],
+    )
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
     def test_select_ipc_gpu(self, con, query, parameters):
 
@@ -218,8 +255,10 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -231,8 +270,9 @@ class TestIntegration:
         assert isinstance(result, DataFrame)
 
         dtypes = dict(qty=np.int32, price=np.float32)
-        expected = pd.DataFrame([[100, 35.14], [100, 12.14]],
-                                columns=['qty', 'price']).astype(dtypes)
+        expected = pd.DataFrame(
+            [[100, 35.14], [100, 12.14]], columns=['qty', 'price']
+        ).astype(dtypes)
 
         result = result.to_pandas()[['qty', 'price']]  # column order
         pd.testing.assert_frame_equal(result, expected)
@@ -245,20 +285,26 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
 
         symbols = set(['GOOG', 'RHAT', 'IBM', 'NVDA'])
         for i, sym in enumerate(symbols):
-            stmt = "INSERT INTO stocks VALUES ('2006-01-05_{}','BUY','{}',{},35.{},{}.1);".format(i,sym,i,i,i)  # noqa
+            stmt = "INSERT INTO stocks VALUES ('2006-01-05_{}','BUY','{}',{},35.{},{}.1);".format(  # noqa
+                i, sym, i, i, i
+            )  # noqa
             # insert twice so we can test
             # that duplicated text values
             # are deserialized properly
             c.execute(stmt)
             c.execute(stmt)
 
-        result = con.select_ipc_gpu("select trans, symbol, qty, price from stocks") # noqa
+        result = con.select_ipc_gpu(
+            "select trans, symbol, qty, price from stocks"
+        )  # noqa
         assert isinstance(result, DataFrame)
 
         assert len(result) == 8
@@ -271,8 +317,10 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -288,8 +336,10 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -307,8 +357,10 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -331,23 +383,33 @@ class TestIntegration:
 
         c = con.cursor()
         c.execute('drop table if exists dates;')
-        c.execute('create table dates (date_ DATE, datetime_ TIMESTAMP, '
-                  'time_ TIME);')
-        i1 = ("INSERT INTO dates VALUES ('2006-01-05','2006-01-01T12:00:00',"
-              "'12:00:00');")
-        i2 = ("INSERT INTO dates VALUES ('1901-12-14','1901-12-13T20:45:53',"
-              "'23:59:00');")
+        c.execute(
+            'create table dates (date_ DATE, datetime_ TIMESTAMP, '
+            'time_ TIME);'
+        )
+        i1 = (
+            "INSERT INTO dates VALUES ('2006-01-05','2006-01-01T12:00:00',"
+            "'12:00:00');"
+        )
+        i2 = (
+            "INSERT INTO dates VALUES ('1901-12-14','1901-12-13T20:45:53',"
+            "'23:59:00');"
+        )
         c.execute(i1)
         c.execute(i2)
 
         result = list(c.execute("select * from dates"))
         expected = [
-            (datetime.date(2006, 1, 5),
-             datetime.datetime(2006, 1, 1, 12),
-             datetime.time(12)),
-            (datetime.date(1901, 12, 14),
-             datetime.datetime(1901, 12, 13, 20, 45, 53),
-             datetime.time(23, 59)),
+            (
+                datetime.date(2006, 1, 5),
+                datetime.datetime(2006, 1, 1, 12),
+                datetime.time(12),
+            ),
+            (
+                datetime.date(1901, 12, 14),
+                datetime.datetime(1901, 12, 13, 20, 45, 53),
+                datetime.time(23, 59),
+            ),
         ]
         assert result == expected
         c.execute('drop table if exists dates;')
@@ -360,11 +422,11 @@ class TestIntegration:
         new_dashboard_name = "new_test"
         meta_data = {"table": "test_data_no_nulls_ipc", "version": "v2"}
         remap = {
-                    "test_data_no_nulls_ipc": {
-                        "name": new_dashboard_name,
-                        "title": new_dashboard_name
-                        }
-                }
+            "test_data_no_nulls_ipc": {
+                "name": new_dashboard_name,
+                "title": new_dashboard_name,
+            }
+        }
         dashboards = []
 
         # Create testing dashboard
@@ -373,8 +435,10 @@ class TestIntegration:
                 session=con._session,
                 dashboard_name=old_dashboard_name,
                 dashboard_state=(
-                    base64.b64encode(json.dumps(old_dashboard_state).encode(
-                        "utf-8"))),
+                    base64.b64encode(
+                        json.dumps(old_dashboard_state).encode("utf-8")
+                    )
+                ),
                 image_hash="",
                 dashboard_metadata=json.dumps(meta_data),
             )
@@ -382,15 +446,18 @@ class TestIntegration:
             dashboards = con._client.get_dashboards(con._session)
             for dash in dashboards:
                 if dash.dashboard_name == old_dashboard_name:
-                    con._client.delete_dashboard(con._session,
-                                                 dash.dashboard_id)
+                    con._client.delete_dashboard(
+                        con._session, dash.dashboard_id
+                    )
                     break
             dashboard_id = con._client.create_dashboard(
                 session=con._session,
                 dashboard_name=old_dashboard_name,
                 dashboard_state=(
-                    base64.b64encode(json.dumps(old_dashboard_state).encode(
-                        "utf-8"))),
+                    base64.b64encode(
+                        json.dumps(old_dashboard_state).encode("utf-8")
+                    )
+                ),
                 image_hash="",
                 dashboard_metadata=json.dumps(meta_data),
             )
@@ -398,23 +465,25 @@ class TestIntegration:
         # Duplicate and remap our dashboard
         try:
             dashboard_id = con.duplicate_dashboard(
-                    dashboard_id, new_dashboard_name, remap
-                )
+                dashboard_id, new_dashboard_name, remap
+            )
         except TOmniSciException:
             dashboards = con._client.get_dashboards(con._session)
             for dash in dashboards:
                 if dash.dashboard_name == new_dashboard_name:
-                    con._client.delete_dashboard(con._session,
-                                                 dash.dashboard_id)
+                    con._client.delete_dashboard(
+                        con._session, dash.dashboard_id
+                    )
                     break
             dashboard_id = con.duplicate_dashboard(
-                    dashboard_id, new_dashboard_name, remap
-                )
+                dashboard_id, new_dashboard_name, remap
+            )
 
         # Get our new dashboard from the database
         d = con.get_dashboard(dashboard_id=dashboard_id)
-        remapped_dashboard = json.loads(base64.b64decode(
-            d.dashboard_state).decode())
+        remapped_dashboard = json.loads(
+            base64.b64decode(d.dashboard_state).decode()
+        )
 
         # Assert that the table and title changed
         assert remapped_dashboard['dashboard']['title'] == new_dashboard_name
@@ -426,23 +495,24 @@ class TestIntegration:
 
 
 class TestOptionalImports:
-
     def test_select_gpu(self, con):
-        with mock.patch.dict("sys.modules",
-                             {"cudf": None, "cudf.core.dataframe": None}):
+        with mock.patch.dict(
+            "sys.modules", {"cudf": None, "cudf.core.dataframe": None}
+        ):
             with pytest.raises(ImportError) as m:
                 con.select_ipc_gpu("select * from foo;")
         assert m.match("The 'cudf' package is required")
 
 
 class TestExtras:
-
     def test_get_tables(self, con):
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float);')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
@@ -459,9 +529,11 @@ class TestExtras:
 
         c = con.cursor()
         c.execute('drop table if exists stocks;')
-        create = ('create table stocks (date_ text, trans text, symbol text, '
-                  'qty int, price float, vol float, '
-                  'exchanges TEXT [] ENCODING DICT(32));')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float, '
+            'exchanges TEXT [] ENCODING DICT(32));'
+        )
         c.execute(create)
         i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1,{'NYSE', 'NASDAQ', 'AMEX'});"  # noqa
         i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2,{'NYSE', 'NASDAQ'});"  # noqa
@@ -471,34 +543,82 @@ class TestExtras:
 
         result = con.get_table_details('stocks')
         expected = [
-            ColumnDetails(name='date_', type='STR', nullable=True, precision=0,
-                          scale=0, comp_param=32, encoding='DICT',
-                          is_array=False),
-            ColumnDetails(name='trans', type='STR', nullable=True, precision=0,
-                          scale=0, comp_param=32, encoding='DICT',
-                          is_array=False),
-            ColumnDetails(name='symbol', type='STR', nullable=True,
-                          precision=0, scale=0, comp_param=32,
-                          encoding='DICT', is_array=False),
-            ColumnDetails(name='qty', type='INT', nullable=True, precision=0,
-                          scale=0, comp_param=0, encoding='NONE',
-                          is_array=False),
-            ColumnDetails(name='price', type='FLOAT', nullable=True,
-                          precision=0, scale=0, comp_param=0, encoding='NONE',
-                          is_array=False),
-            ColumnDetails(name='vol', type='FLOAT', nullable=True, precision=0,
-                          scale=0, comp_param=0, encoding='NONE',
-                          is_array=False),
-            ColumnDetails(name='exchanges', type='STR', nullable=True,
-                          precision=0, scale=0, comp_param=32, encoding='DICT',
-                          is_array=True)
+            ColumnDetails(
+                name='date_',
+                type='STR',
+                nullable=True,
+                precision=0,
+                scale=0,
+                comp_param=32,
+                encoding='DICT',
+                is_array=False,
+            ),
+            ColumnDetails(
+                name='trans',
+                type='STR',
+                nullable=True,
+                precision=0,
+                scale=0,
+                comp_param=32,
+                encoding='DICT',
+                is_array=False,
+            ),
+            ColumnDetails(
+                name='symbol',
+                type='STR',
+                nullable=True,
+                precision=0,
+                scale=0,
+                comp_param=32,
+                encoding='DICT',
+                is_array=False,
+            ),
+            ColumnDetails(
+                name='qty',
+                type='INT',
+                nullable=True,
+                precision=0,
+                scale=0,
+                comp_param=0,
+                encoding='NONE',
+                is_array=False,
+            ),
+            ColumnDetails(
+                name='price',
+                type='FLOAT',
+                nullable=True,
+                precision=0,
+                scale=0,
+                comp_param=0,
+                encoding='NONE',
+                is_array=False,
+            ),
+            ColumnDetails(
+                name='vol',
+                type='FLOAT',
+                nullable=True,
+                precision=0,
+                scale=0,
+                comp_param=0,
+                encoding='NONE',
+                is_array=False,
+            ),
+            ColumnDetails(
+                name='exchanges',
+                type='STR',
+                nullable=True,
+                precision=0,
+                scale=0,
+                comp_param=32,
+                encoding='DICT',
+                is_array=True,
+            ),
         ]
         assert result == expected
         c.execute('drop table if exists stocks;')
 
 
 class TestLoaders:
-
     @staticmethod
     def check_empty_insert(result, expected):
         assert len(result) == 3
@@ -511,9 +631,7 @@ class TestLoaders:
         con.execute("drop table if exists baz;")
         con.execute("create table baz (a int, b float, c text);")
 
-        data = [(1, 1.1, 'a'),
-                (2, 2.2, '2'),
-                (3, 3.3, '3')]
+        data = [(1, 1.1, 'a'), (2, 2.2, '2'), (3, 3.3, '3')]
         con.load_table("baz", data)
         result = sorted(con.execute("select * from baz"))
         self.check_empty_insert(result, data)
@@ -524,9 +642,7 @@ class TestLoaders:
         con.execute("drop table if exists baz;")
         con.execute("create table baz (a int, b float, c text);")
 
-        data = [(1, 1.1, 'a'),
-                (2, 2.2, '2'),
-                (3, 3.3, '3')]
+        data = [(1, 1.1, 'a'), (2, 2.2, '2'), (3, 3.3, '3')]
         df = pd.DataFrame(data, columns=list('abc'))
         con.load_table("baz", df, method='columnar')
         result = sorted(con.execute("select * from baz"))
@@ -538,14 +654,11 @@ class TestLoaders:
         con.execute("drop table if exists baz;")
         con.execute("create table baz (a int, b float, c text);")
 
-        data = [(1, 1.1, 'a'),
-                (2, 2.2, '2'),
-                (3, 3.3, '3')]
+        data = [(1, 1.1, 'a'), (2, 2.2, '2'), (3, 3.3, '3')]
 
-        df = pd.DataFrame(data, columns=list('abc')).astype({
-            'a': 'int32',
-            'b': 'float32'
-        })
+        df = pd.DataFrame(data, columns=list('abc')).astype(
+            {'a': 'int32', 'b': 'float32'}
+        )
 
         table = pa.Table.from_pandas(df, preserve_index=False)
         con.load_table("baz", table, method='arrow')
@@ -558,9 +671,10 @@ class TestLoaders:
         con.execute("drop table if exists baz;")
         con.execute("create table baz (a int, b float, c text);")
 
-        df = pd.DataFrame({"a": [1, 2, 3],
-                           "b": [1.1, 2.2, 3.3],
-                           "c": ['a', '2', '3']}, columns=['a', 'b', 'c'])
+        df = pd.DataFrame(
+            {"a": [1, 2, 3], "b": [1.1, 2.2, 3.3], "c": ['a', '2', '3']},
+            columns=['a', 'b', 'c'],
+        )
         con.load_table_columnar("baz", df)
         con.execute("drop table if exists baz;")
 
@@ -570,9 +684,11 @@ class TestLoaders:
         con.execute("create table baz (a int, b float, c text);")
 
         data = pd.DataFrame(
-            {'a': np.array([0, 1], dtype=np.int32),
-             'b': np.array([1.1, 2.2], dtype=np.float32),
-             'c': ['a', 'b']}
+            {
+                'a': np.array([0, 1], dtype=np.int32),
+                'b': np.array([1.1, 2.2], dtype=np.float32),
+                'c': ['a', 'b'],
+            }
         )
         con.load_table("baz", data)
         con.execute("drop table if exists baz;")
@@ -601,7 +717,8 @@ class TestLoaders:
 
         c = con.cursor()
         c.execute('drop table if exists all_types;')
-        create = textwrap.dedent('''\
+        create = textwrap.dedent(
+            '''\
         create table all_types (
             boolean_ BOOLEAN,
             smallint_ SMALLINT,
@@ -614,51 +731,115 @@ class TestLoaders:
             time_ TIME,
             timestamp_ TIMESTAMP,
             date_ DATE
-        );''')
+        );'''
+        )
         # skipping decimal for now
         c.execute(create)
 
-        data = pd.DataFrame({
-            "boolean_": [True, False, True, False],
-            "smallint_": np.array([0, 1, 0, 1], dtype=np.int16),
-            "int_": np.array([0, 1, 0, 1], dtype=np.int32),
-            "bigint_": np.array([0, 1, 0, 1], dtype=np.int64),
-            "float_": np.array([0, 1, 0, 1], dtype=np.float32),
-            "double_": np.array([0, 1, 0, 1], dtype=np.float64),
-            "varchar_": ["a", "b", "a", "b"],
-            "text_": ['a', 'b', 'a', 'b'],
-            "time_": [datetime.time(0, 11, 59), datetime.time(13),
-                      datetime.time(22, 58, 59), datetime.time(7, 13, 43)],
-            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017"),
-                           pd.Timestamp('2017-11-28 23:55:59.342380',
-                           tz='US/Eastern'),
-                           pd.Timestamp('2018-11-28 23:55:59.342380',
-                           tz='Asia/Calcutta')],
-            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1),
-                      datetime.date(2017, 11, 28),
-                      datetime.date(2018, 11, 28)],
-        }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
-                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
-                    'date_'])
+        data = pd.DataFrame(
+            {
+                "boolean_": [True, False, True, False],
+                "smallint_": np.array([0, 1, 0, 1], dtype=np.int16),
+                "int_": np.array([0, 1, 0, 1], dtype=np.int32),
+                "bigint_": np.array([0, 1, 0, 1], dtype=np.int64),
+                "float_": np.array([0, 1, 0, 1], dtype=np.float32),
+                "double_": np.array([0, 1, 0, 1], dtype=np.float64),
+                "varchar_": ["a", "b", "a", "b"],
+                "text_": ['a', 'b', 'a', 'b'],
+                "time_": [
+                    datetime.time(0, 11, 59),
+                    datetime.time(13),
+                    datetime.time(22, 58, 59),
+                    datetime.time(7, 13, 43),
+                ],
+                "timestamp_": [
+                    pd.Timestamp("2016"),
+                    pd.Timestamp("2017"),
+                    pd.Timestamp(
+                        '2017-11-28 23:55:59.342380', tz='US/Eastern'
+                    ),
+                    pd.Timestamp(
+                        '2018-11-28 23:55:59.342380', tz='Asia/Calcutta'
+                    ),
+                ],
+                "date_": [
+                    datetime.date(2016, 1, 1),
+                    datetime.date(2017, 1, 1),
+                    datetime.date(2017, 11, 28),
+                    datetime.date(2018, 11, 28),
+                ],
+            },
+            columns=[
+                'boolean_',
+                'smallint_',
+                'int_',
+                'bigint_',
+                'float_',
+                'double_',
+                'varchar_',
+                'text_',
+                'time_',
+                'timestamp_',
+                'date_',
+            ],
+        )
         con.load_table_columnar("all_types", data, preserve_index=False)
 
         result = list(c.execute("select * from all_types"))
-        expected = [(1, 0, 0, 0, 0.0, 0.0, 'a', 'a',
-                    datetime.time(0, 11, 59),
-                    datetime.datetime(2016, 1, 1, 0, 0),
-                    datetime.date(2016, 1, 1)),
-                    (0, 1, 1, 1, 1.0, 1.0, 'b', 'b',
-                    datetime.time(13, 0),
-                    datetime.datetime(2017, 1, 1, 0, 0),
-                    datetime.date(2017, 1, 1)),
-                    (1, 0, 0, 0, 0.0, 0.0, 'a', 'a',
-                    datetime.time(22, 58, 59),
-                    datetime.datetime(2017, 11, 29, 4, 55, 59),
-                    datetime.date(2017, 11, 28)),
-                    (0, 1, 1, 1, 1.0, 1.0, 'b', 'b',
-                    datetime.time(7, 13, 43),
-                    datetime.datetime(2018, 11, 28, 18, 25, 59),
-                    datetime.date(2018, 11, 28))]
+        expected = [
+            (
+                1,
+                0,
+                0,
+                0,
+                0.0,
+                0.0,
+                'a',
+                'a',
+                datetime.time(0, 11, 59),
+                datetime.datetime(2016, 1, 1, 0, 0),
+                datetime.date(2016, 1, 1),
+            ),
+            (
+                0,
+                1,
+                1,
+                1,
+                1.0,
+                1.0,
+                'b',
+                'b',
+                datetime.time(13, 0),
+                datetime.datetime(2017, 1, 1, 0, 0),
+                datetime.date(2017, 1, 1),
+            ),
+            (
+                1,
+                0,
+                0,
+                0,
+                0.0,
+                0.0,
+                'a',
+                'a',
+                datetime.time(22, 58, 59),
+                datetime.datetime(2017, 11, 29, 4, 55, 59),
+                datetime.date(2017, 11, 28),
+            ),
+            (
+                0,
+                1,
+                1,
+                1,
+                1.0,
+                1.0,
+                'b',
+                'b',
+                datetime.time(7, 13, 43),
+                datetime.datetime(2018, 11, 28, 18, 25, 59),
+                datetime.date(2018, 11, 28),
+            ),
+        ]
 
         assert result == expected
         c.execute('drop table if exists all_types;')
@@ -667,7 +848,8 @@ class TestLoaders:
 
         c = con.cursor()
         c.execute('drop table if exists all_types;')
-        create = textwrap.dedent('''\
+        create = textwrap.dedent(
+            '''\
         create table all_types (
             boolean_ BOOLEAN,
             smallint_ SMALLINT,
@@ -680,29 +862,47 @@ class TestLoaders:
             time_ TIME,
             timestamp_ TIMESTAMP,
             date_ DATE
-        );''')
+        );'''
+        )
         # skipping decimal for now
         c.execute(create)
 
-        names = ['boolean_', 'smallint_', 'int_', 'bigint_',
-                 'float_', 'double_', 'varchar_', 'text_',
-                 'time_', 'timestamp_', 'date_']
+        names = [
+            'boolean_',
+            'smallint_',
+            'int_',
+            'bigint_',
+            'float_',
+            'double_',
+            'varchar_',
+            'text_',
+            'time_',
+            'timestamp_',
+            'date_',
+        ]
 
-        columns = [pa.array([True, False, None], type=pa.bool_()),
-                   pa.array([1, 0, None]).cast(pa.int16()),
-                   pa.array([1, 0, None]).cast(pa.int32()),
-                   pa.array([1, 0, None]),
-                   pa.array([1.0, 1.1, None]).cast(pa.float32()),
-                   pa.array([1.0, 1.1, None]),
-                   # no fixed-width string
-                   pa.array(['a', 'b', None]),
-                   pa.array(['a', 'b', None]),
-                   (pa.array([1, 2, None]).cast(pa.int32())
-                    .cast(pa.time32('s'))),
-                   pa.array([datetime.datetime(2016, 1, 1, 12, 12, 12),
-                             datetime.datetime(2017, 1, 1), None]),
-                   pa.array([datetime.date(2016, 1, 1),
-                             datetime.date(2017, 1, 1), None])]
+        columns = [
+            pa.array([True, False, None], type=pa.bool_()),
+            pa.array([1, 0, None]).cast(pa.int16()),
+            pa.array([1, 0, None]).cast(pa.int32()),
+            pa.array([1, 0, None]),
+            pa.array([1.0, 1.1, None]).cast(pa.float32()),
+            pa.array([1.0, 1.1, None]),
+            # no fixed-width string
+            pa.array(['a', 'b', None]),
+            pa.array(['a', 'b', None]),
+            (pa.array([1, 2, None]).cast(pa.int32()).cast(pa.time32('s'))),
+            pa.array(
+                [
+                    datetime.datetime(2016, 1, 1, 12, 12, 12),
+                    datetime.datetime(2017, 1, 1),
+                    None,
+                ]
+            ),
+            pa.array(
+                [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1), None]
+            ),
+        ]
         table = pa.Table.from_arrays(columns, names=names)
         con.load_table_arrow("all_types", table)
         c.execute('drop table if exists all_types;')
@@ -725,28 +925,44 @@ class TestLoaders:
     def test_create_table(self, con):
 
         con.execute("drop table if exists test_create_table;")
-        df = pd.DataFrame({"A": [1, 2], "B": [1., 2.]})
+        df = pd.DataFrame({"A": [1, 2], "B": [1.0, 2.0]})
         con.create_table("test_create_table", df)
         con.execute("drop table if exists test_create_table;")
 
     def test_load_table_creates(self, con):
 
-        data = pd.DataFrame({
-            "boolean_": [True, False],
-            "smallint_cast": np.array([0, 1], dtype=np.int8),
-            "smallint_": np.array([0, 1], dtype=np.int16),
-            "int_": np.array([0, 1], dtype=np.int32),
-            "bigint_": np.array([0, 1], dtype=np.int64),
-            "float_": np.array([0, 1], dtype=np.float32),
-            "double_": np.array([0, 1], dtype=np.float64),
-            "varchar_": ["a", "b"],
-            "text_": ['a', 'b'],
-            "time_": [datetime.time(0, 11, 59), datetime.time(13)],
-            "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
-            "date_": [datetime.date(2016, 1, 1), datetime.date(2017, 1, 1)],
-        }, columns=['boolean_', 'smallint_', 'int_', 'bigint_', 'float_',
-                    'double_', 'varchar_', 'text_', 'time_', 'timestamp_',
-                    'date_'])
+        data = pd.DataFrame(
+            {
+                "boolean_": [True, False],
+                "smallint_cast": np.array([0, 1], dtype=np.int8),
+                "smallint_": np.array([0, 1], dtype=np.int16),
+                "int_": np.array([0, 1], dtype=np.int32),
+                "bigint_": np.array([0, 1], dtype=np.int64),
+                "float_": np.array([0, 1], dtype=np.float32),
+                "double_": np.array([0, 1], dtype=np.float64),
+                "varchar_": ["a", "b"],
+                "text_": ['a', 'b'],
+                "time_": [datetime.time(0, 11, 59), datetime.time(13)],
+                "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
+                "date_": [
+                    datetime.date(2016, 1, 1),
+                    datetime.date(2017, 1, 1),
+                ],
+            },
+            columns=[
+                'boolean_',
+                'smallint_',
+                'int_',
+                'bigint_',
+                'float_',
+                'double_',
+                'varchar_',
+                'text_',
+                'time_',
+                'timestamp_',
+                'date_',
+            ],
+        )
 
         con.execute("drop table if exists test_load_table_creates;")
         con.load_table("test_load_table_creates", data, create=True)
@@ -756,24 +972,32 @@ class TestLoaders:
 
         # text
         con.execute("DROP TABLE IF EXISTS test_lists;")
-        con.execute("CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 TEXT[]);")
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS test_lists \
+                    (col1 TEXT, col2 TEXT[]);"
+        )
 
-        row = [("row1", "{hello,goodbye,aloha}"),
-               ("row2", "{hello2,goodbye2,aloha2}")]
+        row = [
+            ("row1", "{hello,goodbye,aloha}"),
+            ("row2", "{hello2,goodbye2,aloha2}"),
+        ]
 
         con.load_table_rowwise("test_lists", row)
         ans = con.execute("select * from test_lists").fetchall()
 
-        expected = [('row1', ['hello', 'goodbye', 'aloha']),
-                    ('row2', ['hello2', 'goodbye2', 'aloha2'])]
+        expected = [
+            ('row1', ['hello', 'goodbye', 'aloha']),
+            ('row2', ['hello2', 'goodbye2', 'aloha2']),
+        ]
 
         assert ans == expected
 
         # int
         con.execute("DROP TABLE IF EXISTS test_lists;")
-        con.execute("CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 INT[]);")
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS test_lists \
+                    (col1 TEXT, col2 INT[]);"
+        )
 
         row = [("row1", "{10,20,30}"), ("row2", "{40,50,60}")]
 
@@ -786,67 +1010,115 @@ class TestLoaders:
 
         # timestamp
         con.execute("DROP TABLE IF EXISTS test_lists;")
-        con.execute("CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 TIMESTAMP[]);")
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS test_lists \
+                    (col1 TEXT, col2 TIMESTAMP[]);"
+        )
 
-        row = [("row1",
-                "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}"),  # noqa
-               ("row2",
-                "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}")]  # noqa
+        row = [
+            (
+                "row1",
+                "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}",  # noqa
+            ),
+            (
+                "row2",
+                "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}",  # noqa
+            ),
+        ]
 
         con.load_table_rowwise("test_lists", row)
         ans = con.execute("select * from test_lists").fetchall()
 
-        expected = [('row1',
-                    [datetime.datetime(2019, 3, 2, 0, 0),
-                     datetime.datetime(2019, 3, 2, 0, 0),
-                     datetime.datetime(2019, 3, 2, 0, 0)]),
-                    ('row2',
-                    [datetime.datetime(2019, 3, 2, 0, 0),
-                     datetime.datetime(2019, 3, 2, 0, 0),
-                     datetime.datetime(2019, 3, 2, 0, 0)])]
+        expected = [
+            (
+                'row1',
+                [
+                    datetime.datetime(2019, 3, 2, 0, 0),
+                    datetime.datetime(2019, 3, 2, 0, 0),
+                    datetime.datetime(2019, 3, 2, 0, 0),
+                ],
+            ),
+            (
+                'row2',
+                [
+                    datetime.datetime(2019, 3, 2, 0, 0),
+                    datetime.datetime(2019, 3, 2, 0, 0),
+                    datetime.datetime(2019, 3, 2, 0, 0),
+                ],
+            ),
+        ]
 
         assert ans == expected
 
         # date
         con.execute("DROP TABLE IF EXISTS test_lists;")
-        con.execute("CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 DATE[]);")
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS test_lists \
+                    (col1 TEXT, col2 DATE[]);"
+        )
 
-        row = [("row1", "{2019-03-02,2019-03-02,2019-03-02}"),
-               ("row2", "{2019-03-02,2019-03-02,2019-03-02}")]
+        row = [
+            ("row1", "{2019-03-02,2019-03-02,2019-03-02}"),
+            ("row2", "{2019-03-02,2019-03-02,2019-03-02}"),
+        ]
 
         con.load_table_rowwise("test_lists", row)
         ans = con.execute("select * from test_lists").fetchall()
 
-        expected = [('row1',
-                     [datetime.date(2019, 3, 2),
-                      datetime.date(2019, 3, 2),
-                      datetime.date(2019, 3, 2)]),
-                    ('row2',
-                     [datetime.date(2019, 3, 2),
-                      datetime.date(2019, 3, 2),
-                      datetime.date(2019, 3, 2)])]
+        expected = [
+            (
+                'row1',
+                [
+                    datetime.date(2019, 3, 2),
+                    datetime.date(2019, 3, 2),
+                    datetime.date(2019, 3, 2),
+                ],
+            ),
+            (
+                'row2',
+                [
+                    datetime.date(2019, 3, 2),
+                    datetime.date(2019, 3, 2),
+                    datetime.date(2019, 3, 2),
+                ],
+            ),
+        ]
 
         assert ans == expected
 
         # time
         con.execute("DROP TABLE IF EXISTS test_lists;")
-        con.execute("CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 TIME[]);")
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS test_lists \
+                    (col1 TEXT, col2 TIME[]);"
+        )
 
-        row = [("row1", "{23:59:00,23:59:00,23:59:00}"),
-               ("row2", "{23:59:00,23:59:00,23:59:00}")]
+        row = [
+            ("row1", "{23:59:00,23:59:00,23:59:00}"),
+            ("row2", "{23:59:00,23:59:00,23:59:00}"),
+        ]
 
         con.load_table_rowwise("test_lists", row)
         ans = con.execute("select * from test_lists").fetchall()
 
-        expected = [('row1',
-                     [datetime.time(23, 59), datetime.time(23, 59),
-                      datetime.time(23, 59)]),
-                    ('row2',
-                     [datetime.time(23, 59), datetime.time(23, 59),
-                      datetime.time(23, 59)])]
+        expected = [
+            (
+                'row1',
+                [
+                    datetime.time(23, 59),
+                    datetime.time(23, 59),
+                    datetime.time(23, 59),
+                ],
+            ),
+            (
+                'row2',
+                [
+                    datetime.time(23, 59),
+                    datetime.time(23, 59),
+                    datetime.time(23, 59),
+                ],
+            ),
+        ]
 
         assert ans == expected
         con.execute("DROP TABLE IF EXISTS test_lists;")
@@ -864,13 +1136,28 @@ class TestLoaders:
 
         assert ans == [('a', 'a'), ('b', 'b'), ('c', 'c'), ('a', 'a')]
 
-        assert con.get_table_details("test_categorical") == \
-            [ColumnDetails(name='A', type='STR', nullable=True, precision=0,
-                           scale=0, comp_param=32, encoding='DICT',
-                           is_array=False),
-             ColumnDetails(name='B', type='STR', nullable=True, precision=0,
-                           scale=0, comp_param=32, encoding='DICT',
-                           is_array=False)]
+        assert con.get_table_details("test_categorical") == [
+            ColumnDetails(
+                name='A',
+                type='STR',
+                nullable=True,
+                precision=0,
+                scale=0,
+                comp_param=32,
+                encoding='DICT',
+                is_array=False,
+            ),
+            ColumnDetails(
+                name='B',
+                type='STR',
+                nullable=True,
+                precision=0,
+                scale=0,
+                comp_param=32,
+                encoding='DICT',
+                is_array=False,
+            ),
+        ]
 
         # load row-wise
         con.load_table("test_categorical", df, method="rows")
@@ -903,7 +1190,7 @@ class TestLoaders:
 
         c = con.cursor()
         c.execute('drop table if exists text_holder;')
-        create = ('create table text_holder (the_text text);')
+        create = 'create table text_holder (the_text text);'
         c.execute(create)
         first = {"value": "我和我的姐姐吃米饭鸡肉"}
         second = {"value": "El camina a case en bicicleta es relajante"}
@@ -925,7 +1212,7 @@ class TestLoaders:
 
         c = con.cursor()
         c.execute('drop table if exists test_leading_spaces;')
-        create = ('create table test_leading_spaces (the_text text);')
+        create = 'create table test_leading_spaces (the_text text);'
         c.execute(create)
         first = {"value": "我和我的姐姐吃米饭鸡肉"}
         second = {"value": "El camina a case en bicicleta es relajante"}

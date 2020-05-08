@@ -17,8 +17,10 @@ def change_dashboard_sources(dashboard, remap):
     """
     dm = json.loads(dashboard.dashboard_metadata)
     tlst = map(str.strip, dm.get('table', '').split(','))
-    tlst = [remap[t]['name'] if remap.get(t, {}).get('name',
-                                                     {}) else t for t in tlst]
+    tlst = [
+        remap[t]['name'] if remap.get(t, {}).get('name', {}) else t
+        for t in tlst
+    ]
     dm['table'] = ', '.join(tlst)
 
     # Load our dashboard state into a python dictionary
@@ -31,8 +33,9 @@ def change_dashboard_sources(dashboard, remap):
             ds['dashboard']['table'] = new_table
 
         # Change the name of the dashboard or use the old one
-        ds['dashboard']['title'] = defs.get('title',
-                                            {}) or ds['dashboard']['title']
+        ds['dashboard']['title'] = (
+            defs.get('title', {}) or ds['dashboard']['title']
+        )
 
         # Remap our datasources keys
         for key, val in ds['dashboard']['dataSources'].items():
@@ -52,8 +55,9 @@ def change_dashboard_sources(dashboard, remap):
                 if dim.get('table', {}) == old_table:
                     ds['charts'][c]['dimensions'][i]['table'] = new_table
                 if dim.get('selector', {}).get('table') == old_table:
-                    (ds['charts'][c]['dimensions'][i]
-                        ['selector']['table']) = new_table
+                    (
+                        ds['charts'][c]['dimensions'][i]['selector']['table']
+                    ) = new_table
                 i += 1
 
             # Remap Our Measures to the new table
@@ -71,22 +75,16 @@ def change_dashboard_sources(dashboard, remap):
                     ds['charts'][c]['layers'][il]['dataSource'] = new_table
                 for measure in layer.get('measures', []):
                     if measure.get('table', None) == old_table:
-                        (ds
-                            ['charts']
-                            [c]
-                            ['layers']
-                            [il]
-                            ['measures']
-                            [im]
-                            ['table']
-                         ) = new_table
+                        (
+                            ds['charts'][c]['layers'][il]['measures'][im][
+                                'table'
+                            ]
+                        ) = new_table
                     im += 1
                 il += 1
-        (ds
-            ['dashboard']
-            ['dataSources']
-            [new_table]
-         ) = ds['dashboard']['dataSources'].pop(old_table)
+        (ds['dashboard']['dataSources'][new_table]) = ds['dashboard'][
+            'dataSources'
+        ].pop(old_table)
 
     # Convert our new dashboard state to a python object
     dashboard.dashboard_state = b64encode(json.dumps(ds).encode()).decode()

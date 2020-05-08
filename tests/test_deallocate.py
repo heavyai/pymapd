@@ -9,7 +9,6 @@ import pandas as pd
 
 @pytest.mark.usefixtures("mapd_server")
 class TestDeallocate:
-
     def _data(self):
         HERE = os.path.dirname(__file__)
         df = pd.read_pickle(os.path.join(HERE, "data", "data_load.pkl"))
@@ -17,10 +16,14 @@ class TestDeallocate:
 
     def _connect(self):
 
-        return connect(user="admin",
-                       password='HyperInteractive',
-                       host='localhost',
-                       port=6274, protocol='binary', dbname='omnisci')
+        return connect(
+            user="admin",
+            password='HyperInteractive',
+            host='localhost',
+            port=6274,
+            protocol='binary',
+            dbname='omnisci',
+        )
 
     def _transact(self, con):
         drop = 'drop table if exists iris;'
@@ -36,17 +39,29 @@ class TestDeallocate:
     def test_deallocate_ipc_gpu(self):
         con = self._connect()
         self._transact(con)
-        bmem = int(subprocess.check_output('''nvidia-smi -i 0 \
+        bmem = int(
+            subprocess.check_output(
+                '''nvidia-smi -i 0 \
                                           -q -d MEMORY | \
                                           awk ' FNR == 11 { print $3 }' \
-                                          ''', shell=True))
-        df = con.select_ipc_gpu('''select sepal_l, sepal_W,
-                                petal_l, petal_w, species from iris''')
+                                          ''',
+                shell=True,
+            )
+        )
+        df = con.select_ipc_gpu(
+            '''select sepal_l, sepal_W,
+                                petal_l, petal_w, species from iris'''
+        )
         con.deallocate_ipc_gpu(df)
-        amem = int(subprocess.check_output('''nvidia-smi -i 0 \
+        amem = int(
+            subprocess.check_output(
+                '''nvidia-smi -i 0 \
                                           -q -d MEMORY | \
                                           awk ' FNR == 11 { print $3 }' \
-                                          ''', shell=True))
+                                          ''',
+                shell=True,
+            )
+        )
         con.close()
 
         assert amem == bmem
@@ -56,8 +71,10 @@ class TestDeallocate:
         con = self._connect()
         self._transact(con)
         bmem = int(subprocess.check_output('''ipcs -m | wc -l''', shell=True))
-        df = con.select_ipc('''select sepal_l, sepal_W,
-                                petal_l, petal_w, species from iris''')
+        df = con.select_ipc(
+            '''select sepal_l, sepal_W,
+                                petal_l, petal_w, species from iris'''
+        )
         con.deallocate_ipc(df)
         amem = int(subprocess.check_output('''ipcs -m | wc -l''', shell=True))
         con.close()
@@ -107,12 +124,18 @@ class TestDeallocate:
         con = self._connect()
         self._transact(con)
         bmem = int(subprocess.check_output('''ipcs -m | wc -l''', shell=True))
-        df1 = con.select_ipc('''select sepal_l, sepal_W,
-                                petal_l, petal_w, species from iris''')
-        df2 = con.select_ipc('''select sepal_l, sepal_W,
-                                petal_l, petal_w, species from iris''')
-        df3 = con.select_ipc('''select sepal_l, sepal_W,
-                                petal_l, petal_w, species from iris''')
+        df1 = con.select_ipc(
+            '''select sepal_l, sepal_W,
+                                petal_l, petal_w, species from iris'''
+        )
+        df2 = con.select_ipc(
+            '''select sepal_l, sepal_W,
+                                petal_l, petal_w, species from iris'''
+        )
+        df3 = con.select_ipc(
+            '''select sepal_l, sepal_W,
+                                petal_l, petal_w, species from iris'''
+        )
         con.deallocate_ipc(df1)
         con.deallocate_ipc(df2)
         con.deallocate_ipc(df3)

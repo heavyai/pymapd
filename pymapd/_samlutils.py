@@ -4,12 +4,14 @@ from html import unescape
 from urllib.parse import urlparse
 
 
-def get_saml_response(idpurl,
-                      username,
-                      password,
-                      userformfield,
-                      passwordformfield,
-                      sslverify=True):
+def get_saml_response(
+    idpurl,
+    username,
+    password,
+    userformfield,
+    passwordformfield,
+    sslverify=True,
+):
     """
     Obtains the SAML response from an Identity Provider
     given the provided username and password.
@@ -39,9 +41,11 @@ def get_saml_response(idpurl,
 
     # Determine if there's an action in the form, if there is,
     # use it instead of the page URL
-    asearch = re.search(r'<form\s+.*?\s+action'
-                        r'\s*=\s*\"(.*?)\".*?<\s*/form>',
-                        response.text, re.IGNORECASE | re.DOTALL)
+    asearch = re.search(
+        r'<form\s+.*?\s+action' r'\s*=\s*\"(.*?)\".*?<\s*/form>',
+        response.text,
+        re.IGNORECASE | re.DOTALL,
+    )
 
     if asearch:
         formaction = asearch.group(1)
@@ -54,17 +58,17 @@ def get_saml_response(idpurl,
     # Un-urlencode the URL
     formaction = unescape(formaction)
 
-    formpayload = {
-                    userformfield: username,
-                    passwordformfield: password
-                }
+    formpayload = {userformfield: username, passwordformfield: password}
 
     response = session.post(formaction, data=formpayload, verify=sslverify)
 
     samlresponse = None
-    ssearch = re.search(r'<input\s+.*?\s+name\s*=\s*'
-                        r'\"SAMLResponse\".*?\s+value=\"(.*?)\".*?\/>',
-                        response.text, re.IGNORECASE | re.DOTALL)
+    ssearch = re.search(
+        r'<input\s+.*?\s+name\s*=\s*'
+        r'\"SAMLResponse\".*?\s+value=\"(.*?)\".*?\/>',
+        response.text,
+        re.IGNORECASE | re.DOTALL,
+    )
     if ssearch:
         samlresponse = ssearch.group(1)
         # Remove any whitespace, some providers include

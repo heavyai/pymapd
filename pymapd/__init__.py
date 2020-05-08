@@ -14,11 +14,9 @@ apilevel = "2.0"
 threadsafety = 2
 paramstyle = "named"
 
-from .connection import (  # noqa
-    connect, Connection
-)
+from .connection import connect, Connection  # noqa
 
-from .cursor import Cursor # noqa
+from .cursor import Cursor  # noqa
 
 from .exceptions import (  # noqa
     Warning,

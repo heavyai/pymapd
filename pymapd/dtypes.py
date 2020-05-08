@@ -9,7 +9,6 @@ T = TDatumType
 
 
 class DataType:
-
     def __init__(self, matches):
         self._matches = set(matches)
 
@@ -29,10 +28,29 @@ Time = datetime.time
 Timestamp = datetime.datetime
 
 BINARY = DataType([])
-STRING = DataType([T.STR, T.POINT, T.LINESTRING, T.POLYGON,
-                   T.MULTIPOLYGON, T.GEOMETRY, T.GEOGRAPHY])
-NUMBER = DataType([T.SMALLINT, T.INT, T.BIGINT, T.FLOAT, T.DECIMAL, T.DOUBLE,
-                   T.BOOL, T.TINYINT])
+STRING = DataType(
+    [
+        T.STR,
+        T.POINT,
+        T.LINESTRING,
+        T.POLYGON,
+        T.MULTIPOLYGON,
+        T.GEOMETRY,
+        T.GEOGRAPHY,
+    ]
+)
+NUMBER = DataType(
+    [
+        T.SMALLINT,
+        T.INT,
+        T.BIGINT,
+        T.FLOAT,
+        T.DECIMAL,
+        T.DOUBLE,
+        T.BOOL,
+        T.TINYINT,
+    ]
+)
 DATETIME = DataType([T.DATE, T.TIME, T.TIMESTAMP])
 ROWID = DataType([])
 

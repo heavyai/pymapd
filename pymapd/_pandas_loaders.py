@@ -12,15 +12,16 @@ from pandas.api.types import (
     is_datetime64_any_dtype,
 )
 
-from omnisci.thrift.ttypes import (
-    TColumn, TColumnData, TColumnType
-)
+from omnisci.thrift.ttypes import TColumn, TColumnData, TColumnType
 
 from omnisci.common.ttypes import TTypeInfo, TDatumType
 
 from ._utils import (
-    date_to_seconds, time_to_seconds, datetime_to_seconds,
-    mapd_to_na, mapd_to_slot
+    date_to_seconds,
+    time_to_seconds,
+    datetime_to_seconds,
+    mapd_to_na,
+    mapd_to_slot,
 )
 
 
@@ -98,16 +99,15 @@ def thrift_cast(data, mapd_type, scale=0):
         return data.astype(int)
     elif mapd_type == 'DECIMAL':
         # Multiply by 10^scale
-        data = data * 10**scale
+        data = data * 10 ** scale
         # fillna and convert to int
         data = data.fillna(mapd_to_na[mapd_type])
         return data.astype(int)
 
 
-def build_input_columnar(df, preserve_index=True,
-                         chunk_size_bytes=0,
-                         col_types=[],
-                         col_names=[]):
+def build_input_columnar(
+    df, preserve_index=True, chunk_size_bytes=0, col_types=[], col_names=[]
+):
     if preserve_index:
         df = df.reset_index()
 
@@ -117,7 +117,7 @@ def build_input_columnar(df, preserve_index=True,
     else:
         chunks = 1
 
-    dfs = (np.array_split(df, chunks))
+    dfs = np.array_split(df, chunks)
     cols_array = []
     for df in dfs:
         input_cols = []
@@ -150,9 +150,7 @@ def build_input_columnar(df, preserve_index=True,
                 data = data.astype('int64')
             # use .values so that indexes don't have to be serialized too
             kwargs = {mapd_to_slot[mapd_type]: data.values}
-            input_cols.append(
-                TColumn(data=TColumnData(**kwargs), nulls=nulls)
-            )
+            input_cols.append(TColumn(data=TColumnData(**kwargs), nulls=nulls))
             colindex += 1
         cols_array.append(input_cols)
 
@@ -194,9 +192,11 @@ def build_row_desc(data, preserve_index=False):
     if not isinstance(data, pd.DataFrame):
         # Once https://issues.apache.org/jira/browse/ARROW-1576 is complete
         # we can support pa.Table here too
-        raise TypeError("Create table is not supported for type {}. "
-                        "Use a pandas DataFrame, or perform the create "
-                        "separately".format(type(data)))
+        raise TypeError(
+            "Create table is not supported for type {}. "
+            "Use a pandas DataFrame, or perform the create "
+            "separately".format(type(data))
+        )
 
     if preserve_index:
         data = data.reset_index()

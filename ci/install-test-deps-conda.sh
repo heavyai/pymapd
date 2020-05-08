@@ -22,6 +22,7 @@ numpy \
 numpydoc \
 coverage \
 flake8 \
+pre-commit \
 pytest-cov \
 pytest-mock \
 shapely \

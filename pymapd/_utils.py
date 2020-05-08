@@ -25,16 +25,19 @@ def datetime_to_seconds(arr):
             # The user has passed a unix timestamp already
             return arr
         elif arr.dtype == 'object' or str(arr.dtype).startswith(
-                                                        'datetime64[ns,'):
+            'datetime64[ns,'
+        ):
             # Convert to datetime64[ns] from string
             # Or from datetime with timezone information
             # Return timestamp in 'UTC'
             arr = pd.to_datetime(arr, utc=True)
         else:
-            raise TypeError(f"Invalid dtype '{arr.dtype}', expected one of: "
-                            "datetime64[ns], int64 (UNIX epoch), "
-                            "or object (string)")
-    return arr.view('i8') // 10**9  # ns -> s since epoch
+            raise TypeError(
+                f"Invalid dtype '{arr.dtype}', expected one of: "
+                "datetime64[ns], int64 (UNIX epoch), "
+                "or object (string)"
+            )
+    return arr.view('i8') // 10 ** 9  # ns -> s since epoch
 
 
 def datetime_in_precisions(epoch, precision):

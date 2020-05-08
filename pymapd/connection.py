@@ -17,10 +17,7 @@ from omnisci.thrift.ttypes import TOmniSciException, TFileType
 from .cursor import Cursor
 from .exceptions import _translate_exception, OperationalError
 
-from ._parsers import (
-    _parse_tdf_gpu, _bind_parameters,
-    _extract_column_details
-)
+from ._parsers import _parse_tdf_gpu, _bind_parameters, _extract_column_details
 
 from ._loaders import _build_input_rows
 from ._transforms import change_dashboard_sources
@@ -34,27 +31,37 @@ from ._samlutils import get_saml_response
 from packaging.version import Version
 
 
-ConnectionInfo = namedtuple("ConnectionInfo", ['user', 'password', 'host',
-                                               'port', 'dbname', 'protocol',
-                                               'bin_cert_validate',
-                                               'bin_ca_certs'])
+ConnectionInfo = namedtuple(
+    "ConnectionInfo",
+    [
+        'user',
+        'password',
+        'host',
+        'port',
+        'dbname',
+        'protocol',
+        'bin_cert_validate',
+        'bin_ca_certs',
+    ],
+)
 
 
-def connect(uri=None,
-            user=None,
-            password=None,
-            host=None,
-            port=6274,
-            dbname=None,
-            protocol='binary',
-            sessionid=None,
-            bin_cert_validate=None,
-            bin_ca_certs=None,
-            idpurl=None,
-            idpformusernamefield='username',
-            idpformpasswordfield='password',
-            idpsslverify=True,
-            ):
+def connect(
+    uri=None,
+    user=None,
+    password=None,
+    host=None,
+    port=6274,
+    dbname=None,
+    protocol='binary',
+    sessionid=None,
+    bin_cert_validate=None,
+    bin_ca_certs=None,
+    idpurl=None,
+    idpformusernamefield='username',
+    idpformpasswordfield='password',
+    idpsslverify=True,
+):
     """
     Create a new Connection.
 
@@ -106,13 +113,22 @@ def connect(uri=None,
     ...         port=6273, protocol='http')
 
     """
-    return Connection(uri=uri, user=user, password=password, host=host,
-                      port=port, dbname=dbname, protocol=protocol,
-                      sessionid=sessionid, bin_cert_validate=bin_cert_validate,
-                      bin_ca_certs=bin_ca_certs, idpurl=idpurl,
-                      idpformusernamefield=idpformusernamefield,
-                      idpformpasswordfield=idpformpasswordfield,
-                      idpsslverify=idpsslverify)
+    return Connection(
+        uri=uri,
+        user=user,
+        password=password,
+        host=host,
+        port=port,
+        dbname=dbname,
+        protocol=protocol,
+        sessionid=sessionid,
+        bin_cert_validate=bin_cert_validate,
+        bin_ca_certs=bin_ca_certs,
+        idpurl=idpurl,
+        idpformusernamefield=idpformusernamefield,
+        idpformpasswordfield=idpformpasswordfield,
+        idpsslverify=idpsslverify,
+    )
 
 
 def _parse_uri(uri):
@@ -151,54 +167,80 @@ def _parse_uri(uri):
     bin_cert_validate = url.query.get('bin_cert_validate', None)
     bin_ca_certs = url.query.get('bin_ca_certs', None)
 
-    return ConnectionInfo(user, password, host, port, dbname, protocol,
-                          bin_cert_validate, bin_ca_certs)
+    return ConnectionInfo(
+        user,
+        password,
+        host,
+        port,
+        dbname,
+        protocol,
+        bin_cert_validate,
+        bin_ca_certs,
+    )
 
 
 class Connection:
     """Connect to your OmniSci database."""
 
-    def __init__(self,
-                 uri=None,
-                 user=None,
-                 password=None,
-                 host=None,
-                 port=6274,
-                 dbname=None,
-                 protocol='binary',
-                 sessionid=None,
-                 bin_cert_validate=None,
-                 bin_ca_certs=None,
-                 idpurl=None,
-                 idpformusernamefield='username',
-                 idpformpasswordfield='password',
-                 idpsslverify=True,
-                 ):
+    def __init__(
+        self,
+        uri=None,
+        user=None,
+        password=None,
+        host=None,
+        port=6274,
+        dbname=None,
+        protocol='binary',
+        sessionid=None,
+        bin_cert_validate=None,
+        bin_ca_certs=None,
+        idpurl=None,
+        idpformusernamefield='username',
+        idpformpasswordfield='password',
+        idpsslverify=True,
+    ):
 
         self.sessionid = None
         if sessionid is not None:
             if any([user, password, uri, dbname, idpurl]):
-                raise TypeError("Cannot specify sessionid with user, password,"
-                                " dbname, uri, or idpurl")
+                raise TypeError(
+                    "Cannot specify sessionid with user, password,"
+                    " dbname, uri, or idpurl"
+                )
         if uri is not None:
-            if not all([user is None,
-                        password is None,
-                        host is None,
-                        port == 6274,
-                        dbname is None,
-                        protocol == 'binary',
-                        bin_cert_validate is None,
-                        bin_ca_certs is None,
-                        idpurl is None]):
+            if not all(
+                [
+                    user is None,
+                    password is None,
+                    host is None,
+                    port == 6274,
+                    dbname is None,
+                    protocol == 'binary',
+                    bin_cert_validate is None,
+                    bin_ca_certs is None,
+                    idpurl is None,
+                ]
+            ):
                 raise TypeError("Cannot specify both URI and other arguments")
-            user, password, host, port, dbname, protocol, \
-                bin_cert_validate, bin_ca_certs = _parse_uri(uri)
+            (
+                user,
+                password,
+                host,
+                port,
+                dbname,
+                protocol,
+                bin_cert_validate,
+                bin_ca_certs,
+            ) = _parse_uri(uri)
         if host is None:
             raise TypeError("`host` parameter is required.")
-        if protocol != 'binary' and not all([bin_cert_validate is None,
-                                             bin_ca_certs is None]):
-            raise TypeError("Cannot specify bin_cert_validate or bin_ca_certs,"
-                            " without binary protocol")
+        if protocol != 'binary' and not all(
+            [bin_cert_validate is None, bin_ca_certs is None]
+        ):
+            raise TypeError(
+                "Cannot specify bin_cert_validate or bin_ca_certs,"
+                " without binary protocol"
+            )
         if protocol in ("http", "https"):
             if not host.startswith(protocol):
                 # the THttpClient expects http[s]://localhost
@@ -208,19 +250,22 @@ class Connection:
             socket = None
         elif protocol == "binary":
             if any([bin_cert_validate is not None, bin_ca_certs]):
-                socket = TSSLSocket.TSSLSocket(host,
-                                               port,
-                                               validate=(
-                                                   bin_cert_validate),
-                                               ca_certs=bin_ca_certs)
+                socket = TSSLSocket.TSSLSocket(
+                    host,
+                    port,
+                    validate=(bin_cert_validate),
+                    ca_certs=bin_ca_certs,
+                )
             else:
                 socket = TSocket.TSocket(host, port)
             transport = TTransport.TBufferedTransport(socket)
             proto = TBinaryProtocol.TBinaryProtocolAccelerated(transport)
         else:
-            raise ValueError("`protocol` should be one of",
-                             " ['http', 'https', 'binary'],",
-                             " got {} instead".format(protocol))
+            raise ValueError(
+                "`protocol` should be one of",
+                " ['http', 'https', 'binary'],",
+                " got {} instead".format(protocol),
+            )
         self._user = user
         self._password = password
         self._host = host
@@ -256,7 +301,8 @@ class Connection:
                         idpurl=idpurl,
                         userformfield=idpformusernamefield,
                         passwordformfield=idpformpasswordfield,
-                        sslverify=idpsslverify)
+                        sslverify=idpsslverify,
+                    )
                     self._dbname = ''
                     self._idpsslverify = idpsslverify
                     user = self._user
@@ -267,26 +313,36 @@ class Connection:
         except TOmniSciException as e:
             raise _translate_exception(e) from e
         except TTransportException:
-            raise ValueError(f"Connection failed with port {port} and "
-                             f"protocol '{protocol}'. Try port 6274 for "
-                             "protocol == binary or 6273, 6278 or 443 for "
-                             "http[s]"
-                             )
+            raise ValueError(
+                f"Connection failed with port {port} and "
+                f"protocol '{protocol}'. Try port 6274 for "
+                "protocol == binary or 6273, 6278 or 443 for "
+                "http[s]"
+            )
 
         # if OmniSci version <4.6, raise RuntimeError, as data import can be
         # incorrect for columnar date loads
         # Caused by https://github.com/omnisci/pymapd/pull/188
         semver = self._client.get_version()
         if Version(semver.split("-")[0]) < Version("4.6"):
-            raise RuntimeError(f"Version {semver} of OmniSci detected. "
-                               "Please use pymapd <0.11. See release notes "
-                               "for more details.")
+            raise RuntimeError(
+                f"Version {semver} of OmniSci detected. "
+                "Please use pymapd <0.11. See release notes "
+                "for more details."
+            )
 
     def __repr__(self):
-        tpl = ('Connection(omnisci://{user}:***@{host}:{port}/{dbname}?'
-               'protocol={protocol})')
-        return tpl.format(user=self._user, host=self._host, port=self._port,
-                          dbname=self._dbname, protocol=self._protocol)
+        tpl = (
+            'Connection(omnisci://{user}:***@{host}:{port}/{dbname}?'
+            'protocol={protocol})'
+        )
+        return tpl.format(
+            user=self._user,
+            host=self._host,
+            port=self._port,
+            dbname=self._dbname,
+            protocol=self._protocol,
+        )
 
     def __del__(self):
         self.close()
@@ -337,8 +393,14 @@ class Connection:
         """Create a new :class:`Cursor` object attached to this connection."""
         return Cursor(self)
 
-    def select_ipc_gpu(self, operation, parameters=None, device_id=0,
-                       first_n=-1, release_memory=True):
+    def select_ipc_gpu(
+        self,
+        operation,
+        parameters=None,
+        device_id=0,
+        first_n=-1,
+        release_memory=True,
+    ):
         """Execute a ``SELECT`` operation using GPU memory.
 
         Parameters
@@ -368,18 +430,22 @@ class Connection:
         """
         try:
             from cudf.comm.gpuarrow import GpuArrowReader  # noqa
-            from cudf.core.dataframe import DataFrame           # noqa
+            from cudf.core.dataframe import DataFrame  # noqa
         except ImportError:
-            raise ImportError("The 'cudf' package is required for "
-                              "`select_ipc_gpu`")
+            raise ImportError(
+                "The 'cudf' package is required for " "`select_ipc_gpu`"
+            )
 
         self.register_runtime_udfs()
         if parameters is not None:
             operation = str(_bind_parameters(operation, parameters))
 
         tdf = self._client.sql_execute_gdf(
-            self._session, operation.strip(), device_id=device_id,
-            first_n=first_n)
+            self._session,
+            operation.strip(),
+            device_id=device_id,
+            first_n=first_n,
+        )
         self._tdf = tdf
 
         df = _parse_tdf_gpu(tdf)
@@ -390,8 +456,9 @@ class Connection:
 
         return df
 
-    def select_ipc(self, operation, parameters=None, first_n=-1,
-                   release_memory=True):
+    def select_ipc(
+        self, operation, parameters=None, first_n=-1, release_memory=True
+    ):
         """Execute a ``SELECT`` operation using CPU shared memory
 
         Parameters
@@ -420,8 +487,11 @@ class Connection:
             operation = str(_bind_parameters(operation, parameters))
 
         tdf = self._client.sql_execute_df(
-            self._session, operation.strip(), device_type=0, device_id=0,
-            first_n=first_n
+            self._session,
+            operation.strip(),
+            device_type=0,
+            device_id=0,
+            first_n=first_n,
         )
         self._tdf = tdf
 
@@ -464,7 +534,8 @@ class Connection:
             session=self._session,
             df=tdf,
             device_type=TDeviceType.GPU,
-            device_id=device_id)
+            device_id=device_id,
+        )
         return result
 
     def deallocate_ipc(self, df, device_id=0):
@@ -480,7 +551,8 @@ class Connection:
             session=self._session,
             df=tdf,
             device_type=TDeviceType.CPU,
-            device_id=device_id)
+            device_id=device_id,
+        )
         return result
 
     # --------------------------------------------------------------------------
@@ -532,12 +604,22 @@ class Connection:
         """
 
         row_desc = build_row_desc(data, preserve_index=preserve_index)
-        self._client.create_table(self._session, table_name, row_desc,
-                                  TFileType.DELIMITED, TCreateParams(False))
+        self._client.create_table(
+            self._session,
+            table_name,
+            row_desc,
+            TFileType.DELIMITED,
+            TCreateParams(False),
+        )
 
-    def load_table(self, table_name, data, method='infer',
-                   preserve_index=False,
-                   create='infer'):
+    def load_table(
+        self,
+        table_name,
+        data,
+        method='infer',
+        preserve_index=False,
+        create='infer',
+    ):
         """Load data into a table
 
         Parameters
@@ -576,23 +658,29 @@ class Connection:
         """
 
         if create not in ['infer', True, False]:
-            raise ValueError(f"Unexpected value for create: '{create}'. "
-                             "Expected one of {'infer', True, False}")
+            raise ValueError(
+                f"Unexpected value for create: '{create}'. "
+                "Expected one of {'infer', True, False}"
+            )
 
         if create == 'infer':
             # ask the database if we already exist, creating if not
             create = table_name not in set(
-                self._client.get_tables(self._session))
+                self._client.get_tables(self._session)
+            )
 
         if create:
             self.create_table(table_name, data)
 
         if method == 'infer':
-            if (isinstance(data, pd.DataFrame)
-                or isinstance(data, pa.Table) or isinstance(data, pa.RecordBatch)): # noqa
+            if (
+                isinstance(data, pd.DataFrame)
+                or isinstance(data, pa.Table)
+                or isinstance(data, pa.RecordBatch)
+            ):  # noqa
                 return self.load_table_arrow(table_name, data)
 
-            elif (isinstance(data, pd.DataFrame)):
+            elif isinstance(data, pd.DataFrame):
                 return self.load_table_columnar(table_name, data)
 
         elif method == 'arrow':
@@ -602,9 +690,10 @@ class Connection:
             return self.load_table_columnar(table_name, data)
 
         elif method != 'rows':
-            raise TypeError("Method must be one of {{'infer', 'arrow', "
-                            "'columnar', 'rows'}}. Got {} instead"
-                            .format(method))
+            raise TypeError(
+                "Method must be one of {{'infer', 'arrow', "
+                "'columnar', 'rows'}}. Got {} instead".format(method)
+            )
 
         if isinstance(data, pd.DataFrame):
             # We need to convert a Pandas dataframe to a list of tuples before
@@ -638,12 +727,12 @@ class Connection:
         self._client.load_table(self._session, table_name, input_data)
 
     def load_table_columnar(
-            self,
-            table_name,
-            data,
-            preserve_index=False,
-            chunk_size_bytes=0,
-            col_names_from_schema=False
+        self,
+        table_name,
+        data,
+        preserve_index=False,
+        chunk_size_bytes=0,
+        col_names_from_schema=False,
     ):
         """Load a pandas DataFrame to the database using OmniSci's Thrift-based
         columnar format
@@ -688,14 +777,19 @@ class Connection:
             # as there are in the dataframe. No point trying to load the data
             # if this is not the case
             if len(table_details) != len(data.columns):
-                raise ValueError('Number of columns in dataframe ({}) does not \
+                raise ValueError(
+                    'Number of columns in dataframe ({}) does not \
                                   match number of columns in OmniSci table \
-                                  ({})'.format(len(data.columns),
-                                               len(table_details)))
+                                  ({})'.format(
+                        len(data.columns), len(table_details)
+                    )
+                )
 
-            col_names = [i[0] for i in table_details] if \
-                col_names_from_schema \
+            col_names = (
+                [i[0] for i in table_details]
+                if col_names_from_schema
                 else list(data)
+            )
 
             col_types = [(i[1], i[4]) for i in table_details]
 
@@ -704,13 +798,14 @@ class Connection:
                 preserve_index=preserve_index,
                 chunk_size_bytes=chunk_size_bytes,
                 col_types=col_types,
-                col_names=col_names
+                col_names=col_names,
             )
         else:
             raise TypeError("Unknown type {}".format(type(data)))
         for cols in input_cols:
-            self._client.load_table_binary_columnar(self._session, table_name,
-                                                    cols)
+            self._client.load_table_binary_columnar(
+                self._session, table_name, cols
+            )
 
     def load_table_arrow(self, table_name, data, preserve_index=False):
         """Load a pandas.DataFrame or a pyarrow Table or RecordBatch to the
@@ -735,10 +830,12 @@ class Connection:
         load_table_rowwise
         """
         metadata = self.get_table_details(table_name)
-        payload = _serialize_arrow_payload(data, metadata,
-                                           preserve_index=preserve_index)
-        self._client.load_table_binary_arrow(self._session, table_name,
-                                             payload.to_pybytes())
+        payload = _serialize_arrow_payload(
+            data, metadata, preserve_index=preserve_index
+        )
+        self._client.load_table_binary_arrow(
+            self._session, table_name, payload.to_pybytes()
+        )
 
     def render_vega(self, vega, compression_level=1):
         """Render vega data on the database backend,
@@ -758,7 +855,7 @@ class Connection:
             widget_id=None,
             vega_json=vega,
             compression_level=compression_level,
-            nonce=None
+            nonce=None,
         )
         rendered_vega = RenderedVega(result)
         return rendered_vega
@@ -771,8 +868,7 @@ class Connection:
         >>> con.get_dashboard(123)
         """
         dashboard = self._client.get_dashboard(
-            session=self._session,
-            dashboard_id=dashboard_id
+            session=self._session, dashboard_id=dashboard_id
         )
         return dashboard
 
@@ -783,13 +879,12 @@ class Connection:
         --------
         >>> con.get_dashboards()
         """
-        dashboards = self._client.get_dashboards(
-            session=self._session
-        )
+        dashboards = self._client.get_dashboards(session=self._session)
         return dashboards
 
-    def duplicate_dashboard(self, dashboard_id, new_name=None,
-                            source_remap=None):
+    def duplicate_dashboard(
+        self, dashboard_id, new_name=None, source_remap=None
+    ):
         """
         Duplicate an existing dashboard, returning the new dashboard id.
 
@@ -816,8 +911,7 @@ class Connection:
         """
         source_remap = source_remap or {}
         d = self._client.get_dashboard(
-            session=self._session,
-            dashboard_id=dashboard_id
+            session=self._session, dashboard_id=dashboard_id
         )
 
         newdashname = new_name or '{0} (Copy)'.format(d.dashboard_name)
@@ -846,9 +940,11 @@ class Connection:
             raise ImportError("The 'rbc' package is required for `__call__`")
         if self._rbc is None:
             self._rbc = RemoteOmnisci(
-                user=self._user, password=self._password,
-                host=self._host, port=self._port,
-                dbname=self._dbname
+                user=self._user,
+                password=self._password,
+                host=self._host,
+                port=self._port,
+                dbname=self._dbname,
             )
             self._rbc._session_id = self.sessionid
         return self._rbc(*args, **kwargs)
@@ -871,7 +967,8 @@ class RenderedVega:
     def _repr_mimebundle_(self, include=None, exclude=None):
         return {
             'image/png': self.image_data,
-            'text/html':
-                '<img src="data:image/png;base64,{}" alt="OmniSci Vega">'
-                .format(self.image_data)
+            'text/html': (
+                '<img src="data:image/png;base64,{}" '
+                'alt="OmniSci Vega">'.format(self.image_data)
+            ),
         }
