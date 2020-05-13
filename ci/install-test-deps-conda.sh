@@ -10,13 +10,14 @@ conda config --add channels conda-forge
 conda config --add channels rapidsai
 conda config --add channels nvidia
 
+# ATM cudf uses pandas >=0.25,<0.26 pinning
 conda create --yes -n omnisci-dev python=${PYTHON:-3.7} \
 thrift=0.13.0 \
 cudf=0.13 \
 cudatoolkit=10.1 \
 arrow-cpp=0.15.0 \
 pyarrow==0.15.0 \
-pandas>=1.0 \
+pandas>=0.25,<0.26 \
 sqlalchemy>=1.3 \
 numpy>=1.16 \
 numpydoc \
