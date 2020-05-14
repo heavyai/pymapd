@@ -13,13 +13,31 @@ import numpy as np
 from .ipc import load_buffer, shmdt
 
 
-Description = namedtuple("Description", ["name", "type_code", "display_size",
-                                         "internal_size", "precision", "scale",
-                                         "null_ok"])
-ColumnDetails = namedtuple("ColumnDetails", ["name", "type", "nullable",
-                                             "precision", "scale",
-                                             "comp_param", "encoding",
-                                             "is_array"])
+Description = namedtuple(
+    "Description",
+    [
+        "name",
+        "type_code",
+        "display_size",
+        "internal_size",
+        "precision",
+        "scale",
+        "null_ok",
+    ],
+)
+ColumnDetails = namedtuple(
+    "ColumnDetails",
+    [
+        "name",
+        "type",
+        "nullable",
+        "precision",
+        "scale",
+        "comp_param",
+        "encoding",
+        "is_array",
+    ],
+)
 
 _typeattr = {
     'SMALLINT': 'int',
@@ -49,17 +67,21 @@ _thrift_values_to_encodings = T.TEncodingType._VALUES_TO_NAMES
 
 def _format_result_timestamp(desc, arr):
 
-    return [None if v is None else
-            datetime_in_precisions(v, desc.col_type.precision)
-            for v in arr]
+    return [
+        None
+        if v is None
+        else datetime_in_precisions(v, desc.col_type.precision)
+        for v in arr
+    ]
 
 
 def _format_result_date(arr):
 
     base = datetime.datetime(1970, 1, 1)
-    return [None if v is None else
-            (base + datetime.timedelta(seconds=v)).date()
-            for v in arr]
+    return [
+        None if v is None else (base + datetime.timedelta(seconds=v)).date()
+        for v in arr
+    ]
 
 
 def _format_result_time(arr):
@@ -75,8 +97,10 @@ def _extract_col_vals(desc, val):
     # arr_col has multiple levels to parse, not accounted for in original code
     # https://github.com/omnisci/pymapd/issues/68
     if hasattr(val.data, 'arr_col') and val.data.arr_col:
-        vals = [None if null else getattr(v.data, _typeattr[typename] + '_col')
-                for null, v in zip(nulls, val.data.arr_col)]
+        vals = [
+            None if null else getattr(v.data, _typeattr[typename] + '_col')
+            for null, v in zip(nulls, val.data.arr_col)
+        ]
 
         if typename == 'TIMESTAMP':
             vals = [_format_result_timestamp(desc, v) for v in vals]
@@ -107,20 +131,33 @@ def _extract_description(row_desc):
 
     https://www.python.org/dev/peps/pep-0249/#description
     """
-    return [Description(col.col_name, col.col_type.type,
-                        None, None, None, None,
-                        col.col_type.nullable)
-            for col in row_desc]
+    return [
+        Description(
+            col.col_name,
+            col.col_type.type,
+            None,
+            None,
+            None,
+            None,
+            col.col_type.nullable,
+        )
+        for col in row_desc
+    ]
 
 
 def _extract_column_details(row_desc):
     # For Connection.get_table_details
     return [
-        ColumnDetails(x.col_name, _thrift_values_to_types[x.col_type.type],
-                      x.col_type.nullable, x.col_type.precision,
-                      x.col_type.scale, x.col_type.comp_param,
-                      _thrift_values_to_encodings[x.col_type.encoding],
-                      x.col_type.is_array)
+        ColumnDetails(
+            x.col_name,
+            _thrift_values_to_types[x.col_type.type],
+            x.col_type.nullable,
+            x.col_type.precision,
+            x.col_type.scale,
+            x.col_type.comp_param,
+            _thrift_values_to_encodings[x.col_type.encoding],
+            x.col_type.is_array,
+        )
         for x in row_desc
     ]
 
@@ -165,7 +202,7 @@ def _parse_tdf_gpu(tdf):
         updated_fields = []
 
         for f in schema:
-            if (pa.types.is_dictionary(f.type)):
+            if pa.types.is_dictionary(f.type):
                 msg = dict_batch_reader.read_next_batch()
                 dict_memo[f.name] = msg.column(0)
                 updated_fields.append(pa.field(f.name, f.type.index_type))
@@ -179,10 +216,12 @@ def _parse_tdf_gpu(tdf):
         pass
 
     dtype = np.dtype(np.byte)
-    darr = cuda.devicearray.DeviceNDArray(shape=ipc_buf.size,
-                                          strides=dtype.itemsize,
-                                          dtype=dtype,
-                                          gpu_data=ipc_buf.to_numba())
+    darr = cuda.devicearray.DeviceNDArray(
+        shape=ipc_buf.size,
+        strides=dtype.itemsize,
+        dtype=dtype,
+        gpu_data=ipc_buf.to_numba(),
+    )
 
     reader = GpuArrowReader(schema, darr)
     df = DataFrame()
@@ -206,6 +245,8 @@ def _parse_tdf_gpu(tdf):
 
 
 def _bind_parameters(operation, parameters):
-    return (text(operation)
-            .bindparams(**parameters)
-            .compile(compile_kwargs={"literal_binds": True}))
+    return (
+        text(operation)
+        .bindparams(**parameters)
+        .compile(compile_kwargs={"literal_binds": True})
+    )

@@ -1,5 +1,5 @@
-def flake8_container_image = "alpine/flake8:3.7.7"
-def flake8_container_name = "pymapd-flake8-$BUILD_NUMBER"
+def precommit_container_image = "sloria/pre-commit"
+def precommit_container_name = "pymapd-precommit-$BUILD_NUMBER"
 def db_container_image = "omnisci/core-os-cuda-dev:master"
 //def db_container_image = "omnisci/core-os-cuda"
 def db_container_name = "pymapd-db-$BUILD_NUMBER"
@@ -26,7 +26,7 @@ pipeline {
             agent any
             steps {
                 // Set pending status manually for all jobs before node is started
-                setBuildStatus("Build queued", "PENDING", "Flake8");
+                setBuildStatus("Build queued", "PENDING", "Pre_commit_hook_check");
                 setBuildStatus("Build queued", "PENDING", "Pytest - conda python3.6");
                 setBuildStatus("Build queued", "PENDING", "Pytest - conda python3.7");
                 setBuildStatus("Build queued", "PENDING", "Pytest - pip python3.6");
@@ -40,21 +40,22 @@ pipeline {
                         checkout scm
                     }
                 }
-                stage('Flake8') {
+                stage('Pre_commit_hook_check') {
                     steps {
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             script { stage_succeeded = false }
                             setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
                             sh """
-                                docker pull $flake8_container_image
+                                docker pull $precommit_container_image
                                 docker run \
                                   --rm \
                                   --entrypoint= \
-                                  --name $flake8_container_name \
+                                  --name $precommit_container_name \
                                   -v $WORKSPACE:/apps \
-                                  $flake8_container_image \
-                                    flake8
-                                docker rm -f $flake8_container_name || true
+                                  -w /apps \
+                                  $precommit_container_image \
+                                    pre-commit run --all-files
+                                docker rm -f $precommit_container_name || true
                             """
                             script { stage_succeeded = true }
                         }
@@ -66,7 +67,7 @@ pipeline {
                                     setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
                                 } else {
                                     sh """
-                                        docker rm -f $flake8_container_name || true
+                                        docker rm -f $precommit_container_name || true
                                     """
                                     setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
                                 }
@@ -338,7 +339,7 @@ pipeline {
             post {
                 always {
                     sh """
-                        docker rm -f $flake8_container_name || true
+                        docker rm -f $precommit_container_name || true
                         docker rm -f $testscript_container_name || true
                         docker rm -f $db_container_name || true
                         sudo chown -R jenkins-slave:jenkins-slave $WORKSPACE

@@ -12,12 +12,12 @@ def mock_connection(mock_client):
     - host='localhost'
     - dbname='dbname'
     """
-    return connect(user='user', password='password',
-                   host='localhost', dbname='dbname')
+    return connect(
+        user='user', password='password', host='localhost', dbname='dbname'
+    )
 
 
 class TestCursor:
-
     def test_empty_iterable(self):
         c = Cursor(None)
         result = list(c)

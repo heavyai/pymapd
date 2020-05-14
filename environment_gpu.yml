@@ -17,10 +17,11 @@ dependencies:
 - numpydoc
 - coverage
 - flake8
+- pre-commit
 - pytest-cov
 - pytest-mock
 - shapely
-- sphinx 
+- sphinx
 - requests
 - sphinx_rtd_theme
 - 'rbc==0.2.2'
