@@ -17,7 +17,7 @@ cudf=0.13 \
 cudatoolkit=10.1 \
 arrow-cpp=0.15.0 \
 pyarrow==0.15.0 \
-pandas>=0.25,<0.26 \
+"pandas>=0.25,<0.26" \
 sqlalchemy>=1.3 \
 numpy>=1.16 \
 numpydoc \
