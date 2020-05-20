@@ -1,5 +1,7 @@
 import subprocess
 import time
+from uuid import uuid4
+
 import pytest
 from thrift.transport import TSocket, TTransport
 from thrift.transport.TSocket import TTransportException
@@ -189,3 +191,14 @@ def _tests_table_no_nulls(n_samples):
     }
 
     return pd.DataFrame(d)
+
+
+@pytest.fixture
+def tmp_table(con) -> str:
+    table_name = 'table_{}'.format(uuid4().hex)
+    con.execute("drop table if exists {};".format(table_name))
+
+    try:
+        yield table_name
+    finally:
+        con.execute("drop table if exists {};".format(table_name))

@@ -25,6 +25,11 @@ from .conftest import no_gpu
 TOmniSciException.__hash__ = lambda x: id(x)
 
 
+def _cursor2df(cursor):
+    col_names = [c.name for c in cursor.description]
+    return pd.DataFrame(cursor.fetchall(), columns=col_names)
+
+
 @pytest.mark.usefixtures("mapd_server")
 class TestIntegration:
     def test_connect_binary(self):
@@ -666,17 +671,50 @@ class TestLoaders:
         self.check_empty_insert(result, data)
         con.execute("drop table if exists baz;")
 
-    def test_load_table_columnar(self, con):
-
-        con.execute("drop table if exists baz;")
-        con.execute("create table baz (a int, b float, c text);")
-
-        df = pd.DataFrame(
-            {"a": [1, 2, 3], "b": [1.1, 2.2, 3.3], "c": ['a', '2', '3']},
-            columns=['a', 'b', 'c'],
-        )
-        con.load_table_columnar("baz", df)
-        con.execute("drop table if exists baz;")
+    @pytest.mark.parametrize(
+        'df, table_fields',
+        [
+            (
+                pd.DataFrame(
+                    {
+                        "a": [1, 2, 3],
+                        "b": [1.1, 2.2, 3.3],
+                        "c": ['a', '2', '3'],
+                    },
+                ),
+                'a int, b float, c text',
+            ),
+            (
+                pd.DataFrame(
+                    [
+                        {'ary': [2, 3, 4]},
+                        {'ary': [4444]},
+                        {'ary': []},
+                        {'ary': None},
+                        {'ary': [2, 3, 4]},
+                    ]
+                ),
+                'ary INT[]',
+            ),
+            (
+                pd.DataFrame(
+                    [
+                        {'ary': [2, 3, 4], 'strtest': 'teststr'},
+                        {'ary': None, 'strtest': 'teststr'},
+                        {'ary': [4444], 'strtest': 'teststr'},
+                        {'ary': [], 'strtest': 'teststr'},
+                        {'ary': [2, 3, 4], 'strtest': 'teststr'},
+                    ]
+                ),
+                'ary INT[], strtest TEXT',
+            ),
+        ],
+    )
+    def test_load_table_columnar(self, con, tmp_table, df, table_fields):
+        con.execute("create table {} ({});".format(tmp_table, table_fields))
+        con.load_table_columnar(tmp_table, df)
+        result = _cursor2df(con.execute('select * from {}'.format(tmp_table)))
+        pd.testing.assert_frame_equal(df, result)
 
     def test_load_infer(self, con):
 
