@@ -26,7 +26,8 @@ from ._utils import (
 
 
 def get_mapd_dtype(data):
-    "Get the OmniSci type"
+    """Get the OmniSci type"""
+
     if is_object_dtype(data):
         return get_mapd_type_from_object(data)
     else:
@@ -119,37 +120,80 @@ def build_input_columnar(
 
     dfs = np.array_split(df, chunks)
     cols_array = []
+
     for df in dfs:
         input_cols = []
 
         colindex = 0
         for col in col_names:
-            data = df[col]
+            data = df.loc[:, [col]]
 
-            mapd_type = col_types[colindex][0]
+            mapd_type = col_types[colindex].type
+            is_array = col_types[colindex].is_array
+            scale = col_types[colindex].scale
+            has_nulls = data[col].hasnans
 
-            has_nulls = data.hasnans
             if has_nulls:
-                nulls = data.isnull().values.tolist()
+                nulls = data[col].isnull().values.tolist()
             else:
                 nulls = [False] * len(df)
 
+            if is_array:
+                # Expand the dataframe so each array item has
+                # its own field in the dataframe.
+                data = data.iloc[:, 0].apply(pd.Series)
+
             if mapd_type in {'TIME', 'TIMESTAMP', 'DATE', 'BOOL'}:
                 # requires a cast to integer
-                data = thrift_cast(data, mapd_type, 0)
+                for c in data:
+                    data.loc[:, c] = thrift_cast(
+                        data=data[c], mapd_type=mapd_type
+                    )
 
             if mapd_type in ['DECIMAL']:
                 # requires a calculation be done using the scale
                 # then cast to int
-                data = thrift_cast(data, mapd_type, col_types[colindex][1])
+                for c in data:
+                    data.loc[:, c] = thrift_cast(
+                        data=data[c],
+                        mapd_type=mapd_type,
+                        scale=scale,
+                        is_array=is_array,
+                    )
 
             if has_nulls:
-                data = data.fillna(mapd_to_na[mapd_type])
+                if not is_array:
+                    for c in data:
+                        data.loc[:, c] = data[c].fillna(mapd_to_na[mapd_type])
+
+            if is_array:
+                data = data.apply(lambda x: [i for i in x.dropna()], axis=1)
+                if has_nulls:
+                    data[nulls] = mapd_to_na[mapd_type]
 
             if mapd_type not in ['FLOAT', 'DOUBLE', 'VARCHAR', 'STR']:
-                data = data.astype('int64')
-            # use .values so that indexes don't have to be serialized too
-            kwargs = {mapd_to_slot[mapd_type]: data.values}
+                if is_array:
+                    data = data.apply(
+                        lambda _array: [int(item) for item in _array]
+                        if isinstance(_array, list)
+                        else None
+                    )
+                else:
+                    for c in data:
+                        data.loc[:, c] = data.loc[:, c].astype('int64')
+
+            # If this is an array column, we need the data to be a series
+            # of TColumn objects of type mapd_type.
+            if is_array:
+                data = data.apply(
+                    lambda x: TColumn(
+                        data=TColumnData(**{mapd_to_slot[mapd_type]: x})
+                    )
+                )
+                kwargs = {'arr_col': data}
+            else:
+                kwargs = {mapd_to_slot[mapd_type]: data.iloc[:, 0].values}
+
             input_cols.append(TColumn(data=TColumnData(**kwargs), nulls=nulls))
             colindex += 1
         cols_array.append(input_cols)
