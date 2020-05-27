@@ -250,7 +250,7 @@ def build_row_desc(data, preserve_index=False):
     is_array = {}
     for col in data.columns:
         _dtype = get_mapd_dtype(data[col])
-        is_array[col] = _dtype.startswith('ARRAY')
+        is_array[col] = True if _dtype.startswith('ARRAY') else None
         dtypes.append((col, _dtype.replace('ARRAY/', '')))
     # row_desc :: List<TColumnType>
     row_desc = [
