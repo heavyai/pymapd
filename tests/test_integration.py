@@ -8,6 +8,7 @@ from pymapd import connect, ProgrammingError, DatabaseError
 from pymapd.cursor import Cursor
 from pymapd._parsers import Description, ColumnDetails
 from omnisci.thrift.ttypes import TOmniSciException
+from omnisci.common.ttypes import TDatumType
 from .data import dashboard_metadata
 import json
 import base64
@@ -960,12 +961,37 @@ class TestLoaders:
         # cleanup
         con.execute("drop table if exists pymapd_test_table;")
 
-    def test_create_table(self, con):
-
-        con.execute("drop table if exists test_create_table;")
-        df = pd.DataFrame({"A": [1, 2], "B": [1.0, 2.0]})
-        con.create_table("test_create_table", df)
-        con.execute("drop table if exists test_create_table;")
+    @pytest.mark.parametrize(
+        'df, expected',
+        [
+            (
+                pd.DataFrame({"a": [1, 2], "b": [1.0, 2.0]}),
+                {
+                    'a': {'type_code': TDatumType.BIGINT, 'is_array': False},
+                    'b': {'type_code': TDatumType.DOUBLE, 'is_array': False},
+                },
+            ),
+            (
+                pd.DataFrame(
+                    {
+                        'a': [[1, 2], [1, 2], None, []],
+                        'b': ['A', 'B', 'C', 'D'],
+                        'c': [[1.0, 2.2], [1.0, 2.2], [], None],
+                    }
+                ),
+                {
+                    'a': {'type_code': TDatumType.BIGINT, 'is_array': True},
+                    'b': {'type_code': TDatumType.STR, 'is_array': False},
+                    'c': {'type_code': TDatumType.DOUBLE, 'is_array': True},
+                },
+            ),
+        ],
+    )
+    def test_create_table(self, con, tmp_table, df, expected):
+        con.create_table(tmp_table, df)
+        cur = con.execute('SELECT * FROM {}'.format(tmp_table))
+        for col in cur.description:
+            assert expected[col.name]['type_code'] == col.type_code
 
     def test_load_table_creates(self, con):
 

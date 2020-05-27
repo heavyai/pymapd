@@ -704,7 +704,8 @@ class TColumnData(object):
                 oprot.writeI64(iter38)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
-        if self.real_col is not None:
+        # for array data, when a None data is given, self.real_col is 0
+        if self.real_col is not None and not isinstance(self.real_col, int):
             oprot.writeFieldBegin('real_col', TType.LIST, 2)
             oprot.writeListBegin(TType.DOUBLE, len(self.real_col))
             for iter39 in self.real_col:

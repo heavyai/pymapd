@@ -27,7 +27,6 @@ from ._utils import (
 
 def get_mapd_dtype(data):
     """Get the OmniSci type"""
-
     if is_object_dtype(data):
         return get_mapd_type_from_object(data)
     else:
@@ -78,6 +77,8 @@ def get_mapd_type_from_object(data):
         if data.max() >= 2147483648 or data.min() <= -2147483648:
             return 'BIGINT'
         return 'INT'
+    elif isinstance(val, list):
+        return 'ARRAY/{}'.format(get_mapd_dtype(pd.Series(val)))
     else:
         raise TypeError("Unhandled type {}".format(data.dtype))
 
@@ -244,10 +245,19 @@ def build_row_desc(data, preserve_index=False):
 
     if preserve_index:
         data = data.reset_index()
-    dtypes = [(col, get_mapd_dtype(data[col])) for col in data.columns]
+
+    dtypes = []
+    is_array = {}
+    for col in data.columns:
+        _dtype = get_mapd_dtype(data[col])
+        is_array[col] = _dtype.startswith('ARRAY')
+        dtypes.append((col, _dtype.replace('ARRAY/', '')))
     # row_desc :: List<TColumnType>
     row_desc = [
-        TColumnType(name, TTypeInfo(getattr(TDatumType, mapd_type)))
+        TColumnType(
+            name,
+            TTypeInfo(getattr(TDatumType, mapd_type), is_array=is_array[name]),
+        )
         for name, mapd_type in dtypes
     ]
 
