@@ -1050,12 +1050,27 @@ class TestLoaders:
                         'a': [[1, 2], [1, 2], None, []],
                         'b': ['A', 'B', 'C', 'D'],
                         'c': [[1.0, 2.2], [1.0, 2.2], [], None],
+                        'd': [
+                            [
+                                9007199254740991,
+                                9007199254740992,
+                                9007199254740993,
+                            ],
+                            [],
+                            None,
+                            [
+                                9007199254740994,
+                                9007199254740995,
+                                9007199254740996,
+                            ],
+                        ],
                     }
                 ),
                 {
                     'a': {'type_code': TDatumType.BIGINT, 'is_array': True},
                     'b': {'type_code': TDatumType.STR, 'is_array': False},
                     'c': {'type_code': TDatumType.DOUBLE, 'is_array': True},
+                    'd': {'type_code': TDatumType.BIGINT, 'is_array': True},
                 },
             ),
             (
@@ -1120,6 +1135,7 @@ class TestLoaders:
     def test_create_table(self, con, tmp_table, df, expected):
         con.create_table(tmp_table, df)
         cur = con.execute('SELECT * FROM {}'.format(tmp_table))
+        # import pdb; pdb.set_trace()
         for col in cur.description:
             assert expected[col.name]['type_code'] == col.type_code
 
