@@ -9,8 +9,10 @@ from omnisci.thrift.OmniSci import (
     TColumn,
     TColumnData,
 )
+import geopandas as gpd
 import pandas as pd
 import numpy as np
+from shapely.geometry import Point, LineString, Polygon, MultiPolygon
 from omnisci.thrift.ttypes import TColumnType
 from omnisci.common.ttypes import TTypeInfo
 
@@ -46,6 +48,9 @@ def get_col_types(col_properties: dict):
 def get_expected(data, col_properties):
     expected = []
     _map_col_types = {'INT': 'int_col', 'DOUBLE': 'real_col', 'STR': 'str_col'}
+    _map_col_types.update(
+        {k: 'str_col' for k in _pandas_loaders.GEO_TYPE_NAMES}
+    )
     isnull = data.isnull()
     for prop in col_properties:
         nulls = isnull[prop['name']].tolist()
@@ -58,6 +63,17 @@ def get_expected(data, col_properties):
                     ),
                 )
             col = TColumn(data=TColumnData(arr_col=arr_col), nulls=nulls)
+        elif prop['type'] in _pandas_loaders.GEO_TYPE_NAMES:
+            col = TColumn(
+                data=TColumnData(
+                    **{
+                        _map_col_types[prop['type']]: data[prop['name']].apply(
+                            lambda g: g.wkt
+                        )
+                    }
+                ),
+                nulls=nulls,
+            )
         else:
             col = TColumn(
                 data=TColumnData(
@@ -211,7 +227,35 @@ class TestLoaders:
                     ]
                 ),
                 [{'name': 'a', 'type': 'INT', 'is_array': True}],
-                id='one-col-array-nullable',
+                id='one-col-array-nullable-and-empty-list',
+            ),
+            pytest.param(
+                gpd.GeoDataFrame(
+                    {
+                        'a': [Point(0, 0), Point(1, 1)],
+                        'b': [
+                            LineString([(2, 0), (2, 4), (3, 4)]),
+                            LineString([(0, 0), (1, 1)]),
+                        ],
+                        'c': [
+                            Polygon([(0, 0), (1, 1), (1, 0)]),
+                            Polygon([[0, 0], [0, 4], [4, 4], [4, 0]]),
+                        ],
+                        'd': [
+                            MultiPolygon([Polygon([(0, 0), (1, 1), (1, 0)])]),
+                            MultiPolygon(
+                                [Polygon([[0, 0], [0, 4], [4, 4], [4, 0]])]
+                            ),
+                        ],
+                    }
+                ),
+                [
+                    {'name': 'a', 'type': 'POINT', 'is_array': False},
+                    {'name': 'b', 'type': 'LINESTRING', 'is_array': False},
+                    {'name': 'c', 'type': 'POLYGON', 'is_array': False},
+                    {'name': 'd', 'type': 'MULTIPOLYGON', 'is_array': False},
+                ],
+                id='multi-col-geo-nullable',
             ),
         ],
     )
