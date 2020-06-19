@@ -52,12 +52,7 @@ def datetime_in_precisions(epoch, precision):
         seconds, modulus = divmod(epoch, 1000000)
         return base + datetime.timedelta(seconds=seconds, microseconds=modulus)
     elif precision == 9:
-        """ TODO(Wamsi): datetime.timedelta has support only till microseconds.
-                         Need to find an alternative and fix nanoseconds
-                         granularity"""
-        epoch /= 1000
-        seconds, modulus = divmod(epoch, 1000000)
-        return base + datetime.timedelta(seconds=seconds, microseconds=modulus)
+        return np.datetime64(epoch, 'ns')
     else:
         raise TypeError("Invalid timestamp precision: {}".format(precision))
 
