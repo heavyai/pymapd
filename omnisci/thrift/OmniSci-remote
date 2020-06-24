@@ -57,7 +57,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  TDataFrame sql_execute_gdf(TSessionId session, string query, i32 device_id, i32 first_n)')
     print('  void deallocate_df(TSessionId session, TDataFrame df, TDeviceType device_type, i32 device_id)')
     print('  void interrupt(TSessionId query_session, TSessionId interrupt_session)')
-    print('  TTableDescriptor sql_validate(TSessionId session, string query)')
+    print('  TRowDescriptor sql_validate(TSessionId session, string query)')
     print('   get_completion_hints(TSessionId session, string sql, i32 cursor)')
     print('  void set_execution_mode(TSessionId session, TExecuteMode mode)')
     print('  TRenderResult render_vega(TSessionId session, i64 widget_id, string vega_json, i32 compression_level, string nonce)')
@@ -84,8 +84,9 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  string get_first_geo_file_in_archive(TSessionId session, string archive_path, TCopyParams copy_params)')
     print('   get_all_files_in_archive(TSessionId session, string archive_path, TCopyParams copy_params)')
     print('   get_layers_in_geo_file(TSessionId session, string file_name, TCopyParams copy_params)')
+    print('  i64 query_get_outer_fragment_count(TSessionId session, string query)')
     print('  TTableMeta check_table_consistency(TSessionId session, i32 table_id)')
-    print('  TPendingQuery start_query(TSessionId leaf_session, TSessionId parent_session, string query_ra, bool just_explain)')
+    print('  TPendingQuery start_query(TSessionId leaf_session, TSessionId parent_session, string query_ra, bool just_explain,  outer_fragment_indices)')
     print('  TStepResult execute_query_step(TPendingQuery pending_query)')
     print('  void broadcast_serialized_rows(TSerializedRows serialized_rows, TRowDescriptor row_desc, TQueryId query_id)')
     print('  TPendingRenderQuery start_render_query(TSessionId session, i64 widget_id, i16 node_idx, string vega_json)')
@@ -541,6 +542,12 @@ elif cmd == 'get_layers_in_geo_file':
         sys.exit(1)
     pp.pprint(client.get_layers_in_geo_file(eval(args[0]), args[1], eval(args[2]),))
 
+elif cmd == 'query_get_outer_fragment_count':
+    if len(args) != 2:
+        print('query_get_outer_fragment_count requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.query_get_outer_fragment_count(eval(args[0]), args[1],))
+
 elif cmd == 'check_table_consistency':
     if len(args) != 2:
         print('check_table_consistency requires 2 args')
@@ -548,10 +555,10 @@ elif cmd == 'check_table_consistency':
     pp.pprint(client.check_table_consistency(eval(args[0]), eval(args[1]),))
 
 elif cmd == 'start_query':
-    if len(args) != 4:
-        print('start_query requires 4 args')
+    if len(args) != 5:
+        print('start_query requires 5 args')
         sys.exit(1)
-    pp.pprint(client.start_query(eval(args[0]), eval(args[1]), args[2], eval(args[3]),))
+    pp.pprint(client.start_query(eval(args[0]), eval(args[1]), args[2], eval(args[3]), eval(args[4]),))
 
 elif cmd == 'execute_query_step':
     if len(args) != 1:
