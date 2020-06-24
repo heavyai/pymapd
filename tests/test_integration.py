@@ -534,6 +534,97 @@ class TestOptionalImports:
 
 
 class TestExtras:
+    def test_sql_validate(self, con):
+        from omnisci.common.ttypes import TTypeInfo
+
+        c = con.cursor()
+        c.execute('drop table if exists stocks;')
+        create = (
+            'create table stocks (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'
+        )
+        c.execute(create)
+
+        q = "select * from stocks"
+        results = con._client.sql_validate(con._session, q)
+        col_names = sorted([r.col_name for r in results])
+        col_types = [r.col_type for r in results]
+
+        expected_col_names = [
+            'date_',
+            'price',
+            'qty',
+            'symbol',
+            'trans',
+            'vol',
+        ]
+
+        expected_types = [
+            TTypeInfo(
+                type=6,
+                encoding=4,
+                nullable=True,
+                is_array=False,
+                precision=0,
+                scale=0,
+                comp_param=32,
+                size=-1,
+            ),
+            TTypeInfo(
+                type=6,
+                encoding=4,
+                nullable=True,
+                is_array=False,
+                precision=0,
+                scale=0,
+                comp_param=32,
+                size=-1,
+            ),
+            TTypeInfo(
+                type=6,
+                encoding=4,
+                nullable=True,
+                is_array=False,
+                precision=0,
+                scale=0,
+                comp_param=32,
+                size=-1,
+            ),
+            TTypeInfo(
+                type=1,
+                encoding=0,
+                nullable=True,
+                is_array=False,
+                precision=0,
+                scale=0,
+                comp_param=0,
+                size=-1,
+            ),
+            TTypeInfo(
+                type=3,
+                encoding=0,
+                nullable=True,
+                is_array=False,
+                precision=0,
+                scale=0,
+                comp_param=0,
+                size=-1,
+            ),
+            TTypeInfo(
+                type=3,
+                encoding=0,
+                nullable=True,
+                is_array=False,
+                precision=0,
+                scale=0,
+                comp_param=0,
+                size=-1,
+            ),
+        ]
+
+        assert col_types == expected_types
+        assert col_names == expected_col_names
+
     def test_get_tables(self, con):
 
         c = con.cursor()
