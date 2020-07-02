@@ -102,19 +102,51 @@ def get_expected(data, col_properties):
 
 class TestLoaders:
     def test_build_input_rows(self):
-        data = [(1, 'a'), (2, 'b')]
+        dt_microsecond_format = '%Y-%m-%d %H:%M:%S.%f'
+
+        def get_dt_nanosecond(v):
+            return np.datetime64('201{}-01-01 01:01:01.001001001'.format(v))
+
+        def get_dt_microsecond(v):
+            return datetime.datetime.strptime(
+                '201{}-01-01 01:01:01.001001'.format(v), dt_microsecond_format
+            )
+
+        data = [
+            (1, 'a', get_dt_nanosecond(1), get_dt_microsecond(1)),
+            (2, 'b', get_dt_nanosecond(2), get_dt_microsecond(2)),
+        ]
         result = _build_input_rows(data)
+        # breakpoint
         expected = [
             TStringRow(
                 cols=[
                     TStringValue(str_val='1', is_null=None),
                     TStringValue(str_val='a', is_null=None),
+                    TStringValue(
+                        str_val=get_dt_nanosecond(1).astype(str), is_null=None
+                    ),
+                    TStringValue(
+                        str_val=get_dt_microsecond(1).strftime(
+                            dt_microsecond_format
+                        ),
+                        is_null=None,
+                    ),
                 ]
             ),
             TStringRow(
                 cols=[
                     TStringValue(str_val='2', is_null=None),
                     TStringValue(str_val='b', is_null=None),
+                    TStringValue(
+                        str_val=get_dt_nanosecond(2).astype(str), is_null=None
+                    ),
+                    TStringValue(
+                        str_val=get_dt_microsecond(2).strftime(
+                            dt_microsecond_format
+                        ),
+                        is_null=None,
+                    ),
                 ]
             ),
         ]
@@ -514,7 +546,11 @@ class TestLoaders:
                 'varchar_': ['a', 'b'],
                 'text_': ['a', 'b'],
                 'time_': [datetime.time(0, 11, 59), datetime.time(13)],
-                'timestamp_': [pd.Timestamp('2016'), pd.Timestamp('2017')],
+                'timestamp1_': [pd.Timestamp('2016'), pd.Timestamp('2017')],
+                'timestamp2_': [
+                    np.datetime64('2016-01-01 01:01:01.001001001'),
+                    np.datetime64('2017-01-01 01:01:01.001001001'),
+                ],
                 'date_': [
                     datetime.date(2016, 1, 1),
                     datetime.date(2017, 1, 1),
@@ -530,7 +566,8 @@ class TestLoaders:
                 'varchar_',
                 'text_',
                 'time_',
-                'timestamp_',
+                'timestamp1_',
+                'timestamp2_',
                 'date_',
             ],
         )
@@ -561,7 +598,10 @@ class TestLoaders:
                 col_name='text_', col_type=TTypeInfo(type=6, encoding=4)
             ),
             TColumnType(col_name='time_', col_type=TTypeInfo(type=7)),
-            TColumnType(col_name='timestamp_', col_type=TTypeInfo(type=8)),
+            TColumnType(col_name='timestamp1_', col_type=TTypeInfo(type=8)),
+            TColumnType(
+                col_name='timestamp2_', col_type=TTypeInfo(type=8, precision=9)
+            ),
             TColumnType(col_name='date_', col_type=TTypeInfo(type=9)),
         ]
 

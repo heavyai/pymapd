@@ -1051,10 +1051,29 @@ class TestLoaders:
         'df, expected',
         [
             (
-                pd.DataFrame({"a": [1, 2], "b": [1.0, 2.0]}),
+                pd.DataFrame(
+                    {
+                        "a": [1, 2],
+                        "b": [1.0, 2.0],
+                        "c": [
+                            datetime.date(2016, 1, 1),
+                            datetime.date(2017, 1, 1),
+                        ],
+                        "d": [
+                            np.datetime64("2010-01-01T01:01:01.001001001"),
+                            np.datetime64("2011-01-01T01:01:01.001001001"),
+                        ],
+                    }
+                ),
                 {
-                    'a': {'type_code': TDatumType.BIGINT, 'is_array': False},
-                    'b': {'type_code': TDatumType.DOUBLE, 'is_array': False},
+                    'a': {'type': 'BIGINT', 'is_array': False},
+                    'b': {'type': 'DOUBLE', 'is_array': False},
+                    'c': {'type': 'DATE', 'is_array': False},
+                    'd': {
+                        'type': 'TIMESTAMP',
+                        'is_array': False,
+                        'precision': 9,
+                    },
                 },
             ),
             (
@@ -1080,10 +1099,10 @@ class TestLoaders:
                     }
                 ),
                 {
-                    'a': {'type_code': TDatumType.BIGINT, 'is_array': True},
-                    'b': {'type_code': TDatumType.STR, 'is_array': False},
-                    'c': {'type_code': TDatumType.DOUBLE, 'is_array': True},
-                    'd': {'type_code': TDatumType.BIGINT, 'is_array': True},
+                    'a': {'type': 'BIGINT', 'is_array': True},
+                    'b': {'type': 'STR', 'is_array': False},
+                    'c': {'type': 'DOUBLE', 'is_array': True},
+                    'd': {'type': 'BIGINT', 'is_array': True},
                 },
             ),
             (
@@ -1131,25 +1150,20 @@ class TestLoaders:
                     }
                 ),
                 {
-                    'a': {'type_code': TDatumType.POINT, 'is_array': True},
-                    'b': {
-                        'type_code': TDatumType.LINESTRING,
-                        'is_array': True,
-                    },
-                    'c': {'type_code': TDatumType.POLYGON, 'is_array': True},
-                    'd': {
-                        'type_code': TDatumType.MULTIPOLYGON,
-                        'is_array': True,
-                    },
+                    'a': {'type': 'POINT', 'is_array': True},
+                    'b': {'type': 'LINESTRING', 'is_array': True},
+                    'c': {'type': 'POLYGON', 'is_array': True},
+                    'd': {'type': 'MULTIPOLYGON', 'is_array': True},
                 },
             ),
         ],
     )
     def test_create_table(self, con, tmp_table, df, expected):
         con.create_table(tmp_table, df)
-        cur = con.execute('SELECT * FROM {}'.format(tmp_table))
-        for col in cur.description:
-            assert expected[col.name]['type_code'] == col.type_code
+        for col in con.get_table_details(tmp_table):
+            assert expected[col.name]['type'] == col.type
+            if 'precision' in expected[col.name]:
+                assert expected[col.name]['precision'] == col.precision
 
     def test_load_table_creates(self, con):
 
@@ -1165,7 +1179,11 @@ class TestLoaders:
                 "varchar_": ["a", "b"],
                 "text_": ['a', 'b'],
                 "time_": [datetime.time(0, 11, 59), datetime.time(13)],
-                "timestamp_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
+                "timestamp1_": [pd.Timestamp("2016"), pd.Timestamp("2017")],
+                "timestamp2_": [
+                    np.datetime64("2010-01-01T01:01:01.001001001"),
+                    np.datetime64("2011-01-01T01:01:01.001001001"),
+                ],
                 "date_": [
                     datetime.date(2016, 1, 1),
                     datetime.date(2017, 1, 1),
@@ -1181,7 +1199,8 @@ class TestLoaders:
                 'varchar_',
                 'text_',
                 'time_',
-                'timestamp_',
+                'timestamp1_',
+                'timestamp2_',
                 'date_',
             ],
         )
@@ -1234,17 +1253,19 @@ class TestLoaders:
         con.execute("DROP TABLE IF EXISTS test_lists;")
         con.execute(
             "CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 TIMESTAMP[]);"
+                    (col1 TEXT, col2 TIMESTAMP[], col3 TIMESTAMP(9));"
         )
 
         row = [
             (
                 "row1",
                 "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}",  # noqa
+                "2010-01-01T01:01:01.001001001",
             ),
             (
                 "row2",
                 "{2019-03-02 00:00:00,2019-03-02 00:00:00,2019-03-02 00:00:00}",  # noqa
+                "2011-01-01T01:01:01.001001001",
             ),
         ]
 
@@ -1259,6 +1280,7 @@ class TestLoaders:
                     datetime.datetime(2019, 3, 2, 0, 0),
                     datetime.datetime(2019, 3, 2, 0, 0),
                 ],
+                np.datetime64("2010-01-01T01:01:01.001001001"),
             ),
             (
                 'row2',
@@ -1267,9 +1289,9 @@ class TestLoaders:
                     datetime.datetime(2019, 3, 2, 0, 0),
                     datetime.datetime(2019, 3, 2, 0, 0),
                 ],
+                np.datetime64("2011-01-01T01:01:01.001001001"),
             ),
         ]
-
         assert ans == expected
 
         # date
