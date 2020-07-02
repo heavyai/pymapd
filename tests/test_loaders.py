@@ -47,11 +47,17 @@ def get_col_types(col_properties: dict):
 
 def get_expected(data, col_properties):
     expected = []
-    _map_col_types = {'INT': 'int_col', 'DOUBLE': 'real_col', 'STR': 'str_col'}
+    _map_col_types = {
+        'INT': 'int_col',
+        'DOUBLE': 'real_col',
+        'STR': 'str_col',
+        'TIMESTAMP': 'int_col',
+    }
     _map_col_types.update(
         {k: 'str_col' for k in _pandas_loaders.GEO_TYPE_NAMES}
     )
     isnull = data.isnull()
+
     for prop in col_properties:
         nulls = isnull[prop['name']].tolist()
         if prop['is_array']:
@@ -75,6 +81,15 @@ def get_expected(data, col_properties):
                 nulls=nulls,
             )
         else:
+            if prop['type'] == 'TIMESTAMP':
+                # convert datetime to epoch
+                if data[prop['name']].dt.nanosecond.sum():
+                    data[prop['name']] = data[prop['name']].astype(int)
+                else:
+                    data[prop['name']] = (
+                        data[prop['name']].astype(int) // 10 ** 9
+                    )
+
             col = TColumn(
                 data=TColumnData(
                     **{_map_col_types[prop['type']]: data[prop['name']]}
@@ -141,12 +156,33 @@ class TestLoaders:
                         'a': [[1, 1], [2, 2], [3, 3]],
                         'b': [[1.1, 1.1], [2.2, 2.2], [3.3, 3.3]],
                         'c': [1, 2, 3],
+                        'd': [
+                            np.datetime64('2010-01-01 01:01:01.001001001'),
+                            np.datetime64('2011-01-01 01:01:01.001001001'),
+                            np.datetime64('2012-01-01 01:01:01.001001001'),
+                        ],
+                        'e': [
+                            datetime.datetime.strptime(
+                                '2010-01-01 01:01:01.001001',
+                                '%Y-%m-%d %H:%M:%S.%f',
+                            ),
+                            datetime.datetime.strptime(
+                                '2011-01-01 01:01:01.001001',
+                                '%Y-%m-%d %H:%M:%S.%f',
+                            ),
+                            datetime.datetime.strptime(
+                                '2012-01-01 01:01:01.001001',
+                                '%Y-%m-%d %H:%M:%S.%f',
+                            ),
+                        ],
                     }
                 ),
                 [
                     {'name': 'a', 'type': 'INT', 'is_array': True},
                     {'name': 'b', 'type': 'DOUBLE', 'is_array': True},
                     {'name': 'c', 'type': 'INT', 'is_array': False},
+                    {'name': 'd', 'type': 'TIMESTAMP', 'is_array': False},
+                    {'name': 'e', 'type': 'TIMESTAMP', 'is_array': False},
                 ],
                 id='mult-cols-mix-array-not-null',
             ),

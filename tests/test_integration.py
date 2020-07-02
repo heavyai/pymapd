@@ -711,6 +711,19 @@ class TestLoaders:
             ),
             pytest.param(
                 pd.DataFrame(
+                    {
+                        "a": [
+                            np.datetime64('2010-01-01 01:01:01.001001001'),
+                            np.datetime64('2011-01-01 01:01:01.001001001'),
+                            np.datetime64('2012-01-01 01:01:01.001001001'),
+                        ],
+                    },
+                ),
+                'a TIMESTAMP(9)',
+                id='scalar_datetime_nanoseconds',
+            ),
+            pytest.param(
+                pd.DataFrame(
                     [
                         {'ary': [2, 3, 4]},
                         {'ary': [4444]},
@@ -1135,7 +1148,6 @@ class TestLoaders:
     def test_create_table(self, con, tmp_table, df, expected):
         con.create_table(tmp_table, df)
         cur = con.execute('SELECT * FROM {}'.format(tmp_table))
-        # import pdb; pdb.set_trace()
         for col in cur.description:
             assert expected[col.name]['type_code'] == col.type_code
 

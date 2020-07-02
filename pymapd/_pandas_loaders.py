@@ -77,6 +77,8 @@ def get_mapd_type_from_object(data):
 
     if isinstance(val, str):
         return 'STR'
+    elif isinstance(val, np.datetime64):
+        return 'TIMESTAMP'
     elif isinstance(val, datetime.date):
         return 'DATE'
     elif isinstance(val, datetime.time):
