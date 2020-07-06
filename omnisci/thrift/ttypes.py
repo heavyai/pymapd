@@ -149,6 +149,30 @@ class TMergeType(object):
     }
 
 
+class TQueryType(object):
+    UNKNOWN = 0
+    READ = 1
+    WRITE = 2
+    SCHEMA_READ = 3
+    SCHEMA_WRITE = 4
+
+    _VALUES_TO_NAMES = {
+        0: "UNKNOWN",
+        1: "READ",
+        2: "WRITE",
+        3: "SCHEMA_READ",
+        4: "SCHEMA_WRITE",
+    }
+
+    _NAMES_TO_VALUES = {
+        "UNKNOWN": 0,
+        "READ": 1,
+        "WRITE": 2,
+        "SCHEMA_READ": 3,
+        "SCHEMA_WRITE": 4,
+    }
+
+
 class TExpressionRangeType(object):
     INVALID = 0
     INTEGER = 1
@@ -704,8 +728,7 @@ class TColumnData(object):
                 oprot.writeI64(iter38)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
-        # for array data, when a None data is given, self.real_col is 0
-        if self.real_col is not None and not isinstance(self.real_col, int):
+        if self.real_col is not None:
             oprot.writeFieldBegin('real_col', TType.LIST, 2)
             oprot.writeListBegin(TType.DOUBLE, len(self.real_col))
             for iter39 in self.real_col:
@@ -1203,17 +1226,19 @@ class TQueryResult(object):
      - nonce
      - debug
      - success
+     - query_type
 
     """
 
 
-    def __init__(self, row_set=None, execution_time_ms=None, total_time_ms=None, nonce=None, debug=None, success=True,):
+    def __init__(self, row_set=None, execution_time_ms=None, total_time_ms=None, nonce=None, debug=None, success=True, query_type=0,):
         self.row_set = row_set
         self.execution_time_ms = execution_time_ms
         self.total_time_ms = total_time_ms
         self.nonce = nonce
         self.debug = debug
         self.success = success
+        self.query_type = query_type
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1255,6 +1280,11 @@ class TQueryResult(object):
                     self.success = iprot.readBool()
                 else:
                     iprot.skip(ftype)
+            elif fid == 7:
+                if ftype == TType.I32:
+                    self.query_type = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1288,6 +1318,10 @@ class TQueryResult(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.BOOL, 6)
             oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.query_type is not None:
+            oprot.writeFieldBegin('query_type', TType.I32, 7)
+            oprot.writeI32(self.query_type)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5933,6 +5967,7 @@ TQueryResult.thrift_spec = (
     (4, TType.STRING, 'nonce', 'UTF8', None, ),  # 4
     (5, TType.STRING, 'debug', 'UTF8', None, ),  # 5
     (6, TType.BOOL, 'success', None, True, ),  # 6
+    (7, TType.I32, 'query_type', None, 0, ),  # 7
 )
 all_structs.append(TDataFrame)
 TDataFrame.thrift_spec = (

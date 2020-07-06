@@ -109,6 +109,7 @@ class TEncodingType(object):
     SPARSE = 5
     GEOINT = 6
     DATE_IN_DAYS = 7
+    PACKED_PIXEL_COORD = 8
 
     _VALUES_TO_NAMES = {
         0: "NONE",
@@ -119,6 +120,7 @@ class TEncodingType(object):
         5: "SPARSE",
         6: "GEOINT",
         7: "DATE_IN_DAYS",
+        8: "PACKED_PIXEL_COORD",
     }
 
     _NAMES_TO_VALUES = {
@@ -130,6 +132,7 @@ class TEncodingType(object):
         "SPARSE": 5,
         "GEOINT": 6,
         "DATE_IN_DAYS": 7,
+        "PACKED_PIXEL_COORD": 8,
     }
 
 
