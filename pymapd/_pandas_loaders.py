@@ -77,6 +77,8 @@ def get_mapd_type_from_object(data):
 
     if isinstance(val, str):
         return 'STR'
+    elif isinstance(val, np.datetime64):
+        return 'TIMESTAMP'
     elif isinstance(val, datetime.date):
         return 'DATE'
     elif isinstance(val, datetime.time):
@@ -290,4 +292,8 @@ def build_row_desc(data, preserve_index=False):
             tct.col_type.encoding = 4
         elif tct.col_type.type in GEO_TYPE_ID:
             tct.col_type.precision = 23
+        elif tct.col_type.type == 8:
+            # force precision for timestamp with nanoseconds
+            if data[tct.col_name].dt.nanosecond.sum():
+                tct.col_type.precision = 9
     return row_desc
