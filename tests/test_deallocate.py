@@ -6,6 +6,15 @@ from omnisci.thrift.ttypes import TOmniSciException, TApplicationException
 from .conftest import no_gpu
 import pandas as pd
 
+db_host = (
+    os.environ['OMNISCI_DB_HOST']
+    if 'OMNISCI_DB_HOST' in os.environ
+    else 'localhost'
+)
+db_port = int(
+    os.environ['OMNISCI_DB_PORT'] if 'OMNISCI_DB_PORT' in os.environ else 6274
+)
+
 
 @pytest.mark.usefixtures("mapd_server")
 class TestDeallocate:
@@ -15,12 +24,11 @@ class TestDeallocate:
         return df.itertuples(index=False)
 
     def _connect(self):
-
         return connect(
             user="admin",
             password='HyperInteractive',
-            host='localhost',
-            port=6274,
+            host=db_host,
+            port=db_port,
             protocol='binary',
             dbname='omnisci',
         )

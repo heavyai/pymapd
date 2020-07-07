@@ -3,6 +3,7 @@ Tests that rely on a server running
 """
 import base64
 import json
+import os
 import datetime
 from unittest import mock
 
@@ -54,14 +55,29 @@ def _cursor2df(cursor):
     return df
 
 
+db_host = (
+    os.environ['OMNISCI_DB_HOST']
+    if 'OMNISCI_DB_HOST' in os.environ
+    else 'localhost'
+)
+db_port = int(
+    os.environ['OMNISCI_DB_PORT'] if 'OMNISCI_DB_PORT' in os.environ else 6274
+)
+db_port_http = int(
+    os.environ['OMNISCI_DB_PORT_HTTP']
+    if 'OMNISCI_DB_PORT_HTTP' in os.environ
+    else 6278
+)
+
+
 @pytest.mark.usefixtures("mapd_server")
 class TestIntegration:
     def test_connect_binary(self):
         con = connect(
             user="admin",
             password='HyperInteractive',
-            host='localhost',
-            port=6274,
+            host=db_host,
+            port=db_port,
             protocol='binary',
             dbname='omnisci',
         )
@@ -71,8 +87,8 @@ class TestIntegration:
         con = connect(
             user="admin",
             password='HyperInteractive',
-            host='localhost',
-            port=6278,
+            host=db_host,
+            port=db_port_http,
             protocol='http',
             dbname='omnisci',
         )
@@ -80,20 +96,20 @@ class TestIntegration:
 
     def test_connect_uri(self):
         uri = (
-            'omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
+            f'omnisci://admin:HyperInteractive@{db_host}:{db_port}/omnisci?'
             'protocol=binary'
         )
         con = connect(uri=uri)
         assert con._user == 'admin'
         assert con._password == 'HyperInteractive'
-        assert con._host == 'localhost'
-        assert con._port == 6274
+        assert con._host == db_host
+        assert con._port == db_port
         assert con._dbname == 'omnisci'
         assert con._protocol == 'binary'
 
     def test_connect_uri_and_others_raises(self):
         uri = (
-            'omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
+            f'omnisci://admin:HyperInteractive@{db_host}:{db_port}/omnisci?'
             'protocol=binary'
         )
         with pytest.raises(TypeError):

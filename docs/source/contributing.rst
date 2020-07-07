@@ -132,6 +132,33 @@ You also need to `install cudf`_ in your development environment. Because cudf i
 to the specific version of CUDA installed, we recommend checking the `cudf documentation`_ to get the most up-to-date
 installation instructions.
 
+************************
+Makefile commands
+************************
+
+Instead of using the commands above, the ``Makefile`` contains a number of these as shortcuts for automation.
+
+For example:
+
+.. code-block:: shell
+
+   # Create the conda environment
+   make init
+   activate omnisci-dev
+   make develop
+
+   # Validate code
+   make check
+
+   # Start the database
+   make start
+
+   # Run tests
+   make test
+
+   # Stop database
+   make down
+
 -------------------------------
 Updating Apache Thrift Bindings
 -------------------------------

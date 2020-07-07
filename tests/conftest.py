@@ -1,8 +1,10 @@
+import os
 import subprocess
 import time
 from uuid import uuid4
 
 import pytest
+import traceback
 from thrift.transport import TSocket, TTransport
 from thrift.transport.TSocket import TTransportException
 from pymapd import connect
@@ -13,17 +15,28 @@ import numpy as np
 import pandas as pd
 
 
+db_host = (
+    os.environ['OMNISCI_DB_HOST']
+    if 'OMNISCI_DB_HOST' in os.environ
+    else 'localhost'
+)
+db_port = int(
+    os.environ['OMNISCI_DB_PORT'] if 'OMNISCI_DB_PORT' in os.environ else 6274
+)
+
+
 def _check_open():
     """
     Test to see if OmniSci running on localhost and socket open
     """
-    socket = TSocket.TSocket("localhost", 6274)
+    socket = TSocket.TSocket(db_host, db_port)
     transport = TTransport.TBufferedTransport(socket)
 
     try:
         transport.open()
         return True
     except TTransportException:
+        traceback.print_exc()
         return False
 
 
@@ -44,7 +57,7 @@ def mapd_server():
                 '-v',
                 '/dev:/dev',
                 '-p',
-                '6274:6274',
+                f'{db_port}:6274',
                 '-p',
                 '9092:9092',
                 '--name=mapd',
@@ -66,8 +79,8 @@ def con(mapd_server):
     return connect(
         user="admin",
         password='HyperInteractive',
-        host='localhost',
-        port=6274,
+        host=db_host,
+        port=db_port,
         protocol='binary',
         dbname='omnisci',
     )

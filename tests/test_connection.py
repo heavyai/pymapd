@@ -1,4 +1,5 @@
 import pytest
+import os
 from omnisci.thrift.ttypes import TColumnType
 from omnisci.common.ttypes import TTypeInfo
 from pymapd import OperationalError, connect
@@ -6,23 +7,33 @@ from pymapd.connection import _parse_uri, ConnectionInfo
 from pymapd.exceptions import Error
 from pymapd._parsers import ColumnDetails, _extract_column_details
 
+db_host = (
+    os.environ['OMNISCI_DB_HOST']
+    if 'OMNISCI_DB_HOST' in os.environ
+    else 'localhost'
+)
+db_port = int(
+    os.environ['OMNISCI_DB_PORT'] if 'OMNISCI_DB_PORT' in os.environ else 6274
+)
+
 
 @pytest.mark.usefixtures("mapd_server")
 class TestConnect:
     def test_host_specified(self):
         with pytest.raises(TypeError):
-            connect(user='foo')
+            connect(user='foo', port=db_port)
 
     def test_raises_right_exception(self):
         with pytest.raises(OperationalError):
-            connect(host='localhost', protocol='binary', port=1234)
+            connect(host=db_host, protocol='binary', port=1234)
 
     def test_close(self):
         conn = connect(
             user='admin',
             password='HyperInteractive',
-            host='localhost',
+            host=db_host,
             dbname='omnisci',
+            port=db_port,
         )
         assert conn.closed == 0
         conn.close()
@@ -46,26 +57,33 @@ class TestConnect:
         conn = connect(
             user='admin',
             password='HyperInteractive',
-            host='localhost',
+            host=db_host,
             dbname='omnisci',
+            port=db_port,
         )
         sessionid = conn._session
-        connnew = connect(sessionid=sessionid, host='localhost')
+        connnew = connect(sessionid=sessionid, host=db_host, port=db_port)
         assert connnew._session == sessionid
 
     def test_session_logon_failure(self):
         sessionid = 'ILoveDancingOnTables'
         with pytest.raises(Error):
-            connect(sessionid=sessionid, host='localhost', protocol='binary')
+            connect(
+                sessionid=sessionid,
+                host=db_host,
+                protocol='binary',
+                port=db_port,
+            )
 
     def test_bad_binary_encryption_params(self):
         with pytest.raises(TypeError):
             connect(
                 user='admin',
-                host='localhost',
+                host=db_host,
                 dbname='omnisci',
                 protocol='http',
                 validate=False,
+                port=db_port,
             )
 
 
@@ -90,11 +108,11 @@ class TestURI:
 
     def test_both_raises(self):
         uri = (
-            'omnisci://admin:HyperInteractive@localhost:6274/omnisci?'
+            f'omnisci://admin:HyperInteractive@{db_host}:{db_port}/omnisci?'
             'protocol=binary'
         )
         with pytest.raises(TypeError):
-            connect(uri=uri, user='my user')
+            connect(uri=uri, user='my user', port=db_port)
 
 
 class TestExtras:
