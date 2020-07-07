@@ -6,13 +6,14 @@ def db_container_name = "pymapd-db-$BUILD_NUMBER"
 def testscript_container_image = "rapidsai/rapidsai:0.8-cuda10.0-runtime-ubuntu18.04-gcc7-py3.6"
 def testscript_container_name = "pymapd-pytest-$BUILD_NUMBER"
 def stage_succeeded
+def git_commit
 
-void setBuildStatus(String message, String state, String context) {
+void setBuildStatus(String message, String state, String context, String commit_sha) {
   step([
       $class: "GitHubCommitStatusSetter",
       reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/omnisci/pymapd"],
       contextSource: [$class: "ManuallyEnteredCommitContextSource", context: context],
-      commitShaSource: [$class: "ManuallyEnteredShaSource", sha: "$GITHUB_PR_HEAD_SHA" ],
+      commitShaSource: [$class: "ManuallyEnteredShaSource", sha: commit_sha],
       errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
       statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
   ]);
@@ -25,11 +26,18 @@ pipeline {
         stage('Set pending status') {
             agent any
             steps {
+                script {
+                    if (env.GITHUB_BRANCH_NAME == 'master') {
+                        script { git_commit = "$GITHUB_BRANCH_HEAD_SHA" }
+                    } else {
+                        script { git_commit = "$GITHUB_PR_HEAD_SHA" }
+                    } 
+                }
                 // Set pending status manually for all jobs before node is started
-                setBuildStatus("Build queued", "PENDING", "Pre_commit_hook_check");
-                setBuildStatus("Build queued", "PENDING", "Pytest - conda python3.6");
-                setBuildStatus("Build queued", "PENDING", "Pytest - conda python3.7");
-                setBuildStatus("Build queued", "PENDING", "Pytest - pip python3.6");
+                setBuildStatus("Build queued", "PENDING", "Pre_commit_hook_check", git_commit);
+                setBuildStatus("Build queued", "PENDING", "Pytest - conda python3.6", git_commit);
+                setBuildStatus("Build queued", "PENDING", "Pytest - conda python3.7", git_commit);
+                setBuildStatus("Build queued", "PENDING", "Pytest - pip python3.6", git_commit);
             }
         }
         stage("Linter and Tests") {
@@ -44,7 +52,7 @@ pipeline {
                     steps {
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             script { stage_succeeded = false }
-                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME", git_commit);
                             sh """
                                 docker pull $precommit_container_image
                                 docker run \
@@ -64,12 +72,12 @@ pipeline {
                         always {
                             script {
                                 if (stage_succeeded == true) {
-                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME", git_commit);
                                 } else {
                                     sh """
                                         docker rm -f $precommit_container_name || true
                                     """
-                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME", git_commit);
                                 }
                             }
                         }
@@ -104,7 +112,7 @@ pipeline {
                     steps {
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             script { stage_succeeded = false }
-                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME", git_commit);
                             sh """
                                 docker run \
                                   -d \
@@ -148,13 +156,13 @@ pipeline {
                         always {
                             script {
                                 if (stage_succeeded == true) {
-                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME", git_commit);
                                 } else {
                                     sh """
                                         docker rm -f $testscript_container_name || true
                                         docker rm -f $db_container_name || true
                                     """
-                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME", git_commit);
                                 }
                             }
                         }
@@ -164,7 +172,7 @@ pipeline {
                     steps {
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             script { stage_succeeded = false }
-                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME", git_commit);
                             sh """
                                 docker run \
                                   -d \
@@ -208,13 +216,13 @@ pipeline {
                         always {
                             script {
                                 if (stage_succeeded == true) {
-                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME", git_commit);
                                 } else {
                                     sh """
                                         docker rm -f $testscript_container_name || true
                                         docker rm -f $db_container_name || true
                                     """
-                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME", git_commit);
                                 }
                             }
                         }
@@ -224,7 +232,7 @@ pipeline {
                     steps {
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             script { stage_succeeded = false }
-                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME", git_commit);
                             sh """
                                 docker run \
                                   -d \
@@ -269,13 +277,13 @@ pipeline {
                         always {
                             script {
                                 if (stage_succeeded == true) {
-                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME", git_commit);
                                 } else {
                                     sh """
                                         docker rm -f $testscript_container_name || true
                                         docker rm -f $db_container_name || true
                                     """
-                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME", git_commit);
                                 }
                             }
                         }
@@ -285,7 +293,7 @@ pipeline {
                 //     steps {
                 //         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                 //             script { stage_succeeded = false }
-                //             setBuildStatus("Running tests", "PENDING", "$STAGE_NAME");
+                //             setBuildStatus("Running tests", "PENDING", "$STAGE_NAME", git_commit);
                 //             sh """
                 //                 docker run \
                 //                   -d \
@@ -323,13 +331,13 @@ pipeline {
                 //         always {
                 //             script {
                 //                 if (stage_succeeded == true) {
-                //                     setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME");
+                //                     setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME", git_commit);
                 //                 } else {
                 //                     sh """
                 //                         docker rm -f $testscript_container_name || true
                 //                         docker rm -f $db_container_name || true
                 //                     """
-                //                     setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME");
+                //                     setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME", git_commit);
                 //                 }
                 //             }
                 //         }
