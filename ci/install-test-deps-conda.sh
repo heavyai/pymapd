@@ -20,9 +20,8 @@ conda create -n omnisci-dev python=${PYTHON} \
 'pyarrow==0.15.0' \
 'pandas>=0.25,<0.26' \
 libtiff=4.0.10 \
-geopandas \
-shapely \
 sqlalchemy \
+geopandas \
 numpy \
 numpydoc \
 coverage \
