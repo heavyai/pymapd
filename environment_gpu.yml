@@ -9,9 +9,9 @@ dependencies:
 - cudf=0.13
 - cudatoolkit=10.1
 - arrow-cpp=0.15.0
-- geopandas
 # related: https://github.com/conda-forge/pillow-feedstock/issues/73
 - libtiff=4.0.10
+- geopandas
 - pyarrow==0.15.0
 - pandas>=0.25,<0.26
 - python>=3.6,<3.8
@@ -24,7 +24,6 @@ dependencies:
 - pre-commit
 - pytest-cov
 - pytest-mock
-- shapely
 - sphinx
 - requests
 - sphinx_rtd_theme

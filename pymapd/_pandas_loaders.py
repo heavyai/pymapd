@@ -1,7 +1,6 @@
 import datetime
 import math
 
-import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pyarrow as pa
@@ -26,6 +25,11 @@ from ._utils import (
     mapd_to_na,
     mapd_to_slot,
 )
+
+try:
+    import geopandas as gpd
+except ImportError:
+    gpd = None
 
 
 GEO_TYPE_NAMES = ['POINT', 'LINESTRING', 'POLYGON', 'MULTIPOLYGON']
@@ -257,13 +261,16 @@ def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
 
 def build_row_desc(data, preserve_index=False):
 
-    if not isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
+    if not (
+        isinstance(data, pd.DataFrame)
+        or (gpd is not None and isinstance(data, gpd.GeoDataFrame))
+    ):
         # Once https://issues.apache.org/jira/browse/ARROW-1576 is complete
         # we can support pa.Table here too
         raise TypeError(
             "Create table is not supported for type {}. "
-            "Use a pandas DataFrame, or perform the create "
-            "separately".format(type(data))
+            "Use a pandas DataFrame or a GeoPandas DataFrame, "
+            "or perform the create separately".format(type(data))
         )
 
     if preserve_index:
