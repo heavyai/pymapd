@@ -11,6 +11,7 @@ dependencies:
 - arrow-cpp=0.15.0
 # related: https://github.com/conda-forge/pillow-feedstock/issues/73
 - libtiff=4.0.10
+- geopandas
 - pyarrow==0.15.0
 - pandas>=0.25,<0.26
 - python>=3.6,<3.8
