@@ -180,10 +180,7 @@ def build_input_columnar(
                 # then cast to int
                 for c in data:
                     data.loc[:, c] = thrift_cast(
-                        data=data[c],
-                        mapd_type=mapd_type,
-                        scale=scale,
-                        is_array=is_array,
+                        data=data[c], mapd_type=mapd_type, scale=scale,
                     )
 
             if has_nulls:

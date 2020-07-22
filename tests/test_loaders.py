@@ -1,5 +1,8 @@
-import pytest
+from decimal import Decimal
 import datetime
+
+import pytest
+
 from pymapd._loaders import _build_input_rows
 from pymapd import _pandas_loaders
 from pymapd._parsers import ColumnDetails
@@ -52,6 +55,7 @@ def get_expected(data, col_properties):
         'DOUBLE': 'real_col',
         'STR': 'str_col',
         'TIMESTAMP': 'int_col',
+        'DECIMAL': 'real_col',
     }
     _map_col_types.update(
         {k: 'str_col' for k in _pandas_loaders.GEO_TYPE_NAMES}
@@ -207,6 +211,11 @@ class TestLoaders:
                                 '%Y-%m-%d %H:%M:%S.%f',
                             ),
                         ],
+                        'f': [
+                            Decimal('1.1234'),
+                            Decimal('2.2345'),
+                            Decimal('3.3456'),
+                        ],
                     }
                 ),
                 [
@@ -215,6 +224,7 @@ class TestLoaders:
                     {'name': 'c', 'type': 'INT', 'is_array': False},
                     {'name': 'd', 'type': 'TIMESTAMP', 'is_array': False},
                     {'name': 'e', 'type': 'TIMESTAMP', 'is_array': False},
+                    {'name': 'f', 'type': 'DECIMAL', 'is_array': False},
                 ],
                 id='mult-cols-mix-array-not-null',
             ),
