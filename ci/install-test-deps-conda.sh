@@ -7,9 +7,9 @@ conda install -q conda-build anaconda-client conda-verify --yes
 
 # create a copy of the environment file, replacing
 # with the python version we specify.
-sed -E "s/python.+$/python=$PYTHON/" ./environment.yml > /tmp/environment_${PYTHON}.yml
+sed -E "s/python.+$/python=$PYTHON/" ./environment_gpu.yml > /tmp/environment_gpu_${PYTHON}.yml
 
-conda env create -f /tmp/environment_${PYTHON}.yml
+conda env create -f /tmp/environment_gpu_${PYTHON}.yml
 
 conda activate omnisci-dev
 
