@@ -14,6 +14,6 @@ conda env create -f /tmp/environment_gpu_${PYTHON}.yml
 conda activate omnisci-gpu-dev
 
 pip install -e .
-conda list omnisci-dev
+conda list omnisci-gpu-dev
 echo
 exit 0
