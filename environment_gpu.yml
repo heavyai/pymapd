@@ -6,15 +6,14 @@ channels:
 - rapidsai
 dependencies:
 - thrift=0.13.0
-- cudf=0.13
+- cudf=0.14
 - cudatoolkit=10.1
-- arrow-cpp=0.15.0
+- pyarrow==0.15.0.*
+- pandas>=0.25,<0.26
+- python>3.6.6,<3.8
 # related: https://github.com/conda-forge/pillow-feedstock/issues/73
 - libtiff=4.0.10
 - geopandas
-- pyarrow==0.15.0
-- pandas>=0.25,<0.26
-- python>=3.6,<3.8
 - shapely
 - sqlalchemy
 - numpy
@@ -25,6 +24,6 @@ dependencies:
 - pytest-cov
 - pytest-mock
 - sphinx
-- requests
 - sphinx_rtd_theme
+- requests
 - 'rbc==0.2.2'

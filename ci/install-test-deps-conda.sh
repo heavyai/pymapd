@@ -4,40 +4,16 @@ echo
 echo "[conda build]"
 conda install -q conda-build anaconda-client conda-verify --yes
 
-echo
-echo "[add channels]"
-conda config --add channels conda-forge
-conda config --add channels rapidsai
-conda config --add channels nvidia
 
-# libtiff pinning info:
-# https://github.com/conda-forge/pillow-feedstock/issues/73
-conda create -n omnisci-dev python=${PYTHON} \
-'thrift=0.13.0' \
-'cudf=0.13' \
-'cudatoolkit=10.1' \
-'arrow-cpp=0.15.0' \
-'pyarrow==0.15.0' \
-'pandas>=0.25,<0.26' \
-libtiff=4.0.10 \
-sqlalchemy \
-geopandas \
-numpy \
-numpydoc \
-coverage \
-flake8 \
-pre-commit \
-pytest-cov \
-pytest-mock \
-shapely \
-sphinx  \
-requests \
-sphinx_rtd_theme \
-'rbc==0.2.2'
+# create a copy of the environment file, replacing
+# with the python version we specify.
+sed -E "s/- python[^[:alpha:]]+$/- python=$PYTHON/" ./environment_gpu.yml > /tmp/environment_gpu_${PYTHON}.yml
 
-conda activate omnisci-dev
+conda env create -f /tmp/environment_gpu_${PYTHON}.yml
+
+conda activate omnisci-gpu-dev
 
 pip install -e .
-conda list omnisci-dev
+conda list omnisci-gpu-dev
 echo
 exit 0

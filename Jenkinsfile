@@ -143,7 +143,7 @@ pipeline {
                                   $testscript_container_image \
                                   bash -c '\
                                     PYTHON=3.6 ./ci/install-test-deps-conda.sh && \
-                                    source activate /conda/envs/omnisci-dev && \
+                                    source activate /conda/envs/omnisci-gpu-dev && \
                                     pytest tests'
 
                                 docker rm -f $testscript_container_name || true
@@ -203,7 +203,7 @@ pipeline {
                                   $testscript_container_image \
                                   bash -c '\
                                     PYTHON=3.7 ./ci/install-test-deps-conda.sh && \
-                                    source activate /conda/envs/omnisci-dev && \
+                                    source activate /conda/envs/omnisci-gpu-dev && \
                                     pytest tests'
 
                                 docker rm -f $testscript_container_name || true
