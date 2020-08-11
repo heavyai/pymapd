@@ -115,6 +115,68 @@ EOF
                         """
                     }
                 }
+                stage('RBC tests - conda python3.6') {
+                    steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            script { stage_succeeded = false }
+                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME", git_commit);
+                            sh """
+                                docker run \
+                                  -d \
+                                  --ipc="shareable" \
+                                  --network="pytest" \
+                                  -p 6274 \
+                                  --name $db_container_name \
+                                  $db_cpu_container_image \
+                                  bash -c "/omnisci/startomnisci \
+                                    --non-interactive \
+                                    --data /omnisci-storage/data \
+                                    --config /omnisci-storage/omnisci.conf \
+                                    --enable-runtime-udf \
+                                    --enable-table-functions \
+                                  "
+                                sleep 3
+
+                                docker run \
+                                  --rm \
+                                  --runtime=nvidia \
+                                  --ipc="container:${db_container_name}" \
+                                  --network="pytest" \
+                                  -v $WORKSPACE:/pymapd \
+                                  --workdir="/workdir" \
+                                  --name $testscript_container_name \
+                                  $testscript_container_image \
+                                  bash -c '\
+                                    git clone https://github.com/xnd-project/rbc && \
+                                    pushd rbc && \
+                                    conda env create --file=.conda/environment.yml && \
+                                    conda activate rbc && \
+                                    OMNISCI_CLIENT_CONF=/pymapd/rbc.conf pytest -v -r s rbc/ -x \
+                                  ' || \
+                                  docker logs $db_container_name
+
+                                docker rm -f $testscript_container_name || true
+                                docker rm -f $db_container_name || true
+                            """
+                            script { stage_succeeded = true }
+                        }
+                    }
+                    post {
+                        always {
+                            script {
+                                if (stage_succeeded == true) {
+                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME", git_commit);
+                                } else {
+                                    sh """
+                                        docker rm -f $testscript_container_name || true
+                                        docker rm -f $db_container_name || true
+                                    """
+                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME", git_commit);
+                                }
+                            }
+                        }
+                    }
+                }
                 stage('Pytest - conda python3.6') {
                     steps {
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -350,67 +412,6 @@ EOF
                 //         }
                 //     }
                 // }
-                stage('RBC tests - conda python3.6') {
-                    steps {
-                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            script { stage_succeeded = false }
-                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME", git_commit);
-                            sh """
-                                docker run \
-                                  -d \
-                                  --ipc="shareable" \
-                                  --network="pytest" \
-                                  -p 6274 \
-                                  --name $db_container_name \
-                                  $db_cpu_container_image \
-                                  bash -c "/omnisci/startomnisci \
-                                    --non-interactive \
-                                    --data /omnisci-storage/data \
-                                    --config /omnisci-storage/omnisci.conf \
-                                    --enable-runtime-udf \
-                                    --enable-table-functions \
-                                  "
-                                sleep 3
-
-                                docker run \
-                                  --rm \
-                                  --runtime=nvidia \
-                                  --ipc="container:${db_container_name}" \
-                                  --network="pytest" \
-                                  -v $WORKSPACE:/pymapd \
-                                  --workdir="/workdir" \
-                                  --name $testscript_container_name \
-                                  $testscript_container_image \
-                                  bash -c '\
-                                    git clone https://github.com/xnd-project/rbc && \
-                                    pushd rbc && \
-                                    conda env create --file=.conda/environment.yml && \
-                                    conda activate rbc && \
-                                    OMNISCI_CLIENT_CONF=/pymapd/rbc.conf pytest -v -r s rbc/ -x \
-                                  '
-
-                                docker rm -f $testscript_container_name || true
-                                docker rm -f $db_container_name || true
-                            """
-                            script { stage_succeeded = true }
-                        }
-                    }
-                    post {
-                        always {
-                            script {
-                                if (stage_succeeded == true) {
-                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME", git_commit);
-                                } else {
-                                    sh """
-                                        docker rm -f $testscript_container_name || true
-                                        docker rm -f $db_container_name || true
-                                    """
-                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME", git_commit);
-                                }
-                            }
-                        }
-                    }
-                }
             }
             post {
                 always {
