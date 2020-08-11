@@ -1,5 +1,8 @@
-import pytest
+from decimal import Decimal
 import datetime
+
+import pytest
+
 from pymapd._loaders import _build_input_rows
 from pymapd import _pandas_loaders
 from pymapd._parsers import ColumnDetails
@@ -40,7 +43,7 @@ def get_col_types(col_properties: dict):
     )
 
     return [
-        ColumnDetails(**properties, **common_col_params)
+        ColumnDetails(**{**common_col_params, **properties})
         for properties in col_properties
     ]
 
@@ -52,6 +55,7 @@ def get_expected(data, col_properties):
         'DOUBLE': 'real_col',
         'STR': 'str_col',
         'TIMESTAMP': 'int_col',
+        'DECIMAL': 'int_col',
     }
     _map_col_types.update(
         {k: 'str_col' for k in _pandas_loaders.GEO_TYPE_NAMES}
@@ -89,6 +93,12 @@ def get_expected(data, col_properties):
                     data[prop['name']] = (
                         data[prop['name']].astype(int) // 10 ** 9
                     )
+            elif prop['type'] == 'DECIMAL':
+                # data = (data * 10 ** precision).astype(int) \
+                #   * 10 ** (scale - precision)
+                data[prop['name']] = (
+                    data[prop['name']] * 10 ** prop['precision']
+                ).astype(int) * 10 ** (prop['scale'] - prop['precision'])
 
             col = TColumn(
                 data=TColumnData(
@@ -207,6 +217,11 @@ class TestLoaders:
                                 '%Y-%m-%d %H:%M:%S.%f',
                             ),
                         ],
+                        'f': [
+                            Decimal('1.1234'),
+                            Decimal('2.2345'),
+                            Decimal('3.3456'),
+                        ],
                     }
                 ),
                 [
@@ -215,6 +230,13 @@ class TestLoaders:
                     {'name': 'c', 'type': 'INT', 'is_array': False},
                     {'name': 'd', 'type': 'TIMESTAMP', 'is_array': False},
                     {'name': 'e', 'type': 'TIMESTAMP', 'is_array': False},
+                    {
+                        'name': 'f',
+                        'type': 'DECIMAL',
+                        'is_array': False,
+                        'scale': 10,
+                        'precision': 4,
+                    },
                 ],
                 id='mult-cols-mix-array-not-null',
             ),
