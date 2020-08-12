@@ -1,7 +1,7 @@
 def precommit_container_image = "sloria/pre-commit"
 def precommit_container_name = "pymapd-precommit-$BUILD_NUMBER"
-def db_cuda_container_image = "omnisci/core-os-cuda-dev:master"
-def db_cpu_container_image = "omnisci/core-os-cpu-dev:master"
+def db_container_image = "omnisci/core-os-cuda-dev:master"
+//def db_container_image = "omnisci/core-os-cuda"
 def db_container_name = "pymapd-db-$BUILD_NUMBER"
 def testscript_container_image = "rapidsai/rapidsai:0.8-cuda10.0-runtime-ubuntu18.04-gcc7-py3.6"
 def testscript_container_name = "pymapd-pytest-$BUILD_NUMBER"
@@ -87,7 +87,7 @@ pipeline {
                     steps {
                         sh """
                             # Pull required test docker container images
-                            docker pull $db_cuda_container_image
+                            docker pull $db_container_image
                             docker pull $testscript_container_image
 
                             # Create docker network
@@ -105,13 +105,6 @@ pipeline {
                             sed -i "s/\"localhost\"/\"${db_container_name}\"/" tests/test_connection.py
                             sed -i "s/host=\\x27localhost\\x27/host=\\x27${db_container_name}\\x27/" pymapd/connection.py
                             sed -i "s|@localhost:6274|@${db_container_name}:6274|" pymapd/connection.py
-
-                            # Create RBC testing endpoint config file
-                            cat <<EOF > rbc.conf
-[server]
-  host: ${db_container_name}
-  port: 6274
-EOF
                         """
                     }
                 }
@@ -129,7 +122,7 @@ EOF
                                   --network="pytest" \
                                   -p 6273 \
                                   --name $db_container_name \
-                                  $db_cuda_container_image \
+                                  $db_container_image \
                                   bash -c "/omnisci/startomnisci \
                                     --non-interactive \
                                     --data /omnisci-storage/data \
@@ -189,7 +182,7 @@ EOF
                                   --network="pytest" \
                                   -p 6273 \
                                   --name $db_container_name \
-                                  $db_cuda_container_image \
+                                  $db_container_image \
                                   bash -c "/omnisci/startomnisci \
                                     --non-interactive \
                                     --data /omnisci-storage/data \
@@ -249,7 +242,7 @@ EOF
                                   --network="pytest" \
                                   -p 6273 \
                                   --name $db_container_name \
-                                  $db_cuda_container_image \
+                                  $db_container_image \
                                   bash -c "/omnisci/startomnisci \
                                     --non-interactive \
                                     --data /omnisci-storage/data \
@@ -310,7 +303,7 @@ EOF
                 //                   --network="pytest" \
                 //                   -p 6273 \
                 //                   --name $db_container_name \
-                //                   $db_cuda_container_image
+                //                   $db_container_image
                 //                 sleep 3
 
                 //                 docker run \
@@ -350,67 +343,6 @@ EOF
                 //         }
                 //     }
                 // }
-                stage('RBC tests - conda python3.6') {
-                    steps {
-                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            script { stage_succeeded = false }
-                            setBuildStatus("Running tests", "PENDING", "$STAGE_NAME", git_commit);
-                            sh """
-                                docker run \
-                                  -d \
-                                  --ipc="shareable" \
-                                  --network="pytest" \
-                                  -p 6274 \
-                                  --name $db_container_name \
-                                  $db_cpu_container_image \
-                                  bash -c "/omnisci/startomnisci \
-                                    --non-interactive \
-                                    --data /omnisci-storage/data \
-                                    --config /omnisci-storage/omnisci.conf \
-                                    --enable-runtime-udf \
-                                    --enable-table-functions \
-                                  "
-                                sleep 3
-
-                                docker run \
-                                  --rm \
-                                  --runtime=nvidia \
-                                  --ipc="container:${db_container_name}" \
-                                  --network="pytest" \
-                                  -v $WORKSPACE:/pymapd \
-                                  --workdir="/workdir" \
-                                  --name $testscript_container_name \
-                                  $testscript_container_image \
-                                  bash -c '\
-                                    git clone https://github.com/xnd-project/rbc && \
-                                    pushd rbc && \
-                                    conda env create --file=.conda/environment.yml && \
-                                    conda activate rbc && \
-                                    OMNISCI_CLIENT_CONF=/pymapd/rbc.conf pytest -v -r s rbc/ -x \
-                                  '
-
-                                docker rm -f $testscript_container_name || true
-                                docker rm -f $db_container_name || true
-                            """
-                            script { stage_succeeded = true }
-                        }
-                    }
-                    post {
-                        always {
-                            script {
-                                if (stage_succeeded == true) {
-                                    setBuildStatus("Build succeeded", "SUCCESS", "$STAGE_NAME", git_commit);
-                                } else {
-                                    sh """
-                                        docker rm -f $testscript_container_name || true
-                                        docker rm -f $db_container_name || true
-                                    """
-                                    setBuildStatus("Build failed", "FAILURE", "$STAGE_NAME", git_commit);
-                                }
-                            }
-                        }
-                    }
-                }
             }
             post {
                 always {
