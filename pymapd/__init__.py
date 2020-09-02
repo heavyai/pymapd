@@ -1,1 +1,1 @@
-from pandas import *
+from pyomnisci import *
