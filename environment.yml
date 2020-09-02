@@ -22,4 +22,4 @@ dependencies:
 - requests
 - sphinx
 - sphinx_rtd_theme
-- 'rbc==0.2.2'
+- rbc>=0.2.2
