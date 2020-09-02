@@ -2,7 +2,7 @@
 pymapd
 ======
 
-A wrapper for the pyomnisci libarary, maintained for backwards compatibility.
+A wrapper for the pyomnisci libarary http://github.com/omnisci/pyomnisci, maintained for backwards compatibility.
 
 Existing scripts should be migrated to pyomnisci from pymapd, this library will
 not be updated moving forward.
