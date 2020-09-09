@@ -1,0 +1,1 @@
+from omnisci.exceptions import *
