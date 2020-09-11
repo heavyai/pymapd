@@ -19,7 +19,7 @@ import pandas as pd
 import numpy as np
 import pyarrow as pa
 from pandas.api.types import is_object_dtype, is_categorical_dtype
-import pandas.util.testing as tm
+import pandas.testing as tm
 import shapely
 from shapely.geometry import Point, LineString, Polygon, MultiPolygon
 import textwrap
