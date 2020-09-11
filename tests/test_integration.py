@@ -337,8 +337,8 @@ class TestIntegration:
         assert isinstance(result, DataFrame)
 
         assert len(result) == 8
-        assert set(result['trans']) == set(["BUY"])
-        assert set(result['symbol']) == symbols
+        assert set(result['trans'].to_arrow()) == set(["BUY"])
+        assert set(result['symbol'].to_arrow()) == symbols
         c.execute('drop table if exists stocks;')
 
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")

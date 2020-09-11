@@ -230,7 +230,7 @@ def _parse_tdf_gpu(tdf):
 
     for k, v in reader.to_dict().items():
         if k in dict_memo:
-            df[k] = pa.DictionaryArray.from_arrays(v, dict_memo[k])
+            df[k] = pa.DictionaryArray.from_arrays(v.to_arrow(), dict_memo[k])
         else:
             df[k] = v
 
