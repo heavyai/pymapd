@@ -107,11 +107,11 @@ def get_mapd_type_from_object(data):
         raise TypeError("Unhandled type {}".format(data.dtype))
 
 
-def thrift_cast(data, mapd_type, scale=0):
+def thrift_cast(data, mapd_type, scale=0, precision=0):
     """Cast data type to the expected thrift types"""
 
     if mapd_type == 'TIMESTAMP':
-        return datetime_to_seconds(data)
+        return datetime_to_seconds(data, precision)
     elif mapd_type == 'TIME':
         return pd.Series(time_to_seconds(x) for x in data)
     elif mapd_type == 'DATE':
@@ -156,6 +156,7 @@ def build_input_columnar(
             mapd_type = col_types[colindex].type
             is_array = col_types[colindex].is_array
             scale = col_types[colindex].scale
+            precision = col_types[colindex].precision
             has_nulls = data[col].hasnans
 
             if has_nulls:
@@ -172,7 +173,7 @@ def build_input_columnar(
                 # requires a cast to integer
                 for c in data:
                     data.loc[:, c] = thrift_cast(
-                        data=data[c], mapd_type=mapd_type
+                        data=data[c], mapd_type=mapd_type, precision=precision
                     )
 
             if mapd_type in ['DECIMAL']:

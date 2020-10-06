@@ -1,6 +1,14 @@
 import datetime
 import numpy as np
 import pandas as pd
+from enum import Enum
+
+
+class TimePrecision(Enum):
+    SECONDS = 0
+    MILLISECONDS = 3
+    MICROSECONDS = 6
+    NANOSECONDS = 9
 
 
 def seconds_to_time(seconds):
@@ -17,9 +25,10 @@ def time_to_seconds(time):
     return 3600 * time.hour + 60 * time.minute + time.second
 
 
-def datetime_to_seconds(arr):
+def datetime_to_seconds(arr, precision):
     """Convert an array of datetime64[ns] to seconds since the UNIX epoch"""
 
+    p = TimePrecision(precision)
     if arr.dtype != np.dtype('datetime64[ns]'):
         if arr.dtype == 'int64':
             # The user has passed a unix timestamp already
@@ -41,24 +50,26 @@ def datetime_to_seconds(arr):
         arr = pd.to_datetime(arr, utc=True)
         return arr.view('i8') // 10 ** 9  # ns -> s since epoch
     else:
-        if arr.dt.nanosecond.sum():
-            return arr.view('i8')  # ns -> s since epoch
-        else:
+        if p == TimePrecision.SECONDS:
             return arr.view('i8') // 10 ** 9
+        elif p == TimePrecision.MILLISECONDS:
+            return arr.view('i8') // 10 ** 6
+        elif p == TimePrecision.MICROSECONDS:
+            return arr.view('i8') // 10 ** 3
+        elif p == TimePrecision.NANOSECONDS:
+            return arr.view('i8')
 
 
 def datetime_in_precisions(epoch, precision):
     """Convert epoch time value into s, ms, us, ns"""
-    base = datetime.datetime(1970, 1, 1)
-    if precision == 0:
-        return base + datetime.timedelta(seconds=epoch)
-    elif precision == 3:
-        seconds, modulus = divmod(epoch, 1000)
-        return base + datetime.timedelta(seconds=seconds, milliseconds=modulus)
-    elif precision == 6:
-        seconds, modulus = divmod(epoch, 1000000)
-        return base + datetime.timedelta(seconds=seconds, microseconds=modulus)
-    elif precision == 9:
+    p = TimePrecision(precision)
+    if p == TimePrecision.SECONDS:
+        return np.datetime64(epoch, 's').astype(datetime.datetime)
+    elif p == TimePrecision.MILLISECONDS:
+        return np.datetime64(epoch, 'ms')
+    elif p == TimePrecision.MICROSECONDS:
+        return np.datetime64(epoch, 'us')
+    elif p == TimePrecision.NANOSECONDS:
         return np.datetime64(epoch, 'ns')
     else:
         raise TypeError("Invalid timestamp precision: {}".format(precision))
