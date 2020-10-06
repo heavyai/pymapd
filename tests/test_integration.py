@@ -815,6 +815,44 @@ class TestLoaders:
             ),
             pytest.param(
                 pd.DataFrame(
+                    {
+                        "a": [
+                            datetime.datetime.fromtimestamp(
+                                float(1600443582510) / 1e3
+                            ),
+                            datetime.datetime.fromtimestamp(
+                                float(1600443582510) / 1e3
+                            ),
+                            datetime.datetime.fromtimestamp(
+                                float(1600443582510) / 1e3
+                            ),
+                        ],
+                    },
+                ),
+                'a TIMESTAMP(3)',
+                id='scalar_datetime_ms',
+            ),
+            pytest.param(
+                pd.DataFrame(
+                    {
+                        "a": [
+                            datetime.datetime.fromtimestamp(
+                                float(1600443582510) / 1e6
+                            ),
+                            datetime.datetime.fromtimestamp(
+                                float(1600443582510) / 1e6
+                            ),
+                            datetime.datetime.fromtimestamp(
+                                float(1600443582510) / 1e6
+                            ),
+                        ],
+                    },
+                ),
+                'a TIMESTAMP(6)',
+                id='scalar_datetime_us',
+            ),
+            pytest.param(
+                pd.DataFrame(
                     [
                         {'ary': [2, 3, 4]},
                         {'ary': [4444]},
