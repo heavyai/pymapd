@@ -18,7 +18,7 @@ install_requires = [
     'packaging >= 20.0',
     'requests >= 2.23.0',
     'numba >= 0.48',
-    'rbc-project == 0.2.2',
+    'rbc-project >= 0.2.2',
 ]
 
 # Optional Requirements
