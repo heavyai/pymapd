@@ -2,16 +2,21 @@ SHELL = /bin/sh
 .DEFAULT_GOAL=all
 
 DB_CONTAINER = omnisci
+PYTHON = 3.7
 
 -include .env
 
 # see docs/source/contributing.rst
 init:
-	conda env create -f environment.yml
+	mkdir -p tmp
+	sed -E "s/- python[^[:alpha:]]+$$/- python=${PYTHON}/" ./environment.yml > tmp/environment_${PYTHON}.yml
+	conda env create -vv -f tmp/environment_${PYTHON}.yml
 .PHONY: init
 
 init.gpu:
-	conda env create -f environment_gpu.yml
+	mkdir -p tmp
+	sed -E "s/- python[^[:alpha:]]+$$/- python=${PYTHON}/" ./environment_gpu.yml > tmp/environment_gpu_${PYTHON}.yml
+	conda env create -vv -f tmp/environment_gpu_${PYTHON}.yml
 .PHONY: init.gpu
 
 develop:
