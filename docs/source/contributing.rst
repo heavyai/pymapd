@@ -150,14 +150,20 @@ For example:
    # Validate code
    make check
 
-   # Start the database
+   # Start the OmniSci DB in docker
    make start
+   # Or, start OmniSci DB in docker with GPU
+   make start.gpu
 
    # Run tests
    make test
 
+   # build
+   make build
+
    # Stop database
    make down
+
 
 -------------------------------
 Updating Apache Thrift Bindings

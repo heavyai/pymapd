@@ -1,3 +1,4 @@
+SHELL = /bin/sh
 .DEFAULT_GOAL=all
 
 DB_CONTAINER = omnisci
