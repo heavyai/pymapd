@@ -10,13 +10,13 @@ PYTHON = 3.7
 init:
 	mkdir -p tmp
 	sed -E "s/- python[^[:alpha:]]+$$/- python=${PYTHON}/" ./environment.yml > tmp/environment_${PYTHON}.yml
-	conda env create -vv -f tmp/environment_${PYTHON}.yml
+	conda env create -f tmp/environment_${PYTHON}.yml
 .PHONY: init
 
 init.gpu:
 	mkdir -p tmp
 	sed -E "s/- python[^[:alpha:]]+$$/- python=${PYTHON}/" ./environment_gpu.yml > tmp/environment_gpu_${PYTHON}.yml
-	conda env create -vv -f tmp/environment_gpu_${PYTHON}.yml
+	conda env create -f tmp/environment_gpu_${PYTHON}.yml
 .PHONY: init.gpu
 
 develop:
@@ -26,6 +26,7 @@ develop:
 
 start:
 	docker run -d --rm --name ${DB_CONTAINER} \
+		${DOCKER_ARGS} \
 		--ipc=host \
 		-p ${OMNISCI_DB_PORT}:6274 \
 		-p ${OMNISCI_DB_PORT_HTTP}:6278 \
@@ -37,6 +38,7 @@ start:
 
 start.gpu:
 	docker run -d --rm --name ${DB_CONTAINER} \
+		${DOCKER_ARGS} \
 		--ipc=host \
 		-p ${OMNISCI_DB_PORT}:6274 \
 		-p ${OMNISCI_DB_PORT_HTTP}:6278 \
