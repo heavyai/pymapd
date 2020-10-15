@@ -200,6 +200,7 @@ class Connection:
         idpsslverify=True,
     ):
 
+        self._closed = 0
         self.sessionid = None
         if sessionid is not None:
             if any([user, password, uri, dbname, idpurl]):
@@ -274,7 +275,6 @@ class Connection:
         self._transport = transport
         self._protocol = protocol
         self._socket = socket
-        self._closed = 0
         self._tdf = None
         self._rbc = None
         try:
