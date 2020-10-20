@@ -5,6 +5,7 @@ import base64
 import json
 import datetime
 from unittest import mock
+from uuid import uuid4
 
 import pytest
 from pymapd import connect, ProgrammingError, DatabaseError
@@ -109,28 +110,30 @@ class TestIntegration:
             con.cursor().execute("select it from fake_table;")
         r.match("Table 'FAKE_TABLE' does not exist|Object 'fake_table' not")
 
-    def test_connection_execute(self, con):
-        result = con.execute("drop table if exists FOO;")
-        result = con.execute("create table FOO (a int);")
+    def test_connection_execute(self, con, tmp_table):
+        result = con.execute("create table {} (a int);".format(tmp_table))
         assert isinstance(result, Cursor)
-        con.execute("drop table if exists FOO;")
 
-    def test_select_sets_description(self, con):
-
+    def test_select_sets_description(self, con, tmp_table):
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
-            'qty int, price float, vol float);'
+            'create table {} (date_ text, trans text, symbol text, '
+            'qty int, price float, vol float);'.format(tmp_table)
         )
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} "
+            "VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} "
+            "VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
-        c.execute("select * from stocks")
+        c.execute("select * from {}".format(tmp_table))
         expected = [
             Description('date_', 6, None, None, None, None, True),
             Description('trans', 6, None, None, None, None, True),
@@ -140,25 +143,31 @@ class TestIntegration:
             Description('vol', 3, None, None, None, None, True),
         ]
         assert c.description == expected
-        c.execute('drop table if exists stocks;')
 
-    def test_select_parametrized(self, con):
+    def test_select_parametrized(self, con, tmp_table):
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} "
+            "VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} "
+            "VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
         c.execute(
-            'select symbol, qty from stocks where symbol = :symbol',
+            'select symbol, qty from {} where symbol = :symbol'.format(
+                tmp_table
+            ),
             {'symbol': 'GOOG'},
         )
         result = list(c)
@@ -166,80 +175,88 @@ class TestIntegration:
             ('GOOG', 100),
         ]  # noqa
         assert result == expected
-        c.execute('drop table if exists stocks;')
 
-    def test_executemany_parametrized(self, con):
+    def test_executemany_parametrized(self, con, tmp_table):
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
         parameters = [{'symbol': 'GOOG'}, {'symbol': "RHAT"}]
         expected = [[('GOOG', 100)], [('RHAT', 100)]]
-        query = 'select symbol, qty from stocks where symbol = :symbol'
+        query = 'select symbol, qty from {} where symbol = :symbol'.format(
+            tmp_table
+        )
         c = con.cursor()
         result = c.executemany(query, parameters)
         assert result == expected
-        c.execute('drop table if exists stocks;')
 
-    def test_executemany_parametrized_insert(self, con):
-
+    def test_executemany_parametrized_insert(self, con, tmp_table):
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
         c = con.cursor()
-        c.execute("drop table if exists stocks2;")
+        tmp_table2 = 'table_{}'.format(uuid4().hex)
+        c.execute("drop table if exists {};".format(tmp_table2))
         # Create table
-        c.execute('CREATE TABLE stocks2 (symbol text, qty int);')
+        c.execute('CREATE TABLE {} (symbol text, qty int);'.format(tmp_table2))
         params = [{"symbol": "GOOG", "qty": 10}, {"symbol": "AAPL", "qty": 20}]
-        query = "INSERT INTO stocks2 VALUES (:symbol, :qty);"
+        query = "INSERT INTO {} VALUES (:symbol, :qty);".format(tmp_table2)
         result = c.executemany(query, params)
         assert result == [[], []]  # TODO: not sure if this is standard
-        c.execute("drop table stocks2;")
-        c.execute('drop table if exists stocks;')
+        c.execute("drop table {};".format(tmp_table2))
 
     @pytest.mark.parametrize(
         'query, parameters',
         [
-            ('select qty, price from stocks', None),
-            ('select qty, price from stocks where qty=:qty', {'qty': 100}),
+            ('select qty, price from {}', None),
+            ('select qty, price from {} where qty=:qty', {'qty': 100}),
         ],
     )
-    def test_select_ipc_parametrized(self, con, query, parameters):
+    def test_select_ipc_parametrized(self, con, tmp_table, query, parameters):
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
-        result = con.select_ipc(query, parameters=parameters)
+        result = con.select_ipc(query.format(tmp_table), parameters=parameters)
         expected = pd.DataFrame(
             {
                 "qty": np.array([100, 100], dtype=np.int32),
@@ -249,53 +266,60 @@ class TestIntegration:
             }
         )[['qty', 'price']]
         tm.assert_frame_equal(result, expected)
-        c.execute('drop table if exists stocks;')
 
-    def test_select_ipc_first_n(self, con):
-
+    def test_select_ipc_first_n(self, con, tmp_table):
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
-        result = con.select_ipc("select * from stocks", first_n=1)
+        result = con.select_ipc(
+            "select * from {}".format(tmp_table), first_n=1
+        )
         assert len(result) == 1
-        c.execute('drop table if exists stocks;')
 
     @pytest.mark.parametrize(
         'query, parameters',
         [
-            ('select qty, price from stocks', None),
-            ('select qty, price from stocks where qty=:qty', {'qty': 100}),
+            ('select qty, price from {}', None),
+            ('select qty, price from {} where qty=:qty', {'qty': 100}),
         ],
     )
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
-    def test_select_ipc_gpu(self, con, query, parameters):
+    def test_select_ipc_gpu(self, con, tmp_table, query, parameters):
 
         from cudf.core.dataframe import DataFrame
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
-        result = con.select_ipc_gpu("select qty, price from stocks")
+        result = con.select_ipc_gpu(
+            "select qty, price from {}".format(tmp_table)
+        )
         assert isinstance(result, DataFrame)
 
         dtypes = dict(qty=np.int32, price=np.float32)
@@ -305,26 +329,25 @@ class TestIntegration:
 
         result = result.to_pandas()[['qty', 'price']]  # column order
         pd.testing.assert_frame_equal(result, expected)
-        c.execute('drop table if exists stocks;')
 
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
-    def test_select_text_ipc_gpu(self, con):
+    def test_select_text_ipc_gpu(self, con, tmp_table):
 
         from cudf.core.dataframe import DataFrame
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
 
         symbols = set(['GOOG', 'RHAT', 'IBM', 'NVDA'])
         for i, sym in enumerate(symbols):
-            stmt = "INSERT INTO stocks VALUES ('2006-01-05_{}','BUY','{}',{},35.{},{}.1);".format(  # noqa
-                i, sym, i, i, i
-            )  # noqa
+            stmt = (
+                "INSERT INTO {} VALUES "
+                "('2006-01-05_{}','BUY','{}',{},35.{},{}.1);"
+            ).format(tmp_table, tmp_table, i, sym, i, i, i)
             # insert twice so we can test
             # that duplicated text values
             # are deserialized properly
@@ -332,102 +355,109 @@ class TestIntegration:
             c.execute(stmt)
 
         result = con.select_ipc_gpu(
-            "select trans, symbol, qty, price from stocks"
-        )  # noqa
+            "select trans, symbol, qty, price from {}".format(tmp_table)
+        )
         assert isinstance(result, DataFrame)
 
         assert len(result) == 8
         assert set(result['trans']) == set(["BUY"])
         assert set(result['symbol']) == symbols
-        c.execute('drop table if exists stocks;')
 
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")
-    def test_select_gpu_first_n(self, con):
+    def test_select_gpu_first_n(self, con, tmp_table):
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
-        result = con.select_ipc_gpu("select * from stocks", first_n=1)
+        result = con.select_ipc_gpu(
+            "select * from {}".format(tmp_table), first_n=1
+        )
         assert len(result) == 1
-        c.execute('drop table if exists stocks;')
 
-    def test_fetchone(self, con):
+    def test_fetchone(self, con, tmp_table):
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
-        c.execute("select symbol, qty from stocks")
+        c.execute("select symbol, qty from {}".format(tmp_table))
         result = c.fetchone()
         expected = ('RHAT', 100)
         assert result == expected
-        c.execute('drop table if exists stocks;')
 
-    def test_fetchmany(self, con):
+    def test_fetchmany(self, con, tmp_table):
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
-        c.execute("select symbol, qty from stocks")
+        c.execute("select symbol, qty from {}".format(tmp_table))
         result = c.fetchmany()
         expected = [('RHAT', 100)]
         assert result == expected
 
-        c.execute("select symbol, qty from stocks")
+        c.execute("select symbol, qty from {}".format(tmp_table))
         result = c.fetchmany(size=10)
         expected = [('RHAT', 100), ('GOOG', 100)]
         assert result == expected
-        c.execute('drop table if exists stocks;')
 
-    def test_select_dates(self, con):
-
+    def test_select_dates(self, con, tmp_table):
         c = con.cursor()
-        c.execute('drop table if exists dates;')
         c.execute(
-            'create table dates (date_ DATE, datetime_ TIMESTAMP, '
-            'time_ TIME);'
+            (
+                'create table {} (date_ DATE, datetime_ TIMESTAMP, '
+                'time_ TIME);'
+            ).format(tmp_table)
         )
         i1 = (
-            "INSERT INTO dates VALUES ('2006-01-05','2006-01-01T12:00:00',"
+            "INSERT INTO {} VALUES ('2006-01-05','2006-01-01T12:00:00',"
             "'12:00:00');"
-        )
+        ).format(tmp_table)
         i2 = (
-            "INSERT INTO dates VALUES ('1901-12-14','1901-12-13T20:45:53',"
+            "INSERT INTO {} VALUES ('1901-12-14','1901-12-13T20:45:53',"
             "'23:59:00');"
-        )
+        ).format(tmp_table)
         c.execute(i1)
         c.execute(i2)
 
-        result = list(c.execute("select * from dates"))
+        result = list(c.execute("select * from {}".format(tmp_table)))
         expected = [
             (
                 datetime.date(2006, 1, 5),
@@ -441,7 +471,6 @@ class TestIntegration:
             ),
         ]
         assert result == expected
-        c.execute('drop table if exists dates;')
 
     def test_dashboard_duplication_remap(self, con):
         # This test relies on the test_data_no_nulls_ipc table
@@ -534,18 +563,17 @@ class TestOptionalImports:
 
 
 class TestExtras:
-    def test_sql_validate(self, con):
+    def test_sql_validate(self, con, tmp_table):
         from omnisci.common.ttypes import TTypeInfo
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
 
-        q = "select * from stocks"
+        q = "select * from {}".format(tmp_table)
         results = con._client.sql_validate(con._session, q)
         col_names = sorted([r.col_name for r in results])
         col_types = [r.col_type for r in results]
@@ -625,43 +653,52 @@ class TestExtras:
         assert col_types == expected_types
         assert col_names == expected_col_names
 
-    def test_get_tables(self, con):
+    def test_get_tables(self, con, tmp_table):
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float);'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"  # noqa
+        i1 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1);"
+        ).format(tmp_table)
+        i2 = (
+            "INSERT INTO {} VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2);"
+        ).format(tmp_table)
 
         c.execute(i1)
         c.execute(i2)
 
         result = con.get_tables()
         assert isinstance(result, list)
-        assert 'stocks' in result
-        c.execute('drop table if exists stocks;')
+        assert tmp_table in result
 
-    def test_get_table_details(self, con):
+    def test_get_table_details(self, con, tmp_table):
 
         c = con.cursor()
-        c.execute('drop table if exists stocks;')
         create = (
-            'create table stocks (date_ text, trans text, symbol text, '
+            'create table {} (date_ text, trans text, symbol text, '
             'qty int, price float, vol float, '
             'exchanges TEXT [] ENCODING DICT(32));'
-        )
+        ).format(tmp_table)
         c.execute(create)
-        i1 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14,1.1,{'NYSE', 'NASDAQ', 'AMEX'});"  # noqa
-        i2 = "INSERT INTO stocks VALUES ('2006-01-05','BUY','GOOG',100,12.14,1.2,{'NYSE', 'NASDAQ'});"  # noqa
+        i1 = (
+            "INSERT INTO {} ".format(tmp_table)
+            + "VALUES ('2006-01-05','BUY','RHAT',"
+            + "100,35.14,1.1,{'NYSE', 'NASDAQ', 'AMEX'});"
+        )
+        i2 = (
+            "INSERT INTO {} ".format(tmp_table)
+            + "VALUES ('2006-01-05','BUY','GOOG',"
+            + "100,12.14,1.2,{'NYSE', 'NASDAQ'});"
+        )
 
         c.execute(i1)
         c.execute(i2)
 
-        result = con.get_table_details('stocks')
+        result = con.get_table_details(tmp_table)
         expected = [
             ColumnDetails(
                 name='date_',
@@ -735,7 +772,6 @@ class TestExtras:
             ),
         ]
         assert result == expected
-        c.execute('drop table if exists stocks;')
 
 
 class TestLoaders:
@@ -746,33 +782,32 @@ class TestLoaders:
         assert expected[0][2] == result[0][2]
         assert abs(expected[0][1] - result[0][1]) < 1e-7  # floating point
 
-    def test_load_empty_table(self, con):
-
-        con.execute("drop table if exists baz;")
-        con.execute("create table baz (a int, b float, c text);")
+    def test_load_empty_table(self, con, tmp_table):
+        con.execute(
+            "create table {} (a int, b float, c text);".format(tmp_table)
+        )
 
         data = [(1, 1.1, 'a'), (2, 2.2, '2'), (3, 3.3, '3')]
-        con.load_table("baz", data)
-        result = sorted(con.execute("select * from baz"))
+        con.load_table(tmp_table, data)
+        result = sorted(con.execute("select * from {}".format(tmp_table)))
         self.check_empty_insert(result, data)
-        con.execute("drop table if exists baz;")
 
-    def test_load_empty_table_pandas(self, con):
-
-        con.execute("drop table if exists baz;")
-        con.execute("create table baz (a int, b float, c text);")
+    def test_load_empty_table_pandas(self, con, tmp_table):
+        con.execute(
+            "create table {} (a int, b float, c text);".format(tmp_table)
+        )
 
         data = [(1, 1.1, 'a'), (2, 2.2, '2'), (3, 3.3, '3')]
         df = pd.DataFrame(data, columns=list('abc'))
-        con.load_table("baz", df, method='columnar')
-        result = sorted(con.execute("select * from baz"))
+        con.load_table(tmp_table, df, method='columnar')
+
+        result = sorted(con.execute("select * from {}".format(tmp_table)))
         self.check_empty_insert(result, data)
-        con.execute("drop table if exists baz;")
 
-    def test_load_empty_table_arrow(self, con):
-
-        con.execute("drop table if exists baz;")
-        con.execute("create table baz (a int, b float, c text);")
+    def test_load_empty_table_arrow(self, con, tmp_table):
+        con.execute(
+            "create table {} (a int, b float, c text);".format(tmp_table)
+        )
 
         data = [(1, 1.1, 'a'), (2, 2.2, '2'), (3, 3.3, '3')]
 
@@ -781,10 +816,9 @@ class TestLoaders:
         )
 
         table = pa.Table.from_pandas(df, preserve_index=False)
-        con.load_table("baz", table, method='arrow')
-        result = sorted(con.execute("select * from baz"))
+        con.load_table(tmp_table, table, method='arrow')
+        result = sorted(con.execute("select * from {}".format(tmp_table)))
         self.check_empty_insert(result, data)
-        con.execute("drop table if exists baz;")
 
     @pytest.mark.parametrize(
         'df, table_fields',
@@ -932,10 +966,10 @@ class TestLoaders:
         result = _cursor2df(con.execute('select * from {}'.format(tmp_table)))
         pd.testing.assert_frame_equal(df, result)
 
-    def test_load_infer(self, con):
-
-        con.execute("drop table if exists baz;")
-        con.execute("create table baz (a int, b float, c text);")
+    def test_load_infer(self, con, tmp_table):
+        con.execute(
+            "create table {} (a int, b float, c text);".format(tmp_table)
+        )
 
         data = pd.DataFrame(
             {
@@ -944,36 +978,30 @@ class TestLoaders:
                 'c': ['a', 'b'],
             }
         )
-        con.load_table("baz", data)
-        con.execute("drop table if exists baz;")
+        con.load_table(tmp_table, data)
 
-    def test_load_infer_bad(self, con):
-
-        con.execute("drop table if exists baz;")
-        con.execute("create table baz (a int, b float, c text);")
-
-        with pytest.raises(TypeError):
-            con.load_table("baz", [], method='thing')
-
-        con.execute("drop table if exists baz;")
-
-    def test_infer_non_pandas(self, con):
-
-        con.execute("drop table if exists baz;")
-        con.execute("create table baz (a int, b float, c text);")
+    def test_load_infer_bad(self, con, tmp_table):
+        con.execute(
+            "create table {} (a int, b float, c text);".format(tmp_table)
+        )
 
         with pytest.raises(TypeError):
-            con.load_table("baz", [], method='columnar')
+            con.load_table(tmp_table, [], method='thing')
 
-        con.execute("drop table if exists baz;")
+    def test_infer_non_pandas(self, con, tmp_table):
+        con.execute(
+            "create table {} (a int, b float, c text);".format(tmp_table)
+        )
 
-    def test_load_columnar_pandas_all(self, con):
+        with pytest.raises(TypeError):
+            con.load_table(tmp_table, [], method='columnar')
+
+    def test_load_columnar_pandas_all(self, con, tmp_table):
 
         c = con.cursor()
-        c.execute('drop table if exists all_types;')
         create = textwrap.dedent(
             '''\
-        create table all_types (
+        create table {} (
             boolean_ BOOLEAN,
             smallint_ SMALLINT,
             int_ INT,
@@ -985,7 +1013,9 @@ class TestLoaders:
             time_ TIME,
             timestamp_ TIMESTAMP,
             date_ DATE
-        );'''
+        );'''.format(
+                tmp_table
+            )
         )
         # skipping decimal for now
         c.execute(create)
@@ -1037,9 +1067,9 @@ class TestLoaders:
                 'date_',
             ],
         )
-        con.load_table_columnar("all_types", data, preserve_index=False)
+        con.load_table_columnar(tmp_table, data, preserve_index=False)
 
-        result = list(c.execute("select * from all_types"))
+        result = list(c.execute("select * from {}".format(tmp_table)))
         expected = [
             (
                 1,
@@ -1096,15 +1126,13 @@ class TestLoaders:
         ]
 
         assert result == expected
-        c.execute('drop table if exists all_types;')
 
-    def test_load_table_columnar_arrow_all(self, con):
+    def test_load_table_columnar_arrow_all(self, con, tmp_table):
 
         c = con.cursor()
-        c.execute('drop table if exists all_types;')
         create = textwrap.dedent(
             '''\
-        create table all_types (
+        create table {} (
             boolean_ BOOLEAN,
             smallint_ SMALLINT,
             int_ INT,
@@ -1116,7 +1144,9 @@ class TestLoaders:
             time_ TIME,
             timestamp_ TIMESTAMP,
             date_ DATE
-        );'''
+        );'''.format(
+                tmp_table
+            )
         )
         # skipping decimal for now
         c.execute(create)
@@ -1158,23 +1188,18 @@ class TestLoaders:
             ),
         ]
         table = pa.Table.from_arrays(columns, names=names)
-        con.load_table_arrow("all_types", table)
-        c.execute('drop table if exists all_types;')
+        con.load_table_arrow(tmp_table, table)
 
-    def test_select_null(self, con):
-        con.execute("drop table if exists pymapd_test_table;")
-        con.execute("create table pymapd_test_table (a int);")
-        con.execute("insert into pymapd_test_table VALUES (1);")
-        con.execute("insert into pymapd_test_table VALUES (null);")
+    def test_select_null(self, con, tmp_table):
+        con.execute("create table {} (a int);".format(tmp_table))
+        con.execute("insert into {} VALUES (1);".format(tmp_table))
+        con.execute("insert into {} VALUES (null);".format(tmp_table))
         # the test
 
         c = con.cursor()
-        result = c.execute("select * from pymapd_test_table")
+        result = c.execute("select * from {}".format(tmp_table))
         expected = [(1,), (None,)]
         assert result.fetchall() == expected
-
-        # cleanup
-        con.execute("drop table if exists pymapd_test_table;")
 
     @pytest.mark.parametrize(
         'df, expected',
@@ -1294,7 +1319,7 @@ class TestLoaders:
             if 'precision' in expected[col.name]:
                 assert expected[col.name]['precision'] == col.precision
 
-    def test_load_table_creates(self, con):
+    def test_load_table_creates(self, con, tmp_table):
 
         data = pd.DataFrame(
             {
@@ -1334,17 +1359,17 @@ class TestLoaders:
             ],
         )
 
-        con.execute("drop table if exists test_load_table_creates;")
-        con.load_table("test_load_table_creates", data, create=True)
-        con.execute("drop table if exists test_load_table_creates;")
+        con.execute("drop table if exists {};".format(tmp_table))
+        con.load_table(tmp_table, data, create=True)
 
-    def test_array_in_result_set(self, con):
+    def test_array_in_result_set(self, con, tmp_table):
 
         # text
-        con.execute("DROP TABLE IF EXISTS test_lists;")
         con.execute(
-            "CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 TEXT[]);"
+            "CREATE TABLE IF NOT EXISTS {} \
+                    (col1 TEXT, col2 TEXT[]);".format(
+                tmp_table
+            )
         )
 
         row = [
@@ -1352,8 +1377,8 @@ class TestLoaders:
             ("row2", "{hello2,goodbye2,aloha2}"),
         ]
 
-        con.load_table_rowwise("test_lists", row)
-        ans = con.execute("select * from test_lists").fetchall()
+        con.load_table_rowwise(tmp_table, row)
+        ans = con.execute("select * from {}".format(tmp_table)).fetchall()
 
         expected = [
             ('row1', ['hello', 'goodbye', 'aloha']),
@@ -1363,26 +1388,30 @@ class TestLoaders:
         assert ans == expected
 
         # int
-        con.execute("DROP TABLE IF EXISTS test_lists;")
+        con.execute("DROP TABLE IF EXISTS {};".format(tmp_table))
         con.execute(
-            "CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 INT[]);"
+            "CREATE TABLE IF NOT EXISTS {} \
+                    (col1 TEXT, col2 INT[]);".format(
+                tmp_table
+            )
         )
 
         row = [("row1", "{10,20,30}"), ("row2", "{40,50,60}")]
 
-        con.load_table_rowwise("test_lists", row)
-        ans = con.execute("select * from test_lists").fetchall()
+        con.load_table_rowwise(tmp_table, row)
+        ans = con.execute("select * from {}".format(tmp_table)).fetchall()
 
         expected = [('row1', [10, 20, 30]), ('row2', [40, 50, 60])]
 
         assert ans == expected
 
         # timestamp
-        con.execute("DROP TABLE IF EXISTS test_lists;")
+        con.execute("DROP TABLE IF EXISTS {};".format(tmp_table))
         con.execute(
-            "CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 TIMESTAMP[], col3 TIMESTAMP(9));"
+            "CREATE TABLE IF NOT EXISTS {} \
+                    (col1 TEXT, col2 TIMESTAMP[], col3 TIMESTAMP(9));".format(
+                tmp_table
+            )
         )
 
         row = [
@@ -1398,8 +1427,8 @@ class TestLoaders:
             ),
         ]
 
-        con.load_table_rowwise("test_lists", row)
-        ans = con.execute("select * from test_lists").fetchall()
+        con.load_table_rowwise(tmp_table, row)
+        ans = con.execute("select * from {}".format(tmp_table)).fetchall()
 
         expected = [
             (
@@ -1424,10 +1453,12 @@ class TestLoaders:
         assert ans == expected
 
         # date
-        con.execute("DROP TABLE IF EXISTS test_lists;")
+        con.execute("DROP TABLE IF EXISTS {};".format(tmp_table))
         con.execute(
-            "CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 DATE[]);"
+            "CREATE TABLE IF NOT EXISTS {} \
+                    (col1 TEXT, col2 DATE[]);".format(
+                tmp_table
+            )
         )
 
         row = [
@@ -1435,8 +1466,8 @@ class TestLoaders:
             ("row2", "{2019-03-02,2019-03-02,2019-03-02}"),
         ]
 
-        con.load_table_rowwise("test_lists", row)
-        ans = con.execute("select * from test_lists").fetchall()
+        con.load_table_rowwise(tmp_table, row)
+        ans = con.execute("select * from {}".format(tmp_table)).fetchall()
 
         expected = [
             (
@@ -1460,10 +1491,12 @@ class TestLoaders:
         assert ans == expected
 
         # time
-        con.execute("DROP TABLE IF EXISTS test_lists;")
+        con.execute("DROP TABLE IF EXISTS {};".format(tmp_table))
         con.execute(
-            "CREATE TABLE IF NOT EXISTS test_lists \
-                    (col1 TEXT, col2 TIME[]);"
+            "CREATE TABLE IF NOT EXISTS {} \
+                    (col1 TEXT, col2 TIME[]);".format(
+                tmp_table
+            )
         )
 
         row = [
@@ -1471,8 +1504,8 @@ class TestLoaders:
             ("row2", "{23:59:00,23:59:00,23:59:00}"),
         ]
 
-        con.load_table_rowwise("test_lists", row)
-        ans = con.execute("select * from test_lists").fetchall()
+        con.load_table_rowwise(tmp_table, row)
+        ans = con.execute("select * from {}".format(tmp_table)).fetchall()
 
         expected = [
             (
@@ -1494,22 +1527,21 @@ class TestLoaders:
         ]
 
         assert ans == expected
-        con.execute("DROP TABLE IF EXISTS test_lists;")
 
-    def test_upload_pandas_categorical_ipc(self, con):
+    def test_upload_pandas_categorical_ipc(self, con, tmp_table):
 
-        con.execute("DROP TABLE IF EXISTS test_categorical;")
+        con.execute("DROP TABLE IF EXISTS {};".format(tmp_table))
 
         df = pd.DataFrame({"A": ["a", "b", "c", "a"]})
         df["B"] = df["A"].astype('category')
 
         # test that table created correctly when it doesn't exist on server
-        con.load_table("test_categorical", df)
-        ans = con.execute("select * from test_categorical").fetchall()
+        con.load_table(tmp_table, df)
+        ans = con.execute("select * from {}".format(tmp_table)).fetchall()
 
         assert ans == [('a', 'a'), ('b', 'b'), ('c', 'c'), ('a', 'a')]
 
-        assert con.get_table_details("test_categorical") == [
+        assert con.get_table_details(tmp_table) == [
             ColumnDetails(
                 name='A',
                 type='STR',
@@ -1533,16 +1565,16 @@ class TestLoaders:
         ]
 
         # load row-wise
-        con.load_table("test_categorical", df, method="rows")
+        con.load_table(tmp_table, df, method="rows")
 
         # load columnar
-        con.load_table("test_categorical", df, method="columnar")
+        con.load_table(tmp_table, df, method="columnar")
 
         # load arrow
-        con.load_table("test_categorical", df, method="arrow")
+        con.load_table(tmp_table, df, method="arrow")
 
         # test end result
-        df_ipc = con.select_ipc("select * from test_categorical")
+        df_ipc = con.select_ipc("select * from {}".format(tmp_table))
         assert df_ipc.shape == (16, 2)
 
         res = df.append([df, df, df]).reset_index(drop=True)
@@ -1555,51 +1587,43 @@ class TestLoaders:
         # to load via Arrow, converted internally to object, object
         assert is_object_dtype(df["A"])
         assert is_categorical_dtype(df["B"])
-        con.execute("DROP TABLE IF EXISTS test_categorical;")
 
-    def test_insert_unicode(self, con):
-
+    def test_insert_unicode(self, con, tmp_table):
         """INSERT Unicode using bind_params"""
 
         c = con.cursor()
-        c.execute('drop table if exists text_holder;')
-        create = 'create table text_holder (the_text text);'
-        c.execute(create)
+        c.execute('create table {} (the_text text);'.format(tmp_table))
         first = {"value": "我和我的姐姐吃米饭鸡肉"}
         second = {"value": "El camina a case en bicicleta es relajante"}
 
-        i1 = "INSERT INTO text_holder VALUES ( :value );"
+        i1 = "INSERT INTO {} VALUES ( :value );".format(tmp_table)
 
         c.execute(i1, parameters=first)
         c.execute(i1, parameters=second)
 
-        c.execute('drop table if exists text_holder;')
-
-    def test_execute_leading_space_and_params(self, con):
-
-        # https://github.com/omnisci/pymapd/issues/263
-
-        """Ensure that leading/trailing spaces in execute statements
-           don't cause issues
+    def test_execute_leading_space_and_params(self, con, tmp_table):
         """
+        Ensure that leading/trailing spaces in execute statements
+        don't cause issues.
 
+        see: https://github.com/omnisci/pymapd/issues/263
+        """
         c = con.cursor()
-        c.execute('drop table if exists test_leading_spaces;')
-        create = 'create table test_leading_spaces (the_text text);'
+        create = 'create table {} (the_text text);'.format(tmp_table)
         c.execute(create)
         first = {"value": "我和我的姐姐吃米饭鸡肉"}
         second = {"value": "El camina a case en bicicleta es relajante"}
 
         i1 = """
 
-                    INSERT INTO test_leading_spaces
+                    INSERT INTO {}
 
 
                     VALUES ( :value );
 
-                            """
+                            """.format(
+            tmp_table
+        )
 
         c.execute(i1, parameters=first)
         c.execute(i1, parameters=second)
-
-        c.execute('drop table if exists test_leading_spaces;')

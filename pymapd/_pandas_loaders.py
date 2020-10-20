@@ -26,6 +26,7 @@ from ._utils import (
     mapd_to_slot,
 )
 
+# TODO: maybe it can be removed
 try:
     import geopandas as gpd
 except ImportError:
@@ -258,11 +259,8 @@ def _serialize_arrow_payload(data, table_metadata, preserve_index=True):
 
 
 def build_row_desc(data, preserve_index=False):
-
-    if not (
-        isinstance(data, pd.DataFrame)
-        or (gpd is not None and isinstance(data, gpd.GeoDataFrame))
-    ):
+    # NOTE: geopandas dataframe is also an instance of pandas dataframe
+    if not isinstance(data, pd.DataFrame):
         # Once https://issues.apache.org/jira/browse/ARROW-1576 is complete
         # we can support pa.Table here too
         raise TypeError(
