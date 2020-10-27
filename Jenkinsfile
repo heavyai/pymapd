@@ -113,6 +113,9 @@ pipeline {
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             script { stage_succeeded = false }
                             setBuildStatus("Running tests", "PENDING", "$STAGE_NAME", git_commit);
+                            // GPU support via cudf requires Python 3.7 and above.
+                            // here we test against a cpu-only environment using the
+                            // CPU_ONLY flag.
                             sh """
                                 docker run \
                                   -d \
@@ -142,8 +145,8 @@ pipeline {
                                   --name $testscript_container_name \
                                   $testscript_container_image \
                                   bash -c '\
-                                    PYTHON=3.6 ./ci/install-test-deps-conda.sh && \
-                                    source activate /conda/envs/omnisci-gpu-dev && \
+                                    PYTHON=3.6 CPU_ONLY=true ./ci/install-test-deps-conda.sh && \
+                                    source activate /conda/envs/omnisci-dev && \
                                     pytest tests'
 
                                 docker rm -f $testscript_container_name || true

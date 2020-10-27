@@ -4,16 +4,23 @@ echo
 echo "[conda build]"
 conda install -q conda-build anaconda-client conda-verify --yes
 
+if [ "$CPU_ONLY" = true ] ; then
+    ENV_FILE=./environment.yml
+    ENV_NAME=omnisci-dev
+else
+    ENV_FILE=./environment_gpu.yml
+    ENV_NAME=omnisci-gpu-dev
+fi
 
 # create a copy of the environment file, replacing
 # with the python version we specify.
-sed -E "s/- python[^[:alpha:]]+$/- python=$PYTHON/" ./environment_gpu.yml > /tmp/environment_gpu_${PYTHON}.yml
+sed -E "s/- python[^[:alpha:]]+$/- python=$PYTHON/" ${ENV_FILE} > /tmp/${ENV_NAME}_${PYTHON}.yml
 
-conda env create -f /tmp/environment_gpu_${PYTHON}.yml
+conda env create -f /tmp/${ENV_NAME}_${PYTHON}.yml
 
-conda activate omnisci-gpu-dev
+conda activate ${ENV_NAME}
 
 pip install -e .
-conda list omnisci-gpu-dev
+conda list ${ENV_NAME}
 echo
 exit 0
