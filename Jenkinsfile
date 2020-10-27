@@ -3,7 +3,7 @@ def precommit_container_name = "pymapd-precommit-$BUILD_NUMBER"
 def db_container_image = "omnisci/core-os-cuda-dev:master"
 //def db_container_image = "omnisci/core-os-cuda"
 def db_container_name = "pymapd-db-$BUILD_NUMBER"
-def testscript_container_image = "rapidsai/rapidsai:0.8-cuda10.0-runtime-ubuntu18.04-gcc7-py3.6"
+def testscript_container_image = "rapidsai/rapidsai:cuda11.0-runtime-ubuntu18.04-py3.7"
 def testscript_container_name = "pymapd-pytest-$BUILD_NUMBER"
 def stage_succeeded
 def git_commit
