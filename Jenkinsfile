@@ -3,7 +3,7 @@ def precommit_container_name = "pymapd-precommit-$BUILD_NUMBER"
 def db_container_image = "omnisci/core-os-cuda-dev:master"
 //def db_container_image = "omnisci/core-os-cuda"
 def db_container_name = "pymapd-db-$BUILD_NUMBER"
-def testscript_container_image = "rapidsai/rapidsai:cuda11.0-runtime-ubuntu18.04-py3.7"
+def testscript_container_image = "rapidsai/rapidsai:0.16-cuda11.0-base-ubuntu18.04-py3.7"
 def testscript_container_name = "pymapd-pytest-$BUILD_NUMBER"
 def stage_succeeded
 def git_commit
@@ -320,14 +320,14 @@ pipeline {
                                   --runtime=nvidia \
                                   --ipc="container:${db_container_name}" \
                                   --network="pytest" \
+                                  --entrypoint="" \
                                   -v $WORKSPACE:/pymapd \
                                   --workdir="/pymapd" \
                                   --name $testscript_container_name \
-                                  $testscript_container_image \
+                                  condaforge/linux-anvil-comp7 \
                                   bash -c '\
-                                    . ~/.bashrc && \
-                                    conda install python=3.6 -y && \
-                                    ./ci/install-test-deps-pip.sh && \
+                                    PYTHON=3.6 ./ci/install-test-deps-pip.sh && \
+                                    source /opt/conda/bin/activate /opt/conda/envs/omnisci-dev-pip && \
                                     pytest tests'
 
                                 docker rm -f $testscript_container_name || true
