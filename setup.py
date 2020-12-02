@@ -10,11 +10,11 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 install_requires = [
-    'pyarrow >= 0.17,<0.18',
+    'pyarrow',
     'thrift == 0.13.0',
     'shapely',
     'sqlalchemy >= 1.3',
-    'pandas >= 0.25,<0.26',
+    'pandas',
     'packaging >= 20.0',
     'requests >= 2.23.0',
     'numba >= 0.48',
