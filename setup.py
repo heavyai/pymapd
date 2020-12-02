@@ -14,10 +14,10 @@ install_requires = [
     'thrift == 0.13.0',
     'shapely',
     'sqlalchemy >= 1.3',
-    'pandas >= 0.25,<0.26',
+    'pandas >=1.0,<1.2.0dev0',  # keep consistency with cudf 0.15
     'packaging >= 20.0',
     'requests >= 2.23.0',
-    'numba >= 0.48',
+    'numba >= 0.49',  # keep consistency with cudf 0.15
     'rbc-project >= 0.2.2',
 ]
 
