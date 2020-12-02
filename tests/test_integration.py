@@ -19,7 +19,7 @@ import pandas as pd
 import numpy as np
 import pyarrow as pa
 from pandas.api.types import is_object_dtype, is_categorical_dtype
-import pandas.util.testing as tm
+import pandas.testing as tm
 import shapely
 from shapely.geometry import Point, LineString, Polygon, MultiPolygon
 import textwrap
@@ -337,8 +337,8 @@ class TestIntegration:
         assert isinstance(result, DataFrame)
 
         assert len(result) == 8
-        assert set(result['trans']) == set(["BUY"])
-        assert set(result['symbol']) == symbols
+        assert set(result['trans'].to_arrow()) == set(["BUY"])
+        assert set(result['symbol'].to_arrow()) == symbols
         c.execute('drop table if exists stocks;')
 
     @pytest.mark.skipif(no_gpu(), reason="No GPU available")

@@ -178,7 +178,7 @@ def _parse_tdf_gpu(tdf):
     import pyarrow as pa
     from cudf.comm.gpuarrow import GpuArrowReader
     from cudf.core.dataframe import DataFrame
-    from cudf._lib.arrow._cuda import Context, IpcMemHandle
+    from pyarrow._cuda import Context, IpcMemHandle
     from numba import cuda
 
     ipc_handle = IpcMemHandle.from_buffer(pa.py_buffer(tdf.df_handle))
@@ -189,7 +189,7 @@ def _parse_tdf_gpu(tdf):
     schema_buffer, shm_ptr = load_buffer(tdf.sm_handle, tdf.sm_size)
 
     buffer = pa.BufferReader(schema_buffer)
-    schema = pa.read_schema(buffer)
+    schema = pa.ipc.read_schema(buffer)
 
     # Dictionary Memo functionality used to
     # deserialize on the C++ side is not
@@ -230,7 +230,7 @@ def _parse_tdf_gpu(tdf):
 
     for k, v in reader.to_dict().items():
         if k in dict_memo:
-            df[k] = pa.DictionaryArray.from_arrays(v, dict_memo[k])
+            df[k] = pa.DictionaryArray.from_arrays(v.to_arrow(), dict_memo[k])
         else:
             df[k] = v
 
