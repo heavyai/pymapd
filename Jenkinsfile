@@ -31,7 +31,7 @@ pipeline {
                         script { git_commit = "$GITHUB_BRANCH_HEAD_SHA" }
                     } else {
                         script { git_commit = "$GITHUB_PR_HEAD_SHA" }
-                    } 
+                    }
                 }
                 // Set pending status manually for all jobs before node is started
                 setBuildStatus("Build queued", "PENDING", "Pre_commit_hook_check", git_commit);
