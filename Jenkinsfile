@@ -202,9 +202,8 @@ pipeline {
                                   --name $testscript_container_name \
                                   $testscript_container_image \
                                   bash -c '\
-                                    . ~/.bashrc && \
-                                    conda install python=3.7 -y && \
-                                    ./ci/install-test-deps-pip.sh && \
+                                    PYTHON=3.7 ./ci/install-test-deps-pip.sh && \
+                                    source /opt/conda/bin/activate omnisci-dev-pip && \
                                     pytest tests'
 
                                 docker rm -f $testscript_container_name || true
