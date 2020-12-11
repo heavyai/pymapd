@@ -144,7 +144,7 @@ pipeline {
                                   $testscript_container_image \
                                   bash -c '\
                                     PYTHON=3.7 ./ci/install-test-deps-conda.sh && \
-                                    source activate /conda/envs/omnisci-gpu-dev && \
+                                    source /opt/conda/bin/activate omnisci-gpu-dev && \
                                     pytest tests'
 
                                 docker rm -f $testscript_container_name || true
@@ -266,7 +266,7 @@ pipeline {
                                     git clone https://github.com/xnd-project/rbc && \
                                     pushd rbc && \
                                     conda env create --file=.conda/environment.yml && \
-                                    conda activate rbc && \
+                                    source /opt/conda/bin/activate rbc && \
                                     OMNISCI_CLIENT_CONF=/pymapd/rbc.conf pytest -v -r s rbc/ -x \
                                   '
 
