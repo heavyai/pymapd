@@ -1,7 +1,7 @@
 def precommit_container_image = "sloria/pre-commit"
 def precommit_container_name = "pymapd-precommit-$BUILD_NUMBER"
-def db_container_image = "omnisci/core-os-cuda-dev:master"
-//def db_container_image = "omnisci/core-os-cuda"
+def db_cuda_container_image = "omnisci/core-os-cuda-dev:master"
+def db_cpu_container_image = "omnisci/core-os-cpu-dev:master"
 def db_container_name = "pymapd-db-$BUILD_NUMBER"
 def testscript_container_image = "rapidsai/rapidsai:0.16-cuda11.0-base-ubuntu18.04-py3.7"
 def testscript_container_name = "pymapd-pytest-$BUILD_NUMBER"
@@ -87,7 +87,8 @@ pipeline {
                     steps {
                         sh """
                             # Pull required test docker container images
-                            docker pull $db_container_image
+                            docker pull $db_cuda_container_image
+                            docker pull $db_cpu_container_image
                             docker pull $testscript_container_image
 
                             # Create docker network
@@ -122,7 +123,7 @@ pipeline {
                                   --network="pytest" \
                                   -p 6273 \
                                   --name $db_container_name \
-                                  $db_container_image \
+                                  $db_cuda_container_image \
                                   bash -c "/omnisci/startomnisci \
                                     --non-interactive \
                                     --data /omnisci-storage/data \
@@ -143,7 +144,7 @@ pipeline {
                                   $testscript_container_image \
                                   bash -c '\
                                     PYTHON=3.7 ./ci/install-test-deps-conda.sh && \
-                                    source activate /conda/envs/omnisci-gpu-dev && \
+                                    source /opt/conda/bin/activate omnisci-gpu-dev && \
                                     pytest tests'
 
                                 docker rm -f $testscript_container_name || true
@@ -182,7 +183,7 @@ pipeline {
                                   --network="pytest" \
                                   -p 6273 \
                                   --name $db_container_name \
-                                  $db_container_image \
+                                  $db_cuda_container_image \
                                   bash -c "/omnisci/startomnisci \
                                     --non-interactive \
                                     --data /omnisci-storage/data \
@@ -202,9 +203,8 @@ pipeline {
                                   --name $testscript_container_name \
                                   $testscript_container_image \
                                   bash -c '\
-                                    . ~/.bashrc && \
-                                    conda install python=3.7 -y && \
-                                    ./ci/install-test-deps-pip.sh && \
+                                    PYTHON=3.7 ./ci/install-test-deps-pip.sh && \
+                                    source /opt/conda/bin/activate omnisci-dev-pip && \
                                     pytest tests'
 
                                 docker rm -f $testscript_container_name || true
@@ -266,7 +266,7 @@ pipeline {
                                     git clone https://github.com/xnd-project/rbc && \
                                     pushd rbc && \
                                     conda env create --file=.conda/environment.yml && \
-                                    conda activate rbc && \
+                                    source /opt/conda/bin/activate rbc && \
                                     OMNISCI_CLIENT_CONF=/pymapd/rbc.conf pytest -v -r s rbc/ -x \
                                   '
 
