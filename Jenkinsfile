@@ -261,6 +261,8 @@ pipeline {
                                   --name $testscript_container_name \
                                   $testscript_container_image \
                                   bash -c '\
+                                    . ~/.bashrc && \
+                                    conda install python=3.7 -y && \
                                     git clone https://github.com/xnd-project/rbc && \
                                     pushd rbc && \
                                     conda env create --file=.conda/environment.yml && \
