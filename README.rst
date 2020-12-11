@@ -31,3 +31,4 @@ To install cudf for GPU Dataframe support (conda-only)::
 .. _DB API: https://www.python.org/dev/peps/pep-0249/
 .. _OmniSci: https://www.omnisci.com/
 .. _documentation: http://pymapd.readthedocs.io/en/latest/?badge=latest
+
