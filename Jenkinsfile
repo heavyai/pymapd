@@ -301,11 +301,13 @@ pipeline {
                             sh """
                                 docker run \
                                   -d \
+                                  --rm \
+                                  --runtime=nvidia \
                                   --ipc="shareable" \
                                   --network="pytest" \
-                                  -p 6274 \
+                                  -p 6273 \
                                   --name $db_container_name \
-                                  $db_cpu_container_image \
+                                  $db_cuda_container_image \
                                   bash -c "/omnisci/startomnisci \
                                     --non-interactive \
                                     --data /omnisci-storage/data \
@@ -314,21 +316,19 @@ pipeline {
                                     --enable-table-functions \
                                   "
                                 sleep 3
-
                                 docker run \
                                   --rm \
                                   --runtime=nvidia \
                                   --ipc="container:${db_container_name}" \
                                   --network="pytest" \
                                   -v $WORKSPACE:/pymapd \
-                                  --workdir="/workdir" \
+                                  --workdir="/pymapd" \
                                   --name $testscript_container_name \
                                   $testscript_container_image \
                                   bash -c '\
                                     PYTHON=3.7 ./ci/install-test-deps-pip.sh && \
-                                    source /opt/conda/bin/activate /opt/conda/envs/omnisci-dev-pip && \
+                                    source /opt/conda/bin/activate omnisci-dev-pip && \
                                     pytest tests'
-
                                 docker rm -f $testscript_container_name || true
                                 docker rm -f $db_container_name || true
                             """
