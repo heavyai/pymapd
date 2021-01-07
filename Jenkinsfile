@@ -170,7 +170,7 @@ pipeline {
                         }
                     }
                 }
-                stage('Pytest - pip python3.7') {
+                stage('Pytest - conda python3.8') {
                     steps {
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             script { stage_succeeded = false }
@@ -204,8 +204,8 @@ pipeline {
                                   --name $testscript_container_name \
                                   $testscript_container_image \
                                   bash -c '\
-                                    PYTHON=3.7 ./ci/install-test-deps-pip.sh && \
-                                    source /opt/conda/bin/activate omnisci-dev-pip && \
+                                    PYTHON=3.8 ./ci/install-test-deps-conda.sh && \
+                                    source /opt/conda/bin/activate omnisci-gpu-dev && \
                                     pytest tests'
 
                                 docker rm -f $testscript_container_name || true
