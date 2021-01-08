@@ -4,8 +4,8 @@ channels:
 - defaults
 dependencies:
 - thrift=0.13.0
-- pyarrow==0.17.1.*
-- pandas==1.1.*
+- pyarrow<=2.0
+- pandas
 - python >=3.7.0,<3.9
 # related: https://github.com/conda-forge/pillow-feedstock/issues/73
 - libtiff=4.0.10
