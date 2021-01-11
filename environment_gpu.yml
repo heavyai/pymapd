@@ -11,7 +11,6 @@ dependencies:
 - python >=3.7.0,<3.9
 - pyarrow<=2.0
 - pandas
-- python>3.6.6,<3.9
 # related: https://github.com/conda-forge/pillow-feedstock/issues/73
 - libtiff=4.0.10
 - geopandas
