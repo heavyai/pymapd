@@ -1,48 +1,18 @@
-from pkg_resources import get_distribution, DistributionNotFound
-
-# module constants
-try:
-    __version__ = get_distribution(__name__).version
-except DistributionNotFound:
-    # package is not installed
-    pass
-
-# clean up
-del get_distribution, DistributionNotFound
-
-apilevel = "2.0"
-threadsafety = 2
-paramstyle = "named"
-
-from .connection import connect, Connection  # noqa
-
-from .cursor import Cursor  # noqa
-
-from .exceptions import (  # noqa
-    Warning,
-    Error,
-    InterfaceError,
-    DatabaseError,
-    DataError,
-    OperationalError,
-    IntegrityError,
-    InternalError,
-    ProgrammingError,
-    NotSupportedError,
-)
+from pyomnisci import *
 
 
-from .dtypes import (  # noqa
-    Binary,
-    Date,
-    Time,
-    Timestamp,
-    BINARY,
-    STRING,
-    NUMBER,
-    DATETIME,
-    ROWID,
-    DateFromTicks,
-    TimeFromTicks,
-    TimestampFromTicks,
-)
+def _deprication_warning():
+    """
+    Use a function here so that `os` does not get imported as a
+    property of `pymapd`
+    """
+    import os
+    disablewarning = os.environ.get('DISABLE_PYMAPD_WARNING', False)
+    if not disablewarning:
+        print('WARNING: pymapd is now pyomnisci, please update libraries',
+              'and references as pymapd may cease to function as expected',
+              'in the future. To disable this warning, set the environment',
+              'variable DISABLE_PYMAPD_WARNING to a truthy value.')
+
+
+_deprication_warning()

@@ -2,16 +2,10 @@
 pymapd
 ======
 
-.. image:: https://readthedocs.org/projects/pymapd/badge/?version=latest
-   :target: http://pymapd.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
+A wrapper for the pyomnisci libarary http://github.com/omnisci/pyomnisci, maintained for backwards compatibility.
 
-.. image:: https://jenkins-os.mapd.com/buildStatus/icon?job=pymapd-tests
-   :target: https://jenkins-os.mapd.com/job/pymapd-tests/
-   :alt: Jenkins Build Status
-
-A python `DB API`_ compliant interface for `OmniSci`_ (formerly MapD). See the
-`documentation`_ for more.
+Existing scripts should be migrated to pyomnisci from pymapd, this library will
+not be updated moving forward.
 
 Quick Install (CPU)
 -------------------
@@ -34,5 +28,5 @@ To install pymapd and cudf for GPU Dataframe support (conda-only)::
     -c defaults cudf=0.15 python=3.7 cudatoolkit=10.2 pymapd
 
 .. _DB API: https://www.python.org/dev/peps/pep-0249/
+.. _pyomnisci: http://github.com/omnisci/pyomnisci
 .. _OmniSci: https://www.omnisci.com/
-.. _documentation: http://pymapd.readthedocs.io/en/latest/?badge=latest

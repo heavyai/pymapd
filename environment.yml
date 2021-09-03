@@ -4,7 +4,8 @@ channels:
 - defaults
 dependencies:
 - thrift=0.13.0
-- pyarrow<=2.0
+- pyarrow
+- pyomnisci
 - pandas
 - python >=3.7.0,<3.9
 # related: https://github.com/conda-forge/pillow-feedstock/issues/73
@@ -15,7 +16,6 @@ dependencies:
 - numpy
 - numpydoc
 - coverage
-- flake8
 - pre-commit
 - pytest-cov
 - pytest-mock

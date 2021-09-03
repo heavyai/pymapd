@@ -10,34 +10,14 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 install_requires = [
-    'pyarrow <= 2.0',
-    'thrift == 0.13.0',
-    'shapely',
-    'sqlalchemy >= 1.3',
-    'pandas',
-    'packaging >= 20.0',
-    'requests >= 2.23.0',
-    'numba >= 0.49',  # keep consistency with cudf 0.15
-    'rbc-project >= 0.2.2',
+    'pyomnisci',
 ]
 
-# Optional Requirements
-doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
-test_requires = ['coverage', 'pytest', 'pytest-mock', 'geopandas']
-dev_requires = doc_requires + test_requires + ['pre-commit']
-complete_requires = dev_requires
-
-
-extra_requires = {
-    'docs': doc_requires,
-    'test': test_requires,
-    'dev': dev_requires,
-    'complete': complete_requires,
-}
+extra_requires = []
 
 setup(
     name='pymapd',
-    description='A DB API 2 compatible client for OmniSci (formerly MapD).',
+    description='A wrapper for pyomnisci for backwards compatibility.',
     long_description=long_description,
     url='https://github.com/omnisci/pymapd',
     author='OmniSci',
@@ -59,5 +39,4 @@ setup(
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
-    extras_require=extra_requires,
 )

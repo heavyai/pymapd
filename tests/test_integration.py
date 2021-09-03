@@ -1579,8 +1579,9 @@ class TestLoaders:
 
         # https://github.com/omnisci/pymapd/issues/263
 
-        """Ensure that leading/trailing spaces in execute statements
-           don't cause issues
+        """
+        Ensure that leading/trailing spaces in execute statements
+        don't cause issues
         """
 
         c = con.cursor()
