@@ -17,7 +17,7 @@ extra_requires = []
 
 setup(
     name='pymapd',
-    description='A wrapper for pyomnisci in order to maintain backwards compatibility.',
+    description='A wrapper for pyomnisci for backwards compatibility.',
     long_description=long_description,
     url='https://github.com/omnisci/pymapd',
     author='OmniSci',

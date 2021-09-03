@@ -4,11 +4,3 @@ repos:
       hooks:
         - id: black
           exclude: "tests/data|omnisci|docs|benchmarks|scripts|.eggs"
-
-    - repo: https://gitlab.com/pycqa/flake8
-      rev: 3.7.9
-      hooks:
-        - id: flake8
-          exclude: "tests/data|omnisci|docs|benchmarks|scripts|.eggs"
-          types:
-            - python
